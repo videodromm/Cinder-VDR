@@ -2,9 +2,9 @@
 
 using namespace videodromm;
 
-VDAnimation::VDAnimation(VDSettingsRef aVDSettings, VDUniformRef aVDUniform) {
+VDAnimation::VDAnimation(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms) {
 	mVDSettings = aVDSettings;
-	mVDUniforms = aVDUniform;
+	mVDUniforms = aVDUniforms;
 	mBlendRender = false;
 	//audio
 	mAudioBuffered = false;	mAudioFormat = gl::Texture2d::Format().swizzleMask(GL_RED, GL_RED, GL_RED, GL_ONE).internalFormat(GL_RED);

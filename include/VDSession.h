@@ -47,7 +47,7 @@ namespace videodromm {
 	class VDSession {
 	public:
 		STATE state;
-		VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformRef aVDUniform);
+		VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms);
 
 		bool							handleKeyDown(KeyEvent& event);
 		bool							handleKeyUp(KeyEvent& event);
@@ -420,7 +420,7 @@ namespace videodromm {
 		// Settings
 		VDAnimationRef					mVDAnimation;
 		// Settings
-		VDUniformRef					mVDUniforms;
+		VDUniformsRef					mVDUniforms;
 		
 	
 		// Message router

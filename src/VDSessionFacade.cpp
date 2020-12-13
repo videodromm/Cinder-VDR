@@ -133,6 +133,9 @@ int VDSessionFacade::getFboTextureWidth(unsigned int aFboIndex) {
 int VDSessionFacade::getFboTextureHeight(unsigned int aFboIndex) {
 	return mVDSession->getFboTextureHeight(aFboIndex);
 }
+void VDSessionFacade::createWarp() {
+	mVDSession->createWarp();
+}
 unsigned int VDSessionFacade::getWarpCount() {
 	return mVDSession->getWarpCount();
 };
@@ -172,6 +175,9 @@ ci::gl::Texture2dRef VDSessionFacade::buildFboInputTexture(unsigned int aFboInde
 int VDSessionFacade::getMode() {
 	return mVDSession->getMode();
 }
+bool VDSessionFacade::showUI() {
+	return mVDSession->showUI();
+};
 std::string VDSessionFacade::getModeName(unsigned int aMode) {
 	return mVDSession->getModeName(aMode);
 }
@@ -208,6 +214,11 @@ bool VDSessionFacade::handleMouseUp(MouseEvent event)
 {
 	return mVDSession->handleMouseUp(event);
 }
+void VDSessionFacade::fileDrop(FileDropEvent event)
+{
+	mVDSession->fileDrop(event);
+}
+
 bool VDSessionFacade::handleKeyDown(KeyEvent& event) {
 	bool handled = true;
 	if (!mVDSession->handleKeyDown(event)) {

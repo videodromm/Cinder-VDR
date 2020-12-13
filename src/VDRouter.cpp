@@ -2,11 +2,11 @@
 
 using namespace videodromm;
 
-VDRouter::VDRouter(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformRef aVDUniform) {
+VDRouter::VDRouter(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms) {
 	
 	mVDSettings = aVDSettings;
 	mVDAnimation = aVDAnimation;
-	mVDUniforms = aVDUniform;
+	mVDUniforms = aVDUniforms;
 	//mVDOsc = VDOsc::create(mVDSettings, mVDAnimation);
 	CI_LOG_V("VDRouter constructor");
 	mFBOAChanged = false;

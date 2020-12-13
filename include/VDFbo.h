@@ -19,6 +19,8 @@
 #include "VDSettings.h"
 // Animation
 #include "VDAnimation.h"
+// Uniforms
+#include "VDUniforms.h"
 // shader
 #include "VDShader.h"
 // textures
@@ -44,10 +46,10 @@ namespace videodromm
 
 	class VDFbo {
 	public:
-		VDFbo(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, const JsonTree &json);
+		VDFbo(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms, const JsonTree &json);
 		~VDFbo(void);
-		static VDFboRef create(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, const JsonTree &json) {
-			return std::make_shared<VDFbo>(aVDSettings, aVDAnimation, json);
+		static VDFboRef create(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms, const JsonTree &json) {
+			return std::make_shared<VDFbo>(aVDSettings, aVDAnimation, aVDUniforms, json);
 		}
 		// fbo mix several fbos   fbo=shader+texture(s)
 		// get live rendered texture
@@ -82,7 +84,7 @@ namespace videodromm
 		// Animation
 		const VDAnimationRef			mVDAnimation;
 		// uniforms
-		VDUniformRef					mVDUniforms;
+		VDUniformsRef					mVDUniforms;
 		//! Input textures
 		VDTextureList					mTextureList;
 		unsigned int					mInputTextureIndex;

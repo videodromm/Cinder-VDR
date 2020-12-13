@@ -8,7 +8,7 @@
 
 namespace videodromm {
 
-	VDMix::VDMix(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation)
+	VDMix::VDMix(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms)
 		/*: mFlipV(false)
 		, mFlipH(false)*/
 	{
@@ -20,7 +20,8 @@ namespace videodromm {
 		mVDSettings = aVDSettings;
 		// Animation
 		mVDAnimation = aVDAnimation;
-
+		// Uniforms
+		mVDUniforms = aVDUniforms;
 		mDefaultTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
 		mMixetteTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
 		// init fbo format

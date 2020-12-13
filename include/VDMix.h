@@ -21,6 +21,8 @@
 #include "VDSettings.h"
 // Animation
 #include "VDAnimation.h"
+// Uniforms
+#include "VDUniforms.h"
 // Fbos
 #include "VDFbo.h"
 // Params
@@ -51,10 +53,10 @@ namespace videodromm
 	};*/
 	class VDMix {
 	public:
-		VDMix(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation);
-		static VDMixRef					create(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation)
+		VDMix(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms);
+		static VDMixRef					create(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms)
 		{
-			return std::shared_ptr<VDMix>(new VDMix(aVDSettings, aVDAnimation));
+			return std::shared_ptr<VDMix>(new VDMix(aVDSettings, aVDAnimation, aVDUniforms));
 		}
 		// RTE in release mode 
 		//ci::gl::Texture2dRef			getRenderedTexture(bool reDraw = true);
@@ -184,7 +186,7 @@ namespace videodromm
 		}
 		unsigned int									createFboShaderTexture(const JsonTree &json, unsigned int aFboIndex = 0) {
 			unsigned int rtn = 0;
-			VDFboRef fboRef = VDFbo::create(mVDSettings, mVDAnimation, json); 
+			VDFboRef fboRef = VDFbo::create(mVDSettings, mVDAnimation, mVDUniforms, json);
 			if (aFboIndex == 0) {
 				mFboList.push_back(fboRef);
 				rtn = mFboList.size() - 1;
@@ -218,6 +220,8 @@ namespace videodromm
 		VDAnimationRef					mVDAnimation;
 		// Settings
 		VDSettingsRef					mVDSettings;
+		// Uniforms
+		VDUniformsRef					mVDUniforms;
 
 		//! Fbos
 		// maintain a list of fbos specific to this mix

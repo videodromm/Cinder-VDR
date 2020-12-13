@@ -2,14 +2,15 @@
 
 using namespace videodromm;
 
-VDOscReceiverRef VDOscReceiver::create(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation)
+VDOscReceiverRef VDOscReceiver::create(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms)
 {
-	return std::shared_ptr<VDOscReceiver>(new VDOscReceiver(aVDSettings, aVDAnimation));
+	return std::shared_ptr<VDOscReceiver>(new VDOscReceiver(aVDSettings, aVDAnimation, aVDUniforms));
 }
 
-VDOscReceiver::VDOscReceiver(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation) {
+VDOscReceiver::VDOscReceiver(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms) {
 	mVDSettings = aVDSettings;
 	mVDAnimation = aVDAnimation;
+	mVDUniforms = aVDUniforms;
 	CI_LOG_V("VDOscReceiver constructor");
 	mOSCMsg = "";
 

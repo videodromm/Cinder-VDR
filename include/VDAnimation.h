@@ -38,11 +38,11 @@ namespace videodromm
 
 	class VDAnimation {
 	public:
-		VDAnimation(VDSettingsRef aVDSettings, VDUniformRef aVDUniform);
+		VDAnimation(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms);
 
-		static VDAnimationRef			create(VDSettingsRef aVDSettings, VDUniformRef aVDUniform)
+		static VDAnimationRef			create(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms)
 		{
-			return std::shared_ptr<VDAnimation>(new VDAnimation(aVDSettings, aVDUniform));
+			return std::shared_ptr<VDAnimation>(new VDAnimation(aVDSettings, aVDUniforms));
 		}
 		void							update();
 		void							save();
@@ -239,7 +239,7 @@ namespace videodromm
 	private:
 		// Settings
 		VDSettingsRef					mVDSettings;
-		VDUniformRef					mVDUniforms;
+		VDUniformsRef					mVDUniforms;
 		std::map<int, int>				freqIndexes;
 		bool							mAudioBuffered;
 		ci::gl::TextureRef				mAudioTexture;

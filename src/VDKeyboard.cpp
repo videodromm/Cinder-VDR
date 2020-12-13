@@ -2,14 +2,15 @@
 
 using namespace videodromm;
 
-VDKeyboardRef VDKeyboard::create(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation)
+VDKeyboardRef VDKeyboard::create(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms)
 {
-	return std::shared_ptr<VDKeyboard>(new VDKeyboard(aVDSettings, aVDAnimation));
+	return std::shared_ptr<VDKeyboard>(new VDKeyboard(aVDSettings, aVDAnimation, aVDUniforms));
 }
 
-VDKeyboard::VDKeyboard(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation) {
+VDKeyboard::VDKeyboard(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms) {
 	mVDSettings = aVDSettings;
 	mVDAnimation = aVDAnimation;
+	mVDUniforms = aVDUniforms;
 	CI_LOG_V("VDKeyboard constructor");
 }
 

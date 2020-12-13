@@ -3,8 +3,9 @@
 using namespace videodromm;
 
 //namespace videodromm {
-	VDFbo::VDFbo(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, const JsonTree& json)
+	VDFbo::VDFbo(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms, const JsonTree& json)
 		:mVDSettings{ aVDSettings },
+		mVDUniforms{ aVDUniforms },
 		mVDAnimation{ aVDAnimation },
 		mValid(false)
 	{
@@ -12,7 +13,6 @@ using namespace videodromm;
 		// Params
 		mVDParams = VDParams::create();
 
-		mVDUniforms = VDUniforms::create(mVDSettings);
 		std::string shaderFileName = "inputImage.fs";
 		mShaderName = mShaderFileName;
 		std::string shaderType = "fs";

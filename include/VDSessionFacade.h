@@ -68,6 +68,7 @@ namespace videodromm
 		int						getFboTextureWidth(unsigned int aFboIndex);
 		int						getFboTextureHeight(unsigned int aFboIndex);
 		unsigned int			getWarpCount();
+		void					createWarp();
 		std::string				getWarpName(unsigned int aWarpIndex);// or trycatch
 		int						getWarpWidth(unsigned int aWarpIndex);
 		int						getWarpHeight(unsigned int aWarpIndex);
@@ -77,6 +78,7 @@ namespace videodromm
 		std::string				getFboName(unsigned int aFboIndex);
 		int						getFFTWindowSize();
 		float*					getFreqs();
+		bool					showUI();
 		std::vector<ci::gl::GlslProg::Uniform> getUniforms(unsigned int aFboIndex = 0);
 		ci::gl::Texture2dRef	buildFboInputTexture(unsigned int aFboIndex = 0);
 		int						getMode();
@@ -92,6 +94,7 @@ namespace videodromm
 		bool					handleMouseDown(MouseEvent event);
 		bool					handleMouseDrag(MouseEvent event);
 		bool					handleMouseUp(MouseEvent event);
+		void					fileDrop(FileDropEvent event);
 		bool					handleKeyDown(KeyEvent& event);
 		bool					handleKeyUp(KeyEvent& event);
 

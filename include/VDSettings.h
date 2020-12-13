@@ -66,7 +66,7 @@ namespace videodromm {
 			ANIM_MID = 4,
 			ANIM_TREBLE = 5
 		};
-
+		const int MAX = 14;//todo remove as it is in VDUniforms.h
 		bool						save();
 		bool						restore();
 		void						reset();
@@ -117,7 +117,7 @@ namespace videodromm {
 		bool						isUIDirty;
 		bool						mMIDIOpenAllInputPorts;
 		int							mCount;
-		std::string						mImageFile;
+		std::string					mImageFile;
 
 		// shader uniforms	
 		float						iSpeedMultiplier;   // speed multiplier
@@ -129,9 +129,9 @@ namespace videodromm {
 		int							iBlendmode;
 		ci::Anim<float> 			iAlpha;
 
-		std::string						mAssetsPath;
+		std::string					mAssetsPath;
 		bool						iShowFps;
-		std::string						sFps;
+		std::string					sFps;
 		unsigned int				shaderEditIndex;
 		// transition
 		int							iTransition;
@@ -145,7 +145,7 @@ namespace videodromm {
 		int							mRenderY;
 		int							mDisplayCount;
 		bool						mPreviewEnabled;
-		std::string						mCurrentFilePath;
+		std::string					mCurrentFilePath;
 		// Textures
 		bool						mRenderThumbs;
 		int							currentSelectedIndex;
@@ -185,7 +185,7 @@ namespace videodromm {
 		// spout
 		int							mFboResolution;
 		// indexes for textures
-		std::map<int, int>				iChannels;
+		std::map<int, int>			iChannels;
 		int							selectedChannel;
 		int							selectedWarp;
 		int							mWarpCount;
@@ -204,19 +204,19 @@ namespace videodromm {
 		bool						mIsRouter;
 		bool						mAreSocketIOEnabledAtStartup;
 		bool						mIsSocketIOServer;
-		std::string						mSocketIOProtocol;
-		std::string						mSocketIOHost;
-		std::string						mSocketIORoom;
-		std::string						mSocketIONickname;
+		std::string					mSocketIOProtocol;
+		std::string					mSocketIOHost;
+		std::string					mSocketIORoom;
+		std::string					mSocketIONickname;
 		uint16_t					mSocketIOPort;
 		std::string					mSocketIOMsg;
 		// midi
 		std::string					mMidiMsg;
 
 		// info to backup in XML
-		std::string						mInfo;
+		std::string					mInfo;
 		// ableton liveOSC
-		std::string						mTrackName;
+		std::string					mTrackName;
 
 	private:
 		std::string					settingsFileName;

@@ -36,7 +36,7 @@ namespace videodromm
 
 	class VDRouter {
 	public:
-		VDRouter(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformRef aVDUniform);
+		VDRouter(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms);
 
 		// messages
 		void						updateParams(int iarg0, float farg1);
@@ -59,7 +59,7 @@ namespace videodromm
 		VDSettingsRef				mVDSettings;
 		// Animation
 		VDAnimationRef				mVDAnimation;
-		VDUniformRef					mVDUniforms;
+		VDUniformsRef					mVDUniforms;
 		// lights4events
 		void						colorWrite();
 		bool						mFBOAChanged;

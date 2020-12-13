@@ -8,6 +8,8 @@
 #include "cinder/Cinder.h"
 #include "cinder/app/App.h"
 
+// Uniforms
+#include "VDUniforms.h"
 // Keyboard
 #include "VDKeyboard.h"
 // Osc
@@ -41,7 +43,7 @@ namespace videodromm {
 	typedef std::shared_ptr<class VDMediatorObservable> VDMediatorObservableRef;
 	class VDMediatorObservable : public std::enable_shared_from_this<VDMediatorObservable> {
 	public:
-		static VDMediatorObservableRef		createVDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation);
+		static VDMediatorObservableRef		createVDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms);
 		VDMediatorObservableRef				addObserver(VDUniformObserverRef o);
 		VDMediatorObservableRef				setupOSCReceiver();
 		int									getOSCReceiverPort();
@@ -61,6 +63,8 @@ namespace videodromm {
 		VDSettingsRef						mVDSettings;
 		// Animation
 		VDAnimationRef						mVDAnimation;
+		// Uniforms
+		VDUniformsRef						mVDUniforms;
 		// OSC
 		VDOscReceiverRef					mVDOscReceiver;
 		bool								validateJson(const JsonTree& tree);
@@ -71,7 +75,7 @@ namespace videodromm {
 		// Keyboard
 		VDKeyboardRef						mVDKeyboard;
 		//VDMediatorObservable() {}
-		VDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation);
+		VDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms);
 	};
 
 }

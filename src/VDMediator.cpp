@@ -2,15 +2,16 @@
 
 using namespace videodromm;
 
-VDMediatorObservableRef VDMediatorObservable::createVDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation)
+VDMediatorObservableRef VDMediatorObservable::createVDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms)
 {
-	return VDMediatorObservableRef(new VDMediatorObservable(aVDSettings, aVDAnimation));
+	return VDMediatorObservableRef(new VDMediatorObservable(aVDSettings, aVDAnimation, aVDUniforms));
 }
 
-VDMediatorObservable::VDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation) {
+VDMediatorObservable::VDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms) {
 	CI_LOG_V("VDMediatorObservable constructor");
 	mVDSettings = aVDSettings;
 	mVDAnimation = aVDAnimation;
+	mVDUniforms = aVDUniforms;
 	mOSCReceiverPort = OSC_DEFAULT_PORT;
 }
 VDMediatorObservableRef VDMediatorObservable::addObserver(VDUniformObserverRef o) {
@@ -19,7 +20,7 @@ VDMediatorObservableRef VDMediatorObservable::addObserver(VDUniformObserverRef o
 }
 VDMediatorObservableRef VDMediatorObservable::setupOSCReceiver() {
 	// Osc Receiver
-	mVDOscReceiver = VDOscReceiver::create(mVDSettings, mVDAnimation);
+	mVDOscReceiver = VDOscReceiver::create(mVDSettings, mVDAnimation, mVDUniforms);
 	mOSCReceiverPort = OSC_DEFAULT_PORT;
 	fs::path jsonFile = getAssetPath("") / mOSCJsonFileName;
 	loadOSCReceiverFromJsonFile(jsonFile);
@@ -81,7 +82,7 @@ std::string VDMediatorObservable::getOSCMsg() {
 }
 VDMediatorObservableRef VDMediatorObservable::setupKeyboard() {
 	// Keyboard
-	mVDKeyboard = VDKeyboard::create(mVDSettings, mVDAnimation);
+	mVDKeyboard = VDKeyboard::create(mVDSettings, mVDAnimation, mVDUniforms);
 	mVDKeyboard->setupKeyboard(shared_from_this());
 	return shared_from_this();
 }

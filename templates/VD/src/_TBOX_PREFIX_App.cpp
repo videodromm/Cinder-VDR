@@ -12,7 +12,8 @@
 #include "CiSpoutOut.h"
 // Video
 //#include "ciWMFVideoPlayer.h"
-#include "VDUniform.h"
+#include "VDUniforms.h"
+#include "VDParams.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -41,6 +42,8 @@ private:
 	VDSessionFacadeRef				mVDSessionFacade;
 	// Uniform
 	VDUniformRef					mVDUniform;
+	// Params
+	VDParamsRef						mVDParams;
 	// video
 	/*ciWMFVideoPlayer				mVideo;
 	float							mVideoPos;
@@ -60,6 +63,8 @@ _TBOX_PREFIX_App::_TBOX_PREFIX_App() : mSpoutOut("VDR", app::getWindowSize())
 	mVDSettings = VDSettings::create("VDR");
 	// Uniform
 	mVDUniform = VDUniform::create();
+	// Params
+	mVDParams = VDParams::create();
 	// Animation
 	mVDAnimation = VDAnimation::create(mVDSettings);
 	// Session
@@ -225,7 +230,7 @@ void _TBOX_PREFIX_App::draw()
 		}
 	}
 	else {
-		gl::setMatricesWindow(mVDSettings->mFboWidth, mVDSettings->mFboHeight, false);
+		gl::setMatricesWindow(mVDParams->getFboWidth(), mVDParams->getFboHeight(), false);
 		//gl::setMatricesWindow(mVDSession->getIntUniformValueByIndex(mVDSettings->IOUTW), mVDSession->getIntUniformValueByIndex(mVDSettings->IOUTH), true);
 		/*int m = mVDSession->getMode();
 		if (m < mVDSession->getModesCount() && m < mVDSession->getFboListSize()) {
@@ -240,7 +245,7 @@ void _TBOX_PREFIX_App::draw()
 		}
 		gl::draw(mVDSessionFacade->buildFboTexture(0), Area(0, 0, mVDSettings->mFboWidth, mVDSettings->mFboHeight));
 		*/
-		gl::draw(mVDSessionFacade->buildRenderedMixetteTexture(0), Area(50, 50, mVDSettings->mFboWidth, mVDSettings->mFboHeight));
+		gl::draw(mVDSessionFacade->buildRenderedMixetteTexture(0), Area(50, 50, mVDParams->getFboWidth(), mVDParams->getFboHeight()));
 
 		/*vec2 videoSize = vec2(mVideo.getWidth(), mVideo.getHeight());
 		mGlslVideoTexture->uniform("uVideoSize", videoSize);
@@ -255,7 +260,7 @@ void _TBOX_PREFIX_App::draw()
 	// Spout Send
 	// KO mSpoutOut.sendViewport();
 	// OK
-	 mSpoutOut.sendTexture(mVDSession->getFboRenderedTexture(1));
+	 mSpoutOut.sendTexture(mVDSession->buildRenderedMixetteTexture(0));
 
 	getWindow()->setTitle(mVDSettings->sFps + " fps");
 }

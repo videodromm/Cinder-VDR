@@ -12,6 +12,8 @@
 #include "VDSettings.h"
 // Animation
 #include "VDAnimation.h"
+// Uniforms
+#include "VDUniforms.h"
 // Mediator
 #include "VDMediator.h"
 // Session
@@ -43,8 +45,8 @@ namespace videodromm
 	typedef std::shared_ptr<VDOscReceiver> VDOscReceiverRef;
 	class VDOscReceiver {
 	public:
-		VDOscReceiver(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation);
-		static VDOscReceiverRef	create(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation);
+		VDOscReceiver(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms);
+		static VDOscReceiverRef	create(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms);
 
 		void								setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aOSCReceiverPort);
 		void								setOSCMsg(const std::string& aMsg);
@@ -54,6 +56,8 @@ namespace videodromm
 		VDSettingsRef						mVDSettings;
 		// Animation
 		VDAnimationRef						mVDAnimation;
+		// Uniforms
+		VDUniformsRef						mVDUniforms;
 		//Mediator
 		VDMediatorObservableRef				mVDMediator;
 		float								mBarStart = 0.0f;

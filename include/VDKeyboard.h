@@ -12,6 +12,8 @@
 #include "VDSettings.h"
 // Animation
 #include "VDAnimation.h"
+// Uniforms
+#include "VDUniforms.h"
 // Mediator
 #include "VDMediator.h"
 
@@ -28,8 +30,8 @@ namespace videodromm
 	typedef std::shared_ptr<VDKeyboard> VDKeyboardRef;
 	class VDKeyboard {
 	public:
-		VDKeyboard(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation);
-		static VDKeyboardRef	create(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation);
+		VDKeyboard(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms);
+		static VDKeyboardRef	create(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms);
 
 		void								setupKeyboard(VDMediatorObservableRef aVDMediator);
 		bool								handleKeyDown(KeyEvent& event);
@@ -39,6 +41,8 @@ namespace videodromm
 		VDSettingsRef						mVDSettings;
 		// Animation
 		VDAnimationRef						mVDAnimation;
+		// Uniforms
+		VDUniformsRef						mVDUniforms;
 		//Mediator
 		VDMediatorObservableRef				mVDMediator;
 

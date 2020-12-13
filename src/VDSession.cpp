@@ -6,19 +6,19 @@
 
 using namespace videodromm;
 
-VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformRef aVDUniform)
+VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms)
 {
 	CI_LOG_V("VDSession ctor");
 	mVDSettings = aVDSettings;
 	mVDAnimation = aVDAnimation;
-	mVDUniforms = aVDUniform;
+	mVDUniforms = aVDUniforms;
 	// Params
 	mVDParams = VDParams::create();
 
 	// Animation
 	// TODO: needed? mVDAnimation->tapTempo();
 	// Mix
-	mVDMix = VDMix::create(mVDSettings, mVDAnimation);
+	mVDMix = VDMix::create(mVDSettings, mVDAnimation, mVDUniforms);
 	//createFboShaderTexture("default.fs", "0.jpg");
 	//createFboShaderTexture("audio.fs", "audio");
 	// allow log to file

@@ -35,13 +35,13 @@ namespace videodromm
 	};
 
 	// stores the pointer to the VDUniforms instance
-	typedef std::shared_ptr<class VDUniforms> VDUniformRef;
+	typedef std::shared_ptr<class VDUniforms> VDUniformsRef;
 
 	class VDUniforms {
 	public:
 		VDUniforms();
 
-		static VDUniformRef				create()
+		static VDUniformsRef				create()
 		{
 			return std::shared_ptr<VDUniforms>(new VDUniforms());
 		}
