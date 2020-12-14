@@ -36,6 +36,7 @@ namespace videodromm
 		VDSessionFacadeRef		setUniformValue(unsigned int aCtrl, float aValue);
 		VDSessionFacadeRef		addUIObserver(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation);
 		VDSessionFacadeRef		setupOSCReceiver();
+		VDSessionFacadeRef		setupWSClient();
 		VDSessionFacadeRef		setupKeyboard();
 		VDSessionFacadeRef		addOSCObserver(std::string host, unsigned int port);
 		VDSessionFacadeRef		addSocketIOObserver(std::string host, unsigned int port);
@@ -49,12 +50,20 @@ namespace videodromm
 		VDSessionFacadeRef		update();
 		// begin terminal operations
 		bool					getUseTimeWithTempo();
+		// OSC
 		bool					isOscSenderConnected();
 		bool					isOscReceiverConnected();
 		int						getOSCReceiverPort();
 		void					setOSCReceiverPort(int aReceiverPort);
 		void					setOSCMsg(const std::string& aMsg);
 		std::string				getOSCMsg();
+		// websockets
+		bool					isWSClientConnected();
+		int						getWSClientPort();
+		void					setWSClientPort(int aPort);
+		void					setWSMsg(const std::string& aMsg);
+		std::string				getWSMsg();
+
 		ci::gl::TextureRef		buildRenderedMixetteTexture(unsigned int aIndex);
 		ci::gl::TextureRef		buildFboTexture(unsigned int aIndex);
 		ci::gl::TextureRef		buildFboRenderedTexture(unsigned int aFboIndex);
@@ -103,14 +112,13 @@ namespace videodromm
 
 
 	private:
-		VDSessionFacade(VDSessionRef session, VDMediatorObservableRef mediator) : mVDSession(session), mVDMediator(mediator), mOscSenderConnected(false), mOscReceiverConnected(false) { }
+		VDSessionFacade(VDSessionRef session, VDMediatorObservableRef mediator) : mVDSession(session), mVDMediator(mediator), mOscSenderConnected(false), mOscReceiverConnected(false), mWSClientConnected(false) { }
 		VDSessionRef						mVDSession;
 		VDMediatorObservableRef				mVDMediator;
 		bool								mOscSenderConnected = false;
 		bool								mOscReceiverConnected = false;
+		bool								mWSClientConnected = false;
 
-
-	
 	};
 
 

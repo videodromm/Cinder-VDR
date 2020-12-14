@@ -28,6 +28,17 @@ VDMediatorObservableRef VDMediatorObservable::setupOSCReceiver() {
 	saveOSCReceiverToJson();
 	return shared_from_this();
 }
+VDMediatorObservableRef VDMediatorObservable::setupWSReceiver() {
+	// WS Receiver
+	mVDWebsocket = VDWebsocket::create();
+	mWSHost = WS_DEFAULT_HOST;
+	mWSPort = WS_DEFAULT_PORT;
+	fs::path jsonFile = getAssetPath("") / mWSJsonFileName;
+	loadWSFromJsonFile(jsonFile);
+	mVDWebsocket->setupWSClient(shared_from_this(), mWSHost, mWSPort);
+	saveWSToJson();
+	return shared_from_this();
+}
 void VDMediatorObservable::loadOSCReceiverFromJsonFile(const fs::path& jsonFile) {
 	if (fs::exists(jsonFile)) {
 		JsonTree json(loadFile(jsonFile));
@@ -36,6 +47,19 @@ void VDMediatorObservable::loadOSCReceiverFromJsonFile(const fs::path& jsonFile)
 			if (validateJson(u)) {
 				// (u.hasChild("port")) ? u.getValueForKey<int>("port") : OSC_DEFAULT_PORT;
 				mOSCReceiverPort = u.getValueForKey<int>("port");
+			}
+		}		
+	}
+}
+void VDMediatorObservable::loadWSFromJsonFile(const fs::path& jsonFile) {
+	if (fs::exists(jsonFile)) {
+		JsonTree json(loadFile(jsonFile));
+		if (json.hasChild("client")) {
+			JsonTree u(json.getChild("client"));
+			if (validateJson(u)) {
+				// (u.hasChild("port")) ? u.getValueForKey<int>("port") : OSC_DEFAULT_PORT;
+				mWSHost = u.getValueForKey<std::string>("host");
+				mWSPort = u.getValueForKey<int>("port");
 			}
 		}		
 	}
@@ -67,7 +91,23 @@ JsonTree VDMediatorObservable::saveOSCReceiverToJson() const
 	json.write(jsonFile);
 	return json;
 }
-
+JsonTree VDMediatorObservable::saveWSToJson() const
+{
+	JsonTree json;
+	JsonTree client = ci::JsonTree::makeArray("client");
+	client.addChild(ci::JsonTree("host", mWSHost));
+	client.addChild(ci::JsonTree("port", mWSPort));
+	json.addChild(client);
+	fs::path jsonFile = getAssetPath("") / mWSJsonFileName;
+	json.write(jsonFile);
+	return json;
+}
+int VDMediatorObservable::getWSClientPort() {
+	return mWSPort;
+}
+void VDMediatorObservable::setWSClientPort(int aPort) {
+	mWSPort = aPort;
+}
 int VDMediatorObservable::getOSCReceiverPort() {
 	return mOSCReceiverPort;
 };
@@ -79,6 +119,13 @@ void VDMediatorObservable::setOSCMsg(const std::string& aMsg) {
 };
 std::string VDMediatorObservable::getOSCMsg() {
 	return mVDOscReceiver->getOSCMsg();
+}
+
+void VDMediatorObservable::setWSMsg(const std::string& aMsg) {
+	mVDWebsocket->setWSMsg(aMsg);
+};
+std::string VDMediatorObservable::getWSMsg() {
+	return mVDWebsocket->getWSMsg();
 }
 VDMediatorObservableRef VDMediatorObservable::setupKeyboard() {
 	// Keyboard

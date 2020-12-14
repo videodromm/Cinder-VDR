@@ -26,6 +26,13 @@ VDSessionFacadeRef VDSessionFacade::setupOSCReceiver() {
 	}
 	return shared_from_this();
 }
+VDSessionFacadeRef VDSessionFacade::setupWSClient() {
+	if (!mWSClientConnected) {
+		mWSClientConnected = true;
+		mVDMediator->setupWSReceiver();
+	}
+	return shared_from_this();
+}
 VDSessionFacadeRef VDSessionFacade::setupKeyboard() {
 	mVDMediator->setupKeyboard();
 	return shared_from_this();
@@ -77,6 +84,7 @@ VDSessionFacadeRef VDSessionFacade::update() {
 bool VDSessionFacade::getUseTimeWithTempo() {
 	return mVDSession->getUseTimeWithTempo();
 };
+// osc
 bool VDSessionFacade::isOscSenderConnected() {
 	return mOscSenderConnected;
 };
@@ -96,6 +104,26 @@ void VDSessionFacade::setOSCMsg(const std::string& aMsg) {
 };
 std::string VDSessionFacade::getOSCMsg() {
 	return (mOscReceiverConnected) ? mVDMediator->getOSCMsg() : "";
+};
+
+// Websockets
+bool					VDSessionFacade::isWSClientConnected() {
+	return mWSClientConnected;
+};
+int						VDSessionFacade::getWSClientPort() {
+	return mVDMediator->getWSClientPort();
+};
+void					VDSessionFacade::setWSClientPort(int aPort) {
+	mVDMediator->setWSClientPort(aPort);
+};
+void					VDSessionFacade::setWSMsg(const std::string& aMsg) {
+	if (mWSClientConnected) {
+		mVDMediator->setWSMsg(aMsg);
+	}
+};
+
+std::string VDSessionFacade::getWSMsg() {
+	return (mWSClientConnected) ? mVDMediator->getWSMsg() : "";
 };
 ci::gl::TextureRef VDSessionFacade::buildRenderedMixetteTexture(unsigned int aIndex) {
 	return mVDSession->getRenderedMixetteTexture(aIndex);

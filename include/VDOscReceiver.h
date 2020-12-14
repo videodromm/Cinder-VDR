@@ -16,8 +16,6 @@
 #include "VDUniforms.h"
 // Mediator
 #include "VDMediator.h"
-// Session
-//#include "VDSessionFacade.h"
 // OSC
 #include "cinder/osc/Osc.h"
 

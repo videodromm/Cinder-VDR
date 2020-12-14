@@ -14,10 +14,14 @@
 #include "VDKeyboard.h"
 // Osc
 #include "VDOscReceiver.h"
+// Websocket client
+#include "VDWebsocket.h"
 #include <memory>
 #include <vector>
 
 #define OSC_DEFAULT_PORT 10001
+#define WS_DEFAULT_HOST "127.0.0.1"
+#define WS_DEFAULT_PORT 8088
 
 using namespace ci;
 using namespace ci::app;
@@ -25,6 +29,9 @@ using namespace ci::app;
 namespace videodromm {
 	class VDOscReceiver;
 	typedef std::shared_ptr<VDOscReceiver> VDOscReceiverRef;
+
+	class VDWebsocket;
+	typedef std::shared_ptr<VDWebsocket> VDWebsocketRef;
 
 	class VDKeyboard;
 	typedef std::shared_ptr<VDKeyboard> VDKeyboardRef;
@@ -50,6 +57,13 @@ namespace videodromm {
 		void								setOSCReceiverPort(int aReceiverPort);
 		void								setOSCMsg(const std::string& aMsg);
 		std::string							getOSCMsg();
+
+		VDMediatorObservableRef				setupWSReceiver();
+		int									getWSClientPort();
+		void								setWSClientPort(int aPort);
+		void								setWSMsg(const std::string& aMsg);
+		std::string							getWSMsg();
+
 		VDMediatorObservableRef				setupKeyboard();
 		float								getUniformValue(unsigned int aIndex);
 		std::string							getUniformName(unsigned int aIndex);
@@ -67,11 +81,21 @@ namespace videodromm {
 		VDUniformsRef						mVDUniforms;
 		// OSC
 		VDOscReceiverRef					mVDOscReceiver;
+		// Websockets
+		VDWebsocketRef						mVDWebsocket;
+		//! OSC
 		bool								validateJson(const JsonTree& tree);
 		int									mOSCReceiverPort;
 		const std::string					mOSCJsonFileName = "oscreceiver.json";
 		void								loadOSCReceiverFromJsonFile(const fs::path& jsonFile);
 		JsonTree							saveOSCReceiverToJson() const;
+		//! WS
+		std::string							mWSHost;
+		int									mWSPort;
+		const std::string					mWSJsonFileName = "wsclient.json";
+		void								loadWSFromJsonFile(const fs::path& jsonFile);
+		JsonTree							saveWSToJson() const;
+
 		// Keyboard
 		VDKeyboardRef						mVDKeyboard;
 		//VDMediatorObservable() {}

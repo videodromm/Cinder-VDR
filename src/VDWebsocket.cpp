@@ -9,14 +9,22 @@ VDWebsocket::VDWebsocket() {
 	shaderUniforms = false;
 	receivedUniformsString = "";
 	streamReceived = false;
+	mWebSocketsMsg = "";
 	// WebSockets
 	clientConnected = false;
+	mWSHost = "127.0.0.1";
+	mWSPort = 8088;
 
 	wsConnect();
 	mPingTime = getElapsedSeconds();
 
 }
-
+void VDWebsocket::setupWSClient(VDMediatorObservableRef aVDMediator, std::string aWSHost, int aWSPort) {
+	mVDMediator = aVDMediator;
+	mWSHost = aWSHost;
+	mWSPort = aWSPort;
+	wsConnect();
+}
 void VDWebsocket::updateParams(int iarg0, float farg1) {
 
 	if (iarg0 > 0 && iarg0 < 9) {
@@ -45,16 +53,16 @@ void VDWebsocket::wsPing() {
 	}
 #endif
 }
-string * VDWebsocket::getBase64Image() {
+std::string * VDWebsocket::getBase64Image() {
 	streamReceived = false;
 	return &mBase64String;
 }
 //dreads(1, 0, 0.8).out(o0)
-void VDWebsocket::parseMessage(string msg) {
+void VDWebsocket::parseMessage(std::string msg) {
 
 	if (!msg.empty()) {
 
-		string first = msg.substr(0, 1);
+		std::string first = msg.substr(0, 1);
 		if (first == "{") {
 			// json
 			JsonTree json;
@@ -76,8 +84,8 @@ void VDWebsocket::parseMessage(string msg) {
 					JsonTree jsonParams = json.getChild("k2");
 					for (JsonTree::ConstIter jsonElement = jsonParams.begin(); jsonElement != jsonParams.end(); ++jsonElement) {
 						int name = jsonElement->getChild("name").getValue<int>();
-						string value = jsonElement->getChild("value").getValue();
-						vector<string> vs = split(value, ",");
+						std::string value = jsonElement->getChild("value").getValue();
+						std::vector<std::string> vs = split(value, ",");
 						vec4 v = vec4(strtof((vs[0]).c_str(), 0), strtof((vs[1]).c_str(), 0), strtof((vs[2]).c_str(), 0), strtof((vs[3]).c_str(), 0));
 						// basic name value 
 						//mVDAnimation->setVec4UniformValueByIndex(name, v);
@@ -86,12 +94,12 @@ void VDWebsocket::parseMessage(string msg) {
 
 				if (json.hasChild("event")) {
 					JsonTree jsonEvent = json.getChild("event");
-					string val = jsonEvent.getValue();
+					std::string val = jsonEvent.getValue();
 					// check if message exists
 					if (json.hasChild("message")) {
 						if (val == "canvas") {
 							// we received a jpeg base64
-							mBase64String = json.getChild("message").getValue<string>();
+							mBase64String = json.getChild("message").getValue<std::string>();
 							streamReceived = true;
 						}
 						else if (val == "params") {
@@ -106,7 +114,7 @@ void VDWebsocket::parseMessage(string msg) {
 							}
 						}
 						else if (val == "hydra") {
-							receivedUniformsString = json.getChild("message").getValue<string>();
+							receivedUniformsString = json.getChild("message").getValue<std::string>();
 							shaderUniforms = true;
 							// force to display
 							//mVDAnimation->setIntUniformValueByIndex(mVDUniforms->IFBOA, 0);
@@ -122,7 +130,7 @@ void VDWebsocket::parseMessage(string msg) {
 						}*/
 						else if (val == "frag") {
 							// we received a fragment shader string
-							receivedFragString = json.getChild("message").getValue<string>();
+							receivedFragString = json.getChild("message").getValue<std::string>();
 							shaderReceived = true;
 							// force to display
 							//mVDAnimation->setIntUniformValueByIndex(mVDUniforms->IFBOA, 0);
@@ -141,6 +149,7 @@ void VDWebsocket::parseMessage(string msg) {
 				/*mVDSettings->mWebSocketsMsg += " error jsonparser exception: ";
 				mVDSettings->mWebSocketsMsg += exception.what();
 				mVDSettings->mWebSocketsMsg += "  ";*/
+				mWebSocketsMsg = exception.what();
 			}
 		}
 		else if (msg.substr(0, 2) == "/*") {
@@ -157,16 +166,16 @@ void VDWebsocket::parseMessage(string msg) {
 					pathsToCheck = getAssetPath("") / "glsl" / "processed";
 					if (!fs::exists(pathsToCheck)) fs::create_directory(pathsToCheck);
 					// find commented header
-					string jsonHeader = msg.substr(2, closingCommentPosition - 2);
+					std::string jsonHeader = msg.substr(2, closingCommentPosition - 2);
 					ci::JsonTree::ParseOptions parseOptions;
 					parseOptions.ignoreErrors(false);
 					json = JsonTree(jsonHeader, parseOptions);
-					string title = json.getChild("title").getValue<string>();
-					string fragFileName = title + ".frag"; // with uniforms
-					string glslFileName = title + ".glsl"; // without uniforms, need to include shadertoy.inc
-					string shader = msg.substr(closingCommentPosition + 2);
+					std::string title = json.getChild("title").getValue<std::string>();
+					std::string fragFileName = title + ".frag"; // with uniforms
+					std::string glslFileName = title + ".glsl"; // without uniforms, need to include shadertoy.inc
+					std::string shader = msg.substr(closingCommentPosition + 2);
 
-					string processedContent = "/*" + jsonHeader + "*/";
+					std::string processedContent = "/*" + jsonHeader + "*/";
 					// check uniforms presence
 					std::size_t foundUniform = msg.find("uniform");
 
@@ -198,6 +207,7 @@ void VDWebsocket::parseMessage(string msg) {
 					/*mVDSettings->mWebSocketsMsg += " error jsonparser exception: ";
 					mVDSettings->mWebSocketsMsg += exception.what();
 					mVDSettings->mWebSocketsMsg += "  ";*/
+					mWebSocketsMsg = exception.what();
 				}
 			}
 		}
@@ -245,48 +255,52 @@ void VDWebsocket::parseMessage(string msg) {
 		}
 	}
 }
-string VDWebsocket::getReceivedShader() {
+std::string VDWebsocket::getReceivedShader() {
 	shaderReceived = false;
 	return receivedFragString;
 }
-string VDWebsocket::getReceivedUniforms() {
+std::string VDWebsocket::getReceivedUniforms() {
 	shaderUniforms = false;
 	return receivedUniformsString;
 }
-
+void VDWebsocket::setWSMsg(const std::string& aMsg) {
+	mWebSocketsMsg = aMsg;
+};
+std::string VDWebsocket::getWSMsg() {
+	return mWebSocketsMsg;
+}
 void VDWebsocket::wsConnect() {
-
 
 	mClient.connectOpenEventHandler([&]() {
 		clientConnected = true;
-		//mVDSettings->mWebSocketsMsg = "Connected";
+		mWebSocketsMsg = "Connected";
 		//mVDSettings->mWebSocketsNewMsg = true;
 	});
 	mClient.connectCloseEventHandler([&]() {
 		clientConnected = false;
-		//mVDSettings->mWebSocketsMsg = "Disconnected";
+		mWebSocketsMsg = "Disconnected";
 		//mVDSettings->mWebSocketsNewMsg = true;
 	});
-	mClient.connectFailEventHandler([&](string err) {
-		//mVDSettings->mWebSocketsMsg = "WS Error";
+	mClient.connectFailEventHandler([&](std::string err) {
+		mWebSocketsMsg = "WS Error";
 		//mVDSettings->mWebSocketsNewMsg = true;
 		if (!err.empty()) {
-			//mVDSettings->mWebSocketsMsg += ": " + err;
+			mWebSocketsMsg += ": " + err;
 		}
 	});
 	mClient.connectInterruptEventHandler([&]() {
-		//mVDSettings->mWebSocketsMsg = "WS Interrupted";
+		mWebSocketsMsg = "WS Interrupted";
 		//mVDSettings->mWebSocketsNewMsg = true;
 	});
-	mClient.connectPingEventHandler([&](string msg) {
-		//mVDSettings->mWebSocketsMsg = "WS Ponged";
+	mClient.connectPingEventHandler([&](std::string msg) {
+		mWebSocketsMsg = "WS Ponged";
 		//mVDSettings->mWebSocketsNewMsg = true;
 		if (!msg.empty())
 		{
 			//mVDSettings->mWebSocketsMsg += ": " + msg;
 		}
 	});
-	mClient.connectMessageEventHandler([&](string msg) {
+	mClient.connectMessageEventHandler([&](std::string msg) {
 		parseMessage(msg);
 	});
 	wsClientConnect();
@@ -299,15 +313,14 @@ void VDWebsocket::wsConnect() {
 void VDWebsocket::wsClientConnect()
 {
 
-	stringstream s;
-	/*if (mVDSettings->mWebSocketsPort == 80) {
-		s << mVDSettings->mWebSocketsProtocol << mVDSettings->mWebSocketsHost;
+	std::stringstream s;
+	if (mWSPort == 80) {
+		s << "ws://" << mWSHost;
 	}
 	else {
-		s << mVDSettings->mWebSocketsProtocol << mVDSettings->mWebSocketsHost << ":" << mVDSettings->mWebSocketsPort;
-	}*/
-	// BL TEMP 
-	s << "ws://127.0.0.1:8088";
+		s << "ws://" << mWSHost << ":" << mWSPort;
+	}
+	// BL TEMP s << "ws://127.0.0.1:8088";
 	mClient.connect(s.str());
 
 }
@@ -320,14 +333,14 @@ void VDWebsocket::wsClientDisconnect()
 	}
 
 }
-void VDWebsocket::wsWrite(string msg)
+void VDWebsocket::wsWrite(std::string msg)
 {
 
 	if (clientConnected) mClient.write(msg);
 
 }
 
-void VDWebsocket::sendJSON(string params) {
+void VDWebsocket::sendJSON(std::string params) {
 
 	wsWrite(params);
 
@@ -416,23 +429,23 @@ void VDWebsocket::changeFloatValue(unsigned int aControl, float aValue, bool for
 }
 void VDWebsocket::changeShaderIndex(unsigned int aWarpIndex, unsigned int aWarpShaderIndex, unsigned int aSlot) {
 	//aSlot 0 = A, 1 = B,...
-	stringstream sParams;
+	std::stringstream sParams;
 	sParams << "{\"cmd\" :[{\"type\" : 1,\"warp\" : " << aWarpIndex << ",\"shader\" : " << aWarpShaderIndex << ",\"slot\" : " << aSlot << "}]}";
-	string strParams = sParams.str();
+	std::string strParams = sParams.str();
 	sendJSON(strParams);
 }
 void VDWebsocket::changeWarpFboIndex(unsigned int aWarpIndex, unsigned int aWarpFboIndex, unsigned int aSlot) {
 	//aSlot 0 = A, 1 = B,...
-	stringstream sParams;
+	std::stringstream sParams;
 	sParams << "{\"cmd\" :[{\"type\" : 0,\"warp\" : " << aWarpIndex << ",\"fbo\" : " << aWarpFboIndex << ",\"slot\" : " << aSlot << "}]}";
-	string strParams = sParams.str();
+	std::string strParams = sParams.str();
 	sendJSON(strParams);
 }
-void VDWebsocket::changeFragmentShader(string aFragmentShaderText) {
+void VDWebsocket::changeFragmentShader(std::string aFragmentShaderText) {
 
-	stringstream sParams;
+	std::stringstream sParams;
 	sParams << "{\"event\" : \"frag\",\"message\" : \"" << aFragmentShaderText << "\"}";
-	string strParams = sParams.str();
+	std::string strParams = sParams.str();
 	sendJSON(strParams);
 }
 void VDWebsocket::colorWrite()

@@ -3,20 +3,22 @@
 #include "cinder/app/App.h"
 #include "cinder/Json.h"
 
-
+// Mediator
+#include "VDMediator.h"
 // WebSockets
 #include "WebSocketClient.h"
-#include "WebSocketServer.h"
-
 
 using namespace ci;
 using namespace ci::app;
-using namespace std;
+//using namespace std;
 using namespace asio;
 //using namespace asio::ip; 
 
 namespace videodromm
 {
+	class VDMediatorObservable;
+	typedef std::shared_ptr<VDMediatorObservable> VDMediatorObservableRef;
+
 	// stores the pointer to the VDWebsocket instance
 	typedef std::shared_ptr<class VDWebsocket> VDWebsocketRef;
 	class VDWebsocket {
@@ -24,11 +26,13 @@ namespace videodromm
 		VDWebsocket();
 		static VDWebsocketRef	create()
 		{
-			return shared_ptr<VDWebsocket>(new VDWebsocket());
+			return std::shared_ptr<VDWebsocket>(new VDWebsocket());
 		}
+		void						setupWSClient(VDMediatorObservableRef aVDMediator, std::string aWSHost, int aWSPort);
+
 		void						update();
 		// messages
-		void						sendJSON(string params);
+		void						sendJSON(std::string params);
 		void						updateParams(int iarg0, float farg1);
 		// WebSockets
 		//void						wsWriteBinary(const void *data, int size);
@@ -45,20 +49,24 @@ namespace videodromm
 		void						resetAutoAnimation(unsigned int aIndex);
 		void						changeShaderIndex(unsigned int aWarpIndex, unsigned int aWarpShaderIndex, unsigned int aSlot);
 		void						changeWarpFboIndex(unsigned int aWarpIndex, unsigned int aWarpFboIndex, unsigned int aSlot); //aSlot 0 = A, 1 = B,...
-		void                        changeFragmentShader(string aFragmentShaderText);
+		void                        changeFragmentShader(std::string aFragmentShaderText);
 		// received shaders
 		bool						hasReceivedShader() { return shaderReceived; };
-		string						getReceivedShader();
+		std::string					getReceivedShader();
 		bool						hasReceivedUniforms() { return shaderUniforms; };
-		string						getReceivedUniforms();
+		std::string					getReceivedUniforms();
 		// received stream
-		string *					getBase64Image();
+		std::string	*				getBase64Image();
 		bool						hasReceivedStream() { return streamReceived; };
+		void						setWSMsg(const std::string& aMsg);
+		std::string					getWSMsg();
 	private:
+		//Mediator
+		VDMediatorObservableRef		mVDMediator;
 		// lights4events
 		void						colorWrite();
 		// WebSockets
-		void						parseMessage(string msg);
+		void						parseMessage(std::string msg);
 		// Web socket client
 		bool						clientConnected;
 		void						wsClientConnect();
@@ -71,14 +79,16 @@ namespace videodromm
 
 		WebSocketClient				mClient;
 		double						mPingTime;
-
+		std::string					mWebSocketsMsg;
+		std::string					mWSHost;
+		int							mWSPort;
 		// received shaders
 		bool						shaderReceived; // TODO remove
-		string						receivedFragString; // TODO remove
+		std::string					receivedFragString; // TODO remove
 		bool						shaderUniforms;
-		string						receivedUniformsString;
+		std::string					receivedUniformsString;
 
-		string						mBase64String;
+		std::string					mBase64String;
 		// received stream
 		bool						streamReceived;
 	};
