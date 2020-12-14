@@ -60,6 +60,8 @@ namespace videodromm
 		// websockets
 		bool					isWSClientConnected();
 		int						getWSClientPort();
+		void					wsConnect();
+		void					wsPing();
 		void					setWSClientPort(int aPort);
 		void					setWSMsg(const std::string& aMsg);
 		std::string				getWSMsg();

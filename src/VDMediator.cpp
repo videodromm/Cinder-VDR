@@ -13,6 +13,8 @@ VDMediatorObservable::VDMediatorObservable(VDSettingsRef aVDSettings, VDAnimatio
 	mVDAnimation = aVDAnimation;
 	mVDUniforms = aVDUniforms;
 	mOSCReceiverPort = OSC_DEFAULT_PORT;
+	mWSHost = WS_DEFAULT_HOST;
+	mWSPort = WS_DEFAULT_PORT;
 }
 VDMediatorObservableRef VDMediatorObservable::addObserver(VDUniformObserverRef o) {
 	mObservers.push_back(o);
@@ -28,7 +30,7 @@ VDMediatorObservableRef VDMediatorObservable::setupOSCReceiver() {
 	saveOSCReceiverToJson();
 	return shared_from_this();
 }
-VDMediatorObservableRef VDMediatorObservable::setupWSReceiver() {
+VDMediatorObservableRef VDMediatorObservable::setupWSClient() {
 	// WS Receiver
 	mVDWebsocket = VDWebsocket::create();
 	mWSHost = WS_DEFAULT_HOST;
@@ -108,6 +110,9 @@ int VDMediatorObservable::getWSClientPort() {
 void VDMediatorObservable::setWSClientPort(int aPort) {
 	mWSPort = aPort;
 }
+void VDMediatorObservable::wsConnect() {
+	mVDWebsocket->wsConnect();
+}
 int VDMediatorObservable::getOSCReceiverPort() {
 	return mOSCReceiverPort;
 };
@@ -127,6 +132,9 @@ void VDMediatorObservable::setWSMsg(const std::string& aMsg) {
 std::string VDMediatorObservable::getWSMsg() {
 	return mVDWebsocket->getWSMsg();
 }
+void VDMediatorObservable::wsPing() {
+	mVDWebsocket->wsPing();
+};
 VDMediatorObservableRef VDMediatorObservable::setupKeyboard() {
 	// Keyboard
 	mVDKeyboard = VDKeyboard::create(mVDSettings, mVDAnimation, mVDUniforms);

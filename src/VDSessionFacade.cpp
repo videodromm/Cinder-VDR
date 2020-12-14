@@ -27,9 +27,9 @@ VDSessionFacadeRef VDSessionFacade::setupOSCReceiver() {
 	return shared_from_this();
 }
 VDSessionFacadeRef VDSessionFacade::setupWSClient() {
-	if (!mWSClientConnected) {
+	if (!mWSClientConnected ) {
 		mWSClientConnected = true;
-		mVDMediator->setupWSReceiver();
+		mVDMediator->setupWSClient();
 	}
 	return shared_from_this();
 }
@@ -106,16 +106,22 @@ std::string VDSessionFacade::getOSCMsg() {
 	return (mOscReceiverConnected) ? mVDMediator->getOSCMsg() : "";
 };
 
-// Websockets
+// Websockets begin
 bool					VDSessionFacade::isWSClientConnected() {
 	return mWSClientConnected;
 };
 int						VDSessionFacade::getWSClientPort() {
 	return mVDMediator->getWSClientPort();
 };
-void					VDSessionFacade::setWSClientPort(int aPort) {
+void VDSessionFacade::wsPing() {
+	mVDMediator->wsPing();
+}
+void VDSessionFacade::setWSClientPort(int aPort) {
 	mVDMediator->setWSClientPort(aPort);
 };
+void VDSessionFacade::wsConnect() {
+	mVDMediator->wsConnect();
+}
 void					VDSessionFacade::setWSMsg(const std::string& aMsg) {
 	if (mWSClientConnected) {
 		mVDMediator->setWSMsg(aMsg);
@@ -125,6 +131,8 @@ void					VDSessionFacade::setWSMsg(const std::string& aMsg) {
 std::string VDSessionFacade::getWSMsg() {
 	return (mWSClientConnected) ? mVDMediator->getWSMsg() : "";
 };
+// Websockets end
+
 ci::gl::TextureRef VDSessionFacade::buildRenderedMixetteTexture(unsigned int aIndex) {
 	return mVDSession->getRenderedMixetteTexture(aIndex);
 }

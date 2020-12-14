@@ -15,7 +15,7 @@ VDWebsocket::VDWebsocket() {
 	mWSHost = "127.0.0.1";
 	mWSPort = 8088;
 
-	wsConnect();
+	//wsConnect();
 	mPingTime = getElapsedSeconds();
 
 }
@@ -23,7 +23,7 @@ void VDWebsocket::setupWSClient(VDMediatorObservableRef aVDMediator, std::string
 	mVDMediator = aVDMediator;
 	mWSHost = aWSHost;
 	mWSPort = aWSPort;
-	wsConnect();
+	//wsConnect();
 }
 void VDWebsocket::updateParams(int iarg0, float farg1) {
 
@@ -270,7 +270,7 @@ std::string VDWebsocket::getWSMsg() {
 	return mWebSocketsMsg;
 }
 void VDWebsocket::wsConnect() {
-
+	mWebSocketsMsg = "Connecting...";
 	mClient.connectOpenEventHandler([&]() {
 		clientConnected = true;
 		mWebSocketsMsg = "Connected";
@@ -312,7 +312,6 @@ void VDWebsocket::wsConnect() {
 
 void VDWebsocket::wsClientConnect()
 {
-
 	std::stringstream s;
 	if (mWSPort == 80) {
 		s << "ws://" << mWSHost;
@@ -321,8 +320,9 @@ void VDWebsocket::wsClientConnect()
 		s << "ws://" << mWSHost << ":" << mWSPort;
 	}
 	// BL TEMP s << "ws://127.0.0.1:8088";
+	mWebSocketsMsg = s.str();
 	mClient.connect(s.str());
-
+	//mClient.ping();
 }
 void VDWebsocket::wsClientDisconnect()
 {

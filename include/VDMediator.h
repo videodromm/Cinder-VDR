@@ -58,11 +58,13 @@ namespace videodromm {
 		void								setOSCMsg(const std::string& aMsg);
 		std::string							getOSCMsg();
 
-		VDMediatorObservableRef				setupWSReceiver();
+		VDMediatorObservableRef				setupWSClient();
 		int									getWSClientPort();
 		void								setWSClientPort(int aPort);
 		void								setWSMsg(const std::string& aMsg);
 		std::string							getWSMsg();
+		void								wsConnect();
+		void								wsPing();
 
 		VDMediatorObservableRef				setupKeyboard();
 		float								getUniformValue(unsigned int aIndex);
