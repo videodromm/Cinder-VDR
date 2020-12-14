@@ -113,6 +113,9 @@ void VDMediatorObservable::setWSClientPort(int aPort) {
 void VDMediatorObservable::wsConnect() {
 	mVDWebsocket->wsConnect();
 }
+void VDMediatorObservable::update() {
+	mVDWebsocket->update();
+}
 int VDMediatorObservable::getOSCReceiverPort() {
 	return mOSCReceiverPort;
 };

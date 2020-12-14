@@ -78,6 +78,7 @@ VDSessionFacadeRef VDSessionFacade::setMode(int aMode) {
 }
 VDSessionFacadeRef VDSessionFacade::update() {
 	mVDSession->update();
+	mVDMediator->update();
 	return shared_from_this();
 }
 // begin terminal operations

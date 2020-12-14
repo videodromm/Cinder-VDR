@@ -65,6 +65,7 @@ namespace videodromm {
 		std::string							getWSMsg();
 		void								wsConnect();
 		void								wsPing();
+		void								update();
 
 		VDMediatorObservableRef				setupKeyboard();
 		float								getUniformValue(unsigned int aIndex);

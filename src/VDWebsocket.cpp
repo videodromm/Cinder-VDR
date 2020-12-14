@@ -305,9 +305,7 @@ void VDWebsocket::wsConnect() {
 	});
 	wsClientConnect();
 
-
 	clientConnected = true;
-
 }
 
 void VDWebsocket::wsClientConnect()
