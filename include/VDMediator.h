@@ -98,7 +98,9 @@ namespace videodromm {
 		const std::string					mWSJsonFileName = "wsclient.json";
 		void								loadWSFromJsonFile(const fs::path& jsonFile);
 		JsonTree							saveWSToJson() const;
-
+		std::string								mShaderLeft;
+		std::string								mShaderRight;
+		void								setFragmentShaderString(unsigned int aShaderIndex, std::string aFragmentShaderString, std::string aName);
 		// Keyboard
 		VDKeyboardRef						mVDKeyboard;
 		//VDMediatorObservable() {}

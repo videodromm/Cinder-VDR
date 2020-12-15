@@ -115,6 +115,28 @@ void VDMediatorObservable::wsConnect() {
 }
 void VDMediatorObservable::update() {
 	mVDWebsocket->update();
+	if (mVDWebsocket->hasReceivedShader()) {
+		std::string receivedShader = mVDWebsocket->getReceivedShader();
+		if (mVDAnimation->getUniformValue(mVDUniforms->IXFADE) < 0.5) {
+			setFragmentShaderString(2, receivedShader);
+			mShaderLeft = receivedShader;
+		}
+		else {
+			setFragmentShaderString(1, receivedShader);
+			mShaderRight = receivedShader;
+		}
+		setFragmentShaderString(0, receivedShader);	
+		// TODO timeline().apply(&mWarps[aWarpIndex]->ABCrossfade, 0.0f, 2.0f); };
+	}
+}
+void VDMediatorObservable::setFragmentShaderString(unsigned int aShaderIndex, std::string aFragmentShaderString, std::string aName) {
+	if (aShaderIndex > mShaderList.size() - 1) aShaderIndex = mShaderList.size() - 1;
+	mShaderList[aShaderIndex]->setFragmentString(aFragmentShaderString, aName);
+	// if live coding shader compiles and is used by a fbo reload it
+	for (int i = 0; i < mFboList.size(); i++)
+	{
+		if (mFboList[i]->getShaderIndex() == aShaderIndex) setFboFragmentShaderIndex(i, aShaderIndex);
+	}
 }
 int VDMediatorObservable::getOSCReceiverPort() {
 	return mOSCReceiverPort;
