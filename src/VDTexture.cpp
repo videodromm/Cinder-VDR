@@ -239,7 +239,7 @@ void VDTexture::setPlayheadPosition(int position) {
 int VDTexture::getMaxFrame() {
 	return 1;
 }
-bool VDTexture::loadFromFullPath(std::string aPath) {
+bool VDTexture::loadFromFullPath(const std::string& aPath) {
 	// initialize texture
 	mTexture = ci::gl::Texture::create(mWidth, mHeight, ci::gl::Texture::Format().loadTopDown(mFlipV));
 	return true;

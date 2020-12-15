@@ -34,7 +34,7 @@ bool TextureImage::fromXml(const XmlTree& xml)
 	}
 	return true;
 }*/
-bool TextureImage::loadFromFullPath(std::string aPath) {
+bool TextureImage::loadFromFullPath(const std::string& aPath) {
 	if (fs::exists(aPath)) {
 		mTexture = ci::gl::Texture::create(loadImage(aPath));
 		mInputSurface = Surface(loadImage(aPath));

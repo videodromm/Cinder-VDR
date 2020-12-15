@@ -100,7 +100,7 @@ namespace videodromm {
 		JsonTree							saveWSToJson() const;
 		std::string								mShaderLeft;
 		std::string								mShaderRight;
-		void								setFragmentShaderString(unsigned int aShaderIndex, std::string aFragmentShaderString, std::string aName);
+		void								setFragmentShaderString(unsigned int aShaderIndex, const std::string& aFragmentShaderString, const std::string& aName);
 		// Keyboard
 		VDKeyboardRef						mVDKeyboard;
 		//VDMediatorObservable() {}

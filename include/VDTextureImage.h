@@ -29,7 +29,7 @@ namespace videodromm
 		//bool					fromXml(const XmlTree &xml) override;
 		//!
 		//virtual	XmlTree			toXml() const override;
-		virtual bool			loadFromFullPath(std::string aPath) override;
+		virtual bool			loadFromFullPath(const std::string& aPath) override;
 
 	public:
 		TextureImage();

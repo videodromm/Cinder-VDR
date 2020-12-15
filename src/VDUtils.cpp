@@ -112,12 +112,12 @@ void						VDUtils::moveY1LeftOrTop(int y1) {
 	mSrcAreaLeftOrTop = Area(x1LeftOrTop, y1LeftOrTop, x2LeftOrTop, y2LeftOrTop);
 };*/
 // file system
-fs::path					VDUtils::getPath(std::string path) {
+fs::path					VDUtils::getPath(const std::string& path) {
 	fs::path p = app::getAssetPath("");
 	if (path.length() > 0) { p += fs::path("/" + path); }
 	return p;
 };
-std::string						VDUtils::getFileNameFromFullPath(std::string path) {
+std::string						VDUtils::getFileNameFromFullPath(const std::string& path) {
 	fs::path fullPath = path;
 	return fullPath.filename().string();
 };

@@ -38,8 +38,8 @@ namespace videodromm
 		VDSessionFacadeRef		setupOSCReceiver();
 		VDSessionFacadeRef		setupWSClient();
 		VDSessionFacadeRef		setupKeyboard();
-		VDSessionFacadeRef		addOSCObserver(std::string host, unsigned int port);
-		VDSessionFacadeRef		addSocketIOObserver(std::string host, unsigned int port);
+		VDSessionFacadeRef		addOSCObserver(const std::string& host, unsigned int port);
+		VDSessionFacadeRef		addSocketIOObserver(const std::string& host, unsigned int port);
 		VDSessionFacadeRef		setAnim(unsigned int aCtrl, unsigned int aAnim);
 		VDSessionFacadeRef		toggleValue(unsigned int aCtrl);
 		VDSessionFacadeRef		tapTempo();

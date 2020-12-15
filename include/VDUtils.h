@@ -39,8 +39,8 @@ namespace videodromm
 		void						moveX1LeftOrTop(int x1);
 		void						moveY1LeftOrTop(int y1);
 		// file system
-		fs::path					getPath(std::string path);
-		std::string					getFileNameFromFullPath(std::string path);
+		fs::path					getPath(const std::string& path);
+		std::string					getFileNameFromFullPath(const std::string& path);
 	private:
 		// Settings
 		VDSettingsRef				mVDSettings;

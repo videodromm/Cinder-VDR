@@ -77,7 +77,7 @@ void VDRouter::changeFloatValue(unsigned int aControl, float aValue, bool forceS
 	}
 }
 
-void VDRouter::sendJSON(std::string params) {
+void VDRouter::sendJSON(const std::string& params) {
 	/*if (mOscSender) {
 	Observer Observable
 	mVDOsc->send(params);

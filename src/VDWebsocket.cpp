@@ -19,7 +19,7 @@ VDWebsocket::VDWebsocket() {
 	mPingTime = getElapsedSeconds();
 
 }
-void VDWebsocket::setupWSClient(VDMediatorObservableRef aVDMediator, std::string aWSHost, int aWSPort) {
+void VDWebsocket::setupWSClient(VDMediatorObservableRef aVDMediator, const std::string& aWSHost, int aWSPort) {
 	mVDMediator = aVDMediator;
 	mWSHost = aWSHost;
 	mWSPort = aWSPort;
@@ -331,14 +331,14 @@ void VDWebsocket::wsClientDisconnect()
 	}
 
 }
-void VDWebsocket::wsWrite(std::string msg)
+void VDWebsocket::wsWrite(const std::string& msg)
 {
 
 	if (clientConnected) mClient.write(msg);
 
 }
 
-void VDWebsocket::sendJSON(std::string params) {
+void VDWebsocket::sendJSON(const std::string& params) {
 
 	wsWrite(params);
 
@@ -439,7 +439,7 @@ void VDWebsocket::changeWarpFboIndex(unsigned int aWarpIndex, unsigned int aWarp
 	std::string strParams = sParams.str();
 	sendJSON(strParams);
 }
-void VDWebsocket::changeFragmentShader(std::string aFragmentShaderText) {
+void VDWebsocket::changeFragmentShader(const std::string& aFragmentShaderText) {
 
 	std::stringstream sParams;
 	sParams << "{\"event\" : \"frag\",\"message\" : \"" << aFragmentShaderText << "\"}";

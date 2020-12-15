@@ -28,7 +28,7 @@ namespace videodromm {
 	
 	class VDOscObserver : public VDUniformObserver {
 	public:
-		static VDUniformObserverRef connect(std::string host, unsigned int port) {
+		static VDUniformObserverRef connect(const std::string& host, unsigned int port) {
 			VDOscObserver* o = new VDOscObserver(host, port);
 			o->bind();
 
@@ -76,7 +76,7 @@ namespace videodromm {
 		bool mIsConnected = false;
 		~VDOscObserver() { mSender.close(); };
 	private:
-		VDOscObserver(std::string host, unsigned int port) : mSender(10002, host, port) {
+		VDOscObserver(const std::string& host, unsigned int port) : mSender(10002, host, port) {
 		}
 		osc::SenderUdp	mSender;
 	};

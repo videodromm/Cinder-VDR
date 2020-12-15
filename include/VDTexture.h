@@ -72,7 +72,7 @@ namespace videodromm
 		//static VDTextureList			readSettings(VDAnimationRef aVDAnimation, const ci::DataSourceRef &source);
 		//! write a xml file
 		//static void						writeSettings(const VDTextureList &vdtexturelist, const ci::DataTargetRef &target);
-		virtual bool					loadFromFullPath(std::string aPath);
+		virtual bool					loadFromFullPath(const std::string& aPath);
 		std::string						getStatus() { return mStatus; };
 		//! area to display
 		void							lockBounds(bool lock, unsigned int aWidth, unsigned int aHeight);

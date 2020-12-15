@@ -43,7 +43,7 @@ namespace videodromm
 
 		void						changeFloatValue(unsigned int aControl, float aValue, bool forceSend = false, bool toggle = false, bool increase = false, bool decrease = false);
 
-		void						sendJSON(std::string params);
+		void						sendJSON(const std::string& params);
 		int							selectedWarp() { return mSelectedWarp; };
 		int							selectedFboA() { return mSelectedFboA; };
 		int							selectedFboB() { return mSelectedFboB; };

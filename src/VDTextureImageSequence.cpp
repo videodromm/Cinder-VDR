@@ -22,7 +22,7 @@ TextureImageSequence::TextureImageSequence(VDAnimationRef aVDAnimation) {
 	mPosition = 0;
 	mNumberOfDigits = 4;
 }
-bool TextureImageSequence::loadFromFullPath(std::string aPath)
+bool TextureImageSequence::loadFromFullPath(const std::string& aPath)
 {
 	bool validFile = false; // if no valid files in the folder, we keep existing vector
 	std::string anyImagefileName = "0.jpg";

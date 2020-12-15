@@ -28,15 +28,15 @@ namespace videodromm
 		{
 			return std::shared_ptr<VDWebsocket>(new VDWebsocket());
 		}
-		void						setupWSClient(VDMediatorObservableRef aVDMediator, std::string aWSHost, int aWSPort);
+		void						setupWSClient(VDMediatorObservableRef aVDMediator, const std::string& aWSHost, int aWSPort);
 
 		void						update();
 		// messages
-		void						sendJSON(std::string params);
+		void						sendJSON(const std::string& params);
 		void						updateParams(int iarg0, float farg1);
 		// WebSockets
 		//void						wsWriteBinary(const void *data, int size);
-		void						wsWrite(std::string msg);
+		void						wsWrite(const std::string& msg);
 		void						wsConnect();
 		void						wsPing();
 		// change a control value and update network clients
@@ -49,7 +49,7 @@ namespace videodromm
 		void						resetAutoAnimation(unsigned int aIndex);
 		void						changeShaderIndex(unsigned int aWarpIndex, unsigned int aWarpShaderIndex, unsigned int aSlot);
 		void						changeWarpFboIndex(unsigned int aWarpIndex, unsigned int aWarpFboIndex, unsigned int aSlot); //aSlot 0 = A, 1 = B,...
-		void                        changeFragmentShader(std::string aFragmentShaderText);
+		void                        changeFragmentShader(const std::string& aFragmentShaderText);
 		// received shaders
 		bool						hasReceivedShader() { return shaderReceived; };
 		std::string					getReceivedShader();

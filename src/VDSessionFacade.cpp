@@ -37,14 +37,14 @@ VDSessionFacadeRef VDSessionFacade::setupKeyboard() {
 	mVDMediator->setupKeyboard();
 	return shared_from_this();
 }
-VDSessionFacadeRef VDSessionFacade::addOSCObserver(std::string host, unsigned int port) {
+VDSessionFacadeRef VDSessionFacade::addOSCObserver(const std::string& host, unsigned int port) {
 	if (!mOscSenderConnected) {
 		mOscSenderConnected = true;
 		mVDMediator->addObserver(VDOscObserver::connect(host, port));
 	}
 	return shared_from_this();
 }
-VDSessionFacadeRef VDSessionFacade::addSocketIOObserver(std::string host, unsigned int port) {
+VDSessionFacadeRef VDSessionFacade::addSocketIOObserver(const std::string& host, unsigned int port) {
 	//mVDMediator->addObserver(VDSocketIOObserver::connect(host, port));
 	return shared_from_this();
 }
