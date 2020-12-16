@@ -22,7 +22,11 @@ namespace videodromm {
 		mVDAnimation = aVDAnimation;
 		// Uniforms
 		mVDUniforms = aVDUniforms;
-		mDefaultTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
+		// TODO TMP mDefaultTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
+
+		mDefaultTexture = ci::gl::Texture::create(loadImage(loadAsset("0.jpg")));
+		
+
 		mMixetteTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
 		// init fbo format
 		fmt.setWrap(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);

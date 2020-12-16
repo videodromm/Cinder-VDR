@@ -25,6 +25,7 @@ void VDWebsocket::setupWSClient(VDMediatorObservableRef aVDMediator, const std::
 	mWSPort = aWSPort;
 	//wsConnect();
 }
+
 void VDWebsocket::updateParams(int iarg0, float farg1) {
 
 	if (iarg0 > 0 && iarg0 < 9) {

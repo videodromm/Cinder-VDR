@@ -60,6 +60,12 @@ namespace videodromm
 		bool						hasReceivedStream() { return streamReceived; };
 		void						setWSMsg(const std::string& aMsg);
 		std::string					getWSMsg();
+		/*VDUniformObserverRef	setUniformValue(int aIndex, float aValue) {
+			if (aIndex != 20) { // mVDUniforms->IFPS
+				wsWrite("{\"params\" :[{ \"name\":" + toString(aIndex) + ",\"value\":" + toString(aValue) + "}]}");
+			}
+			return shared_from_this();
+		}*/
 	private:
 		//Mediator
 		VDMediatorObservableRef		mVDMediator;

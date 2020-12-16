@@ -10,6 +10,8 @@
 
 // Uniforms
 #include "VDUniforms.h"
+// FboShader
+#include "VDFboShader.h"
 // Keyboard
 #include "VDKeyboard.h"
 // Osc
@@ -74,6 +76,7 @@ namespace videodromm {
 		VDMediatorObservableRef				updateShaderText(int aIndex, float aValue);
 		bool								handleKeyDown(KeyEvent& event);
 		bool								handleKeyUp(KeyEvent& event);
+		ci::gl::TextureRef					getFboShaderTexture(unsigned int aIndex);
 	private:
 		std::vector<VDUniformObserverRef>	mObservers;
 		// Settings
@@ -86,6 +89,8 @@ namespace videodromm {
 		VDOscReceiverRef					mVDOscReceiver;
 		// Websockets
 		VDWebsocketRef						mVDWebsocket;
+		// VDFboShader
+		VDFboShaderRef						mVDFboShader;
 		//! OSC
 		bool								validateJson(const JsonTree& tree);
 		int									mOSCReceiverPort;
@@ -98,13 +103,14 @@ namespace videodromm {
 		const std::string					mWSJsonFileName = "wsclient.json";
 		void								loadWSFromJsonFile(const fs::path& jsonFile);
 		JsonTree							saveWSToJson() const;
-		std::string								mShaderLeft;
-		std::string								mShaderRight;
+		//std::string							mShaderLeft;
+		//std::string							mShaderRight;
 		void								setFragmentShaderString(unsigned int aShaderIndex, const std::string& aFragmentShaderString, const std::string& aName);
 		// Keyboard
 		VDKeyboardRef						mVDKeyboard;
 		//VDMediatorObservable() {}
 		VDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms);
+
 	};
 
 }

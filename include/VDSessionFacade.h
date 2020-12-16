@@ -69,6 +69,7 @@ namespace videodromm
 		ci::gl::TextureRef		buildRenderedMixetteTexture(unsigned int aIndex);
 		ci::gl::TextureRef		buildFboTexture(unsigned int aIndex);
 		ci::gl::TextureRef		buildFboRenderedTexture(unsigned int aFboIndex);
+		ci::gl::TextureRef		getFboShaderTexture(unsigned int aIndex);
 		ci::gl::TextureRef		buildPostFboTexture();
 		ci::gl::TextureRef		buildWarpFboTexture();
 		ci::gl::TextureRef		buildRenderedWarpFboTexture();

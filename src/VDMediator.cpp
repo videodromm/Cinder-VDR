@@ -15,6 +15,7 @@ VDMediatorObservable::VDMediatorObservable(VDSettingsRef aVDSettings, VDAnimatio
 	mOSCReceiverPort = OSC_DEFAULT_PORT;
 	mWSHost = WS_DEFAULT_HOST;
 	mWSPort = WS_DEFAULT_PORT;
+	mVDFboShader = VDFboShader::create(aVDSettings, aVDAnimation, aVDUniforms);
 }
 VDMediatorObservableRef VDMediatorObservable::addObserver(VDUniformObserverRef o) {
 	mObservers.push_back(o);
@@ -118,25 +119,20 @@ void VDMediatorObservable::update() {
 	if (mVDWebsocket->hasReceivedShader()) {
 		std::string receivedShader = mVDWebsocket->getReceivedShader();
 		if (mVDAnimation->getUniformValue(mVDUniforms->IXFADE) < 0.5) {
-			setFragmentShaderString(2, receivedShader, "hydra0");
-			mShaderLeft = receivedShader;
+			setFragmentShaderString(0, receivedShader, "hydra0");			
 		}
 		else {
-			setFragmentShaderString(1, receivedShader, "hydra1");
-			mShaderRight = receivedShader;
+			setFragmentShaderString(1, receivedShader, "hydra1");			
 		}	
 		// TODO timeline().apply(&mWarps[aWarpIndex]->ABCrossfade, 0.0f, 2.0f); };
 	}
 }
 void VDMediatorObservable::setFragmentShaderString(unsigned int aShaderIndex, const std::string& aFragmentShaderString, const std::string& aName) {
-	/*if (aShaderIndex > mShaderList.size() - 1) aShaderIndex = mShaderList.size() - 1;
-	mShaderList[aShaderIndex]->setFragmentString(aFragmentShaderString, aName);
-	// if live coding shader compiles and is used by a fbo reload it
-	for (int i = 0; i < mFboList.size(); i++)
-	{
-		if (mFboList[i]->getShaderIndex() == aShaderIndex) setFboFragmentShaderIndex(i, aShaderIndex);
-	}*/
+	mVDFboShader->setFragmentShaderString(aShaderIndex, aFragmentShaderString, aName);
 }
+ci::gl::TextureRef VDMediatorObservable::getFboShaderTexture(unsigned int aIndex) {
+	return mVDFboShader->getFboShaderTexture();
+};
 int VDMediatorObservable::getOSCReceiverPort() {
 	return mOSCReceiverPort;
 };
