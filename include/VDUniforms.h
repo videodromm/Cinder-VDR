@@ -157,7 +157,7 @@ namespace videodromm
 			SRCYRIGHT = 163,
 
 		};
-
+		bool							isExistingUniform(const std::string& aName);
 		int								getUniformType(unsigned int aIndex) {
 			return shaderUniforms[aIndex].uniformType;
 		}

@@ -748,4 +748,6 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	return rtn;
 }
 
-
+bool VDUniforms::isExistingUniform(const std::string& aName) {
+ return stringToIndex(aName) != -1; 
+};

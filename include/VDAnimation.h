@@ -111,7 +111,9 @@ namespace videodromm
 		int								getUniformTypeByName(const std::string& aName) {
 			return mVDUniforms->getUniformTypeByName(aName);
 		}
-		bool							isExistingUniform(const std::string& aName) { return true; }; // TODO
+		bool							isExistingUniform(const std::string& aName) { 
+			return mVDUniforms->isExistingUniform(aName); 
+		};
 		
 		/*
 		string							getUniformNameForIndex(int aIndex) {

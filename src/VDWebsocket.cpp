@@ -76,8 +76,7 @@ void VDWebsocket::parseMessage(std::string msg) {
 						int name = jsonElement->getChild("name").getValue<int>();
 						float value = jsonElement->getChild("value").getValue<float>();
 						// basic name value 
-						//mVDAnimation->setFloatUniformValueByIndex(name, value);
-
+						mVDMediator->setUniformValue(name, value);
 					}
 				}
 
@@ -109,9 +108,8 @@ void VDWebsocket::parseMessage(std::string msg) {
 							for (JsonTree::ConstIter jsonElement = jsonParams.begin(); jsonElement != jsonParams.end(); ++jsonElement) {
 								int name = jsonElement->getChild("name").getValue<int>();
 								float value = jsonElement->getChild("value").getValue<float>();
-
 								// basic name value 
-								//mVDAnimation->setFloatUniformValueByIndex(name, value);
+								mVDMediator->setUniformValue(name, value);
 							}
 						}
 						else if (val == "hydra") {

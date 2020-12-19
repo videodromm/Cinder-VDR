@@ -150,17 +150,40 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		for (const auto& uniform : mUniforms) {
 			name = uniform.getName(); // TODO uniform.getType()
 			CI_LOG_E(mShader->getLabel() + ", getShader uniform name:" + uniform.getName() + ", type:" + toString( uniform.getType() ));
-			if (mVDAnimation->isExistingUniform(name)) {
-				int uniformType = mVDUniforms->getUniformTypeByName(name);
+			//if (mVDAnimation->isExistingUniform(name)) {
+				int uniformType = uniform.getType();
 				switch (uniformType)
 				{
+				case 0: // because of int uniformType = mVDUniforms->getUniformTypeByName(name);
+					if (name == "TIME" || name == "time") {
+						mShader->uniform(name, mVDAnimation->getUniformValueByName("TIME"));
+					}
+					else {
+						if (mVDAnimation->isExistingUniform(name)) {
+							mShader->uniform(name, mVDUniforms->getUniformValueByName(name));
+						}
+						else {
+							//mVDUniforms->createFloatUniform
+							//createFloatUniform(name, mVDAnimation->getUniformIndexForName(name), getIntUniformValueByName(name), mVDAnimation->getMinUniformValueByName(name), mVDAnimation->getMaxUniformValueByName(name));
+							mShader->uniform(name, mVDAnimation->getUniformValue(0));
+
+						}
+					}
+					break;
 				case GL_FLOAT: // float 5126 GL_FLOAT 0x1406
 					if (name == "TIME" || name == "time") {
 						mShader->uniform(name, mVDAnimation->getUniformValueByName("TIME"));
 					}
 					else {
-						//createFloatUniform(name, mVDAnimation->getUniformIndexForName(name), getIntUniformValueByName(name), mVDAnimation->getMinUniformValueByName(name), mVDAnimation->getMaxUniformValueByName(name));
-						mShader->uniform(name, mVDUniforms->getUniformValueByName(name));
+					if (mVDAnimation->isExistingUniform(name)) {
+							mShader->uniform(name, mVDUniforms->getUniformValueByName(name));
+						}
+						else {
+							//mVDUniforms->createFloatUniform
+							//createFloatUniform(name, mVDAnimation->getUniformIndexForName(name), getIntUniformValueByName(name), mVDAnimation->getMinUniformValueByName(name), mVDAnimation->getMaxUniformValueByName(name));
+							mShader->uniform(name, mVDAnimation->getUniformValue(0));
+
+						}
 					}
 					break;
 				case GL_SAMPLER_2D: // sampler2D 35678 GL_SAMPLER_2D 0x8B5E
@@ -211,7 +234,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				default:
 					break;
 				}
-			}
+			/*}
 			else {
 				if (name != "ciModelViewProjection") {//type 35676 GL_FLOAT_MAT4 0x8B5C
 					mError = "fbo uniform not found " + name;
@@ -221,7 +244,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				else {
 					mError = "should not happen: " + name;
 				}
-			}
+			}*/
 		}
 		//mShader->uniform("RENDERSIZE", vec2(mVDParams->getFboWidth(), mVDParams->getFboHeight()));
 		//mShader->uniform("TIME", (float)getElapsedSeconds());// mVDAnimation->getUniformValue(0));
