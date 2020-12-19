@@ -148,28 +148,14 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		*/
 		mUniforms = mShader->getActiveUniforms();
 		for (const auto& uniform : mUniforms) {
+			
 			name = uniform.getName(); // TODO uniform.getType()
-			CI_LOG_E(mShader->getLabel() + ", getShader uniform name:" + uniform.getName() + ", type:" + toString( uniform.getType() ));
+			CI_LOG_E(mShader->getLabel() + ", getShader uniform name:" + uniform.getName() + ", type:" + toString(uniform.getType()) + ", Location:" + toString(uniform.getLocation()));
 			//if (mVDAnimation->isExistingUniform(name)) {
 				int uniformType = uniform.getType();
 				switch (uniformType)
 				{
-				case 0: // because of int uniformType = mVDUniforms->getUniformTypeByName(name);
-					if (name == "TIME" || name == "time") {
-						mShader->uniform(name, mVDAnimation->getUniformValueByName("TIME"));
-					}
-					else {
-						if (mVDAnimation->isExistingUniform(name)) {
-							mShader->uniform(name, mVDUniforms->getUniformValueByName(name));
-						}
-						else {
-							//mVDUniforms->createFloatUniform
-							//createFloatUniform(name, mVDAnimation->getUniformIndexForName(name), getIntUniformValueByName(name), mVDAnimation->getMinUniformValueByName(name), mVDAnimation->getMaxUniformValueByName(name));
-							mShader->uniform(name, mVDAnimation->getUniformValue(0));
-
-						}
-					}
-					break;
+				
 				case GL_FLOAT: // float 5126 GL_FLOAT 0x1406
 					if (name == "TIME" || name == "time") {
 						mShader->uniform(name, mVDAnimation->getUniformValueByName("TIME"));
@@ -181,8 +167,10 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 						else {
 							//mVDUniforms->createFloatUniform
 							//createFloatUniform(name, mVDAnimation->getUniformIndexForName(name), getIntUniformValueByName(name), mVDAnimation->getMinUniformValueByName(name), mVDAnimation->getMaxUniformValueByName(name));
-							mShader->uniform(name, mVDAnimation->getUniformValue(0));
-
+							//mShader->uniform(name, mVDAnimation->getUniformValue(0));
+							int l = uniform.getLocation();
+							float v = getUniformValueByLocation(l);
+							mShader->uniform(uniform.getLocation(), getUniformValueByLocation(uniform.getLocation()));
 						}
 					}
 					break;
@@ -286,12 +274,15 @@ bool									VDFboShader::isValid() {
 	return mValid;
 };
 
-std::string								VDFboShader::getName() { return mName; };
-std::string								VDFboShader::getShaderName() { return mShaderName; };
+std::string								VDFboShader::getFboShaderName() { 
+	return mShaderName; 
+};
 
 void									VDFboShader::setImageInputTexture(ci::gl::Texture2dRef aTextureRef, const std::string& aTextureFilename) {
 	// TODO 20200630
 	mTexture = aTextureRef;
 };
 
-std::vector<ci::gl::GlslProg::Uniform>	VDFboShader::getUniforms() { return mUniforms; };
+std::vector<ci::gl::GlslProg::Uniform>	VDFboShader::getUniforms() { 
+	return mUniforms; 
+};

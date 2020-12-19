@@ -52,12 +52,17 @@ namespace videodromm
 
 		ci::gl::Texture2dRef					getFboShaderTexture(); //TODO 20200610; = 0
 		bool									isValid();
-		std::string								getName();
-		std::string								getShaderName();
+		std::string								getFboShaderName();
 		void									setImageInputTexture(ci::gl::Texture2dRef aTextureRef, const std::string& aTextureFilename);
 		std::vector<ci::gl::GlslProg::Uniform>	getUniforms();
 		//new 
 		bool setFragmentShaderString(unsigned int aShaderIndex, const std::string& aFragmentShaderString, const std::string& aName = "");
+		int								getUniformValueByLocation(unsigned int aLocationIndex) {
+			return mUniformValueByLocation[aLocationIndex]; 
+		};
+		void							setUniformValueByLocation(unsigned int aLocationIndex, float aValue) { 
+			mUniformValueByLocation[aLocationIndex] = aValue;
+		};
 	private:
 		// Params
 		VDParamsRef						mVDParams;
@@ -75,6 +80,7 @@ namespace videodromm
 		//! shader
 		gl::GlslProgRef					mShader;
 		std::vector<ci::gl::GlslProg::Uniform> mUniforms;
+		std::map<int, float>			mUniformValueByLocation;
 		std::string						mShaderName = "";
 		std::string						mName = "";
 		std::string						mShaderFileName = "";

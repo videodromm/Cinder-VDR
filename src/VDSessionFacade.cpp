@@ -147,6 +147,23 @@ ci::gl::TextureRef VDSessionFacade::buildFboTexture(unsigned int aIndex) {
 ci::gl::TextureRef VDSessionFacade::getFboShaderTexture(unsigned int aIndex) {
 	return mVDMediator->getFboShaderTexture(aIndex);
 }
+std::string VDSessionFacade::getFboShaderName(unsigned int aIndex) {
+	return mVDMediator->getFboShaderName(aIndex);
+}
+unsigned int VDSessionFacade::getFboShadersCount() {
+	return 1; // TODO
+}
+std::vector<ci::gl::GlslProg::Uniform> VDSessionFacade::getFboShaderUniforms() {
+	return mVDMediator->getFboShaderUniforms();
+}
+
+int VDSessionFacade::getUniformValueByLocation(unsigned int aLocationIndex) {
+	return mVDMediator->getUniformValueByLocation(aLocationIndex);
+};
+void VDSessionFacade::setUniformValueByLocation(unsigned int aLocationIndex, float aValue) {
+	mVDMediator->setUniformValueByLocation(aLocationIndex, aValue);
+};
+
 ci::gl::TextureRef VDSessionFacade::buildFboRenderedTexture(unsigned int aFboIndex) {
 	return mVDSession->getFboRenderedTexture(aFboIndex);
 }
@@ -231,6 +248,7 @@ int VDSessionFacade::getUniformIndexForName(const std::string& aName) {
 float VDSessionFacade::getUniformValue(unsigned int aCtrl) {
 	return mVDMediator->getUniformValue(aCtrl);
 };
+
 std::string VDSessionFacade::getUniformName(unsigned int aIndex) {
 	return mVDMediator->getUniformName(aIndex);
 }

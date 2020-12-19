@@ -77,6 +77,11 @@ namespace videodromm {
 		bool								handleKeyDown(KeyEvent& event);
 		bool								handleKeyUp(KeyEvent& event);
 		ci::gl::TextureRef					getFboShaderTexture(unsigned int aIndex);
+		std::string							getFboShaderName(unsigned int aIndex);
+		std::vector<ci::gl::GlslProg::Uniform>	getFboShaderUniforms();
+		int									getUniformValueByLocation(unsigned int aLocationIndex);
+		void								setUniformValueByLocation(unsigned int aLocationIndex, float aValue);
+
 	private:
 		std::vector<VDUniformObserverRef>	mObservers;
 		// Settings

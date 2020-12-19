@@ -133,6 +133,21 @@ void VDMediatorObservable::setFragmentShaderString(unsigned int aShaderIndex, co
 ci::gl::TextureRef VDMediatorObservable::getFboShaderTexture(unsigned int aIndex) {
 	return mVDFboShader->getFboShaderTexture();
 };
+std::string VDMediatorObservable::getFboShaderName(unsigned int aIndex){
+	return mVDFboShader->getFboShaderName();
+};
+std::vector<ci::gl::GlslProg::Uniform> VDMediatorObservable::getFboShaderUniforms() {
+	return mVDFboShader->getUniforms();
+}
+
+int VDMediatorObservable::getUniformValueByLocation(unsigned int aLocationIndex) { 
+	return mVDFboShader->getUniformValueByLocation(aLocationIndex);
+};
+void VDMediatorObservable::setUniformValueByLocation(unsigned int aLocationIndex, float aValue) {
+	mVDFboShader->setUniformValueByLocation(aLocationIndex, aValue);
+};
+
+
 int VDMediatorObservable::getOSCReceiverPort() {
 	return mOSCReceiverPort;
 };
