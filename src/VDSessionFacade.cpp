@@ -124,8 +124,9 @@ void VDSessionFacade::wsPing() {
 void VDSessionFacade::setWSClientPort(int aPort) {
 	mVDMediator->setWSClientPort(aPort);
 };
-void VDSessionFacade::wsConnect() {
+VDSessionFacadeRef VDSessionFacade::wsConnect() {
 	mVDMediator->wsConnect();
+	return shared_from_this();
 }
 void					VDSessionFacade::setWSMsg(const std::string& aMsg) {
 	if (mWSClientConnected) {
@@ -238,6 +239,10 @@ int VDSessionFacade::getMode() {
 }
 bool VDSessionFacade::showUI() {
 	return mVDSession->showUI();
+};
+VDSessionFacadeRef VDSessionFacade::toggleUI() {
+	mVDSession->toggleUI();
+	return shared_from_this();
 };
 std::string VDSessionFacade::getModeName(unsigned int aMode) {
 	return mVDSession->getModeName(aMode);

@@ -170,7 +170,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 							//mShader->uniform(name, mVDAnimation->getUniformValue(0));
 							int l = uniform.getLocation();
 							float v = getUniformValueByLocation(l);
-							mShader->uniform(uniform.getLocation(), getUniformValueByLocation(uniform.getLocation()));
+							mShader->uniform(l, mUniformValueByLocation[l]);
 						}
 					}
 					break;

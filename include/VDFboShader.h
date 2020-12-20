@@ -80,7 +80,7 @@ namespace videodromm
 		//! shader
 		gl::GlslProgRef					mShader;
 		std::vector<ci::gl::GlslProg::Uniform> mUniforms;
-		std::map<int, float>			mUniformValueByLocation;
+		std::map<unsigned int, float>			mUniformValueByLocation;
 		std::string						mShaderName = "";
 		std::string						mName = "";
 		std::string						mShaderFileName = "";

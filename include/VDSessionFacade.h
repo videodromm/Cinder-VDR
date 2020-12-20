@@ -60,7 +60,7 @@ namespace videodromm
 		// websockets
 		bool					isWSClientConnected();
 		int						getWSClientPort();
-		void					wsConnect();
+		VDSessionFacadeRef		wsConnect();
 		void					wsPing();
 		void					setWSClientPort(int aPort);
 		void					setWSMsg(const std::string& aMsg);
@@ -97,6 +97,7 @@ namespace videodromm
 		int						getFFTWindowSize();
 		float*					getFreqs();
 		bool					showUI();
+		VDSessionFacadeRef		toggleUI();
 		std::vector<ci::gl::GlslProg::Uniform> getUniforms(unsigned int aFboIndex = 0);
 		ci::gl::Texture2dRef	buildFboInputTexture(unsigned int aFboIndex = 0);
 		int						getMode();
