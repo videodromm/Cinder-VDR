@@ -79,10 +79,6 @@ VDSessionFacadeRef VDSessionFacade::setMode(int aMode) {
 VDSessionFacadeRef VDSessionFacade::update() {
 	mVDSession->update();
 	mVDMediator->update();
-
-
-	
-
 	return shared_from_this();
 }
 // begin terminal operations
@@ -152,17 +148,17 @@ std::string VDSessionFacade::getFboShaderName(unsigned int aIndex) {
 	return mVDMediator->getFboShaderName(aIndex);
 }
 unsigned int VDSessionFacade::getFboShadersCount() {
-	return 1; // TODO
+	return mVDMediator->getFboShadersCount();
 }
-std::vector<ci::gl::GlslProg::Uniform> VDSessionFacade::getFboShaderUniforms() {
-	return mVDMediator->getFboShaderUniforms();
+std::vector<ci::gl::GlslProg::Uniform> VDSessionFacade::getFboShaderUniforms(unsigned int aFboShaderIndex) {
+	return mVDMediator->getFboShaderUniforms(aFboShaderIndex);
 }
 
-int VDSessionFacade::getUniformValueByLocation(unsigned int aLocationIndex) {
-	return mVDMediator->getUniformValueByLocation(aLocationIndex);
+int VDSessionFacade::getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex) {
+	return mVDMediator->getUniformValueByLocation(aFboShaderIndex, aLocationIndex);
 };
-void VDSessionFacade::setUniformValueByLocation(unsigned int aLocationIndex, float aValue) {
-	mVDMediator->setUniformValueByLocation(aLocationIndex, aValue);
+void VDSessionFacade::setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue) {
+	mVDMediator->setUniformValueByLocation(aFboShaderIndex, aLocationIndex, aValue);
 };
 
 ci::gl::TextureRef VDSessionFacade::buildFboRenderedTexture(unsigned int aFboIndex) {

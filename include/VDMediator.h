@@ -76,11 +76,12 @@ namespace videodromm {
 		VDMediatorObservableRef				updateShaderText(int aIndex, float aValue);
 		bool								handleKeyDown(KeyEvent& event);
 		bool								handleKeyUp(KeyEvent& event);
-		ci::gl::TextureRef					getFboShaderTexture(unsigned int aIndex);
-		std::string							getFboShaderName(unsigned int aIndex);
-		std::vector<ci::gl::GlslProg::Uniform>	getFboShaderUniforms();
-		int									getUniformValueByLocation(unsigned int aLocationIndex);
-		void								setUniformValueByLocation(unsigned int aLocationIndex, float aValue);
+		ci::gl::TextureRef					getFboShaderTexture(unsigned int aFboShaderIndex);
+		std::string							getFboShaderName(unsigned int aFboShaderIndex);
+		unsigned int						getFboShadersCount();
+		std::vector<ci::gl::GlslProg::Uniform>	getFboShaderUniforms(unsigned int aFboShaderIndex);
+		int									getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex);
+		void								setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue);
 
 	private:
 		std::vector<VDUniformObserverRef>	mObservers;
@@ -94,8 +95,12 @@ namespace videodromm {
 		VDOscReceiverRef					mVDOscReceiver;
 		// Websockets
 		VDWebsocketRef						mVDWebsocket;
-		// VDFboShader
-		VDFboShaderRef						mVDFboShader;
+		// FboShaders
+		VDFboShaderRef						fboShaderHydra0;
+		VDFboShaderRef						fboShaderHydra1;
+		VDFboShaderRef						fboShader;
+		// maintain a list of fbos 
+		VDFboShaderList						mFboShaderList;
 		//! OSC
 		bool								validateJson(const JsonTree& tree);
 		int									mOSCReceiverPort;
@@ -110,12 +115,11 @@ namespace videodromm {
 		JsonTree							saveWSToJson() const;
 		//std::string							mShaderLeft;
 		//std::string							mShaderRight;
-		void								setFragmentShaderString(unsigned int aShaderIndex, const std::string& aFragmentShaderString, const std::string& aName);
+		void								setFragmentShaderString(unsigned int aFboShaderIndex, const std::string& aFragmentShaderString, const std::string& aName);
 		// Keyboard
 		VDKeyboardRef						mVDKeyboard;
 		//VDMediatorObservable() {}
 		VDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms);
-
 	};
 
 }

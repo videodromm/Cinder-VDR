@@ -3,9 +3,8 @@
 using namespace videodromm;
 
 //namespace videodromm {
-VDFboShader::VDFboShader(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms)
-	:mVDSettings{ aVDSettings },
-	mVDUniforms{ aVDUniforms },
+VDFboShader::VDFboShader(VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms)
+	:mVDUniforms{ aVDUniforms },
 	mVDAnimation{ aVDAnimation }
 {
 	CI_LOG_V("VDFboShader constructor");
@@ -41,7 +40,7 @@ VDFboShader::VDFboShader(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation,
 		CI_LOG_V("VDFboShader constructor success");
 	}
 	else {
-		mVDSettings->mErrorMsg = "VDFboShader constructor failed\n" + mVDSettings->mErrorMsg.substr(0, mVDSettings->mMsgLength);
+		mMsg = "VDFboShader constructor failed\n" + mMsg.substr(0, mMsgLength);
 	}
 }
 VDFboShader::~VDFboShader(void) {
@@ -85,13 +84,13 @@ bool VDFboShader::setFragmentShaderString(unsigned int aShaderIndex, const std::
 		if (!fs::exists(mDefaultVertexFilePath)) {
 			mError = mDefaultVertexFilePath.string() + " does not exist";
 			CI_LOG_V(mError);
-			mVDSettings->mErrorMsg = mError + "\n" + mVDSettings->mErrorMsg.substr(0, mVDSettings->mMsgLength);
+			mMsg = mError + "\n" + mMsg.substr(0, mMsgLength);
 		}
 		// try to compile a first time to get active mUniforms
 		mShader = gl::GlslProg::create(loadString(loadFile(mDefaultVertexFilePath)), mOutputFragmentString);
 		// update only if success
 		mShaderFragmentString = mOutputFragmentString;
-		mVDSettings->mMsg = mName + " compiled(fbo)\n" + mVDSettings->mMsg.substr(0, mVDSettings->mMsgLength);
+		mMsg = mName + " compiled(fbo)\n" + mMsg.substr(0, mMsgLength);
 		mValid = true;
 	}
 	catch (gl::GlslProgCompileExc& exc)
@@ -104,7 +103,7 @@ bool VDFboShader::setFragmentShaderString(unsigned int aShaderIndex, const std::
 		mError = mName + std::string(e.what());
 		CI_LOG_V("setFragmentString, error on live fragment shader:" + mError + " frag:" + mName);
 	}
-	if (mError.length() > 0) mVDSettings->mFboMsg = mError + "\n" + mVDSettings->mFboMsg.substr(0, mVDSettings->mMsgLength);
+	if (mError.length() > 0) mMsg = mError + "\n" + mMsg.substr(0, mMsgLength);
 	return mValid;
 }
 
@@ -226,7 +225,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			else {
 				if (name != "ciModelViewProjection") {//type 35676 GL_FLOAT_MAT4 0x8B5C
 					mError = "fbo uniform not found " + name;
-					mVDSettings->mErrorMsg = mError + "\n" + mVDSettings->mErrorMsg.substr(0, mVDSettings->mMsgLength);
+					mMsg = mError + "\n" + mMsg.substr(0, mMsgLength);
 					CI_LOG_E(mError);
 				}
 				else {

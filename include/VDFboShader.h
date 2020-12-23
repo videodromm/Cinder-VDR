@@ -15,8 +15,7 @@
 #include "cinder/Log.h"
 #include "cinder/Timeline.h"
 #include "cinder/ImageIo.h"
-// Settings
-#include "VDSettings.h"
+
 // Animation
 #include "VDAnimation.h"
 // Uniforms
@@ -38,16 +37,16 @@ namespace videodromm
 {
 	// stores the pointer to the VDFboShader instance
 	typedef std::shared_ptr<class VDFboShader> 		VDFboShaderRef;
-	//typedef std::vector<VDFboRef>					VDFboList;
+	typedef std::vector<VDFboShaderRef>				VDFboShaderList;
 	// for profiling
 	typedef std::chrono::high_resolution_clock		Clock;
 
 	class VDFboShader {
 	public:
-		VDFboShader(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms);
+		VDFboShader(VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms);
 		~VDFboShader(void);
-		static VDFboShaderRef create(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms) {
-			return std::make_shared<VDFboShader>(aVDSettings, aVDAnimation, aVDUniforms);
+		static VDFboShaderRef create(VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms) {
+			return std::make_shared<VDFboShader>( aVDAnimation, aVDUniforms);
 		}
 
 		ci::gl::Texture2dRef					getFboShaderTexture(); //TODO 20200610; = 0
@@ -66,8 +65,6 @@ namespace videodromm
 	private:
 		// Params
 		VDParamsRef						mVDParams;
-		// Settings
-		VDSettingsRef					mVDSettings;
 		// Animation
 		const VDAnimationRef			mVDAnimation;
 		// uniforms
@@ -101,5 +98,8 @@ namespace videodromm
 		bool							isReady;
 		ci::gl::Texture2dRef			mRenderedTexture;
 		ci::gl::Texture2dRef			getFboTexture();
+		// messages
+		static const int				mMsgLength = 150;
+		std::string						mMsg;
 	};
 }

@@ -15,7 +15,12 @@ VDMediatorObservable::VDMediatorObservable(VDSettingsRef aVDSettings, VDAnimatio
 	mOSCReceiverPort = OSC_DEFAULT_PORT;
 	mWSHost = WS_DEFAULT_HOST;
 	mWSPort = WS_DEFAULT_PORT;
-	mVDFboShader = VDFboShader::create(aVDSettings, aVDAnimation, aVDUniforms);
+	fboShaderHydra0 = VDFboShader::create(aVDAnimation, aVDUniforms);
+	mFboShaderList.push_back(fboShaderHydra0);
+	fboShaderHydra1 = VDFboShader::create(aVDAnimation, aVDUniforms);
+	mFboShaderList.push_back(fboShaderHydra1);
+	fboShader = VDFboShader::create(aVDAnimation, aVDUniforms);
+	mFboShaderList.push_back(fboShader);
 }
 VDMediatorObservableRef VDMediatorObservable::addObserver(VDUniformObserverRef o) {
 	mObservers.push_back(o);
@@ -127,24 +132,27 @@ void VDMediatorObservable::update() {
 		// TODO timeline().apply(&mWarps[aWarpIndex]->ABCrossfade, 0.0f, 2.0f); };
 	}
 }
-void VDMediatorObservable::setFragmentShaderString(unsigned int aShaderIndex, const std::string& aFragmentShaderString, const std::string& aName) {
-	mVDFboShader->setFragmentShaderString(aShaderIndex, aFragmentShaderString, aName);
+void VDMediatorObservable::setFragmentShaderString(unsigned int aFboShaderIndex, const std::string& aFragmentShaderString, const std::string& aName) {
+	mFboShaderList[aFboShaderIndex]->setFragmentShaderString(aFboShaderIndex, aFragmentShaderString, aName);
 }
-ci::gl::TextureRef VDMediatorObservable::getFboShaderTexture(unsigned int aIndex) {
-	return mVDFboShader->getFboShaderTexture();
+ci::gl::TextureRef VDMediatorObservable::getFboShaderTexture(unsigned int aFboShaderIndex) {
+	return mFboShaderList[aFboShaderIndex]->getFboShaderTexture();
 };
-std::string VDMediatorObservable::getFboShaderName(unsigned int aIndex){
-	return mVDFboShader->getFboShaderName();
+std::string VDMediatorObservable::getFboShaderName(unsigned int aFboShaderIndex){
+	return mFboShaderList[aFboShaderIndex]->getFboShaderName();
 };
-std::vector<ci::gl::GlslProg::Uniform> VDMediatorObservable::getFboShaderUniforms() {
-	return mVDFboShader->getUniforms();
+std::vector<ci::gl::GlslProg::Uniform> VDMediatorObservable::getFboShaderUniforms(unsigned int aFboShaderIndex) {
+	return mFboShaderList[aFboShaderIndex]->getUniforms();
+}
+unsigned int VDMediatorObservable::getFboShadersCount() {
+	return mFboShaderList.size();
 }
 
-int VDMediatorObservable::getUniformValueByLocation(unsigned int aLocationIndex) { 
-	return mVDFboShader->getUniformValueByLocation(aLocationIndex);
+int VDMediatorObservable::getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex) {
+	return mFboShaderList[aFboShaderIndex]->getUniformValueByLocation(aLocationIndex);
 };
-void VDMediatorObservable::setUniformValueByLocation(unsigned int aLocationIndex, float aValue) {
-	mVDFboShader->setUniformValueByLocation(aLocationIndex, aValue);
+void VDMediatorObservable::setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue) {
+	mFboShaderList[aFboShaderIndex]->setUniformValueByLocation(aLocationIndex, aValue);
 };
 
 
