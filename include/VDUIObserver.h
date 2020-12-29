@@ -9,8 +9,8 @@
 #include "cinder/app/App.h"
 // Settings
 #include "VDSettings.h"
-// Animation
-#include "VDAnimation.h"
+// Uniforms
+#include "VDUniforms.h"
 // Mediator
 #include "VDMediator.h"
 
@@ -24,15 +24,15 @@ namespace videodromm {
 	
 	class VDUIObserver : public VDUniformObserver {
 	public:
-		static VDUniformObserverRef connect(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation) {
-			VDUIObserver* o = new VDUIObserver(aVDSettings, aVDAnimation);
+		static VDUniformObserverRef connect(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms) {
+			VDUIObserver* o = new VDUIObserver(aVDSettings, aVDUniforms);
 			
 			VDUniformObserverRef obs(o);
 
 			return obs;
 		}
 		VDUniformObserverRef setUniformValue(int aIndex, float aValue) {
-			mVDAnimation->setUniformValue(aIndex, aValue);
+			mVDUniforms->setUniformValue(aIndex, aValue);
 			return shared_from_this();
 		}
 		
@@ -40,14 +40,14 @@ namespace videodromm {
 		bool mIsConnected = false;
 		~VDUIObserver() {  };
 	private:
-		VDUIObserver(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation) {
+		VDUIObserver(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms) {
 			CI_LOG_V("VDUIObserver ctor");
 			mVDSettings = aVDSettings;
-			mVDAnimation = aVDAnimation;
+			mVDUniforms = aVDUniforms;
 		}
 		// Settings
 		VDSettingsRef	mVDSettings;
-		// Animation
-		VDAnimationRef	mVDAnimation;
+		// Uniforms
+		VDUniformsRef	mVDUniforms;
 	};
 }

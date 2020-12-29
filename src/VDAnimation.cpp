@@ -55,7 +55,7 @@ VDAnimation::VDAnimation(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms) {
 	//load();
 	//loadAnimation();
 
-	setVec3UniformValueByIndex(mVDUniforms->IRESOLUTION, vec3(getUniformValue(mVDUniforms->IRESOLUTIONX), getUniformValue(mVDUniforms->IRESOLUTIONY), 1.0));
+	mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->IRESOLUTION, vec3(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY), 1.0));
 }
 
 //! uniform to json
@@ -289,7 +289,7 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 	}
 #endif
 	if (!mMagSpectrum.empty()) {
-		setUniformValue(mVDUniforms->IMAXVOLUME, 0.0f);
+		mVDUniforms->setUniformValue(mVDUniforms->IMAXVOLUME, 0.0f);
 		//maxVolume = 0.0f;//mIntensity
 		size_t mDataSize = mMagSpectrum.size();
 		if (mDataSize > 0 && mDataSize < mFFTWindowSize) {// TODO 20200221 CHECK was + 1
@@ -298,17 +298,17 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 			for (size_t i{0}; i < mDataSize; i++) {
 				float f = mMagSpectrum[i];
 				db = audio::linearToDecibel(f);
-				f = db * getUniformValue(mVDUniforms->IAUDIOX);
-				if (f > getUniformValue(mVDUniforms->IMAXVOLUME))
+				f = db * mVDUniforms->getUniformValue(mVDUniforms->IAUDIOX);
+				if (f > mVDUniforms->getUniformValue(mVDUniforms->IMAXVOLUME))
 				{
-					setUniformValue(mVDUniforms->IMAXVOLUME, f);
+					mVDUniforms->setUniformValue(mVDUniforms->IMAXVOLUME, f);
 				}
 				iFreqs[i] = f;
 				// update iFreq uniforms 
-				if (i == getFreqIndex(0)) setUniformValue(mVDUniforms->IFREQ0, f);
-				if (i == getFreqIndex(1)) setUniformValue(mVDUniforms->IFREQ1, f);
-				if (i == getFreqIndex(2)) setUniformValue(mVDUniforms->IFREQ2, f);
-				if (i == getFreqIndex(3)) setUniformValue(mVDUniforms->IFREQ3, f);
+				if (i == getFreqIndex(0)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ0, f);
+				if (i == getFreqIndex(1)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ1, f);
+				if (i == getFreqIndex(2)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ2, f);
+				if (i == getFreqIndex(3)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ3, f);
 
 				if (i < mFFTWindowSize) {
 					int ger = f;
@@ -345,15 +345,15 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 		unsigned char signal[mFFTWindowSize];
 		for (size_t i{0}; i < mFFTWindowSize; i++) {
 			float f = iFreqs[i];
-			if (f > getUniformValue(mVDUniforms->IMAXVOLUME))
+			if (f > mVDUniforms->getUniformValue(mVDUniforms->IMAXVOLUME))
 			{
-				setUniformValue(mVDUniforms->IMAXVOLUME, f);
+				mVDUniforms->setUniformValue(mVDUniforms->IMAXVOLUME, f);
 			}
 			// update iFreq uniforms 
-			if (i == getFreqIndex(0)) setUniformValue(mVDUniforms->IFREQ0, f);
-			if (i == getFreqIndex(1)) setUniformValue(mVDUniforms->IFREQ1, f);
-			if (i == getFreqIndex(2)) setUniformValue(mVDUniforms->IFREQ2, f);
-			if (i == getFreqIndex(3)) setUniformValue(mVDUniforms->IFREQ3, f);
+			if (i == getFreqIndex(0)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ0, f);
+			if (i == getFreqIndex(1)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ1, f);
+			if (i == getFreqIndex(2)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ2, f);
+			if (i == getFreqIndex(3)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ3, f);
 
 			if (i < mFFTWindowSize) {
 				int ger = f;
@@ -392,14 +392,14 @@ void VDAnimation::update() {
 		//shaderUniforms["iElapsed"].floatValue = shaderUniforms["iPhase"].floatValue * mVDSettings->iSpeedMultiplier * shaderUniforms["iTimeFactor"].floatValue;
 		// sos
 		// IBARBEAT = IBAR * 4 + IBEAT
-		int current = getIntUniformValueByIndex(mVDUniforms->IBARBEAT);
+		int current = mVDUniforms->getIntUniformValueByIndex(mVDUniforms->IBARBEAT);
 		if (current == 426 || current == 428 || current == 442) { mLastBar = 0; } //38 to set iStart
-		if (mLastBar != getIntUniformValueByIndex(mVDUniforms->IBAR)) {
-			mLastBar =getIntUniformValueByIndex(mVDUniforms->IBAR);
+		if (mLastBar != mVDUniforms->getIntUniformValueByIndex(mVDUniforms->IBAR)) {
+			mLastBar = mVDUniforms->getIntUniformValueByIndex(mVDUniforms->IBAR);
 			//if (mLastBar != 5 && mLastBar != 9 && mLastBar < 113) mVDSettings->iStart = mVDSession->getUniformValue(mVDUniforms->ITIME);
 			// TODO CHECK
 			//if (mLastBar != 107 && mLastBar != 111 && mLastBar < 205) mVDSettings->iStart = mVDSession->getUniformValue(mVDUniforms->ITIME);
-			if (mLastBar < 419 && mLastBar > 424) { mVDSettings->iStart = getUniformValue(mVDUniforms->ITIME); }
+			if (mLastBar < 419 && mLastBar > 424) { mVDSettings->iStart = mVDUniforms->getUniformValue(mVDUniforms->ITIME); }
 		}
 	}
 	else
@@ -411,9 +411,9 @@ void VDAnimation::update() {
 		//shaderUniforms["iElapsed"].floatValue = getElapsedSeconds() * mVDSettings->iSpeedMultiplier * shaderUniforms["iTimeFactor"].floatValue;//mVDSettings->iTimeFactor;
 	}
 	// iResolution
-	mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->IRESOLUTION, vec3(getUniformValue(mVDUniforms->IRESOLUTIONX), getUniformValue(mVDUniforms->IRESOLUTIONY), 1.0));
-	mVDUniforms->setVec2UniformValueByIndex(mVDUniforms->RESOLUTION, vec2(getUniformValue(mVDUniforms->IRESOLUTIONX), getUniformValue(mVDUniforms->IRESOLUTIONY)));
-	mVDUniforms->setVec2UniformValueByIndex(mVDUniforms->RENDERSIZE, vec2(getUniformValue(mVDUniforms->IRESOLUTIONX), getUniformValue(mVDUniforms->IRESOLUTIONY)));
+	mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->IRESOLUTION, vec3(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY), 1.0));
+	mVDUniforms->setVec2UniformValueByIndex(mVDUniforms->RESOLUTION, vec2(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY)));
+	mVDUniforms->setVec2UniformValueByIndex(mVDUniforms->RENDERSIZE, vec2(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY)));
 	
 	// iDate
 	time_t now = time(0);
@@ -462,20 +462,20 @@ void VDAnimation::update() {
 			//unsigned int animType = mVDUniforms->getUniformAnim(anim)
 			switch (mVDUniforms->getUniformAnim(anim)) {				
 			case 1: // ANIM_TIME
-				setUniformValue(anim, (modulo < 0.1) ? mVDUniforms->getUniformMaxValue(anim) : mVDUniforms->getUniformMinValue(anim));
+				mVDUniforms->setUniformValue(anim, (modulo < 0.1) ? mVDUniforms->getUniformMaxValue(anim) : mVDUniforms->getUniformMinValue(anim));
 				break;
 			case 2: // ANIM_AUTO
-				setUniformValue(anim, lmap<float>(mVDUniforms->getUniformValue(mVDUniforms->ITEMPOTIME), 0.00001,
-					getUniformValue(mVDUniforms->IDELTATIME), mVDUniforms->getUniformMinValue(anim), mVDUniforms->getUniformMaxValue(anim)));
+				mVDUniforms->setUniformValue(anim, lmap<float>(mVDUniforms->getUniformValue(mVDUniforms->ITEMPOTIME), 0.00001,
+					mVDUniforms->getUniformValue(mVDUniforms->IDELTATIME), mVDUniforms->getUniformMinValue(anim), mVDUniforms->getUniformMaxValue(anim)));
 				break;
 			case 3: // ANIM_BASS
-				setUniformValue(anim, (getFloatUniformDefaultValueByIndex(anim) + 0.01f) * getUniformValue(mVDUniforms->IFREQ0) / 25.0f);
+				mVDUniforms->setUniformValue(anim, (mVDUniforms->getFloatUniformDefaultValueByIndex(anim) + 0.01f) * mVDUniforms->getUniformValue(mVDUniforms->IFREQ0) / 25.0f);
 				break;
 			case 4: // ANIM_MID
-				setUniformValue(anim, (getFloatUniformDefaultValueByIndex(anim) + 0.01f) * getUniformValue(mVDUniforms->IFREQ1) / 5.0f);
+				mVDUniforms->setUniformValue(anim, (mVDUniforms->getFloatUniformDefaultValueByIndex(anim) + 0.01f) * mVDUniforms->getUniformValue(mVDUniforms->IFREQ1) / 5.0f);
 				break;
 			case 5: // ANIM_TREBLE
-				setUniformValue(anim, (getFloatUniformDefaultValueByIndex(anim) + 0.01f) * getUniformValue(mVDUniforms->IFREQ2) / 2.0f);
+				mVDUniforms->setUniformValue(anim, (mVDUniforms->getFloatUniformDefaultValueByIndex(anim) + 0.01f) * mVDUniforms->getUniformValue(mVDUniforms->IFREQ2) / 2.0f);
 				break;
 			default:
 				// no animation
@@ -484,13 +484,13 @@ void VDAnimation::update() {
 		}
 
 		// foreground color vec3 update
-		mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->ICOLOR, vec3(getUniformValue(mVDUniforms->IFR), getUniformValue(mVDUniforms->IFG), getUniformValue(mVDUniforms->IFB)));
+		mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->ICOLOR, vec3(mVDUniforms->getUniformValue(mVDUniforms->IFR), mVDUniforms->getUniformValue(mVDUniforms->IFG), mVDUniforms->getUniformValue(mVDUniforms->IFB)));
 
 		// background color vec3 update
-		mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->IBACKGROUNDCOLOR, vec3(getUniformValue(mVDUniforms->IBR), getUniformValue(mVDUniforms->IBG), getUniformValue(mVDUniforms->IBB)));
+		mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->IBACKGROUNDCOLOR, vec3(mVDUniforms->getUniformValue(mVDUniforms->IBR), mVDUniforms->getUniformValue(mVDUniforms->IBG), mVDUniforms->getUniformValue(mVDUniforms->IBB)));
 
 		// mouse vec4 update
-		mVDUniforms->setVec4UniformValueByIndex(mVDUniforms->IMOUSE, vec4(getUniformValue(mVDUniforms->IMOUSEX), getUniformValue(mVDUniforms->IMOUSEY), getUniformValue(mVDUniforms->IMOUSEZ), 0.0f));
+		mVDUniforms->setVec4UniformValueByIndex(mVDUniforms->IMOUSE, vec4(mVDUniforms->getUniformValue(mVDUniforms->IMOUSEX), mVDUniforms->getUniformValue(mVDUniforms->IMOUSEY), mVDUniforms->getUniformValue(mVDUniforms->IMOUSEZ), 0.0f));
 
 		// TODO migrate:
 		if (mVDSettings->autoInvert)
@@ -511,7 +511,7 @@ void VDAnimation::update() {
 #pragma endregion animation
 }
 bool VDAnimation::toggleValue(unsigned int aIndex) {
-	bool rtn = getBoolUniformValueByIndex(aIndex);
+	bool rtn = mVDUniforms->getBoolUniformValueByIndex(aIndex);
 	rtn = !rtn;
 	setBoolUniformValueByIndex(aIndex, rtn);
 	//shaderUniforms[aIndex].boolValue = !shaderUniforms[aIndex].boolValue;
@@ -548,8 +548,8 @@ void VDAnimation::calculateTempo()
 		tAverage += buffer[i];
 	}
 	averageTime = (double)(tAverage / buffer.size());
-	setUniformValue(mVDUniforms->IDELTATIME, averageTime);
-	setUniformValue(mVDUniforms->IBPM, 60 / averageTime);
+	mVDUniforms->setUniformValue(mVDUniforms->IDELTATIME, averageTime);
+	mVDUniforms->setUniformValue(mVDUniforms->IBPM, 60 / averageTime);
 }
 
 void VDAnimation::preventLineInCrash() {

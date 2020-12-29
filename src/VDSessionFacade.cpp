@@ -2,21 +2,21 @@
 
 using namespace videodromm;
 
-VDSessionFacadeRef VDSessionFacade::createVDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms)
+VDSessionFacadeRef VDSessionFacade::createVDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms, VDMixRef aVDMix)
 {
 	VDMediatorObservableRef mediator =
-		VDMediatorObservable::createVDMediatorObservable(aVDSettings, aVDAnimation, aVDUniforms);
+		VDMediatorObservable::createVDMediatorObservable(aVDSettings, aVDAnimation, aVDUniforms, aVDMix);
 	// OK ->addObserver(VDSocketIOObserver::connect(aVDSettings->mSocketIOHost, aVDSettings->mSocketIOPort))
 	// OK ->addObserver(VDOscObserver::connect(aVDSettings->mOSCDestinationHost, aVDSettings->mOSCDestinationPort));
 	// OK ->addObserver(VDUIObserver::connect(aVDSettings, aVDAnimation));// ->addObserver(new UIDisplay());	
-	return VDSessionFacadeRef(new VDSessionFacade(VDSessionRef(new VDSession(aVDSettings, aVDAnimation, aVDUniforms)), mediator));
+	return VDSessionFacadeRef(new VDSessionFacade(VDSessionRef(new VDSession(aVDSettings, aVDAnimation, aVDUniforms, aVDMix)), mediator));
 }
 VDSessionFacadeRef VDSessionFacade::setUniformValue(unsigned int aCtrl, float aValue) {
 	mVDMediator->setUniformValue(aCtrl, aValue);
 	return shared_from_this();
 }
-VDSessionFacadeRef VDSessionFacade::addUIObserver(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation) {
-	mVDMediator->addObserver(VDUIObserver::connect(aVDSettings, aVDAnimation));
+VDSessionFacadeRef VDSessionFacade::addUIObserver(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms) {
+	mVDMediator->addObserver(VDUIObserver::connect(aVDSettings, aVDUniforms));
 	return shared_from_this();
 }
 VDSessionFacadeRef VDSessionFacade::setupOSCReceiver() {
@@ -68,10 +68,7 @@ VDSessionFacadeRef VDSessionFacade::useTimeWithTempo() {
 	mVDSession->useTimeWithTempo();
 	return shared_from_this();
 };
-VDSessionFacadeRef VDSessionFacade::loadFromJsonFile(const fs::path& jsonFile) {
-	mVDSession->loadFromJsonFile(jsonFile);
-	return shared_from_this();
-}
+
 VDSessionFacadeRef VDSessionFacade::setMode(int aMode) {
 	mVDSession->setMode(aMode);
 	return shared_from_this();
@@ -142,23 +139,23 @@ ci::gl::TextureRef VDSessionFacade::buildFboTexture(unsigned int aIndex) {
 	return mVDSession->getFboTexture(aIndex);;
 }
 ci::gl::TextureRef VDSessionFacade::getFboShaderTexture(unsigned int aIndex) {
-	return mVDMediator->getFboShaderTexture(aIndex);
+	return mVDSession->getFboShaderTexture(aIndex);
 }
 std::string VDSessionFacade::getFboShaderName(unsigned int aIndex) {
-	return mVDMediator->getFboShaderName(aIndex);
+	return mVDSession->getFboShaderName(aIndex);
 }
-unsigned int VDSessionFacade::getFboShadersCount() {
-	return mVDMediator->getFboShadersCount();
+unsigned int VDSessionFacade::getFboShaderListSize() {
+	return mVDSession->getFboShaderListSize();
 }
 std::vector<ci::gl::GlslProg::Uniform> VDSessionFacade::getFboShaderUniforms(unsigned int aFboShaderIndex) {
-	return mVDMediator->getFboShaderUniforms(aFboShaderIndex);
+	return mVDSession->getFboShaderUniforms(aFboShaderIndex);
 }
 
 int VDSessionFacade::getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex) {
-	return mVDMediator->getUniformValueByLocation(aFboShaderIndex, aLocationIndex);
+	return mVDSession->getUniformValueByLocation(aFboShaderIndex, aLocationIndex);
 };
 void VDSessionFacade::setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue) {
-	mVDMediator->setUniformValueByLocation(aFboShaderIndex, aLocationIndex, aValue);
+	mVDSession->setUniformValueByLocation(aFboShaderIndex, aLocationIndex, aValue);
 };
 
 ci::gl::TextureRef VDSessionFacade::buildFboRenderedTexture(unsigned int aFboIndex) {
@@ -185,12 +182,30 @@ float VDSessionFacade::getMinUniformValue(unsigned int aIndex) {
 float VDSessionFacade::getMaxUniformValue(unsigned int aIndex) {
 	return mVDSession->getMinUniformValue(aIndex);
 }
+/* 20201229*/
 int VDSessionFacade::getFboTextureWidth(unsigned int aFboIndex) {
 	return mVDSession->getFboTextureWidth(aFboIndex);
 };
 int VDSessionFacade::getFboTextureHeight(unsigned int aFboIndex) {
 	return mVDSession->getFboTextureHeight(aFboIndex);
 }
+std::string VDSessionFacade::getFboInputTextureName(unsigned int aFboIndex) {
+	return mVDSession->getFboInputTextureName(aFboIndex);
+}
+ci::gl::Texture2dRef VDSessionFacade::getFboInputTexture(unsigned int aFboIndex) {
+	return mVDSession->getFboInputTexture(aFboIndex);
+}
+std::string VDSessionFacade::getFboName(unsigned int aFboIndex) {
+	return mVDSession->getFboShaderName(aFboIndex);
+}
+std::vector<ci::gl::GlslProg::Uniform> VDSessionFacade::getUniforms(unsigned int aFboIndex) {
+	return mVDSession->getUniforms(aFboIndex);
+}
+ci::gl::Texture2dRef VDSessionFacade::buildFboInputTexture(unsigned int aFboIndex) {
+	return mVDSession->getFboInputTexture(aFboIndex);
+}
+
+
 void VDSessionFacade::createWarp() {
 	mVDSession->createWarp();
 }
@@ -206,30 +221,15 @@ int VDSessionFacade::getWarpWidth(unsigned int aWarpIndex) {
 int VDSessionFacade::getWarpHeight(unsigned int aWarpIndex) {
 	return mVDSession->getWarpHeight(aWarpIndex);
 }
-unsigned int VDSessionFacade::getFboListSize() {
-	return mVDSession->getFboListSize();
-}
-std::string VDSessionFacade::getFboInputTextureName(unsigned int aFboIndex) {
-	return mVDSession->getFboInputTextureName(aFboIndex);
-}
-ci::gl::Texture2dRef VDSessionFacade::getFboInputTexture(unsigned int aFboIndex) {
-	return mVDSession->getFboInputTexture(aFboIndex);
-}
-std::string VDSessionFacade::getFboName(unsigned int aFboIndex) {
-	return mVDSession->getFboName(aFboIndex);
-}
+
+
 int VDSessionFacade::getFFTWindowSize() {
 	return mVDSession->getFFTWindowSize();
 }
 float* VDSessionFacade::getFreqs() {
 	return mVDSession->getFreqs();
 }
-std::vector<ci::gl::GlslProg::Uniform> VDSessionFacade::getUniforms(unsigned int aFboIndex) {
-	return mVDSession->getUniforms(aFboIndex);
-}
-ci::gl::Texture2dRef VDSessionFacade::buildFboInputTexture(unsigned int aFboIndex) {
-	return mVDSession->getFboInputTexture(aFboIndex);
-}
+
 int VDSessionFacade::getMode() {
 	return mVDSession->getMode();
 }
@@ -281,7 +281,10 @@ void VDSessionFacade::fileDrop(FileDropEvent event)
 {
 	mVDSession->fileDrop(event);
 }
-
+VDSessionFacadeRef VDSessionFacade::loadFromJsonFile(const fs::path& jsonFile) {
+	mVDSession->loadFromJsonFile(jsonFile);
+	return shared_from_this();
+}
 bool VDSessionFacade::handleKeyDown(KeyEvent& event) {
 	bool handled = true;
 	if (!mVDSession->handleKeyDown(event)) {

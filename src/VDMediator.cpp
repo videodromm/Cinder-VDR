@@ -2,25 +2,20 @@
 
 using namespace videodromm;
 
-VDMediatorObservableRef VDMediatorObservable::createVDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms)
+VDMediatorObservableRef VDMediatorObservable::createVDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms, VDMixRef aVDMix)
 {
-	return VDMediatorObservableRef(new VDMediatorObservable(aVDSettings, aVDAnimation, aVDUniforms));
+	return VDMediatorObservableRef(new VDMediatorObservable(aVDSettings, aVDAnimation, aVDUniforms, aVDMix));
 }
 
-VDMediatorObservable::VDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms) {
+VDMediatorObservable::VDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms, VDMixRef aVDMix) {
 	CI_LOG_V("VDMediatorObservable constructor");
 	mVDSettings = aVDSettings;
 	mVDAnimation = aVDAnimation;
 	mVDUniforms = aVDUniforms;
+	mVDMix = aVDMix;
 	mOSCReceiverPort = OSC_DEFAULT_PORT;
 	mWSHost = WS_DEFAULT_HOST;
 	mWSPort = WS_DEFAULT_PORT;
-	fboShaderHydra0 = VDFboShader::create(aVDAnimation, aVDUniforms);
-	mFboShaderList.push_back(fboShaderHydra0);
-	fboShaderHydra1 = VDFboShader::create(aVDAnimation, aVDUniforms);
-	mFboShaderList.push_back(fboShaderHydra1);
-	fboShader = VDFboShader::create(aVDAnimation, aVDUniforms);
-	mFboShaderList.push_back(fboShader);
 }
 VDMediatorObservableRef VDMediatorObservable::addObserver(VDUniformObserverRef o) {
 	mObservers.push_back(o);
@@ -121,41 +116,20 @@ void VDMediatorObservable::wsConnect() {
 }
 void VDMediatorObservable::update() {
 	mVDWebsocket->update();
-	if (mVDWebsocket->hasReceivedShader()) {
+	/*if (mVDWebsocket->hasReceivedShader()) {
 		std::string receivedShader = mVDWebsocket->getReceivedShader();
-		if (mVDAnimation->getUniformValue(mVDUniforms->IXFADE) < 0.5) {
-			setFragmentShaderString(0, receivedShader, "hydra0");			
+		if (mVDUniforms->getUniformValue(mVDUniforms->IXFADE) < 0.5) {
+			mFboShaderList[aFboShaderIndex]->setFragmentShaderString(0, receivedShader, "hydra0");
 		}
 		else {
-			setFragmentShaderString(1, receivedShader, "hydra1");			
+			mFboShaderList[aFboShaderIndex]->setFragmentShaderString(1, receivedShader, "hydra1");
 		}	
 		// TODO timeline().apply(&mWarps[aWarpIndex]->ABCrossfade, 0.0f, 2.0f); };
-	}
+	}*/
 }
-void VDMediatorObservable::setFragmentShaderString(unsigned int aFboShaderIndex, const std::string& aFragmentShaderString, const std::string& aName) {
-	mFboShaderList[aFboShaderIndex]->setFragmentShaderString(aFboShaderIndex, aFragmentShaderString, aName);
+bool VDMediatorObservable::setFragmentShaderString(const std::string& aFragmentShaderString) {
+	return mVDMix->setFragmentShaderString(aFragmentShaderString);
 }
-ci::gl::TextureRef VDMediatorObservable::getFboShaderTexture(unsigned int aFboShaderIndex) {
-	return mFboShaderList[aFboShaderIndex]->getFboShaderTexture();
-};
-std::string VDMediatorObservable::getFboShaderName(unsigned int aFboShaderIndex){
-	return mFboShaderList[aFboShaderIndex]->getFboShaderName();
-};
-std::vector<ci::gl::GlslProg::Uniform> VDMediatorObservable::getFboShaderUniforms(unsigned int aFboShaderIndex) {
-	return mFboShaderList[aFboShaderIndex]->getUniforms();
-}
-unsigned int VDMediatorObservable::getFboShadersCount() {
-	return mFboShaderList.size();
-}
-
-int VDMediatorObservable::getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex) {
-	return mFboShaderList[aFboShaderIndex]->getUniformValueByLocation(aLocationIndex);
-};
-void VDMediatorObservable::setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue) {
-	mFboShaderList[aFboShaderIndex]->setUniformValueByLocation(aLocationIndex, aValue);
-};
-
-
 int VDMediatorObservable::getOSCReceiverPort() {
 	return mOSCReceiverPort;
 };
@@ -191,10 +165,10 @@ bool VDMediatorObservable::handleKeyUp(KeyEvent& event) {
 	return mVDKeyboard->handleKeyUp(event);
 }
 float VDMediatorObservable::getUniformValue(unsigned int aIndex) {
-	return mVDAnimation->getUniformValue(aIndex);
+	return mVDUniforms->getUniformValue(aIndex);
 }
 std::string VDMediatorObservable::getUniformName(unsigned int aIndex) {
-	return mVDAnimation->getUniformName(aIndex);
+	return mVDUniforms->getUniformName(aIndex);
 }
 VDMediatorObservableRef VDMediatorObservable::setUniformValue(int aIndex, float aValue) {
 	if (aIndex != mVDUniforms->IFPS) {
@@ -204,10 +178,10 @@ VDMediatorObservableRef VDMediatorObservable::setUniformValue(int aIndex, float 
 	}
 	return shared_from_this();
 };
-
+/*
 VDMediatorObservableRef VDMediatorObservable::updateShaderText(int aIndex, float aValue) {
 	for (auto observer : mObservers) {
 		observer->setUniformValue(aIndex, aValue);
 	}
 	return shared_from_this();
-};
+};*/

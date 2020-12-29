@@ -12,8 +12,12 @@
 #include "CiSpoutOut.h"
 // Video
 //#include "ciWMFVideoPlayer.h"
+// Uniforms
 #include "VDUniforms.h"
+// Params
 #include "VDParams.h"
+// Mix
+#include "VDMix.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -40,6 +44,8 @@ private:
 	VDAnimationRef					mVDAnimation;
 	// Session
 	VDSessionFacadeRef				mVDSessionFacade;
+	// Mix
+	VDMixRef						mVDMix;
 	// Uniform
 	VDUniformRef					mVDUniform;
 	// Params
@@ -62,24 +68,28 @@ _TBOX_PREFIX_App::_TBOX_PREFIX_App() : mSpoutOut("VDR", app::getWindowSize())
 	// Settings
 	mVDSettings = VDSettings::create("VDR");
 	// Uniform
-	mVDUniform = VDUniform::create();
+	mVDUniforms = VDUniforms::create();
 	// Params
 	mVDParams = VDParams::create();
 	// Animation
-	mVDAnimation = VDAnimation::create(mVDSettings);
+	mVDAnimation = VDAnimation::create(mVDSettings, mVDUniforms);
+	// Mix
+	mVDMix = VDMix::create(mVDSettings, mVDAnimation, mVDUniforms);
 	// Session
-	mVDSessionFacade = VDSessionFacade::createVDSession(mVDSettings, mVDAnimation)
+	mVDSessionFacade = VDSessionFacade::createVDSession(mVDSettings, mVDAnimation, mVDUniforms, mVDMix)
 		->setUniformValue(mVDUniform->IBPM, 160.0f)
 		->setUniformValue(mVDUniform->IMOUSEX, 0.27710f)
 		->setUniformValue(mVDUniform->IMOUSEY, 0.5648f)
-		->setMode(8)
-		//->loadFromJsonFile("fbo0.json")
-		//->loadFromJsonFile("fbo1.json")
+		->setMode(1)
+		->setupWSClient()
+		->wsConnect()
 		//->setupOSCReceiver()
 		//->addOSCObserver(mVDSettings->mOSCDestinationHost, mVDSettings->mOSCDestinationPort)
+		->addUIObserver(mVDSettings, mVDUniforms)
+		->toggleUI()
 		->toggleValue(mVDUniform->IFLIPV);
 
-	// sos only mVDSession->setUniformValue(mVDSettings->IEXPOSURE, 1.93f);
+	// sos only mVDSessionFacade->setUniformValue(mVDSettings->IEXPOSURE, 1.93f);
 	mFadeInDelay = true;
 	
 	/*fs::path texFileOrPath = getAssetPath("") / mVDSettings->mAssetsPath / "accueil.mp4";
@@ -116,12 +126,12 @@ void _TBOX_PREFIX_App::toggleCursorVisibility(bool visible)
 
 void _TBOX_PREFIX_App::fileDrop(FileDropEvent event)
 {
-	mVDSession->fileDrop(event);
+	mVDSessionFacade->fileDrop(event);
 }
 
 void _TBOX_PREFIX_App::mouseMove(MouseEvent event)
 {
-	if (!mVDSession->handleMouseMove(event)) {
+	if (!mVDSessionFacade->handleMouseMove(event)) {
 
 	}
 }
@@ -129,7 +139,7 @@ void _TBOX_PREFIX_App::mouseMove(MouseEvent event)
 void _TBOX_PREFIX_App::mouseDown(MouseEvent event)
 {
 
-	if (!mVDSession->handleMouseDown(event)) {
+	if (!mVDSessionFacade->handleMouseDown(event)) {
 
 	}
 }
@@ -137,7 +147,7 @@ void _TBOX_PREFIX_App::mouseDown(MouseEvent event)
 void _TBOX_PREFIX_App::mouseDrag(MouseEvent event)
 {
 
-	if (!mVDSession->handleMouseDrag(event)) {
+	if (!mVDSessionFacade->handleMouseDrag(event)) {
 
 	}
 }
@@ -145,7 +155,7 @@ void _TBOX_PREFIX_App::mouseDrag(MouseEvent event)
 void _TBOX_PREFIX_App::mouseUp(MouseEvent event)
 {
 
-	if (!mVDSession->handleMouseUp(event)) {
+	if (!mVDSessionFacade->handleMouseUp(event)) {
 
 	}
 }
@@ -154,7 +164,7 @@ void _TBOX_PREFIX_App::keyDown(KeyEvent event)
 {
 
 	// warp editor did not handle the key, so handle it here
-	if (!mVDSession->handleKeyDown(event)) {
+	if (!mVDSessionFacade->handleKeyDown(event)) {
 		switch (event.getCode()) {
 		case KeyEvent::KEY_F12:
 			// quit the application
@@ -166,7 +176,7 @@ void _TBOX_PREFIX_App::keyDown(KeyEvent event)
 			break;
 
 		case KeyEvent::KEY_l:
-			mVDSession->createWarp();
+			mVDSessionFacade->createWarp();
 			break;
 		}
 	}
@@ -176,7 +186,7 @@ void _TBOX_PREFIX_App::keyUp(KeyEvent event)
 {
 
 	// let your application perform its keyUp handling here
-	if (!mVDSession->handleKeyUp(event)) {
+	if (!mVDSessionFacade->handleKeyUp(event)) {
 		/*switch (event.getCode()) {
 		default:
 			CI_LOG_V("main keyup: " + toString(event.getCode()));
@@ -195,7 +205,7 @@ void _TBOX_PREFIX_App::cleanup()
 
 void _TBOX_PREFIX_App::update()
 {
-	switch (mVDSession->getCmd()) {
+	switch (mVDSessionFacade->getCmd()) {
 	case 0:
 		//createControlWindow();
 		break;
@@ -224,29 +234,26 @@ void _TBOX_PREFIX_App::draw()
 	gl::color(Color::white());
 	if (mFadeInDelay) {
 		mVDSettings->iAlpha = 0.0f;
-		if (getElapsedFrames() > 10.0) {// mVDSession->getFadeInDelay()) {
+		if (getElapsedFrames() > 10.0) {// mVDSessionFacade->getFadeInDelay()) {
 			mFadeInDelay = false;
 			timeline().apply(&mVDSettings->iAlpha, 0.0f, 1.0f, 1.5f, EaseInCubic());
 		}
 	}
 	else {
 		gl::setMatricesWindow(mVDParams->getFboWidth(), mVDParams->getFboHeight(), false);
-		//gl::setMatricesWindow(mVDSession->getIntUniformValueByIndex(mVDSettings->IOUTW), mVDSession->getIntUniformValueByIndex(mVDSettings->IOUTH), true);
-		/*int m = mVDSession->getMode();
-		if (m < mVDSession->getModesCount() && m < mVDSession->getFboListSize()) {
-			gl::draw(mVDSession->getFboTexture(m), Area(0, 0, mVDSettings->mFboWidth, mVDSettings->mFboHeight));
-			//mSpoutOut.sendTexture(mVDSession->getFboRenderedTexture(m));
+		//gl::setMatricesWindow(mVDSessionFacade->getIntUniformValueByIndex(mVDSettings->IOUTW), mVDSessionFacade->getIntUniformValueByIndex(mVDSettings->IOUTH), true);
+		int m = mVDSessionFacade->getMode();
+		if (m < mVDSessionFacade->getFboShaderListSize()) {
+			gl::draw(mVDSessionFacade->getFboShaderTexture(m));
+			mSpoutOut.sendTexture(mVDSessionFacade->getFboShaderTexture(m));
 		}
 		else {
-			gl::draw(mVDSession->getPostFboTexture(), Area(0, 0, mVDSettings->mFboWidth, mVDSettings->mFboHeight));
+			gl::draw(mVDSessionFacade->buildRenderedMixetteTexture(0), Area(50, 50, mVDParams->getFboWidth(), mVDParams->getFboHeight()));
+			//gl::draw(mVDSessionFacade->getPostFboTexture(), Area(0, 0, mVDSettings->mFboWidth, mVDSettings->mFboHeight));
 			//gl::draw(mVDSession->getRenderedMixetteTexture(0), Area(0, 0, mVDSettings->mFboWidth, mVDSettings->mFboHeight));
 			// ok gl::draw(mVDSession->getWarpFboTexture(), Area(0, 0, mVDSettings->mFboWidth, mVDSettings->mFboHeight));//getWindowBounds()
 			//mSpoutOut.sendTexture(mVDSession->getRenderedMixetteTexture(0));
 		}
-		gl::draw(mVDSessionFacade->buildFboTexture(0), Area(0, 0, mVDSettings->mFboWidth, mVDSettings->mFboHeight));
-		*/
-		gl::draw(mVDSessionFacade->buildRenderedMixetteTexture(0), Area(50, 50, mVDParams->getFboWidth(), mVDParams->getFboHeight()));
-
 		/*vec2 videoSize = vec2(mVideo.getWidth(), mVideo.getHeight());
 		mGlslVideoTexture->uniform("uVideoSize", videoSize);
 		videoSize *= 0.25f;
@@ -255,12 +262,12 @@ void _TBOX_PREFIX_App::draw()
 		gl::scale(vec3(videoSize, 1.0f));*/
 
 		//gl::draw(mPostFbo->getColorTexture());
-		//gl::draw(mVDSession->getFboRenderedTexture(0));
+		//gl::draw(mVDSessionFacade->getFboRenderedTexture(0));
 	}
 	// Spout Send
 	// KO mSpoutOut.sendViewport();
 	// OK
-	 mSpoutOut.sendTexture(mVDSession->buildRenderedMixetteTexture(0));
+	 mSpoutOut.sendTexture(mVDSessionFacade->buildRenderedMixetteTexture(0));
 
 	getWindow()->setTitle(mVDSettings->sFps + " fps");
 }

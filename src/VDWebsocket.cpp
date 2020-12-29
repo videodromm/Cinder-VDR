@@ -131,6 +131,7 @@ void VDWebsocket::parseMessage(std::string msg) {
 							// we received a fragment shader string
 							receivedFragString = json.getChild("message").getValue<std::string>();
 							shaderReceived = true;
+							mVDMediator->setFragmentShaderString(receivedFragString);
 							// force to display
 							//mVDAnimation->setIntUniformValueByIndex(mVDUniforms->IFBOA, 0);
 							//mVDAnimation->setIntUniformValueByIndex(mVDUniforms->IFBOB, 1);

@@ -31,10 +31,10 @@ namespace videodromm
 
 	class VDSessionFacade : public std::enable_shared_from_this<VDSessionFacade> {
 	public:
-		static VDSessionFacadeRef createVDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms);
+		static VDSessionFacadeRef createVDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms, VDMixRef aVDMix);
 
 		VDSessionFacadeRef		setUniformValue(unsigned int aCtrl, float aValue);
-		VDSessionFacadeRef		addUIObserver(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation);
+		VDSessionFacadeRef		addUIObserver(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms);
 		VDSessionFacadeRef		setupOSCReceiver();
 		VDSessionFacadeRef		setupWSClient();
 		VDSessionFacadeRef		setupKeyboard();
@@ -71,7 +71,7 @@ namespace videodromm
 		ci::gl::TextureRef		buildFboRenderedTexture(unsigned int aFboIndex);
 		ci::gl::TextureRef		getFboShaderTexture(unsigned int aIndex);
 		std::string				getFboShaderName(unsigned int aIndex);
-		unsigned int			getFboShadersCount();
+		unsigned int			getFboShaderListSize(); 
 		std::vector<ci::gl::GlslProg::Uniform> getFboShaderUniforms(unsigned int aFboShaderIndex);
 		//float					getFboShaderUniformValue();
 		int						getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex);
@@ -90,7 +90,6 @@ namespace videodromm
 		std::string				getWarpName(unsigned int aWarpIndex);// or trycatch
 		int						getWarpWidth(unsigned int aWarpIndex);
 		int						getWarpHeight(unsigned int aWarpIndex);
-		unsigned int			getFboListSize();
 		std::string				getFboInputTextureName(unsigned int aFboIndex = 0);
 		ci::gl::Texture2dRef	getFboInputTexture(unsigned int aFboIndex = 0);
 		std::string				getFboName(unsigned int aFboIndex);

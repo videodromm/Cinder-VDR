@@ -3,9 +3,8 @@
 using namespace videodromm;
 
 //namespace videodromm {
-VDFboShader::VDFboShader(VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms)
-	:mVDUniforms{ aVDUniforms },
-	mVDAnimation{ aVDAnimation }
+VDFboShader::VDFboShader(VDUniformsRef aVDUniforms)
+	:mVDUniforms{ aVDUniforms }
 {
 	CI_LOG_V("VDFboShader constructor");
 	// Params
@@ -45,7 +44,7 @@ VDFboShader::VDFboShader(VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms)
 }
 VDFboShader::~VDFboShader(void) {
 }
-bool VDFboShader::setFragmentShaderString(unsigned int aShaderIndex, const std::string& aFragmentShaderString, const std::string& aName) {
+bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderString, const std::string& aName) {
 
 
 	std::string mOriginalFragmentString = aFragmentShaderString;
@@ -112,7 +111,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 	if (mValid) {
 
 		gl::ScopedFramebuffer fbScp(mFbo);
-		if (mVDAnimation->getBoolUniformValueByIndex(mVDUniforms->ICLEAR)) {
+		if (mVDUniforms->getBoolUniformValueByIndex(mVDUniforms->ICLEAR)) {
 			gl::clear(Color::black());
 		}
 		/*int f = 0;
@@ -135,7 +134,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		}*/
 		mTexture->bind(253);// TODO  +i);
 		std::string name;
-		std::string texName;
+		
 		int texNameEndIndex = 0;
 		int texIndex = 0;
 		int channelIndex = 0;
@@ -157,10 +156,10 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				
 				case GL_FLOAT: // float 5126 GL_FLOAT 0x1406
 					if (name == "TIME" || name == "time") {
-						mShader->uniform(name, mVDAnimation->getUniformValueByName("TIME"));
+						mShader->uniform(name, mVDUniforms->getUniformValueByName("TIME"));
 					}
 					else {
-					if (mVDAnimation->isExistingUniform(name)) {
+					if (mVDUniforms->isExistingUniform(name)) {
 							mShader->uniform(name, mVDUniforms->getUniformValueByName(name));
 						}
 						else {
@@ -176,10 +175,10 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				case GL_SAMPLER_2D: // sampler2D 35678 GL_SAMPLER_2D 0x8B5E
 					texNameEndIndex = name.find_last_of("iChannel");
 					if (texNameEndIndex != std::string::npos) {
-						texName = name.substr(0, texNameEndIndex + 1);
+						mTextureName = name.substr(0, texNameEndIndex + 1);
 						texIndex = 0;// (int)(name.substr(texNameEndIndex + 1));
-						CI_LOG_V(toString(texNameEndIndex) + texName);
-						mShader->uniform(texName + toString(channelIndex), (uint32_t)(253 + channelIndex));
+						CI_LOG_V(toString(texNameEndIndex) + mTextureName);
+						mShader->uniform(mTextureName + toString(channelIndex), (uint32_t)(253 + channelIndex));
 						channelIndex++;
 					}
 					else {
@@ -197,14 +196,14 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 						mShader->uniform(name, vec2(mVDParams->getFboWidth(), mVDParams->getFboHeight()));
 					}
 					else {
-						mShader->uniform(name, mVDAnimation->getVec2UniformValueByName(name));
+						mShader->uniform(name, mVDUniforms->getVec2UniformValueByName(name));
 					}
 					break;
 				case GL_FLOAT_VEC3://GL_FLOAT_VEC3: // vec3 35665 GL_FLOAT_VEC3 0x8B51
-					mShader->uniform(name, mVDAnimation->getVec3UniformValueByName(name));
+					mShader->uniform(name, mVDUniforms->getVec3UniformValueByName(name));
 					break;
 				case GL_FLOAT_VEC4://GL_FLOAT_VEC4: // vec4 35666 GL_FLOAT_VEC4 0x8B52
-					mShader->uniform(name, mVDAnimation->getVec4UniformValueByName(name));
+					mShader->uniform(name, mVDUniforms->getVec4UniformValueByName(name));
 					break;
 				case GL_INT: // int 5124 GL_INT 0x1404
 					// IBEAT 51
@@ -236,7 +235,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		//mShader->uniform("RENDERSIZE", vec2(mVDParams->getFboWidth(), mVDParams->getFboHeight()));
 		//mShader->uniform("TIME", (float)getElapsedSeconds());// mVDAnimation->getUniformValue(0));
 		mShader->uniform("resolution", vec2(mVDParams->getFboWidth(), mVDParams->getFboHeight()));
-		mShader->uniform("time", mVDAnimation->getUniformValue(0));
+		mShader->uniform("time", mVDUniforms->getUniformValue(0));
 
 		gl::ScopedGlslProg glslScope(mShader);
 		// TODO: test gl::ScopedViewport sVp(0, 0, mFbo->getWidth(), mFbo->getHeight());	
@@ -257,7 +256,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 	return mRenderedTexture;
 }
 
-ci::gl::Texture2dRef VDFboShader::getFboShaderTexture() {
+ci::gl::Texture2dRef VDFboShader::getTexture() {
 	if (mValid) {
 		if (!isReady) {
 			// render once for thumb
@@ -268,12 +267,18 @@ ci::gl::Texture2dRef VDFboShader::getFboShaderTexture() {
 	}
 	return mRenderedTexture;
 }
-
+ci::gl::Texture2dRef VDFboShader::getRenderedTexture() {
+	
+	return mRenderedTexture;
+}
+ci::gl::Texture2dRef VDFboShader::getInputTexture() {
+	return mTexture;
+}
 bool									VDFboShader::isValid() {
 	return mValid;
 };
 
-std::string								VDFboShader::getFboShaderName() { 
+std::string								VDFboShader::getShaderName() { 
 	return mShaderName; 
 };
 

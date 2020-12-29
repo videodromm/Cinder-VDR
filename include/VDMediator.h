@@ -16,6 +16,8 @@
 #include "VDKeyboard.h"
 // Osc
 #include "VDOscReceiver.h"
+// Mix
+#include "VDMix.h"
 // Websocket client
 #include "VDWebsocket.h"
 #include <memory>
@@ -52,7 +54,7 @@ namespace videodromm {
 	typedef std::shared_ptr<class VDMediatorObservable> VDMediatorObservableRef;
 	class VDMediatorObservable : public std::enable_shared_from_this<VDMediatorObservable> {
 	public:
-		static VDMediatorObservableRef		createVDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms);
+		static VDMediatorObservableRef		createVDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms, VDMixRef aVDMix);
 		VDMediatorObservableRef				addObserver(VDUniformObserverRef o);
 		VDMediatorObservableRef				setupOSCReceiver();
 		int									getOSCReceiverPort();
@@ -73,16 +75,11 @@ namespace videodromm {
 		float								getUniformValue(unsigned int aIndex);
 		std::string							getUniformName(unsigned int aIndex);
 		VDMediatorObservableRef				setUniformValue(int aIndex, float aValue);
-		VDMediatorObservableRef				updateShaderText(int aIndex, float aValue);
+		//VDMediatorObservableRef				updateShaderText(int aIndex, float aValue);
 		bool								handleKeyDown(KeyEvent& event);
 		bool								handleKeyUp(KeyEvent& event);
-		ci::gl::TextureRef					getFboShaderTexture(unsigned int aFboShaderIndex);
-		std::string							getFboShaderName(unsigned int aFboShaderIndex);
-		unsigned int						getFboShadersCount();
-		std::vector<ci::gl::GlslProg::Uniform>	getFboShaderUniforms(unsigned int aFboShaderIndex);
-		int									getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex);
-		void								setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue);
 
+		bool								setFragmentShaderString(const std::string& aFragmentShaderString);
 	private:
 		std::vector<VDUniformObserverRef>	mObservers;
 		// Settings
@@ -95,12 +92,14 @@ namespace videodromm {
 		VDOscReceiverRef					mVDOscReceiver;
 		// Websockets
 		VDWebsocketRef						mVDWebsocket;
+		// Mix
+		VDMixRef							mVDMix;
 		// FboShaders
-		VDFboShaderRef						fboShaderHydra0;
+		/*VDFboShaderRef						fboShaderHydra0;
 		VDFboShaderRef						fboShaderHydra1;
 		VDFboShaderRef						fboShader;
 		// maintain a list of fbos 
-		VDFboShaderList						mFboShaderList;
+		VDFboShaderList						mFboShaderList;*/
 		//! OSC
 		bool								validateJson(const JsonTree& tree);
 		int									mOSCReceiverPort;
@@ -115,11 +114,11 @@ namespace videodromm {
 		JsonTree							saveWSToJson() const;
 		//std::string							mShaderLeft;
 		//std::string							mShaderRight;
-		void								setFragmentShaderString(unsigned int aFboShaderIndex, const std::string& aFragmentShaderString, const std::string& aName);
+		//void								setFragmentShaderString(unsigned int aFboShaderIndex, const std::string& aFragmentShaderString, const std::string& aName);
 		// Keyboard
 		VDKeyboardRef						mVDKeyboard;
 		//VDMediatorObservable() {}
-		VDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms);
+		VDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms, VDMixRef aVDMix);
 	};
 
 }

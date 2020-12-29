@@ -365,6 +365,7 @@ void VDUniforms::boolFromJson(const ci::JsonTree& json) {
 		createBoolUniform(jName, jCtrlIndex, jValue);
 	}
 }
+
 bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 	bool rtn = false;
 	// we can't change TIME at index 0
@@ -372,6 +373,12 @@ bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 		/*if (aIndex == 31) {
 			CI_LOG_V("old value " + toString(shaderUniforms[getUniformNameForIndex(aIndex)].floatValue) + " newvalue " + toString(aValue));
 		}*/
+		if (aIndex == IBPM) {
+			if (aValue > 0.0f) {
+				setUniformValue(IDELTATIME, 60 / aValue);
+			}
+		}
+		
 		//string uniformName = getUniformNameForIndex(aIndex);
 		if (shaderUniforms[aIndex].floatValue != aValue) {
 			if ((aValue >= shaderUniforms[aIndex].minValue && aValue <= shaderUniforms[aIndex].maxValue) || shaderUniforms[aIndex].anim > 0) {

@@ -22,21 +22,21 @@ void VDRouter::changeFloatValue(unsigned int aControl, float aValue, bool forceS
 	float newValue;
 	if (increase) {
 		// increase
-		newValue = mVDAnimation->getUniformValue(aControl) + 0.1f;
+		newValue = mVDUniforms->getUniformValue(aControl) + 0.1f;
 		if (newValue > 1.0f) newValue = 1.0f;
 		aValue = newValue;
 	}
 	else {
 		// decrease
 		if (decrease) {
-			newValue = mVDAnimation->getUniformValue(aControl) - 0.1f;
+			newValue = mVDUniforms->getUniformValue(aControl) - 0.1f;
 			if (newValue < 0.0f) newValue = 0.0f;
 			aValue = newValue;
 		}
 		else {
 			// toggle
 			if (toggle) {
-				newValue = mVDAnimation->getUniformValue(aControl);
+				newValue = mVDUniforms->getUniformValue(aControl);
 				if (newValue > 0.0f) { newValue = 0.0f; }
 				else { newValue = 1.0f; } // Check for max instead?
 				aValue = newValue;
@@ -45,32 +45,32 @@ void VDRouter::changeFloatValue(unsigned int aControl, float aValue, bool forceS
 	}
 
 	// check if changed
-	if ((mVDAnimation->setUniformValue(aControl, aValue) && aControl != mVDUniforms->IFPS) || forceSend) {
+	if ((mVDUniforms->setUniformValue(aControl, aValue) && aControl != mVDUniforms->IFPS) || forceSend) {
 		std::stringstream sParams;
 		// update color vec3
 		if (aControl > 0 && aControl < 4) {
-			mVDAnimation->setVec3UniformValueByIndex(mVDUniforms->ICOLOR, vec3(
-				mVDAnimation->getUniformValue(mVDUniforms->IFR),
-				mVDAnimation->getUniformValue(mVDUniforms->IFG),
-				mVDAnimation->getUniformValue(mVDUniforms->IFB)
+			mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->ICOLOR, vec3(
+				mVDUniforms->getUniformValue(mVDUniforms->IFR),
+				mVDUniforms->getUniformValue(mVDUniforms->IFG),
+				mVDUniforms->getUniformValue(mVDUniforms->IFB)
 			));
 
 		}
 		// update mouse vec4
 		if (aControl > 41 && aControl < 45) {
-			mVDAnimation->setVec4UniformValueByIndex(mVDUniforms->IMOUSE, vec4(
-				mVDAnimation->getUniformValue(mVDUniforms->IMOUSEX),
-				mVDAnimation->getUniformValue(mVDUniforms->IMOUSEY),
-				mVDAnimation->getUniformValue(mVDUniforms->IMOUSEZ),
+			mVDUniforms->setVec4UniformValueByIndex(mVDUniforms->IMOUSE, vec4(
+				mVDUniforms->getUniformValue(mVDUniforms->IMOUSEX),
+				mVDUniforms->getUniformValue(mVDUniforms->IMOUSEY),
+				mVDUniforms->getUniformValue(mVDUniforms->IMOUSEZ),
 				1.0));
 
 		}
 
 		// update iResolution vec3
 		if (aControl == 121 || aControl == 122) {
-			mVDAnimation->setVec3UniformValueByIndex(mVDUniforms->IRESOLUTION, vec3(mVDAnimation->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDAnimation->getUniformValue(mVDUniforms->IRESOLUTIONY), 1.0));
+			mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->IRESOLUTION, vec3(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY), 1.0));
 		}
-		sParams << "{\"params\" :[{\"name\" : " << aControl << ",\"value\" : " << mVDAnimation->getUniformValue(aControl) << "}]}";
+		sParams << "{\"params\" :[{\"name\" : " << aControl << ",\"value\" : " << mVDUniforms->getUniformValue(aControl) << "}]}";
 		std::string strParams = sParams.str();
 
 		sendJSON(strParams);
@@ -117,7 +117,7 @@ void VDRouter::updateParams(int iarg0, float farg1) {
 		// sliders 
 		//! 20200526 mVDSocketio->changeFloatValue(iarg0, farg1);
 		
-		mVDAnimation->setUniformValue(iarg0, farg1);
+		mVDUniforms->setUniformValue(iarg0, farg1);
 	}
 	if (iarg0 > 10 && iarg0 < 19) {
 		// rotary 
@@ -162,10 +162,10 @@ void VDRouter::colorWrite()
 #if defined( CINDER_MSW )
 	// lights4events
 	char col[97];
-	int r = (int)(mVDAnimation->getUniformValue(1) * 255);
-	int g = (int)(mVDAnimation->getUniformValue(2) * 255);
-	int b = (int)(mVDAnimation->getUniformValue(3) * 255);
-	int a = (int)(mVDAnimation->getUniformValue(4) * 255);
+	int r = (int)(mVDUniforms->getUniformValue(1) * 255);
+	int g = (int)(mVDUniforms->getUniformValue(2) * 255);
+	int b = (int)(mVDUniforms->getUniformValue(3) * 255);
+	int a = (int)(mVDUniforms->getUniformValue(4) * 255);
 	//sprintf(col, "#%02X%02X%02X", r, g, b);
 	sprintf(col, "{\"type\":\"action\", \"parameters\":{\"name\":\"FC\",\"parameters\":{\"color\":\"#%02X%02X%02X%02X\",\"fading\":\"NONE\"}}}", a, r, g, b);
 	//! 20200526 mVDSocketio->wsWrite(col);

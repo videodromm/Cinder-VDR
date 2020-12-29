@@ -72,7 +72,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				{
 					found = true;
 					//mVDAnimation->setAutoBeatAnimation(false);
-					mVDAnimation->setUniformValue(mVDUniforms->IBPM, msg[0].flt());
+					mVDUniforms->setUniformValue(mVDUniforms->IBPM, msg[0].flt());
 				}
 			}
 			if (!found)
@@ -95,7 +95,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 					found = true;
 					f = msg[0].flt();
 					mVDAnimation->useTimeWithTempo();
-					mVDAnimation->setUniformValue(mVDUniforms->ITIME, f);
+					mVDUniforms->setUniformValue(mVDUniforms->ITIME, f);
 					//stringstream ss;
 					//ss << " " << f;
 					//CI_LOG_I("OSC: " << ctrl << " addr: " << addr);
@@ -118,7 +118,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 					found = true;
 					mVDAnimation->useTimeWithTempo();
 					f = msg[0].flt();
-					mVDAnimation->setUniformValue(mVDUniforms->IBPM, f);
+					mVDUniforms->setUniformValue(mVDUniforms->IBPM, f);
 					//ss << " " << f;
 					//CI_LOG_I("tempo:" + toString(mVDAnimation->getBpm()));
 				}
@@ -131,20 +131,20 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				if (index != std::string::npos)
 				{
 					found = true;
-					mVDAnimation->setUniformValue(mVDUniforms->IMAXVOLUME, 0.0f);
+					mVDUniforms->setUniformValue(mVDUniforms->IMAXVOLUME, 0.0f);
 					for (int a{0}; a < msg.getNumArgs(); a++) {
 						// get the argument type 'f'
 						if (msg.getArgType(i) == ArgType::FLOAT) {
-							f = msg[a].flt() * 200.0f * mVDAnimation->getUniformValue(mVDUniforms->IAUDIOX);
-							if (f > mVDAnimation->getUniformValue(mVDUniforms->IMAXVOLUME))
+							f = msg[a].flt() * 200.0f * mVDUniforms->getUniformValue(mVDUniforms->IAUDIOX);
+							if (f > mVDUniforms->getUniformValue(mVDUniforms->IMAXVOLUME))
 							{
-								mVDAnimation->setUniformValue(mVDUniforms->IMAXVOLUME, f);
+								mVDUniforms->setUniformValue(mVDUniforms->IMAXVOLUME, f);
 							}
 							mVDAnimation->iFreqs[a] = f;
-							if (a == mVDAnimation->getFreqIndex(0)) mVDAnimation->setUniformValue(mVDUniforms->IFREQ0, f);
-							if (a == mVDAnimation->getFreqIndex(1)) mVDAnimation->setUniformValue(mVDUniforms->IFREQ1, f);
-							if (a == mVDAnimation->getFreqIndex(2)) mVDAnimation->setUniformValue(mVDUniforms->IFREQ2, f);
-							if (a == mVDAnimation->getFreqIndex(3)) mVDAnimation->setUniformValue(mVDUniforms->IFREQ3, f);
+							if (a == mVDAnimation->getFreqIndex(0)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ0, f);
+							if (a == mVDAnimation->getFreqIndex(1)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ1, f);
+							if (a == mVDAnimation->getFreqIndex(2)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ2, f);
+							if (a == mVDAnimation->getFreqIndex(3)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ3, f);
 						}
 					}
 				}
@@ -194,10 +194,10 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				if (index != std::string::npos)
 				{
 					found = true;
-					mVDAnimation->setUniformValue(mVDUniforms->IBEAT, msg[0].int32() - 1);
-					mVDAnimation->setUniformValue(
+					mVDUniforms->setUniformValue(mVDUniforms->IBEAT, msg[0].int32() - 1);
+					mVDUniforms->setUniformValue(
 						mVDUniforms->IBARBEAT,
-						mVDAnimation->getUniformValue(mVDUniforms->IBAR) * 4 + mVDAnimation->getUniformValue(mVDUniforms->IBEAT));
+						mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
 
 					//CI_LOG_I("beat:" + toString(mVDUniforms->IBEAT) + " " + toString(mVDAnimation->getIntUniformValueByIndex(mVDUniforms->IBEAT)));
 
@@ -212,17 +212,17 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				{
 					found = true;
 					// TODO test if useless:
-					int previousBar = mVDAnimation->getIntUniformValueByIndex(mVDUniforms->IBAR);
+					int previousBar = mVDUniforms->getIntUniformValueByIndex(mVDUniforms->IBAR);
 
 					if (previousBar != msg[0].int32()) {
-						mVDSettings->iBarDuration = mVDAnimation->getUniformValue(mVDUniforms->ITIME) - mBarStart;
-						mBarStart = mVDAnimation->getUniformValue(mVDUniforms->ITIME);
+						mVDSettings->iBarDuration = mVDUniforms->getUniformValue(mVDUniforms->ITIME) - mBarStart;
+						mBarStart = mVDUniforms->getUniformValue(mVDUniforms->ITIME);
 					}
 					// TODO END
-					mVDAnimation->setUniformValue(mVDUniforms->IBAR, msg[0].int32());
-					mVDAnimation->setUniformValue(
+					mVDUniforms->setUniformValue(mVDUniforms->IBAR, msg[0].int32());
+					mVDUniforms->setUniformValue(
 						mVDUniforms->IBARBEAT,
-						mVDAnimation->getIntUniformValueByIndex(mVDUniforms->IBAR) * 4 + mVDAnimation->getIntUniformValueByIndex(mVDUniforms->IBEAT));
+						mVDUniforms->getIntUniformValueByIndex(mVDUniforms->IBAR) * 4 + mVDUniforms->getIntUniformValueByIndex(mVDUniforms->IBEAT));
 
 				}
 			}
@@ -235,7 +235,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				{
 					found = true;
 					double d0 = msg[0].dbl(); // tempo
-					mVDAnimation->setUniformValue(mVDUniforms->IBPM, d0);
+					mVDUniforms->setUniformValue(mVDUniforms->IBPM, d0);
 					double d1 = msg[1].dbl();
 					int d2 = msg[2].int32();
 					//! 20200526 mVDSocketio->changeIntValue(mVDUniforms->IBEAT, d2);
@@ -259,7 +259,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 							found = true;
 							f = msg[0].flt();
 							i = std::stoi(addr.substr(lastSlashIndex + 1)) + 8;
-							mVDAnimation->setUniformValue(i, f);
+							mVDUniforms->setUniformValue(i, f);
 						}
 
 						if (!found)
@@ -271,7 +271,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 								found = true;
 								f = msg[0].flt();
 								i = std::stoi(addr.substr(lastSlashIndex + 1)) + 32; // 24 + 8
-								mVDAnimation->setUniformValue(i, f);
+								mVDUniforms->setUniformValue(i, f);
 							}
 						}
 
@@ -284,7 +284,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 								found = true;
 								f = msg[0].flt();
 								i = std::stoi(addr.substr(lastSlashIndex + 1)) + 56; // 48 + 8
-								mVDAnimation->setUniformValue(i, f);
+								mVDUniforms->setUniformValue(i, f);
 							}
 						}
 						if (!found)
@@ -296,7 +296,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 								found = true;
 								f = msg[0].flt();
 								i = std::stoi(addr.substr(index + ctrl.length()));
-								mVDAnimation->setUniformValue(i, f);// starts at 1: mVDUniforms->IFR G B
+								mVDUniforms->setUniformValue(i, f);// starts at 1: mVDUniforms->IFR G B
 							}
 						}
 						if (!found)
@@ -308,7 +308,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 								found = true;
 								f = msg[0].flt();
 								i = std::stoi(addr.substr(index + ctrl.length())) + 10;
-								mVDAnimation->setUniformValue(i, f);
+								mVDUniforms->setUniformValue(i, f);
 							}
 						}
 						if (!found)

@@ -4,9 +4,9 @@
 #include "VDTextureImageSequence.h"
 using namespace videodromm;
 
-TextureImageSequence::TextureImageSequence(VDAnimationRef aVDAnimation) {
+TextureImageSequence::TextureImageSequence(VDUniformsRef aVDUniforms) {
 	// constructor
-	mVDAnimation = aVDAnimation;
+	mVDUniforms = aVDUniforms;
 	mType = TextureType::SEQUENCE;
 	playheadFrameInc = 0.0f;
 	mLoadingFilesComplete = true;
@@ -203,7 +203,7 @@ void TextureImageSequence::updateSequence() {
 			if (mSyncToBeat) {
 				//newPosition = (int)(((int)(mVDAnimation->iBar / mVDAnimation->iPhaseIndex)) % mSequenceTextures.size());
 				// TODO newPosition = (int)(((int)(mVDSettings->iPhase / mVDAnimation->iPhaseIndex)) % mSequenceTextures.size());
-				newPosition = (int)(mVDAnimation->getIntUniformValueByName("iPhase") % mSequenceTextures.size());
+				newPosition = (int)(mVDUniforms->getIntUniformValueByName("iPhase") % mSequenceTextures.size());
 			}
 			else {
 				newPosition = mPosition;

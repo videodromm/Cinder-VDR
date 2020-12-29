@@ -6,19 +6,19 @@
 
 using namespace videodromm;
 
-VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms)
+VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms, VDMixRef aVDMix)
 {
 	CI_LOG_V("VDSession ctor");
 	mVDSettings = aVDSettings;
 	mVDAnimation = aVDAnimation;
 	mVDUniforms = aVDUniforms;
+	// Mix
+	mVDMix = aVDMix;
 	// Params
 	mVDParams = VDParams::create();
 
 	// Animation
 	// TODO: needed? mVDAnimation->tapTempo();
-	// Mix
-	mVDMix = VDMix::create(mVDSettings, mVDAnimation, mVDUniforms);
 	//createFboShaderTexture("default.fs", "0.jpg");
 	//createFboShaderTexture("audio.fs", "audio");
 	// allow log to file
@@ -157,7 +157,7 @@ std::string VDSession::getModeName(unsigned int aMode) {
 void VDSession::update(unsigned int aClassIndex) {
 
 	// fps calculated in main app
-	mVDSettings->sFps = toString(floor(mVDAnimation->getUniformValue(mVDUniforms->IFPS)));
+	mVDSettings->sFps = toString(floor(mVDUniforms->getUniformValue(mVDUniforms->IFPS)));
 	mVDAnimation->update();
 
 	mVDMix->getMixetteTexture(0);
@@ -183,11 +183,11 @@ void VDSession::renderPostToFbo()
 		// not used yet mGlslPost->uniform("TIME", getUniformValue(mVDUniforms->ITIME) - mVDSettings->iStart);;
 		mGlslPost->uniform("iResolution", vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
 		mGlslPost->uniform("iChannel0", 40); // texture 0
-		mGlslPost->uniform("iSobel", mVDAnimation->getUniformValue(mVDUniforms->ISOBEL));
-		mGlslPost->uniform("iExposure", mVDAnimation->getUniformValue(mVDUniforms->IEXPOSURE));
-		mGlslPost->uniform("iTrixels", mVDAnimation->getUniformValue(mVDUniforms->ITRIXELS)); // trixels if > 0.
-		mGlslPost->uniform("iZoom", mVDAnimation->getUniformValue(mVDUniforms->IZOOM));
-		mGlslPost->uniform("iChromatic", mVDAnimation->getUniformValue(mVDUniforms->ICHROMATIC));
+		mGlslPost->uniform("iSobel", mVDUniforms->getUniformValue(mVDUniforms->ISOBEL));
+		mGlslPost->uniform("iExposure", mVDUniforms->getUniformValue(mVDUniforms->IEXPOSURE));
+		mGlslPost->uniform("iTrixels", mVDUniforms->getUniformValue(mVDUniforms->ITRIXELS)); // trixels if > 0.
+		mGlslPost->uniform("iZoom", mVDUniforms->getUniformValue(mVDUniforms->IZOOM));
+		mGlslPost->uniform("iChromatic", mVDUniforms->getUniformValue(mVDUniforms->ICHROMATIC));
 		mGlslPost->uniform("iFlipV", (int)getBoolUniformValueByIndex(mVDUniforms->IFLIPPOSTV));
 		mGlslPost->uniform("iFlipH", (int)getBoolUniformValueByIndex(mVDUniforms->IFLIPPOSTH));
 		mGlslPost->uniform("iInvert", (int)getBoolUniformValueByIndex(mVDUniforms->IINVERT));
@@ -211,8 +211,8 @@ void VDSession::renderWarpsToFbo()
 		for (auto& warp : mWarpList) {
 			a = warp->getAFboIndex();
 			if (a < 0) a = 0; // TODO 20200228 a could be negative if warps3.xml > warps01.json
-			i = math<int>::min(a, getFboListSize() - 1);
-			s = getFboListSize(); // TMP
+			i = math<int>::min(a, getFboShaderListSize() - 1);
+			s = getFboShaderListSize(); // TMP
 			//if (isFboValid(i)) {
 				//ko  warp->draw(getFboRenderedTexture(0));
 				//ko warp->draw(getFboTexture(0)); bind to 0 broken
@@ -227,7 +227,8 @@ void VDSession::renderWarpsToFbo()
 }
 bool VDSession::save()
 {
-	saveFbos();
+	/* 20201229
+	saveFbos();*/
 	saveWarps();
 	// save uniforms settings
 	//mVDAnimation->save();
@@ -237,7 +238,7 @@ bool VDSession::save()
 
 	JsonTree settings = JsonTree::makeArray("settings");
 	settings.addChild(ci::JsonTree("bpm", mOriginalBpm));
-	settings.addChild(ci::JsonTree("beatsperbar", mVDAnimation->getIntUniformValueByName("iBeatsPerBar")));
+	settings.addChild(ci::JsonTree("beatsperbar", mVDUniforms->getIntUniformValueByName("iBeatsPerBar")));
 	//settings.addChild(ci::JsonTree("fadeindelay", mFadeInDelay));
 	//settings.addChild(ci::JsonTree("fadeoutdelay", mFadeOutDelay));
 	settings.addChild(ci::JsonTree("endframe", mVDAnimation->mEndFrame));
@@ -285,16 +286,16 @@ void VDSession::restore()
 			if (settings.hasChild("bpm")) {
 				mOriginalBpm = settings.getValueForKey<float>("bpm", 166.0f);
 				//CI_LOG_W("getBpm" + toString(mVDAnimation->getBpm()) + " mOriginalBpm " + toString(mOriginalBpm));
-				mVDAnimation->setUniformValue(mVDUniforms->IBPM, mOriginalBpm);
+				mVDUniforms->setUniformValue(mVDUniforms->IBPM, mOriginalBpm);
 				//CI_LOG_W("getBpm" + toString(mVDAnimation->getBpm()));
 			};
-			if (settings.hasChild("beatsperbar")) mVDAnimation->setUniformValue(mVDUniforms->IBEATSPERBAR, settings.getValueForKey<int>("beatsperbar"));
-			if (mVDAnimation->getUniformValue(mVDUniforms->IBEATSPERBAR) < 1) mVDAnimation->setUniformValue(mVDUniforms->IBEATSPERBAR, 4);
+			if (settings.hasChild("beatsperbar")) mVDUniforms->setUniformValue(mVDUniforms->IBEATSPERBAR, settings.getValueForKey<int>("beatsperbar"));
+			if (mVDUniforms->getUniformValue(mVDUniforms->IBEATSPERBAR) < 1) mVDUniforms->setUniformValue(mVDUniforms->IBEATSPERBAR, 4);
 			//if (settings.hasChild("fadeindelay")) mFadeInDelay = settings.getValueForKey<int>("fadeindelay");
 			//if (settings.hasChild("fadeoutdelay")) mFadeOutDelay = settings.getValueForKey<int>("fadeoutdelay");
 			if (settings.hasChild("endframe")) mVDAnimation->mEndFrame = settings.getValueForKey<int>("endframe");
 			//CI_LOG_W("getBpm" + toString(mVDAnimation->getBpm()) + " mTargetFps " + toString(mTargetFps));
-			mTargetFps = mVDAnimation->getUniformValue(mVDUniforms->IBPM) / 60.0f * mFpb;
+			mTargetFps = mVDUniforms->getUniformValue(mVDUniforms->IBPM) / 60.0f * mFpb;
 			//CI_LOG_W("getBpm" + toString(mVDAnimation->getBpm()) + " mTargetFps " + toString(mTargetFps));
 		}
 
@@ -319,7 +320,7 @@ void VDSession::restore()
 void VDSession::resetSomeParams() {
 	// parameters not exposed in json file
 	mFpb = 16;
-	mVDAnimation->setUniformValue(mVDUniforms->IBPM, mOriginalBpm);
+	mVDUniforms->setUniformValue(mVDUniforms->IBPM, mOriginalBpm);
 	mTargetFps = mOriginalBpm / 60.0f * mFpb;
 }
 
@@ -367,11 +368,12 @@ void VDSession::fileDrop(FileDropEvent event) {
 			JsonTree json(loadFile(absolutePath));
 			fboFromJson(json);
 		}
-		else if (ext == "glsl" || ext == "frag" || ext == "fs") {
+		/* 20201229
+else if (ext == "glsl" || ext == "frag" || ext == "fs") {
 			loadFragmentShader(absolutePath, index);
 
 			// façade fbo()->shader()->uniform()->execute() 
-		}
+		}*/
 		else if (ext == "png" || ext == "jpg") {
 			if (index < 1) index = 1;
 			if (index > 3) index = 3;
@@ -596,6 +598,28 @@ ci::gl::TextureRef VDSession::getFboRenderedTexture(unsigned int aFboIndex) {
 ci::gl::TextureRef VDSession::getFboTexture(unsigned int aFboIndex) {
 	return mVDMix->getFboTexture(aFboIndex);
 }
+/*void VDSession::setFragmentShaderString(unsigned int aFboShaderIndex, const std::string& aFragmentShaderString, const std::string& aName) {
+	//mFboShaderList[aFboShaderIndex]->setFragmentShaderString(aFboShaderIndex, aFragmentShaderString, aName);
+	mVDMix->setFragmentShaderString
+}*/
+ci::gl::TextureRef VDSession::getFboShaderTexture(unsigned int aFboShaderIndex) {
+	//return mFboShaderList[aFboShaderIndex]->getRenderedTexture(); //20201229 or getTexture?
+	return mVDMix->getFboRenderedTexture(aFboShaderIndex); //20201229 or getTexture?
+};
+
+std::vector<ci::gl::GlslProg::Uniform> VDSession::getFboShaderUniforms(unsigned int aFboShaderIndex) {
+	//return mFboShaderList[aFboShaderIndex]->getUniforms();
+	return mVDMix->getFboShaderUniforms(aFboShaderIndex);
+}
+
+int VDSession::getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex) {
+	//return mFboShaderList[aFboShaderIndex]->getUniformValueByLocation(aLocationIndex);
+	return mVDMix->getUniformValueByLocation(aFboShaderIndex, aLocationIndex);
+};
+void VDSession::setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue) {
+	//mFboShaderList[aFboShaderIndex]->setUniformValueByLocation(aLocationIndex, aValue);
+	mVDMix->setUniformValueByLocation(aFboShaderIndex, aLocationIndex, aValue);
+};
 ci::gl::TextureRef VDSession::getMixetteTexture(unsigned int aFboIndex) {
 	return mVDMix->getMixetteTexture(aFboIndex);
 }
@@ -634,15 +658,17 @@ void VDSession::setWarpHeight(unsigned int aWarpIndex, int aHeight) {
 unsigned int VDSession::getWarpAFboIndex(unsigned int aWarpIndex) { return mWarpList[math<int>::min(aWarpIndex, mWarpList.size() - 1)]->getAFboIndex(); };
 unsigned int VDSession::getWarpBFboIndex(unsigned int aWarpIndex) { return mWarpList[math<int>::min(aWarpIndex, mWarpList.size() - 1)]->getBFboIndex(); };
 void VDSession::setWarpAFboIndex(unsigned int aWarpIndex, unsigned int aWarpFboIndex) {
-	if (aWarpIndex < mWarpList.size() && aWarpFboIndex < mVDMix->getFboListSize()) {
+	if (aWarpIndex < mWarpList.size() && aWarpFboIndex < mVDMix->getFboShaderListSize()) {
 		mWarpList[aWarpIndex]->setAFboIndex(aWarpFboIndex);
-		updateWarpName(aWarpIndex);
+		/* 20201229
+updateWarpName(aWarpIndex);*/
 	}
 }
 void VDSession::setWarpBFboIndex(unsigned int aWarpIndex, unsigned int aWarpFboIndex) {
-	if (aWarpIndex < mWarpList.size() && aWarpFboIndex < mVDMix->getFboListSize()) {
+	if (aWarpIndex < mWarpList.size() && aWarpFboIndex < mVDMix->getFboShaderListSize()) {
 		mWarpList[aWarpIndex]->setBFboIndex(aWarpFboIndex);
-		updateWarpName(aWarpIndex);
+		/* 20201229
+updateWarpName(aWarpIndex);*/
 	}
 }
 
@@ -691,27 +717,27 @@ void VDSession::toggleValue(unsigned int aCtrl) {
 };
 
 float VDSession::getMinUniformValue(unsigned int aIndex) {
-	return mVDAnimation->getMinUniformValue(aIndex);
+	return mVDUniforms->getMinUniformValue(aIndex);
 };
 float VDSession::getMaxUniformValue(unsigned int aIndex) {
-	return mVDAnimation->getMaxUniformValue(aIndex);
+	return mVDUniforms->getMaxUniformValue(aIndex);
 };
 int VDSession::getSampler2DUniformValueByName(const std::string& aName) {
-	return mVDAnimation->getSampler2DUniformValueByName(aName);
+	return mVDUniforms->getSampler2DUniformValueByName(aName);
 };
 int VDSession::getIntUniformValueByName(const std::string& aName) {
-	return mVDAnimation->getIntUniformValueByName(aName);
+	return mVDUniforms->getIntUniformValueByName(aName);
 };
 int VDSession::getIntUniformValueByIndex(unsigned int aCtrl) {
-	return mVDAnimation->getIntUniformValueByIndex(aCtrl);
+	return mVDUniforms->getIntUniformValueByIndex(aCtrl);
 };
 bool VDSession::getBoolUniformValueByName(const std::string& aName) {
-	return mVDAnimation->getBoolUniformValueByName(aName);
+	return mVDUniforms->getBoolUniformValueByName(aName);
 };
 bool VDSession::getBoolUniformValueByIndex(unsigned int aCtrl) {
-	return mVDAnimation->getBoolUniformValueByIndex(aCtrl);
+	return mVDUniforms->getBoolUniformValueByIndex(aCtrl);
 }
 
 float VDSession::getUniformValueByName(const std::string& aCtrlName) {
-	return mVDAnimation->getUniformValueByName(aCtrlName);
+	return mVDUniforms->getUniformValueByName(aCtrlName);
 };

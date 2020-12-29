@@ -8,8 +8,8 @@
 #include "cinder/gl/gl.h"
 #include "cinder/Json.h"
 #include "cinder/Capture.h"
-// Animation
-#include "VDAnimation.h"
+// VDUniforms
+#include "VDUniforms.h"
 // Texture
 #include "VDTexture.h"
 
@@ -24,14 +24,14 @@ class TextureImageSequence
 	: public VDTexture {
 public:
 	//
-	static TextureImageSequenceRef	create(VDAnimationRef aVDAnimation) { return std::make_shared<TextureImageSequence>(aVDAnimation); }
+	static TextureImageSequenceRef	create(VDUniformsRef aVDUniforms) { return std::make_shared<TextureImageSequence>(aVDUniforms); }
 	//!
 	//bool					fromXml(const XmlTree& xml) override;
 	//!
 	//virtual	XmlTree			toXml() const override;
 	//!
 	virtual bool			loadFromFullPath(const std::string& aPath) override;
-	TextureImageSequence(VDAnimationRef aVDAnimation);
+	TextureImageSequence(VDUniformsRef aVDUniforms);
 	virtual ~TextureImageSequence(void);
 
 	//! returns a shared pointer 
@@ -55,8 +55,8 @@ protected:
 	virtual ci::gl::Texture2dRef	getTexture(unsigned int aIndex = 0) override;
 
 private:
-	// Animation
-	VDAnimationRef				mVDAnimation;
+	// Uniforms
+	VDUniformsRef				mVDUniforms;
 
 	float						playheadFrameInc;
 	void						loadNextImageFromDisk();

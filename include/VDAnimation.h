@@ -128,14 +128,14 @@ namespace videodromm
 		void							setAnim(unsigned int aCtrl, unsigned int aAnim) {
 			mVDUniforms->setAnim(aCtrl, aAnim);
 		}
-		bool							setUniformValue(unsigned int aIndex, float aValue) {
+		/*bool							setUniformValue(unsigned int aIndex, float aValue) {
 			if (aIndex == mVDUniforms->IBPM) {
 				if (aValue > 0.0f) {
 					mVDUniforms->setUniformValue(mVDUniforms->IDELTATIME, 60 / aValue);
 				}
 			}
 			return mVDUniforms->setUniformValue(aIndex, aValue);
-		}
+		}*/
 
 		bool							setBoolUniformValueByIndex(unsigned int aIndex, bool aValue) {
 			return mVDUniforms->setBoolUniformValueByIndex(aIndex, aValue);
@@ -146,6 +146,7 @@ namespace videodromm
 		void							setIntUniformValueByIndex(unsigned int aIndex, int aValue) {
 			mVDUniforms->setIntUniformValueByIndex(aIndex, aValue);
 		}*/
+		/* 20201229
 		void							setFloatUniformValueByName(const std::string& aName, float aValue) {
 			mVDUniforms->setFloatUniformValueByName(aName, aValue);
 		}
@@ -225,6 +226,7 @@ namespace videodromm
 		bool							isFlipV() { return getBoolUniformValueByIndex(mVDUniforms->IFLIPV); };
 		void							flipH() { setBoolUniformValueByIndex(mVDUniforms->IFLIPH, !getBoolUniformValueByIndex(mVDUniforms->IFLIPH)); };
 		void							flipV() { setBoolUniformValueByIndex(mVDUniforms->IFLIPV, !getBoolUniformValueByIndex(mVDUniforms->IFLIPV)); };
+		*/
 
 		unsigned int					getBlendModesCount() { return mBlendModes; };
 		bool							renderBlend() { return mBlendRender; };

@@ -39,45 +39,45 @@ bool VDKeyboard::handleKeyDown(KeyEvent& event) {
 
 	case KeyEvent::KEY_x:
 		// trixels
-		mVDMediator->setUniformValue(mVDUniforms->ITRIXELS, math<float>::max(mVDAnimation->getUniformValue(mVDUniforms->ITRIXELS) + delta, 0.0f));
+		mVDMediator->setUniformValue(mVDUniforms->ITRIXELS, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->ITRIXELS) + delta, 0.0f));
 		break;
 	case KeyEvent::KEY_r:
 		if (isAltDown) {
-			mVDMediator->setUniformValue(mVDUniforms->IBR, math<float>::max(mVDAnimation->getUniformValue(mVDUniforms->IBR) + delta, 0.0f));
+			mVDMediator->setUniformValue(mVDUniforms->IBR, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IBR) + delta, 0.0f));
 		}
 		else {
-			mVDMediator->setUniformValue(mVDUniforms->IFR, math<float>::max(mVDAnimation->getUniformValue(mVDUniforms->IFR) + delta, 0.0f));
+			mVDMediator->setUniformValue(mVDUniforms->IFR, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IFR) + delta, 0.0f));
 		}
 		break;
 	case KeyEvent::KEY_g:
 		if (isAltDown) {
-			mVDMediator->setUniformValue(mVDUniforms->IBG, math<float>::max(mVDAnimation->getUniformValue(mVDUniforms->IBG) + delta, 0.0f));
+			mVDMediator->setUniformValue(mVDUniforms->IBG, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IBG) + delta, 0.0f));
 		}
 		else {
-			mVDMediator->setUniformValue(mVDUniforms->IFG, math<float>::max(mVDAnimation->getUniformValue(mVDUniforms->IFG) + delta, 0.0f));
+			mVDMediator->setUniformValue(mVDUniforms->IFG, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IFG) + delta, 0.0f));
 		}
 		break;
 	case KeyEvent::KEY_b:
 		if (isAltDown) {
-			mVDMediator->setUniformValue(mVDUniforms->IBB, math<float>::max(mVDAnimation->getUniformValue(mVDUniforms->IBB) + delta, 0.0f));
+			mVDMediator->setUniformValue(mVDUniforms->IBB, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IBB) + delta, 0.0f));
 		}
 		else {
-			mVDMediator->setUniformValue(mVDUniforms->IFB, math<float>::max(mVDAnimation->getUniformValue(mVDUniforms->IFB) + delta, 0.0f));
+			mVDMediator->setUniformValue(mVDUniforms->IFB, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IFB) + delta, 0.0f));
 		}
 		break;
 	case KeyEvent::KEY_a:
-		mVDMediator->setUniformValue(mVDUniforms->IFA, math<float>::max(mVDAnimation->getUniformValue(mVDUniforms->IFA) + delta, 0.0f));
+		mVDMediator->setUniformValue(mVDUniforms->IFA, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IFA) + delta, 0.0f));
 		break;
 	case KeyEvent::KEY_u:
 		// chromatic
 		// TODO find why can't put value >0.9 or 0.85!
-		newValue = math<float>::max(mVDAnimation->getUniformValue(mVDUniforms->ICHROMATIC) + delta, 0.0f);
+		newValue = math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->ICHROMATIC) + delta, 0.0f);
 		if (newValue > 1.0f) newValue = 0.0f;
 		mVDMediator->setUniformValue(mVDUniforms->ICHROMATIC, newValue);
 		break;
 	case KeyEvent::KEY_p:
 		// pixelate
-		mVDMediator->setUniformValue(mVDUniforms->IPIXELATE, math<float>::max(mVDAnimation->getUniformValue(mVDUniforms->IPIXELATE) + delta, 0.0f));
+		mVDMediator->setUniformValue(mVDUniforms->IPIXELATE, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IPIXELATE) + delta, 0.0f));
 		break;
 	case KeyEvent::KEY_y:
 		// glitch
@@ -93,7 +93,7 @@ bool VDKeyboard::handleKeyDown(KeyEvent& event) {
 		break;
 	case KeyEvent::KEY_z:
 		// zoom
-		mVDMediator->setUniformValue(mVDUniforms->IZOOM, math<float>::max(mVDAnimation->getUniformValue(mVDUniforms->IZOOM) + delta, 0.0f));
+		mVDMediator->setUniformValue(mVDUniforms->IZOOM, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IZOOM) + delta, 0.0f));
 		break;
 		/* removed temp for Sky Project case KeyEvent::KEY_LEFT:
 			//mVDTextures->rewindMovie();
@@ -106,15 +106,15 @@ bool VDKeyboard::handleKeyDown(KeyEvent& event) {
 	case KeyEvent::KEY_PAGEDOWN:
 	case KeyEvent::KEY_RIGHT:
 		// crossfade right
-		if (mVDAnimation->getUniformValue(mVDUniforms->IXFADE) < 1.0f) {
-			mVDMediator->setUniformValue(mVDUniforms->IXFADE, mVDAnimation->getUniformValue(mVDUniforms->IXFADE) + 0.01f);
+		if (mVDUniforms->getUniformValue(mVDUniforms->IXFADE) < 1.0f) {
+			mVDMediator->setUniformValue(mVDUniforms->IXFADE, mVDUniforms->getUniformValue(mVDUniforms->IXFADE) + 0.01f);
 		};
 		break;
 	case KeyEvent::KEY_PAGEUP:
 	case KeyEvent::KEY_LEFT:
 		// crossfade left
-		if (mVDAnimation->getUniformValue(mVDUniforms->IXFADE) > 0.0f) {
-			mVDMediator->setUniformValue(mVDUniforms->IXFADE, mVDAnimation->getUniformValue(mVDUniforms->IXFADE) - 0.01f);
+		if (mVDUniforms->getUniformValue(mVDUniforms->IXFADE) > 0.0f) {
+			mVDMediator->setUniformValue(mVDUniforms->IXFADE, mVDUniforms->getUniformValue(mVDUniforms->IXFADE) - 0.01f);
 		}
 		break;
 	case KeyEvent::KEY_UP:

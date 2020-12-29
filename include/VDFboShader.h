@@ -16,10 +16,6 @@
 #include "cinder/Timeline.h"
 #include "cinder/ImageIo.h"
 
-// Animation
-#include "VDAnimation.h"
-// Uniforms
-#include "VDUniforms.h"
 // textures
 #include "VDTexture.h"
 //!  Uniforms
@@ -43,35 +39,40 @@ namespace videodromm
 
 	class VDFboShader {
 	public:
-		VDFboShader(VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms);
+		VDFboShader(VDUniformsRef aVDUniforms);
 		~VDFboShader(void);
-		static VDFboShaderRef create(VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms) {
-			return std::make_shared<VDFboShader>( aVDAnimation, aVDUniforms);
+		static VDFboShaderRef create(VDUniformsRef aVDUniforms) {
+			return std::make_shared<VDFboShader>(aVDUniforms);
 		}
 
-		ci::gl::Texture2dRef					getFboShaderTexture(); //TODO 20200610; = 0
+		ci::gl::Texture2dRef					getTexture(); //TODO 20200610; = 0
+		ci::gl::Texture2dRef					getRenderedTexture();
+		ci::gl::Texture2dRef					getInputTexture();
 		bool									isValid();
-		std::string								getFboShaderName();
+		std::string								getShaderName();
 		void									setImageInputTexture(ci::gl::Texture2dRef aTextureRef, const std::string& aTextureFilename);
 		std::vector<ci::gl::GlslProg::Uniform>	getUniforms();
 		//new 
-		bool setFragmentShaderString(unsigned int aShaderIndex, const std::string& aFragmentShaderString, const std::string& aName = "");
+		bool setFragmentShaderString(const std::string& aFragmentShaderString, const std::string& aName = "");
 		int								getUniformValueByLocation(unsigned int aLocationIndex) {
 			return mUniformValueByLocation[aLocationIndex]; 
 		};
 		void							setUniformValueByLocation(unsigned int aLocationIndex, float aValue) { 
 			mUniformValueByLocation[aLocationIndex] = aValue;
 		};
+		std::string								getTextureName() {
+			return mTextureName;
+		};
 	private:
 		// Params
 		VDParamsRef						mVDParams;
 		// Animation
-		const VDAnimationRef			mVDAnimation;
+		//const VDAnimationRef			mVDAnimation;
 		// uniforms
 		VDUniformsRef					mVDUniforms;
 		//! Input textures
 		ci::gl::Texture2dRef			mTexture;
-
+		std::string						mTextureName;
 		//VDTextureList					mTextureList;
 		//unsigned int					mInputTextureIndex;
 		//! shader

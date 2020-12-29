@@ -48,6 +48,13 @@ namespace videodromm {
 			mVDSettings->mErrorMsg = mError + "\n" + mVDSettings->mErrorMsg.substr(0, mVDSettings->mMsgLength);
 		}
 		mGlslMixette = gl::GlslProg::create(loadString(loadFile(mDefaultVertexFilePath)), loadString(loadFile(mMixetteFilePath)));
+
+		fboShaderHydra0 = VDFboShader::create(aVDUniforms);
+		mFboShaderList.push_back(fboShaderHydra0);
+		fboShaderHydra1 = VDFboShader::create(aVDUniforms);
+		mFboShaderList.push_back(fboShaderHydra1);
+		fboShader = VDFboShader::create(aVDUniforms);
+		mFboShaderList.push_back(fboShader);
 		// initialize the textures list with audio texture
 		/*mTexturesFilepath = getAssetPath("") / mVDSettings->mAssetsPath / "textures.xml";
 		initTextureList();
@@ -108,6 +115,19 @@ namespace videodromm {
 		}*/
 
 	}
+	std::vector<ci::gl::GlslProg::Uniform> VDMix::getFboShaderUniforms(unsigned int aFboShaderIndex) {
+		return mFboShaderList[aFboShaderIndex]->getUniforms();
+	}
+
+	int VDMix::getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex) {
+		return mFboShaderList[aFboShaderIndex]->getUniformValueByLocation(aLocationIndex);
+	};
+	void VDMix::setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue) {
+		mFboShaderList[aFboShaderIndex]->setUniformValueByLocation(aLocationIndex, aValue);
+	};
+	bool VDMix::setFragmentShaderString(const string& aFragmentShaderString) {
+		return mFboShaderList[0]->setFragmentShaderString(aFragmentShaderString, "received");
+	}
 	ci::gl::TextureRef VDMix::getMixetteTexture(unsigned int aFboIndex) {
 		
 		gl::ScopedFramebuffer fbScp(mMixetteFbo);
@@ -116,25 +136,25 @@ namespace videodromm {
 		
 		// nasty bug! bind to 100+f
 		int f = 0;
-		for (auto &fbo : mFboList) {
-			if (mFboList[f]->isValid()) {// white mix bug && mVDAnimation->getUniformValue(mVDUniforms->IWEIGHT0 + f) > 0.05f) {
+		for (auto &fbo : mFboShaderList) {
+			if (mFboShaderList[f]->isValid()) {// white mix bug && mVDAnimation->getUniformValue(mVDUniforms->IWEIGHT0 + f) > 0.05f) {
 				//fbo->getTexture()->bind(f); not in right order
-				mFboList[f]->getTexture()->bind(100 + f);
+				mFboShaderList[f]->getTexture()->bind(100 + f);
 			}
 			f++;
 		}
 		gl::ScopedGlslProg prog(mGlslMixette);
-		mGlslMixette->uniform("iResolution", vec3(mVDAnimation->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDAnimation->getUniformValue(mVDUniforms->IRESOLUTIONY), 1.0));
+		mGlslMixette->uniform("iResolution", vec3(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY), 1.0));
 		int i = 0;
-		for (auto &fbo : mFboList) {
+		for (auto &fbo : mFboShaderList) {
 			if (fbo->isValid()) {// white mix bug && mVDAnimation->getUniformValue(mVDUniforms->IWEIGHT0 + i) > 0.1f) {
 				mGlslMixette->uniform("iChannel" + toString(i), 100 + i);
-				mGlslMixette->uniform("iWeight" + toString(i), mVDAnimation->getUniformValue(mVDUniforms->IWEIGHT0 + i));
+				mGlslMixette->uniform("iWeight" + toString(i), mVDUniforms->getUniformValue(mVDUniforms->IWEIGHT0 + i));
 			}
 			i++;
 		}
 		
-		gl::drawSolidRect(Rectf(0, 0, mVDAnimation->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDAnimation->getUniformValue(mVDUniforms->IRESOLUTIONY)));
+		gl::drawSolidRect(Rectf(0, 0, mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY)));
 		// setup the viewport to match the dimensions of the FBO
 		gl::ScopedViewport scpVp(ivec2(0), mMixetteFbo->getSize());
 		mMixetteTexture = mMixetteFbo->getColorTexture();
@@ -959,6 +979,7 @@ namespace videodromm {
 			return mTextureList[aTextureIndex]->getMaxFrame();
 		}*/
 #pragma endregion textures
+
 		// shaders
 		/*void VDMix::updateShaderThumbFile(unsigned int aShaderIndex) {
 			for (int i {0}; i < mFboList.size(); i++)
@@ -970,15 +991,7 @@ namespace videodromm {
 			if (aShaderIndex > mShaderList.size() - 1) aShaderIndex = mShaderList.size() - 1;
 			mShaderList[aShaderIndex]->removeShader();
 		}
-		void VDMix::setFragmentShaderString(unsigned int aShaderIndex, const string& aFragmentShaderString, const string& aName) {
-			if (aShaderIndex > mShaderList.size() - 1) aShaderIndex = mShaderList.size() - 1;
-			mShaderList[aShaderIndex]->setFragmentString(aFragmentShaderString, aName);
-			// if live coding shader compiles and is used by a fbo reload it
-			for (int i {0}; i < mFboList.size(); i++)
-			{
-				if (mFboList[i]->getShaderIndex() == aShaderIndex) setFboFragmentShaderIndex(i, aShaderIndex);
-			}
-		}
+		
 		unsigned int VDMix::createShaderFboFromString(const string& aFragmentShaderString, const string& aShaderFilename, const string& aName) {
 			unsigned int rtn = 0;
 			unsigned int shaderId = 0;
