@@ -368,12 +368,12 @@ void VDSession::fileDrop(FileDropEvent event) {
 			JsonTree json(loadFile(absolutePath));
 			fboFromJson(json);
 		}
-		/* 20201229
-else if (ext == "glsl" || ext == "frag" || ext == "fs") {
+		
+		else if (ext == "glsl" || ext == "frag" || ext == "fs") {
 			loadFragmentShader(absolutePath, index);
 
 			// façade fbo()->shader()->uniform()->execute() 
-		}*/
+		}
 		else if (ext == "png" || ext == "jpg") {
 			if (index < 1) index = 1;
 			if (index > 3) index = 3;

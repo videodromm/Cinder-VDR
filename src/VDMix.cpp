@@ -125,8 +125,30 @@ namespace videodromm {
 	void VDMix::setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue) {
 		mFboShaderList[aFboShaderIndex]->setUniformValueByLocation(aLocationIndex, aValue);
 	};
-	bool VDMix::setFragmentShaderString(const string& aFragmentShaderString) {
-		return mFboShaderList[0]->setFragmentShaderString(aFragmentShaderString, "received");
+	bool VDMix::setFragmentShaderString(const string& aFragmentShaderString, const std::string& aName) {
+		return mFboShaderList[0]->setFragmentShaderString(aFragmentShaderString, aName);
+	}
+	int VDMix::loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex) {
+		int rtn = -1;
+		mVDSettings->mMsg = "load " + aFilePath + " at index " + toString(aFboShaderIndex) + "\n" + mVDSettings->mMsg.substr(0, mVDSettings->mMsgLength);
+		bool loaded = false;
+		for (auto &fbo : mFboShaderList) {
+			rtn++;
+			if (!loaded) {
+				if (!fbo->isValid()) {
+					fbo->loadFragmentStringFromFile(aFilePath);
+					loaded = true;
+					break;
+				}
+			}
+		}
+		if (!loaded) {
+			rtn = math<int>::min(aFboShaderIndex, mFboShaderList.size() - 1);
+			loaded = mFboShaderList[rtn]->loadFragmentStringFromFile(aFilePath);
+		}
+		mVDSettings->mMsg = "loaded " + toString(loaded) + " at index " + toString(rtn) + "\n" + mVDSettings->mMsg.substr(0, mVDSettings->mMsgLength);
+
+		return rtn;
 	}
 	ci::gl::TextureRef VDMix::getMixetteTexture(unsigned int aFboIndex) {
 		

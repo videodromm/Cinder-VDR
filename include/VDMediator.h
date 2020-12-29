@@ -79,7 +79,7 @@ namespace videodromm {
 		bool								handleKeyDown(KeyEvent& event);
 		bool								handleKeyUp(KeyEvent& event);
 
-		bool								setFragmentShaderString(const std::string& aFragmentShaderString);
+		bool								setFragmentShaderString(const std::string& aFragmentShaderString, const std::string& aName = "");
 	private:
 		std::vector<VDUniformObserverRef>	mObservers;
 		// Settings

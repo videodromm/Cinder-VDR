@@ -44,9 +44,46 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms)
 }
 VDFboShader::~VDFboShader(void) {
 }
+
+bool VDFboShader::loadFragmentStringFromFile(const string& aFileOrPath) {
+	mValid = false;
+	bool fileExists = true;
+	if (aFileOrPath.length() > 0) {
+		if (fs::exists(aFileOrPath)) {
+			// it's a full path
+			mFragFilePath = aFileOrPath;
+		}
+		else {
+			// try in assets folder			
+			if (!fs::exists(mFragFilePath)) {
+				mFragFilePath = getAssetPath("") / aFileOrPath;
+				if (!fs::exists(mFragFilePath)) {
+					fileExists = false;
+					mError = "VDFboShader file does not exist in assets root or current subfolder:" + aFileOrPath;
+				}
+			}
+		}
+	}
+	else {
+		mError = "VDFboShader file empty";
+	}
+	if (fileExists) {
+		// file exists
+		mValid = loadFragmentStringFromFile();
+	}
+	return mValid;
+}
+// private
+bool VDFboShader::loadFragmentStringFromFile() {
+	mValid = false;
+	// load fragment shader
+	mFileNameWithExtension = mFragFilePath.filename().string();
+	CI_LOG_V("loadFragmentStringFromFile, loading " + mFileNameWithExtension);
+	mValid = setFragmentShaderString(loadString(loadFile(mFragFilePath)), mFileNameWithExtension);
+	CI_LOG_V(mFragFilePath.string() + " loaded and compiled");
+	return mValid;
+}
 bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderString, const std::string& aName) {
-
-
 	std::string mOriginalFragmentString = aFragmentShaderString;
 	std::string mOutputFragmentString = aFragmentShaderString;
 	mError = "";
@@ -68,12 +105,12 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 	std::string mNotFoundUniformsString = "/* " + mName + "\n";
 
 	// load fragment shader
-	CI_LOG_V("setFragmentString, loading" + mName);
+	CI_LOG_V("setFragmentShaderString, loading" + mName);
 	try
 	{
 		std::size_t foundUniform = mOriginalFragmentString.find("uniform ");
 		if (foundUniform == std::string::npos) {
-			CI_LOG_V("loadFragmentStringFromFile, no mUniforms found, we add from shadertoy.inc");
+			CI_LOG_V("setFragmentShaderString, no mUniforms found, we add from shadertoy.inc");
 			mOutputFragmentString = "/* " + mName + " */\n" + shaderInclude + mOriginalFragmentString;
 		}
 		else {
@@ -95,12 +132,12 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 	catch (gl::GlslProgCompileExc& exc)
 	{
 		mError = mName + std::string(exc.what());
-		CI_LOG_V("setFragmentString, unable to compile live fragment shader:" + mError + " frag:" + mName);
+		CI_LOG_V("setFragmentShaderString, unable to compile live fragment shader:" + mError + " frag:" + mName);
 	}
 	catch (const std::exception& e)
 	{
 		mError = mName + std::string(e.what());
-		CI_LOG_V("setFragmentString, error on live fragment shader:" + mError + " frag:" + mName);
+		CI_LOG_V("setFragmentShaderString, error on live fragment shader:" + mError + " frag:" + mName);
 	}
 	if (mError.length() > 0) mMsg = mError + "\n" + mMsg.substr(0, mMsgLength);
 	return mValid;

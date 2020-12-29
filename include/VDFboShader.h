@@ -63,6 +63,7 @@ namespace videodromm
 		std::string								getTextureName() {
 			return mTextureName;
 		};
+		bool									loadFragmentStringFromFile(const string& aFileOrPath);
 	private:
 		// Params
 		VDParamsRef						mVDParams;
@@ -82,7 +83,8 @@ namespace videodromm
 		std::string						mShaderName = "";
 		std::string						mName = "";
 		std::string						mShaderFileName = "";
-
+		fs::path						mFragFilePath = "";
+		bool							loadFragmentStringFromFile();
 		std::string						mShaderFragmentString;
 		std::string						mFileNameWithExtension;
 		bool							mActive;

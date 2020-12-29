@@ -119,10 +119,10 @@ namespace videodromm {
 		bool							getUseLineIn() { return mVDAnimation->getUseLineIn(); };
 		void							setUseLineIn(bool useLineIn) { mVDAnimation->setUseLineIn(useLineIn); };
 		void							toggleUseLineIn() { mVDAnimation->toggleUseLineIn(); };
-		/* 20201229
+		
 		int								loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex = 4) {
 			return mVDMix->loadFragmentShader(aFilePath, aFboShaderIndex);
-		};*/
+		};
 		/*bool							getFreqWSSend() { return mFreqWSSend; };
 		void							toggleFreqWSSend() { mFreqWSSend = !mFreqWSSend; };
 		// uniforms

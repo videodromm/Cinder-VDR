@@ -73,7 +73,7 @@ namespace videodromm
 			return valid;
 			
 		};
-		bool							setFragmentShaderString(const string& aFragmentShaderString);
+		bool							setFragmentShaderString(const string& aFragmentShaderString, const std::string& aName = "");
 		/*bool							getFboBoolUniformValueByIndex(unsigned int aCtrl, unsigned int aFboIndex) {
 			return mFboList[math<int>::min(aFboIndex, mFboList.size() - 1)]->getBoolUniformValueByIndex(aCtrl);
 		};
@@ -122,29 +122,8 @@ namespace videodromm
 				i++;
 			}
 		};
-		
-		int												loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex) {
-			int rtn = -1;
-			mVDSettings->mMsg = "load " + aFilePath + " at index " + toString(aFboShaderIndex) + "\n" + mVDSettings->mMsg.substr(0, mVDSettings->mMsgLength);
-			bool loaded = false;
-			for (auto &fbo : mFboList) {
-				rtn++;
-				if (!loaded) {
-					if (!fbo->isValid()) {
-						fbo->loadFragmentStringFromFile(aFilePath);
-						loaded = true;
-						break;
-					}
-				}
-			}
-			if (!loaded) {
-				rtn = math<int>::min(aFboShaderIndex, mFboList.size() - 1);
-				loaded = mFboList[rtn]->loadFragmentStringFromFile(aFilePath);
-			}
-			mVDSettings->mMsg = "loaded " + toString(loaded) + " at index " + toString(rtn) + "\n" + mVDSettings->mMsg.substr(0, mVDSettings->mMsgLength);
-
-			return rtn;
-		} */
+		 */
+		int												loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex);
 		std::vector<ci::gl::GlslProg::Uniform>			getUniforms(unsigned int aFboIndex = 0) {
 			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getUniforms();
 		}
