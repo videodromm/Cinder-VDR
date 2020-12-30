@@ -73,6 +73,12 @@ namespace videodromm
 			return valid;
 			
 		};
+		std::string								getMsg(unsigned int aFboIndex) {
+			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getMsg();
+		};
+		std::string								getError(unsigned int aFboIndex) {
+			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getError();
+		};
 		bool							setFragmentShaderString(const string& aFragmentShaderString, const std::string& aName = "");
 		/*bool							getFboBoolUniformValueByIndex(unsigned int aCtrl, unsigned int aFboIndex) {
 			return mFboList[math<int>::min(aFboIndex, mFboList.size() - 1)]->getBoolUniformValueByIndex(aCtrl);

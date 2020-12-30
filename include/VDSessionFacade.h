@@ -72,6 +72,15 @@ namespace videodromm
 		ci::gl::TextureRef		getFboShaderTexture(unsigned int aIndex);
 		std::string				getFboShaderName(unsigned int aIndex);
 		unsigned int			getFboShaderListSize(); 
+		bool					isFboValid(unsigned int aFboIndex) {
+			return mVDSession->isFboValid(aFboIndex);
+		};
+		std::string								getMsg(unsigned int aFboIndex) {
+			return mVDSession->getMsg(aFboIndex);
+		};
+		std::string								getError(unsigned int aFboIndex) {
+			return mVDSession->getError(aFboIndex);
+		};
 		std::vector<ci::gl::GlslProg::Uniform> getFboShaderUniforms(unsigned int aFboShaderIndex);
 		//float					getFboShaderUniformValue();
 		int						getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex);

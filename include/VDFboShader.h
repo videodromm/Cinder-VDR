@@ -63,6 +63,12 @@ namespace videodromm
 		std::string								getTextureName() {
 			return mTextureName;
 		};
+		std::string								getMsg() {
+			return mMsg;
+		};
+		std::string								getError() {
+			return mError;
+		};
 		bool									loadFragmentStringFromFile(const string& aFileOrPath);
 	private:
 		// Params

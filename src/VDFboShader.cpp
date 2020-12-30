@@ -32,15 +32,9 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms)
 	// init the fbo whatever happens next
 	fboFmt.setColorTextureFormat(fmt);
 	mFbo = gl::Fbo::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), fboFmt);
+	mMsg = "";
 	mError = "";
 	mActive = true;
-
-	if (mValid) {
-		CI_LOG_V("VDFboShader constructor success");
-	}
-	else {
-		mMsg = "VDFboShader constructor failed\n" + mMsg.substr(0, mMsgLength);
-	}
 }
 VDFboShader::~VDFboShader(void) {
 }
@@ -110,7 +104,7 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 	{
 		std::size_t foundUniform = mOriginalFragmentString.find("uniform ");
 		if (foundUniform == std::string::npos) {
-			CI_LOG_V("setFragmentShaderString, no mUniforms found, we add from shadertoy.inc");
+			CI_LOG_V("setFragmentShaderString, no uniforms found, we add from shadertoy.inc");
 			mOutputFragmentString = "/* " + mName + " */\n" + shaderInclude + mOriginalFragmentString;
 		}
 		else {
@@ -120,13 +114,12 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 		if (!fs::exists(mDefaultVertexFilePath)) {
 			mError = mDefaultVertexFilePath.string() + " does not exist";
 			CI_LOG_V(mError);
-			mMsg = mError + "\n" + mMsg.substr(0, mMsgLength);
 		}
 		// try to compile a first time to get active mUniforms
 		mShader = gl::GlslProg::create(loadString(loadFile(mDefaultVertexFilePath)), mOutputFragmentString);
 		// update only if success
 		mShaderFragmentString = mOutputFragmentString;
-		mMsg = mName + " compiled(fbo)\n" + mMsg.substr(0, mMsgLength);
+		mMsg = mName + " compiled";
 		mValid = true;
 	}
 	catch (gl::GlslProgCompileExc& exc)
@@ -139,7 +132,6 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 		mError = mName + std::string(e.what());
 		CI_LOG_V("setFragmentShaderString, error on live fragment shader:" + mError + " frag:" + mName);
 	}
-	if (mError.length() > 0) mMsg = mError + "\n" + mMsg.substr(0, mMsgLength);
 	return mValid;
 }
 

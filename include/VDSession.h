@@ -251,7 +251,12 @@ namespace videodromm {
 		bool							isFboValid(unsigned int aFboIndex) {
 			return mVDMix->isFboValid(aFboIndex);
 		};
-
+		std::string								getMsg(unsigned int aFboIndex) {
+			return mVDMix->getMsg(aFboIndex);
+		};
+		std::string								getError(unsigned int aFboIndex) {
+			return mVDMix->getError(aFboIndex);
+		};
 		// fbo 
 		/*bool							getFboBoolUniformValueByIndex(unsigned int aCtrl, unsigned int aFboIndex) {
 			return mVDMix->getFboBoolUniformValueByIndex(aCtrl, aFboIndex);
