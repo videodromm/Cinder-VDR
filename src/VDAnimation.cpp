@@ -75,9 +75,9 @@ JsonTree VDAnimation::uniformToJson(int i)
 	switch (uniformType) {
 	case 0:
 		//float
-		u.addChild(ci::JsonTree("value", mVDUniforms->getUniformDefaultValue(i)));
-		u.addChild(ci::JsonTree("min", mVDUniforms->getUniformMinValue(i)));
-		u.addChild(ci::JsonTree("max", mVDUniforms->getUniformMaxValue(i)));
+		u.addChild(ci::JsonTree("value", mVDUniforms->getDefaultUniformValue(i)));
+		u.addChild(ci::JsonTree("min", mVDUniforms->getMinUniformValue(i)));
+		u.addChild(ci::JsonTree("max", mVDUniforms->getMaxUniformValue(i)));
 		break;
 	case 1:
 		// sampler2d
@@ -87,15 +87,15 @@ JsonTree VDAnimation::uniformToJson(int i)
 		// vec4
 		//svec4 << toString(shaderUniforms[i].vec4Value.x) << "," << toString(shaderUniforms[i].vec4Value.y);
 		//svec4 << "," << toString(shaderUniforms[i].vec4Value.z) << "," << toString(shaderUniforms[i].vec4Value.w);
-		u.addChild(ci::JsonTree("value", mVDUniforms->getUniformDefaultValue(i)));
+		u.addChild(ci::JsonTree("value", mVDUniforms->getDefaultUniformValue(i)));
 		break;
 	case 5:
 		// int
-		u.addChild(ci::JsonTree("value", mVDUniforms->getUniformDefaultValue(i)));
+		u.addChild(ci::JsonTree("value", mVDUniforms->getDefaultUniformValue(i)));
 		break;
 	case 6:
 		// boolean
-		u.addChild(ci::JsonTree("value", mVDUniforms->getUniformDefaultValue(i)));
+		u.addChild(ci::JsonTree("value", mVDUniforms->getDefaultUniformValue(i)));
 		break;
 	default:
 		break;
@@ -462,20 +462,20 @@ void VDAnimation::update() {
 			//unsigned int animType = mVDUniforms->getUniformAnim(anim)
 			switch (mVDUniforms->getUniformAnim(anim)) {				
 			case 1: // ANIM_TIME
-				mVDUniforms->setUniformValue(anim, (modulo < 0.1) ? mVDUniforms->getUniformMaxValue(anim) : mVDUniforms->getUniformMinValue(anim));
+				mVDUniforms->setUniformValue(anim, (modulo < 0.1) ? mVDUniforms->getMaxUniformValue(anim) : mVDUniforms->getMinUniformValue(anim));
 				break;
 			case 2: // ANIM_AUTO
 				mVDUniforms->setUniformValue(anim, lmap<float>(mVDUniforms->getUniformValue(mVDUniforms->ITEMPOTIME), 0.00001,
-					mVDUniforms->getUniformValue(mVDUniforms->IDELTATIME), mVDUniforms->getUniformMinValue(anim), mVDUniforms->getUniformMaxValue(anim)));
+					mVDUniforms->getUniformValue(mVDUniforms->IDELTATIME), mVDUniforms->getMinUniformValue(anim), mVDUniforms->getMaxUniformValue(anim)));
 				break;
 			case 3: // ANIM_BASS
-				mVDUniforms->setUniformValue(anim, (mVDUniforms->getFloatUniformDefaultValueByIndex(anim) + 0.01f) * mVDUniforms->getUniformValue(mVDUniforms->IFREQ0) / 25.0f);
+				mVDUniforms->setUniformValue(anim, (mVDUniforms->getDefaultUniformValue(anim) + 0.01f) * mVDUniforms->getUniformValue(mVDUniforms->IFREQ0) / 25.0f);
 				break;
 			case 4: // ANIM_MID
-				mVDUniforms->setUniformValue(anim, (mVDUniforms->getFloatUniformDefaultValueByIndex(anim) + 0.01f) * mVDUniforms->getUniformValue(mVDUniforms->IFREQ1) / 5.0f);
+				mVDUniforms->setUniformValue(anim, (mVDUniforms->getDefaultUniformValue(anim) + 0.01f) * mVDUniforms->getUniformValue(mVDUniforms->IFREQ1) / 5.0f);
 				break;
 			case 5: // ANIM_TREBLE
-				mVDUniforms->setUniformValue(anim, (mVDUniforms->getFloatUniformDefaultValueByIndex(anim) + 0.01f) * mVDUniforms->getUniformValue(mVDUniforms->IFREQ2) / 2.0f);
+				mVDUniforms->setUniformValue(anim, (mVDUniforms->getDefaultUniformValue(anim) + 0.01f) * mVDUniforms->getUniformValue(mVDUniforms->IFREQ2) / 2.0f);
 				break;
 			default:
 				// no animation

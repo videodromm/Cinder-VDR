@@ -167,15 +167,10 @@ namespace videodromm
 		std::string						getUniformName(unsigned int aIndex) {
 			return shaderUniforms[aIndex].name;
 		}
-		float							getUniformDefaultValue(unsigned int aIndex) {
+		float							getDefaultUniformValue(unsigned int aIndex) {
 			return shaderUniforms[aIndex].defaultValue;
 		}
-		float							getUniformMinValue(unsigned int aIndex) {
-			return shaderUniforms[aIndex].minValue;
-		}
-		float							getUniformMaxValue(unsigned int aIndex) {
-			return shaderUniforms[aIndex].maxValue;
-		}
+		
 		int								getUniformTextureIndex(unsigned int aIndex) {
 			return shaderUniforms[aIndex].textureIndex;
 		}
@@ -320,9 +315,7 @@ namespace videodromm
 		int								getUniformAnim(unsigned int aIndex) {
 			return shaderUniforms[aIndex].anim;
 		}
-		float							getFloatUniformDefaultValueByIndex(unsigned int aIndex) {
-			return shaderUniforms[aIndex].defaultValue;
-		}
+		
 		int								getIntUniformValueByIndex(unsigned int aIndex) {
 			return shaderUniforms[aIndex].floatValue;
 		}
