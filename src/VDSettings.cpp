@@ -510,8 +510,7 @@ void VDSettings::reset()
 	mErrorMsg = "";
 	mSocketIOMsg = "";
 	mMidiMsg = "";
-	mShaderMsg = "";
-	mFboMsg = "";
+	//mShaderMsg = "";
 	mIsOSCSender = false;
 	/*xFade = 1.0f;
 	xFadeChanged = false;*/

@@ -3,7 +3,7 @@
 using namespace videodromm;
 
 //namespace videodromm {
-VDFboShader::VDFboShader(VDUniformsRef aVDUniforms)
+VDFboShader::VDFboShader(VDUniformsRef aVDUniforms) //TODO json
 	:mVDUniforms{ aVDUniforms }
 {
 	CI_LOG_V("VDFboShader constructor");
@@ -24,7 +24,7 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms)
 	shaderInclude = loadString(loadAsset("shadertoy.vd"));
 	// init texture
 	//mTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
-	mTexture = ci::gl::Texture::create(loadImage(loadAsset("0.jpg")), ci::gl::Texture::Format().loadTopDown());
+	mTexture = ci::gl::Texture::create(loadImage(loadAsset("0.jpg")), ci::gl::Texture::Format().loadTopDown()); //TODO json
 	mRenderedTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
 	isReady = false;
 

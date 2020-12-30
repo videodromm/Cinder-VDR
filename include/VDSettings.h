@@ -90,8 +90,7 @@ namespace videodromm {
 
 		std::string					mMsg;
 		std::string					mErrorMsg;
-		std::string					mShaderMsg;
-		std::string					mFboMsg;
+		//std::string					mShaderMsg;
 		bool						mIsOSCSender;
 		static const int			mMsgLength = 150;
 
