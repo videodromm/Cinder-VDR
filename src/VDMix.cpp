@@ -25,7 +25,7 @@ namespace videodromm {
 		// TODO TMP mDefaultTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
 
 		mDefaultTexture = ci::gl::Texture::create(loadImage(loadAsset("0.jpg")));
-		
+
 
 		mMixetteTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
 		// init fbo format
@@ -125,37 +125,52 @@ namespace videodromm {
 	void VDMix::setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue) {
 		mFboShaderList[aFboShaderIndex]->setUniformValueByLocation(aLocationIndex, aValue);
 	};
-	bool VDMix::setFragmentShaderString(const string& aFragmentShaderString, const std::string& aName) {
-		return mFboShaderList[0]->setFragmentShaderString(aFragmentShaderString, aName);
-	}
-	int VDMix::loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex) {
-		int rtn = -1;
-		mVDSettings->mMsg = "load " + aFilePath + " at index " + toString(aFboShaderIndex) + "\n" + mVDSettings->mMsg.substr(0, mVDSettings->mMsgLength);
-		bool loaded = false;
-		for (auto &fbo : mFboShaderList) {
-			rtn++;
-			if (!loaded) {
-				if (!fbo->isValid()) {
-					fbo->loadFragmentStringFromFile(aFilePath);
-					loaded = true;
-					break;
+	unsigned int VDMix::findAvailableIndex(unsigned int aFboShaderIndex) {
+		unsigned int rtn = aFboShaderIndex;
+		if (aFboShaderIndex > mFboShaderList.size() - 1) {
+			if (aFboShaderIndex < MAX) {
+				// create fbo
+				fboShader = VDFboShader::create(mVDUniforms);
+				mFboShaderList.push_back(fboShader);
+				rtn = mFboShaderList.size() - 1;
+				
+			}
+			else {
+				// reuse existing, last one if no invalid found
+				rtn = mFboShaderList.size() - 1;
+				unsigned int found = -1;
+				for (auto &fbo : mFboShaderList) {
+					found++;
+					if (!fbo->isValid()) {
+						rtn = found;
+						break;
+					}
 				}
 			}
 		}
-		if (!loaded) {
-			rtn = math<int>::min(aFboShaderIndex, mFboShaderList.size() - 1);
-			loaded = mFboShaderList[rtn]->loadFragmentStringFromFile(aFilePath);
+		else {
+			// replace existing returns aFboShaderIndex
 		}
-		mVDSettings->mMsg = "loaded " + toString(loaded) + " at index " + toString(rtn) + "\n" + mVDSettings->mMsg.substr(0, mVDSettings->mMsgLength);
-
+		return rtn;
+	}
+	bool VDMix::setFragmentShaderString(const string& aFragmentShaderString, const std::string& aName) {
+		// received from websocket, tested with hydra
+		return mFboShaderList[findAvailableIndex(MAX + 42)]->setFragmentShaderString(aFragmentShaderString, aName);
+	}
+	int VDMix::loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex) {
+		// if aFboShaderIndex is out of bounds try to find invalid fbo index or create a new fbo until MAX
+		int rtn = findAvailableIndex(aFboShaderIndex);
+		
+		mFboShaderList[rtn]->loadFragmentStringFromFile(aFilePath);
+		mVDSettings->mMsg = "loaded " + mFboShaderList[rtn]->getShaderName() + "\n try at " + toString(aFboShaderIndex) + "\n valid at " + toString(rtn) + "\n" + mVDSettings->mMsg.substr(0, mVDSettings->mMsgLength);
 		return rtn;
 	}
 	ci::gl::TextureRef VDMix::getMixetteTexture(unsigned int aFboIndex) {
-		
+
 		gl::ScopedFramebuffer fbScp(mMixetteFbo);
 		// clear out the FBO with black
 		gl::clear(Color::black());
-		
+
 		// nasty bug! bind to 100+f
 		int f = 0;
 		for (auto &fbo : mFboShaderList) {
@@ -175,7 +190,7 @@ namespace videodromm {
 			}
 			i++;
 		}
-		
+
 		gl::drawSolidRect(Rectf(0, 0, mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY)));
 		// setup the viewport to match the dimensions of the FBO
 		gl::ScopedViewport scpVp(ivec2(0), mMixetteFbo->getSize());
@@ -1013,7 +1028,7 @@ namespace videodromm {
 			if (aShaderIndex > mShaderList.size() - 1) aShaderIndex = mShaderList.size() - 1;
 			mShaderList[aShaderIndex]->removeShader();
 		}
-		
+
 		unsigned int VDMix::createShaderFboFromString(const string& aFragmentShaderString, const string& aShaderFilename, const string& aName) {
 			unsigned int rtn = 0;
 			unsigned int shaderId = 0;

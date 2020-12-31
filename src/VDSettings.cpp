@@ -467,11 +467,11 @@ void VDSettings::reset()
 	currentSelectedIndex = 0;
 	selectedWarp = 0;
 
-	for (int a{0}; a < MAX; a++)
+	/*for (int a{0}; a < MAX; a++)
 	{
 		iChannels[a] = a;
 	}
-	iChannels[4] = 10;//spout
+	iChannels[4] = 10;*///spout
 	selectedChannel = 0;
 	// fbo indexes for warp (should be constants)
 	mFboResolution = 2048;

@@ -66,7 +66,7 @@ namespace videodromm {
 			ANIM_MID = 4,
 			ANIM_TREBLE = 5
 		};
-		const int MAX = 14;//todo remove as it is in VDUniforms.h
+		//const int MAX = 14;//todo remove as it is in VDUniforms.h
 		bool						save();
 		bool						restore();
 		void						reset();
@@ -184,7 +184,7 @@ namespace videodromm {
 		// spout
 		int							mFboResolution;
 		// indexes for textures
-		std::map<int, int>			iChannels;
+		//std::map<int, int>			iChannels;
 		int							selectedChannel;
 		int							selectedWarp;
 		int							mWarpCount;

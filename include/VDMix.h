@@ -73,12 +73,13 @@ namespace videodromm
 			return valid;
 			
 		};
-		std::string								getMsg(unsigned int aFboIndex) {
+		std::string						getMsg(unsigned int aFboIndex) {
 			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getMsg();
 		};
-		std::string								getError(unsigned int aFboIndex) {
+		std::string						getError(unsigned int aFboIndex) {
 			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getError();
 		};
+		unsigned int					findAvailableIndex(unsigned int aFboShaderIndex);
 		bool							setFragmentShaderString(const string& aFragmentShaderString, const std::string& aName = "");
 		/*bool							getFboBoolUniformValueByIndex(unsigned int aCtrl, unsigned int aFboIndex) {
 			return mFboList[math<int>::min(aFboIndex, mFboList.size() - 1)]->getBoolUniformValueByIndex(aCtrl);
@@ -129,11 +130,11 @@ namespace videodromm
 			}
 		};
 		 */
-		int												loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex);
+		int								loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex);
 		std::vector<ci::gl::GlslProg::Uniform>			getUniforms(unsigned int aFboIndex = 0) {
 			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getUniforms();
 		}
-		ci::gl::Texture2dRef							getFboInputTexture(unsigned int aFboIndex = 0) {
+		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aFboIndex = 0) {
 			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTexture();
 		}
 		int								getFboInputTextureWidth(unsigned int aFboIndex) {
@@ -145,13 +146,13 @@ namespace videodromm
 			return mVDParams->getFboHeight();
 		};
 
-		std::string							getFboShaderName(unsigned int aFboIndex) {
+		std::string						getFboShaderName(unsigned int aFboIndex) {
 			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getShaderName();
 		};
-		std::string							getFboTextureName(unsigned int aFboIndex) {
+		std::string						getFboTextureName(unsigned int aFboIndex) {
 			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getTextureName();
 		};
-		void											loadImageFile(const std::string& aFile, unsigned int aTextureIndex) {
+		void							loadImageFile(const std::string& aFile, unsigned int aTextureIndex) {
 			int rtn = math<int>::min(aTextureIndex, mFboShaderList.size() - 1);
 			fs::path texFileOrPath = aFile;
 			if (fs::exists(texFileOrPath)) {
@@ -187,10 +188,10 @@ namespace videodromm
 		
 		*/
 		std::vector<ci::gl::GlslProg::Uniform>	getFboShaderUniforms(unsigned int aFboShaderIndex);
-		int									getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex);
-		void								setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue);
+		int								getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex);
+		void							setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue);
 
-		unsigned int									createFboShaderTexture(const JsonTree &json, unsigned int aFboIndex = 0) {
+		unsigned int					createFboShaderTexture(const JsonTree &json, unsigned int aFboIndex = 0) {
 			unsigned int rtn = 0;
 			VDFboShaderRef fboRef = VDFboShader::create(mVDUniforms);//, json
 			if (aFboIndex == 0) {
@@ -230,9 +231,9 @@ namespace videodromm
 		VDUniformsRef					mVDUniforms;
 
 		//! FboShaders
-		VDFboShaderRef						fboShaderHydra0;
-		VDFboShaderRef						fboShaderHydra1;
-		VDFboShaderRef						fboShader;
+		VDFboShaderRef					fboShaderHydra0;
+		VDFboShaderRef					fboShaderHydra1;
+		VDFboShaderRef					fboShader;
 		// maintain a list of fbos specific to this mix
 		VDFboShaderList					mFboShaderList;
 		gl::Texture::Format				fmt;
@@ -243,5 +244,6 @@ namespace videodromm
 		gl::GlslProgRef					mGlslMixette;
 		ci::gl::Texture2dRef			mMixetteTexture;
 		std::string						mError;
+		const int						MAX = 8;
 	};
 }

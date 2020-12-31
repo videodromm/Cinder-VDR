@@ -184,7 +184,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		for (const auto& uniform : mUniforms) {
 			
 			name = uniform.getName(); // TODO uniform.getType()
-			CI_LOG_E(mShader->getLabel() + ", getShader uniform name:" + uniform.getName() + ", type:" + toString(uniform.getType()) + ", Location:" + toString(uniform.getLocation()));
+			//CI_LOG_E(mShader->getLabel() + ", getShader uniform name:" + uniform.getName() + ", type:" + toString(uniform.getType()) + ", Location:" + toString(uniform.getLocation()));
 			//if (mVDAnimation->isExistingUniform(name)) {
 				int uniformType = uniform.getType();
 				switch (uniformType)

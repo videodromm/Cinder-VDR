@@ -120,7 +120,7 @@ namespace videodromm {
 		void							setUseLineIn(bool useLineIn) { mVDAnimation->setUseLineIn(useLineIn); };
 		void							toggleUseLineIn() { mVDAnimation->toggleUseLineIn(); };
 		
-		int								loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex = 4) {
+		int								loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex = 0) {
 			return mVDMix->loadFragmentShader(aFilePath, aFboShaderIndex);
 		};
 		/*bool							getFreqWSSend() { return mFreqWSSend; };
