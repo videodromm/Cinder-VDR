@@ -10,17 +10,28 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms) //TODO json
 	// Params
 	mVDParams = VDParams::create();
 
-	std::string shaderFileName = "inputImage.fs";
-	mShaderName = mShaderFileName;
 	std::string shaderType = "fs";
-	mShaderFragmentString = "";
+
+	// load default fragment shader
+	mShaderName = mShaderFileName = "inputImage.fs";
+	fs::path mDefaultFragmentFilePath = getAssetPath("") / mShaderFileName;
+	if (!fs::exists(mDefaultFragmentFilePath)) {
+		mError = mDefaultFragmentFilePath.string() + " does not exist";
+		CI_LOG_V(mError);
+	}
+	mShaderFragmentString = loadString(loadFile(mDefaultFragmentFilePath));
+	// load default vertex shader
+	fs::path mDefaultVertexFilePath = getAssetPath("") / "defaultvertex.fs";
+	if (!fs::exists(mDefaultVertexFilePath)) {
+		mError = mDefaultVertexFilePath.string() + " does not exist";
+		CI_LOG_V(mError);
+	}
+	mDefaultVertexString = loadString(loadFile(mDefaultVertexFilePath));
 	//string textureFileName = "0.jpg"; 
 	//mTextureName = mCurrentSeqFilename = mLastCachedFilename = textureFileName;
 	//mInputTextureIndex = 0;
 
-	mShaderName = mShaderFileName = "inputImage.fs";
-	mShaderFragmentString = "";
-	shaderType = "fs";
+	
 	shaderInclude = loadString(loadAsset("shadertoy.vd"));
 	// init texture
 	//mTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
@@ -110,13 +121,9 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 		else {
 			mOutputFragmentString = "/* " + mName + " */\n" + mOriginalFragmentString;
 		}
-		fs::path mDefaultVertexFilePath = getAssetPath("") / "defaultvertex.fs";
-		if (!fs::exists(mDefaultVertexFilePath)) {
-			mError = mDefaultVertexFilePath.string() + " does not exist";
-			CI_LOG_V(mError);
-		}
+		
 		// try to compile a first time to get active mUniforms
-		mShader = gl::GlslProg::create(loadString(loadFile(mDefaultVertexFilePath)), mOutputFragmentString);
+		mShader = gl::GlslProg::create(mDefaultVertexString, mOutputFragmentString);
 		// update only if success
 		mShaderFragmentString = mOutputFragmentString;
 		mMsg = mName + " compiled";
@@ -196,8 +203,9 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 							//createFloatUniform(name, mVDAnimation->getUniformIndexForName(name), getIntUniformValueByName(name), mVDAnimation->getMinUniformValueByName(name), mVDAnimation->getMaxUniformValueByName(name));
 							//mShader->uniform(name, mVDAnimation->getUniformValue(0));
 							int l = uniform.getLocation();
-							float v = getUniformValueByLocation(l);
-							mShader->uniform(l, mUniformValueByLocation[l]);
+							//float v = getUniformValueByLocation(l);
+							// 20201231 BUG!! mShader->uniform(l, mUniformValueByLocation[l]);
+							mShader->uniform(name, mUniformValueByLocation[l]);
 						}
 					}
 					break;
@@ -263,8 +271,8 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		}
 		//mShader->uniform("RENDERSIZE", vec2(mVDParams->getFboWidth(), mVDParams->getFboHeight()));
 		//mShader->uniform("TIME", (float)getElapsedSeconds());// mVDAnimation->getUniformValue(0));
-		mShader->uniform("resolution", vec2(mVDParams->getFboWidth(), mVDParams->getFboHeight()));
-		mShader->uniform("time", mVDUniforms->getUniformValue(0));
+		//mShader->uniform("resolution", vec2(mVDParams->getFboWidth(), mVDParams->getFboHeight())); // 20201231 useless?
+		//mShader->uniform("time", mVDUniforms->getUniformValue(0)); // 20201231 useless?
 
 		gl::ScopedGlslProg glslScope(mShader);
 		// TODO: test gl::ScopedViewport sVp(0, 0, mFbo->getWidth(), mFbo->getHeight());	

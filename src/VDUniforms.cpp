@@ -401,7 +401,7 @@ bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 }
 int VDUniforms::stringToIndex(const std::string& key) {
 	int rtn = -1;
-	if (key == "iTime") {
+	if (key == "iTime" || key == "uTime" || key == "time" || key == "TIME") {
 		rtn = ITIME;
 	}
 	else if (key == "r") {

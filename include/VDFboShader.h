@@ -92,6 +92,7 @@ namespace videodromm
 		fs::path						mFragFilePath = "";
 		bool							loadFragmentStringFromFile();
 		std::string						mShaderFragmentString;
+		std::string						mDefaultVertexString;
 		std::string						mFileNameWithExtension;
 		bool							mActive;
 		int								mMicroSeconds;
