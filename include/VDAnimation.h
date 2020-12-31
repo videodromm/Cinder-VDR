@@ -86,7 +86,7 @@ namespace videodromm
 		std::vector<float>				mMagSpectrum;
 
 		// number of frequency bands of our spectrum
-		static const int				mFFTWindowSize = 32; // fft window size 20200222 was 128;
+		static const int				mFFTWindowSize = 32;
 		float							iFreqs[mFFTWindowSize];
 		int								mPosition;
 		std::string						mAudioName;

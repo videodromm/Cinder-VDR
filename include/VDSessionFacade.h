@@ -101,6 +101,8 @@ namespace videodromm
 		int						getWarpHeight(unsigned int aWarpIndex);
 		std::string				getFboInputTextureName(unsigned int aFboIndex = 0);
 		ci::gl::Texture2dRef	getFboInputTexture(unsigned int aFboIndex = 0);
+		// audio
+		ci::gl::TextureRef				getAudioTexture() { return mVDSession->getAudioTexture(); };
 		std::string				getFboName(unsigned int aFboIndex);
 		int						getFFTWindowSize();
 		float*					getFreqs();

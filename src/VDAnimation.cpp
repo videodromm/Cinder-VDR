@@ -20,18 +20,7 @@ VDAnimation::VDAnimation(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms) {
 	{
 		iFreqs[i] = 0.0f;
 	}
-	// live json params
-	/*mJsonFilePath = app::getAssetPath("") / mVDSettings->mAssetsPath / "live_params.json";
-	JsonBag::add(&mBackgroundColor, "background_color");
-	JsonBag::add(&mExposure, "exposure", []() {
-		app::console() << "Updated exposure" << endl;
-
-	});
-	JsonBag::add(&mText, "text", []() {
-		app::console() << "Updated text" << endl;
-	});
-	mAutoBeatAnimation = true;
-	JsonBag::add(&mAutoBeatAnimation, "autobeatanimation");*/
+	
 	currentScene = 0;
 
 	previousTime = 0.0f;
@@ -41,19 +30,6 @@ VDAnimation::VDAnimation(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms) {
 	// init timer
 	mTimer.start();
 	startTime = currentTime = mTimer.getSeconds();
-
-
-	// iRHandX  
-	//createFloatUniform("iRHandX", mVDUniforms->IRHANDX, 320.0f, 0.0f, 1280.0f);
-	//// iRHandY  
-	//createFloatUniform("iRHandY", mVDUniforms->IRHANDY, 240.0f, 0.0f, 800.0f);
-	//// iLHandX  
-	//createFloatUniform("iLHandX", mVDUniforms->ILHANDX, 320.0f, 0.0f, 1280.0f);
-	//// iLHandY  
-	//createFloatUniform("iLHandY", mVDUniforms->ILHANDY, 240.0f, 0.0f, 800.0f);
-
-	//load();
-	//loadAnimation();
 
 	mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->IRESOLUTION, vec3(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY), 1.0));
 }
@@ -292,7 +268,7 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 		mVDUniforms->setUniformValue(mVDUniforms->IMAXVOLUME, 0.0f);
 		//maxVolume = 0.0f;//mIntensity
 		size_t mDataSize = mMagSpectrum.size();
-		if (mDataSize > 0 && mDataSize < mFFTWindowSize) {// TODO 20200221 CHECK was + 1
+		if (mDataSize > 0 && mDataSize < mFFTWindowSize + 1) {// TODO 20200221 CHECK was
 			float db;
 			unsigned char signal[mFFTWindowSize];
 			for (size_t i{0}; i < mDataSize; i++) {

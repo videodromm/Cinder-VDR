@@ -153,7 +153,7 @@ namespace videodromm
 			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getTextureName();
 		};
 		void							loadImageFile(const std::string& aFile, unsigned int aTextureIndex) {
-			int rtn = math<int>::min(aTextureIndex, mFboShaderList.size() - 1);
+			int rtn = math<int>::min(aTextureIndex, mFboShaderList.size() - 1); 
 			fs::path texFileOrPath = aFile;
 			if (fs::exists(texFileOrPath)) {
 
@@ -161,7 +161,7 @@ namespace videodromm
 				int dotIndex = texFileOrPath.filename().string().find_last_of(".");
 				if (dotIndex != std::string::npos)  ext = texFileOrPath.filename().string().substr(dotIndex + 1);
 				if (ext == "jpg" || ext == "png") {
-					if (rtn == -1 || mFboShaderList.size() < 1) {
+					if (mFboShaderList.size() < 1) {
 						// no fbos, create one
 						JsonTree		json;
 						JsonTree shader = ci::JsonTree::makeArray("shader");
@@ -182,11 +182,7 @@ namespace videodromm
 				}
 			}			
 		}
-		/* DEL
-				ci::gl::TextureRef					getFboShaderTexture(unsigned int aFboShaderIndex);
-		std::string							getFboShaderName(unsigned int aFboShaderIndex);
 		
-		*/
 		std::vector<ci::gl::GlslProg::Uniform>	getFboShaderUniforms(unsigned int aFboShaderIndex);
 		int								getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex);
 		void							setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue);

@@ -353,7 +353,7 @@ void VDSession::fileDrop(FileDropEvent event) {
 	//string fileName = "";
 
 	unsigned int index = (unsigned int)( (event.getX() - mVDParams->getUILargeW() ) / ( mVDParams->getUILargePreviewW() + mVDParams->getUIMargin() ) );
-	int y = (int)(event.getY());
+	//int y = (int)(event.getY());
 	//if (index < 2 || y < mVDSettings->uiYPosRow3 || y > mVDSettings->uiYPosRow3 + mVDSettings->uiPreviewH) index = 0;
 	ci::fs::path mPath = event.getFile(event.getNumFiles() - 1);
 	std::string absolutePath = mPath.string();
