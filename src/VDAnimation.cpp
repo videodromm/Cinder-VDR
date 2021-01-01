@@ -219,16 +219,25 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 		if (getUseLineIn()) {
 			// linein
 			preventLineInCrash(); // at next launch
-			CI_LOG_W("trying to open mic/line in, if no line follows in the log, the app crashed so put UseLineIn to false in the VDSettings.xml file");
-			mLineIn = ctx->createInputDeviceNode(); //crashes if linein is present but disabled, doesn't go to catch block
-			CI_LOG_V("mic/line in opened");
-			saveLineIn();
-			mAudioName = mLineIn->getDevice()->getName();
-			auto scopeLineInFmt = audio::MonitorSpectralNode::Format().fftSize(mFFTWindowSize * 2).windowSize(mFFTWindowSize);// CHECK is * 2 needed
-			mMonitorLineInSpectralNode = ctx->makeNode(new audio::MonitorSpectralNode(scopeLineInFmt));
-			mLineIn >> mMonitorLineInSpectralNode;
-			mLineIn->enable();
-			mLineInInitialized = true;
+			try
+			{
+				CI_LOG_W("trying to open mic/line in, if no line follows in the log, the app crashed so put UseLineIn to false in the VDSettings.xml file");
+				mLineIn = ctx->createInputDeviceNode(); //crashes if linein is present but disabled, doesn't go to catch block
+				CI_LOG_V("mic/line in opened");
+				saveLineIn();
+				mAudioName = mLineIn->getDevice()->getName();
+				auto scopeLineInFmt = audio::MonitorSpectralNode::Format().fftSize(mFFTWindowSize * 2).windowSize(mFFTWindowSize);// CHECK is * 2 needed
+				mMonitorLineInSpectralNode = ctx->makeNode(new audio::MonitorSpectralNode(scopeLineInFmt));
+				mLineIn >> mMonitorLineInSpectralNode;
+				mLineIn->enable();
+				mLineInInitialized = true;
+			}
+			catch (const std::exception& ex)
+			{
+				CI_LOG_V("mic/line in crashed");
+				mVDSettings->mMsg = "mic/line in crashed";
+				mVDSettings->mErrorMsg = ex.what();
+			}
 		}
 	}
 #endif

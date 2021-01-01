@@ -75,10 +75,10 @@ namespace videodromm
 		bool					isFboValid(unsigned int aFboIndex) {
 			return mVDSession->isFboValid(aFboIndex);
 		};
-		std::string								getMsg(unsigned int aFboIndex) {
+		std::string				getMsg(unsigned int aFboIndex) {
 			return mVDSession->getMsg(aFboIndex);
 		};
-		std::string								getError(unsigned int aFboIndex) {
+		std::string				getError(unsigned int aFboIndex) {
 			return mVDSession->getError(aFboIndex);
 		};
 		std::vector<ci::gl::GlslProg::Uniform> getFboShaderUniforms(unsigned int aFboShaderIndex);
@@ -101,9 +101,15 @@ namespace videodromm
 		int						getWarpHeight(unsigned int aWarpIndex);
 		std::string				getFboInputTextureName(unsigned int aFboIndex = 0);
 		ci::gl::Texture2dRef	getFboInputTexture(unsigned int aFboIndex = 0);
-		// audio
-		ci::gl::TextureRef				getAudioTexture() { return mVDSession->getAudioTexture(); };
 		std::string				getFboName(unsigned int aFboIndex);
+		// audio
+		ci::gl::TextureRef		getAudioTexture() { return mVDSession->getAudioTexture(); };
+		bool					getUseAudio() { return mVDSession->getUseAudio(); };
+		bool					getUseLineIn() { return mVDSession->getUseLineIn(); };
+		void					setUseLineIn(bool useLineIn) { mVDSession->setUseLineIn(useLineIn); };
+		void					toggleUseLineIn() { mVDSession->toggleUseLineIn(); };
+		bool					isAudioBuffered() { return mVDSession->isAudioBuffered(); };
+		void					toggleAudioBuffered() { mVDSession->toggleAudioBuffered(); };
 		int						getFFTWindowSize();
 		float*					getFreqs();
 		bool					showUI();

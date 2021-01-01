@@ -114,6 +114,7 @@ namespace videodromm {
 		int								getFreqIndex(unsigned int aFreqIndex) { return mVDAnimation->getFreqIndex(aFreqIndex); };
 		void							setFreqIndex(unsigned int aFreqIndex, unsigned int aFreq) { mVDAnimation->setFreqIndex(aFreqIndex, aFreq); };
 		int								getFFTWindowSize() { return mVDAnimation->mFFTWindowSize; };
+		bool							getUseAudio() { return mVDAnimation->getUseAudio(); };
 		bool							isAudioBuffered() { return mVDAnimation->isAudioBuffered(); };
 		void							toggleAudioBuffered() { mVDAnimation->toggleAudioBuffered(); };
 		bool							getUseLineIn() { return mVDAnimation->getUseLineIn(); };
