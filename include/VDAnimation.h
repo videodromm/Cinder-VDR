@@ -128,105 +128,6 @@ namespace videodromm
 		void							setAnim(unsigned int aCtrl, unsigned int aAnim) {
 			mVDUniforms->setAnim(aCtrl, aAnim);
 		}
-		/*bool							setUniformValue(unsigned int aIndex, float aValue) {
-			if (aIndex == mVDUniforms->IBPM) {
-				if (aValue > 0.0f) {
-					mVDUniforms->setUniformValue(mVDUniforms->IDELTATIME, 60 / aValue);
-				}
-			}
-			return mVDUniforms->setUniformValue(aIndex, aValue);
-		}*/
-/*
-		bool							setBoolUniformValueByIndex(unsigned int aIndex, bool aValue) {
-			return mVDUniforms->setBoolUniformValueByIndex(aIndex, aValue);
-		}
-		void							setIntUniformValueByName(const std::string& aName, int aValue) {
-			mVDUniforms->setIntUniformValueByName(aName, aValue);
-		};
-		void							setIntUniformValueByIndex(unsigned int aIndex, int aValue) {
-			mVDUniforms->setIntUniformValueByIndex(aIndex, aValue);
-		}*/
-		/* 20201229
-		void							setFloatUniformValueByName(const std::string& aName, float aValue) {
-			mVDUniforms->setFloatUniformValueByName(aName, aValue);
-		}
-		void setVec2UniformValueByName(const std::string& aName, vec2 aValue) {
-			mVDUniforms->setVec2UniformValueByName(aName, aValue);
-		}
-		void setVec2UniformValueByIndex(unsigned int aIndex, vec2 aValue) {
-			mVDUniforms->setVec2UniformValueByIndex(aIndex, aValue);
-		}
-		void setVec3UniformValueByName(const std::string& aName, vec3 aValue) {
-			mVDUniforms->setVec3UniformValueByName(aName, aValue);
-		}
-		void setVec3UniformValueByIndex(unsigned int aIndex, vec3 aValue) {
-			mVDUniforms->setVec3UniformValueByIndex(aIndex, aValue);
-		}
-		void setVec4UniformValueByName(const std::string& aName, vec4 aValue) {
-			mVDUniforms->setVec4UniformValueByName(aName, aValue);
-		}
-		void setVec4UniformValueByIndex(unsigned int aIndex, vec4 aValue) {
-			mVDUniforms->setVec4UniformValueByIndex(aIndex, aValue);
-		}
-		bool							getBoolUniformValueByIndex(unsigned int aIndex) {
-			return mVDUniforms->getBoolUniformValueByIndex(aIndex);
-		}
-		float							getMinUniformValue(unsigned int aIndex) {
-			return mVDUniforms->getMinUniformValue(aIndex);
-		}
-		float							getMaxUniformValue(unsigned int aIndex) {
-			return mVDUniforms->getMaxUniformValue(aIndex);
-		}
-		float							getMinUniformValueByName(const std::string& aName) {
-			return mVDUniforms->getMinUniformValueByName(aName);
-		}
-		float							getMaxUniformValueByName(const std::string& aName) {
-			return mVDUniforms->getMaxUniformValueByName(aName);
-		}
-		bool							getBoolUniformValueByName(const std::string& aName) {
-			return mVDUniforms->getBoolUniformValueByName(aName);
-		}
-		float							getUniformValue(unsigned int aIndex) {
-			return mVDUniforms->getUniformValue(aIndex);
-		}
-		std::string						getUniformName(unsigned int aIndex) {
-			return mVDUniforms->getUniformName(aIndex);
-		}
-		int								getUniformAnim(unsigned int aIndex) {
-			return mVDUniforms->getUniformAnim(aIndex);
-		}
-		float							getFloatUniformDefaultValueByIndex(unsigned int aIndex) {
-			return mVDUniforms->getFloatUniformDefaultValueByIndex(aIndex);
-		}
-		int								getIntUniformValueByIndex(unsigned int aIndex) {
-			return mVDUniforms->getIntUniformValueByIndex(aIndex);
-		}
-		int								getSampler2DUniformValueByName(const std::string& aName) {
-			return mVDUniforms->getSampler2DUniformValueByName(aName);
-		}
-		float							getUniformValueByName(const std::string& aName) {
-				return mVDUniforms->getUniformValueByName(aName);		
-		}
-		
-		vec2							getVec2UniformValueByName(const std::string& aName) {
-			return mVDUniforms->getVec2UniformValueByName(aName);
-		}
-		vec3							getVec3UniformValueByName(const std::string& aName) {
-			return mVDUniforms->getVec3UniformValueByName(aName);
-		}
-		vec4							getVec4UniformValueByName(const std::string& aName) {
-			return mVDUniforms->getVec4UniformValueByName(aName);
-		}
-		int								getIntUniformValueByName(const std::string& aName) {
-			return mVDUniforms->getIntUniformValueByName(aName);
-		};
-
-		// mix fbo
-		bool							isFlipH() { return getBoolUniformValueByIndex(mVDUniforms->IFLIPH); };
-		bool							isFlipV() { return getBoolUniformValueByIndex(mVDUniforms->IFLIPV); };
-		void							flipH() { setBoolUniformValueByIndex(mVDUniforms->IFLIPH, !getBoolUniformValueByIndex(mVDUniforms->IFLIPH)); };
-		void							flipV() { setBoolUniformValueByIndex(mVDUniforms->IFLIPV, !getBoolUniformValueByIndex(mVDUniforms->IFLIPV)); };
-		*/
 
 		unsigned int					getBlendModesCount() { return mBlendModes; };
 		bool							renderBlend() { return mBlendRender; };
@@ -237,9 +138,7 @@ namespace videodromm
 		int								getFreqIndex(unsigned int aFreqIndex) { return freqIndexes[aFreqIndex]; };
 		void							setFreqIndex(unsigned int aFreqIndex, unsigned int aFreq) { freqIndexes[aFreqIndex] = aFreq; };
 		//float							getFreq(unsigned int aFreqIndex) { return iFreqs[freqIndexes[aFreqIndex]]; };
-		// public for hydra
-		//void							createFloatUniform(const string& aName, int aCtrlIndex, float aValue = 0.01f, float aMin = 0.0f, float aMax = 1.0f);
-		//void							createSampler2DUniform(const string& aName, int aCtrlIndex, int aTextureIndex = 0);
+	
 	private:
 		// Settings
 		VDSettingsRef					mVDSettings;

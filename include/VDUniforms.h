@@ -362,8 +362,8 @@ namespace videodromm
 		void							vec2FromJson(const ci::JsonTree& json);
 		void							vec3FromJson(const ci::JsonTree& json);
 		void							vec4FromJson(const ci::JsonTree& json);
-		void							intFromJson(const ci::JsonTree& json);
-		void							boolFromJson(const ci::JsonTree& json);
+		//void							intFromJson(const ci::JsonTree& json);
+		//void							boolFromJson(const ci::JsonTree& json);
 		// render windows
 		int								mRenderWidth;
 		int								mRenderHeight;
@@ -392,7 +392,7 @@ namespace videodromm
 			shaderUniforms[aCtrlIndex].floatValue = aValue.x;
 			//shaderUniforms[aCtrlIndex].vec4Value = aValue;
 		}
-		void createIntUniform(const std::string& aName, int aCtrlIndex, int aValue = 1) {
+		/*void createIntUniform(const std::string& aName, int aCtrlIndex, int aValue = 1) {
 			shaderUniforms[aCtrlIndex].name = aName;
 			shaderUniforms[aCtrlIndex].index = aCtrlIndex;
 			shaderUniforms[aCtrlIndex].uniformType = GL_INT;
@@ -409,7 +409,7 @@ namespace videodromm
 			shaderUniforms[aCtrlIndex].floatValue = aValue;
 			shaderUniforms[aCtrlIndex].uniformType = GL_BOOL;
 			//shaderUniforms[aCtrlIndex].isValid = true;
-		}
+		}*/
 		int stringToIndex(const std::string& key);
 	};
 };

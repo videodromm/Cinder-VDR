@@ -130,15 +130,14 @@ VDUniforms::VDUniforms() {
 		createFloatUniform("iVFallOff", IVFALLOFF, 0.31f, 0.0f, 1.0f); // 46
 		// hydra time
 		//createFloatUniform("time", TIME, 0.0f); // 47
-		// current beat
-		//createFloatUniform("iPhase", IPHASE, 0.0f); // 48
+		
 		// bad tv
 		createFloatUniform("iBadTv", IBADTV, 0.0f, 0.0f, 5.0f); // 48
 		// iTimeFactor
 		createFloatUniform("iTimeFactor", ITIMEFACTOR, 1.0f); // 49
 		// int
 		// blend mode 
-		createIntUniform("iBlendmode", IBLENDMODE, 0); // 50
+		createFloatUniform("iBlendmode", IBLENDMODE, 0); // 50
 		// beat 
 		createFloatUniform("iBeat", IBEAT, 0.0f, 0.0f, 300.0f); // 51
 		// bar 
@@ -146,15 +145,15 @@ VDUniforms::VDUniforms() {
 		// bar 
 		createFloatUniform("iBarBeat", IBARBEAT, 1.0f, 1.0f, 1200.0f); // 53		
 		// fbo A
-		createIntUniform("iFboA", IFBOA, 0); // 54
+		createFloatUniform("iFboA", IFBOA, 0); // 54
 		// fbo B
-		createIntUniform("iFboB", IFBOB, 1); // 55
+		createFloatUniform("iFboB", IFBOB, 1); // 55
 		// iOutW
-		createIntUniform("iOutW", IOUTW, mRenderWidth); // 56
+		createFloatUniform("iOutW", IOUTW, mRenderWidth); // 56
 		// iOutH  
-		createIntUniform("iOutH", IOUTH, mRenderHeight); // 57
+		createFloatUniform("iOutH", IOUTH, mRenderHeight); // 57
 		// beats per bar 
-		createIntUniform("iBeatsPerBar", IBEATSPERBAR, 4); // 59
+		createFloatUniform("iBeatsPerBar", IBEATSPERBAR, 4); // 59
 		// iPhase 
 		createFloatUniform("iPhase", IPHASE, 1.0f); // 60
 
@@ -177,22 +176,22 @@ VDUniforms::VDUniforms() {
 		// boolean
 		// invert
 		// glitch
-		createBoolUniform("iGlitch", IGLITCH); // 81
+		createFloatUniform("iGlitch", IGLITCH); // 81
 		// vignette
-		createBoolUniform("iVignette", IVIGN); // 82 toggle
+		createFloatUniform("iVignette", IVIGN); // 82 toggle
 		// toggle
-		createBoolUniform("iToggle", ITOGGLE); // 83
+		createFloatUniform("iToggle", ITOGGLE); // 83
 		// invert
-		createBoolUniform("iInvert", IINVERT); // 86
+		createFloatUniform("iInvert", IINVERT); // 86
 		// greyscale 
-		createBoolUniform("iGreyScale", IGREYSCALE); //87
-		createBoolUniform("iClear", ICLEAR, true); // 88
-		createBoolUniform("iDebug", IDEBUG); // 129
-		createBoolUniform("iXorY", IXORY); // 130
-		createBoolUniform("iFlipH", IFLIPH); // 131
-		createBoolUniform("iFlipV", IFLIPV); // 132
-		createBoolUniform("iFlipPostH", IFLIPPOSTH); // 133
-		createBoolUniform("iFlipPostV", IFLIPPOSTV); // 134
+		createFloatUniform("iGreyScale", IGREYSCALE); //87
+		createFloatUniform("iClear", ICLEAR, true); // 88
+		createFloatUniform("iDebug", IDEBUG); // 129
+		createFloatUniform("iXorY", IXORY); // 130
+		createFloatUniform("iFlipH", IFLIPH); // 131
+		createFloatUniform("iFlipV", IFLIPV); // 132
+		createFloatUniform("iFlipPostH", IFLIPPOSTH); // 133
+		createFloatUniform("iFlipPostV", IFLIPPOSTV); // 134
 
 		// 119 to 124 timefactor from midithor sos
 		// floats for warps
@@ -281,11 +280,11 @@ void VDUniforms::loadUniforms(const ci::DataSourceRef& source) {
 					break;
 				case GL_INT:
 					// int 5124 GL_INT 0x1404
-					intFromJson(child);
+					floatFromJson(child);
 					break;
 				case GL_BOOL:
 					// boolean 35670 GL_BOOL 0x8B56
-					boolFromJson(child);
+					floatFromJson(child);
 					break;
 				}
 			}
@@ -349,6 +348,7 @@ void VDUniforms::vec4FromJson(const ci::JsonTree& json) {
 		createVec4Uniform(jName, jCtrlIndex);
 	}
 }
+/*
 void VDUniforms::intFromJson(const ci::JsonTree& json) {
 	std::string jName;
 	int jCtrlIndex, jValue;
@@ -372,16 +372,14 @@ void VDUniforms::boolFromJson(const ci::JsonTree& json) {
 		jValue = (u.hasChild("value")) ? u.getValueForKey<bool>("value") : false;
 		createBoolUniform(jName, jCtrlIndex, jValue);
 	}
-}
+}*/
 
 bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 	bool rtn = false;
 	
 	// we can't change TIME at index 0
 	if (aIndex > 0) {
-		/*if (aIndex == 31) {
-			CI_LOG_V("old value " + toString(shaderUniforms[getUniformNameForIndex(aIndex)].floatValue) + " newvalue " + toString(aValue));
-		}*/
+	
 		if (aIndex == IBPM) {
 			if (aValue > 0.0f) {
 				setUniformValue(IDELTATIME, 60 / aValue);
