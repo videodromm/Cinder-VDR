@@ -110,6 +110,9 @@ namespace videodromm
 		void					toggleUseLineIn() { mVDSession->toggleUseLineIn(); };
 		bool					isAudioBuffered() { return mVDSession->isAudioBuffered(); };
 		void					toggleAudioBuffered() { mVDSession->toggleAudioBuffered(); };
+		void					setFboAudioInputTexture(unsigned int aFboIndex = 0) {
+			mVDSession->setFboAudioInputTexture(aFboIndex);
+		}
 		int						getFFTWindowSize();
 		float*					getFreqs();
 		bool					showUI();

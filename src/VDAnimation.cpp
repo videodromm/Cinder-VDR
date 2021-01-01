@@ -277,7 +277,7 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 		mVDUniforms->setUniformValue(mVDUniforms->IMAXVOLUME, 0.0f);
 		//maxVolume = 0.0f;//mIntensity
 		size_t mDataSize = mMagSpectrum.size();
-		if (mDataSize > 0 && mDataSize < mFFTWindowSize + 1) {// TODO 20200221 CHECK was
+		if (mDataSize > 0 && mDataSize < mFFTWindowSize + 1) {
 			float db;
 			unsigned char signal[mFFTWindowSize];
 			for (size_t i{0}; i < mDataSize; i++) {
@@ -301,30 +301,12 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 				}
 			}
 			// store it as a 512x2 texture
-			// 20200222 mAudioTexture = gl::Texture::create(signal, GL_RED, 64, 2, mAudioFormat);
 			mAudioTexture = gl::Texture::create(signal, GL_RED, 32, 1, mAudioFormat);
-			/* TODO 20200221 useful?
-			if (isAudioBuffered() && mBufferPlayerNode) {
-				gl::ScopedFramebuffer fbScp(mFbo);
-				gl::clear(Color::black());
-
-				mAudioTexture->bind(0);
-
-				//mWaveformPlot.draw();
-				// draw the current play position
-				mPosition = mBufferPlayerNode->getReadPosition();
-				float readPos = (float)mWidth * mPosition / mBufferPlayerNode->getNumFrames();
-				gl::color(ColorA(0, 1, 0, 0.7f));
-				gl::drawSolidRect(Rectf(readPos - 2, 0, readPos + 2, (float)mHeight));
-				mRenderedTexture = mFbo->getColorTexture();
-				return mRenderedTexture;
-			} */
 		}
 	}
 	else {
 		// generate random values
 		// 20200222 for (int i{0}; i < 128; ++i) dTexture[i] = (unsigned char)(i);
-		// 20200222 mAudioTexture = gl::Texture::create(dTexture, GL_RED, 64, 2, mAudioFormat);
 		// get freqs from Speckthor in VDRouter.cpp
 		float db;
 		unsigned char signal[mFFTWindowSize];
@@ -346,7 +328,6 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 			}
 		}
 		// store it as a 512x2 texture
-		// 20200222 mAudioTexture = gl::Texture::create(signal, GL_RED, 64, 2, mAudioFormat);
 		mAudioTexture = gl::Texture::create(signal, GL_RED, 32, 1, mAudioFormat);
 		mAudioName = "speckthor";
 	}

@@ -58,16 +58,16 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 	mZoom = 1.0f;
 	mSelectedWarp = 0;*/
 	// Modes
-	mModesList[0] = "Mixette";
-	mModesList[1] = "Fbo0";
-	mModesList[2] = "Fbo1";
-	mModesList[3] = "Fbo2";
-	mModesList[4] = "Fbo3";
-	mModesList[5] = "Fbo4";
-	mModesList[6] = "Fbo5";
-	mModesList[7] = "Fbo6";
-	mModesList[8] = "Fbo7";
-	mModesList[9] = "Fbo8";
+	mModesList[0] = "Fbo0";
+	mModesList[1] = "Fbo1";
+	mModesList[2] = "Fbo2";
+	mModesList[3] = "Fbo3";
+	mModesList[4] = "Fbo4";
+	mModesList[5] = "Fbo5";
+	mModesList[6] = "Fbo6";
+	mModesList[7] = "Post";
+	mModesList[8] = "Mixette";
+	mModesList[9] = "Warp"; // not used
 	mMode = 0;
 
 	// Message router
@@ -511,6 +511,9 @@ bool VDSession::handleKeyDown(KeyEvent& event)
 			break;
 		case KeyEvent::KEY_F9:
 			mMode = 8;
+			break;
+		case KeyEvent::KEY_F10:
+			mMode = 9;
 			break;
 
 		

@@ -158,34 +158,35 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				{
 					found = true;
 					// get the argument type
-					//if (msg.getArgType(0) == ArgType::INTEGER_32) {
-					//	int i = msg[0].int32();
-					//	if (i > 80 && i < 109) {
-					//		mVDAnimation->setBoolUniformValueByIndex(i, !mVDAnimation->getBoolUniformValueByIndex(i));
+					if (msg.getArgType(0) == ArgType::INTEGER_32) {
+						int i = msg[0].int32();
+						if (i > 80 && i < 109) {
+							mVDUniforms->setBoolUniformValueByIndex(i, !mVDUniforms->getBoolUniformValueByIndex(i));
 
-					//	}
-					//	// sos specific
-					//	if (i == 119) { // B7 end
-					//		mVDAnimation->setUniformValue(mVDUniforms->ITIMEFACTOR, 0.02f);
-					//	}
-					//	if (i == 120) { // C8 slow
-					//		mVDAnimation->setUniformValue(mVDUniforms->ITIMEFACTOR, 0.1f);
-					//	}
-					//	if (i == 121) { // C#8
-					//		mVDAnimation->setUniformValue(mVDUniforms->ITIMEFACTOR, 0.18f);
-					//	}
-					//	if (i == 122) { // D8
-					//		mVDAnimation->setUniformValue(mVDUniforms->ITIMEFACTOR, 0.25f);
-					//	}
-					//	if (i == 123) { // D#8
-					//		mVDAnimation->setUniformValue(mVDUniforms->ITIMEFACTOR, 0.35f);
-					//	}
-					//	if (i == 124) { // E8 fast
-					//		mVDAnimation->setUniformValue(mVDUniforms->ITIMEFACTOR, 1.0f);
-					//	}
-					//}
+						}
+						// sos specific
+						if (i == 119) { // B7 end
+							mVDUniforms->setUniformValue(mVDUniforms->ITIMEFACTOR, 0.02f);
+						}
+						if (i == 120) { // C8 slow
+							mVDUniforms->setUniformValue(mVDUniforms->ITIMEFACTOR, 0.1f);
+						}
+						if (i == 121) { // C#8
+							mVDUniforms->setUniformValue(mVDUniforms->ITIMEFACTOR, 0.18f);
+						}
+						if (i == 122) { // D8
+							mVDUniforms->setUniformValue(mVDUniforms->ITIMEFACTOR, 0.25f);
+						}
+						if (i == 123) { // D#8
+							mVDUniforms->setUniformValue(mVDUniforms->ITIMEFACTOR, 0.35f);
+						}
+						if (i == 124) { // E8 fast
+							mVDUniforms->setUniformValue(mVDUniforms->ITIMEFACTOR, 1.0f);
+						}
+					}
 				}
 			}
+			mVDSettings->mMsg = "0beat: " + toString(mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
 			if (!found)
 			{
 				// int32 1 to 4 beat from Transthor
@@ -193,8 +194,10 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				index = addr.find(ctrl);
 				if (index != std::string::npos)
 				{
+					
 					found = true;
 					mVDUniforms->setUniformValue(mVDUniforms->IBEAT, msg[0].int32() - 1);
+					mVDSettings->mErrorMsg = "1beat: " + toString(msg[0].int32() - 1) + toString(mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
 					mVDUniforms->setUniformValue(
 						mVDUniforms->IBARBEAT,
 						mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));

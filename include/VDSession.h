@@ -107,6 +107,9 @@ namespace videodromm {
 		//void							setTimeFactor(const int &aTimeFactor) { mVDAnimation->setTimeFactor(aTimeFactor); };
 		// audio
 		ci::gl::TextureRef				getAudioTexture() { return mVDAnimation->getAudioTexture(); };
+		void							setFboAudioInputTexture(unsigned int aFboIndex = 0) {
+			mVDMix->setFboAudioInputTexture(aFboIndex);
+		}
 		std::string						getAudioTextureName() { return mVDAnimation->getAudioTextureName(); };
 		float*							getFreqs() { return mVDAnimation->iFreqs; };
 		int								getFreqIndexSize() { return mVDAnimation->getFreqIndexSize(); };

@@ -368,6 +368,11 @@ void VDUniforms::boolFromJson(const ci::JsonTree& json) {
 
 bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 	bool rtn = false;
+	/*if (aIndex ==51) {
+		if (aValue < 1.0f) {
+			shaderUniforms[aIndex].floatValue = aValue;
+		}
+	}*/
 	// we can't change TIME at index 0
 	if (aIndex > 0) {
 		/*if (aIndex == 31) {

@@ -134,6 +134,9 @@ namespace videodromm
 		std::vector<ci::gl::GlslProg::Uniform>			getUniforms(unsigned int aFboIndex = 0) {
 			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getUniforms();
 		}
+		void							setFboAudioInputTexture(unsigned int aFboIndex = 0) {
+			mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->setImageInputTexture( mVDAnimation->getAudioTexture(), "Audio");
+		}
 		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aFboIndex = 0) {
 			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTexture();
 		}
@@ -240,6 +243,6 @@ namespace videodromm
 		gl::GlslProgRef					mGlslMixette;
 		ci::gl::Texture2dRef			mMixetteTexture;
 		std::string						mError;
-		const int						MAX = 8;
+		const int						MAXSHADERS = 7;
 	};
 }

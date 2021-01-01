@@ -128,7 +128,7 @@ namespace videodromm {
 	unsigned int VDMix::findAvailableIndex(unsigned int aFboShaderIndex) {
 		unsigned int rtn = aFboShaderIndex;
 		if (aFboShaderIndex > mFboShaderList.size() - 1) {
-			if (aFboShaderIndex < MAX) {
+			if (aFboShaderIndex < MAXSHADERS) {
 				// create fbo
 				fboShader = VDFboShader::create(mVDUniforms);
 				mFboShaderList.push_back(fboShader);
@@ -155,7 +155,7 @@ namespace videodromm {
 	}
 	bool VDMix::setFragmentShaderString(const string& aFragmentShaderString, const std::string& aName) {
 		// received from websocket, tested with hydra
-		return mFboShaderList[findAvailableIndex(MAX + 42)]->setFragmentShaderString(aFragmentShaderString, aName);
+		return mFboShaderList[findAvailableIndex(MAXSHADERS)]->setFragmentShaderString(aFragmentShaderString, aName);
 	}
 	int VDMix::loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex) {
 		// if aFboShaderIndex is out of bounds try to find invalid fbo index or create a new fbo until MAX
