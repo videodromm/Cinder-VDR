@@ -115,6 +115,10 @@ namespace videodromm
 		}
 		int						getFFTWindowSize();
 		float*					getFreqs();
+		float					getFreq(unsigned int aFreqIndex) { return mVDSession->getFreq(aFreqIndex); };
+		int						getFreqIndex(unsigned int aFreqIndex) { return mVDSession->getFreqIndex(aFreqIndex); };
+		void					setFreqIndex(unsigned int aFreqIndex, unsigned int aFreq) { mVDSession->setFreqIndex(aFreqIndex, aFreq); };
+
 		bool					showUI();
 		VDSessionFacadeRef		toggleUI();
 		std::vector<ci::gl::GlslProg::Uniform> getUniforms(unsigned int aFboIndex = 0);

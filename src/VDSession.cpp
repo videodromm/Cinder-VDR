@@ -379,26 +379,31 @@ void VDSession::fileDrop(FileDropEvent event) {
 			if (index > 3) index = 3;
 			loadImageFile(absolutePath, index);
 		}
-		/*else if (ext == "wav" || ext == "mp3") {
+		else if (ext == "wav" || ext == "mp3") {
 			loadAudioFile(absolutePath);
 		}
-		else if (ext == "xml") {
+		/*else if (ext == "xml") {
 		}
 		else if (ext == "mov") {
 			loadMovie(absolutePath, index);
 		}
 		else if (ext == "txt") {
-		}
+		}*/
 		else if (ext == "") {
 			// try loading image sequence from dir
 			if (!loadImageSequence(absolutePath, index)) {
 				// try to load a folder of shaders
-				loadShaderFolder(absolutePath);
+				//loadShaderFolder(absolutePath);
 			}
-		}*/
+		}
 	}
 }
-
+bool VDSession::loadImageSequence(const string& aFolder, unsigned int aTextureIndex) {
+	return mVDMix->loadImageSequence(aFolder, aTextureIndex);
+}
+void VDSession::loadAudioFile(const string& aFile) {
+	//mTextureList[0]->loadFromFullPath(aFile);
+}
 #pragma region events
 bool VDSession::handleMouseMove(MouseEvent& event)
 {

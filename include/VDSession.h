@@ -106,7 +106,10 @@ namespace videodromm {
 		bool							getUseTimeWithTempo() { return mVDAnimation->getUseTimeWithTempo(); };
 		//void							setTimeFactor(const int &aTimeFactor) { mVDAnimation->setTimeFactor(aTimeFactor); };
 		// audio
-		ci::gl::TextureRef				getAudioTexture() { return mVDAnimation->getAudioTexture(); };
+		ci::gl::TextureRef				getAudioTexture() { 
+			mVDMix->setFboAudioInputTexture(0);
+			return mVDAnimation->getAudioTexture(); 
+		};
 		void							setFboAudioInputTexture(unsigned int aFboIndex = 0) {
 			mVDMix->setFboAudioInputTexture(aFboIndex);
 		}
@@ -321,6 +324,8 @@ namespace videodromm {
 		void							loadImageFile(const std::string& aFile, unsigned int aTextureIndex) {
 			mVDMix->loadImageFile(aFile, aTextureIndex);
 		};
+		bool							loadImageSequence(const string& aFolder, unsigned int aTextureIndex);
+		void							loadAudioFile(const string& aFile);
 		/*unsigned int					getInputTexturesCount() {
 			return mTextureList.size();
 		}
@@ -334,7 +339,6 @@ namespace videodromm {
 
 		void							loadAudioFile(const string& aFile);
 		void							loadMovie(const string& aFile, unsigned int aTextureIndex);
-		bool							loadImageSequence(const string& aFolder, unsigned int aTextureIndex);
 		//void							toggleSharedOutput(unsigned int aMixFboIndex = 0);
 		//bool							isSharedOutputActive() { return mVDMix->isSharedOutputActive(); };
 		//unsigned int					getSharedMixIndex() { return mVDMix->getSharedMixIndex(); };

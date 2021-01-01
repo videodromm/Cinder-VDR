@@ -58,9 +58,7 @@ namespace videodromm
 		{
 			return std::shared_ptr<VDMix>(new VDMix(aVDSettings, aVDAnimation, aVDUniforms));
 		}
-		// RTE in release mode 
-		//ci::gl::Texture2dRef			getRenderedTexture(bool reDraw = true);
-		//void							update();
+		
 		// fbolist
 		unsigned int					getFboShaderListSize() { 
 			return mFboShaderList.size();
@@ -155,36 +153,8 @@ namespace videodromm
 		std::string						getFboTextureName(unsigned int aFboIndex) {
 			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getTextureName();
 		};
-		void							loadImageFile(const std::string& aFile, unsigned int aTextureIndex) {
-			int rtn = math<int>::min(aTextureIndex, mFboShaderList.size() - 1); 
-			fs::path texFileOrPath = aFile;
-			if (fs::exists(texFileOrPath)) {
-
-				std::string ext = "";
-				int dotIndex = texFileOrPath.filename().string().find_last_of(".");
-				if (dotIndex != std::string::npos)  ext = texFileOrPath.filename().string().substr(dotIndex + 1);
-				if (ext == "jpg" || ext == "png") {
-					if (mFboShaderList.size() < 1) {
-						// no fbos, create one
-						JsonTree		json;
-						JsonTree shader = ci::JsonTree::makeArray("shader");
-						shader.addChild(ci::JsonTree("shadername", "inputImage.fs"));
-						shader.pushBack(ci::JsonTree("shadertype", "fs"));						
-						json.addChild(shader);
-						JsonTree texture = ci::JsonTree::makeArray("texture");
-						texture.addChild(ci::JsonTree("texturename", texFileOrPath.filename().string()));
-						texture.pushBack(ci::JsonTree("texturetype", "image"));
-						json.addChild(texture);
-						
-						createFboShaderTexture(json);
-					}
-					else {
-						ci::gl::Texture2dRef mTexture = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
-						mFboShaderList[rtn]->setImageInputTexture(mTexture, texFileOrPath.filename().string());
-					}					
-				}
-			}			
-		}
+		bool							loadImageSequence(const string& aFolder, unsigned int aTextureIndex);
+		void							loadImageFile(const std::string& aFile, unsigned int aTextureIndex);
 		
 		std::vector<ci::gl::GlslProg::Uniform>	getFboShaderUniforms(unsigned int aFboShaderIndex);
 		int								getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex);
