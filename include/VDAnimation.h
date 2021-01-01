@@ -136,11 +136,11 @@ namespace videodromm
 			}
 			return mVDUniforms->setUniformValue(aIndex, aValue);
 		}*/
-
+/*
 		bool							setBoolUniformValueByIndex(unsigned int aIndex, bool aValue) {
 			return mVDUniforms->setBoolUniformValueByIndex(aIndex, aValue);
 		}
-		/*void							setIntUniformValueByName(const std::string& aName, int aValue) {
+		void							setIntUniformValueByName(const std::string& aName, int aValue) {
 			mVDUniforms->setIntUniformValueByName(aName, aValue);
 		};
 		void							setIntUniformValueByIndex(unsigned int aIndex, int aValue) {
@@ -268,7 +268,7 @@ namespace videodromm
 		JsonTree						mData;
 		void							loadAnimation();
 		void							saveAnimation();
-		int								mLastBar = 0;
+		float							mLastBar = 0.0f; // 20210101 was int
 		std::unordered_map<int, float>	mBadTV;
 		bool							mBlendRender;
 		

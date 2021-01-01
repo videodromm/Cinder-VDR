@@ -203,7 +203,7 @@ void TextureImageSequence::updateSequence() {
 			if (mSyncToBeat) {
 				//newPosition = (int)(((int)(mVDAnimation->iBar / mVDAnimation->iPhaseIndex)) % mSequenceTextures.size());
 				// TODO newPosition = (int)(((int)(mVDSettings->iPhase / mVDAnimation->iPhaseIndex)) % mSequenceTextures.size());
-				newPosition = (int)(mVDUniforms->getIntUniformValueByName("iPhase") % mSequenceTextures.size());
+				newPosition = (int)((int)mVDUniforms->getUniformValue(mVDUniforms->IPHASE) % mSequenceTextures.size());
 			}
 			else {
 				newPosition = mPosition;

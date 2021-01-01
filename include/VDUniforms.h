@@ -40,11 +40,11 @@ namespace videodromm
 	class VDUniforms {
 	public:
 		VDUniforms();
-
-		static VDUniformsRef				create()
-		{
+		static VDUniformsRef				UNIFORMS;
+		static VDUniformsRef				create();
+		/*{
 			return std::shared_ptr<VDUniforms>(new VDUniforms());
-		}
+		}*/
 		enum VDParameters {
 			//! maximum number of fbos, shaders, textures
 			MAX = 14,
@@ -111,7 +111,7 @@ namespace videodromm
 			IOUTW = 56,
 			IOUTH = 57,
 			IBEATSPERBAR = 59,
-
+			IPHASE = 60,
 			ICOLOR = 61,
 			IBACKGROUNDCOLOR = 62,
 			IMOUSE = 70,
@@ -170,7 +170,7 @@ namespace videodromm
 		float							getDefaultUniformValue(unsigned int aIndex) {
 			return shaderUniforms[aIndex].defaultValue;
 		}
-		
+
 		int								getUniformTextureIndex(unsigned int aIndex) {
 			return shaderUniforms[aIndex].textureIndex;
 		}
@@ -181,7 +181,7 @@ namespace videodromm
 		int								getUniformIndexForName(const std::string& aName) {
 			return shaderUniforms[stringToIndex(aName)].index;
 		};
-		bool							setBoolUniformValueByIndex(unsigned int aIndex, bool aValue) {
+		/*bool							setBoolUniformValueByIndex(unsigned int aIndex, bool aValue) {
 			shaderUniforms[aIndex].floatValue = aValue;
 			return aValue;
 		}
@@ -202,15 +202,8 @@ namespace videodromm
 				}
 			}
 			shaderUniforms[aIndex].floatValue = aValue;
-		}
-		void							setFloatUniformValueByName(const std::string& aName, float aValue) {
-			if (aName == "") {
-				//CI_LOG_E("empty error");
-			}
-			else {
-				shaderUniforms[stringToIndex(aName)].floatValue = aValue;
-			}
-		}
+		}*/
+		
 		void setVec2UniformValueByName(const std::string& aName, vec2 aValue) {
 			if (aName == "") {
 				//CI_LOG_E("empty error");
@@ -280,20 +273,26 @@ namespace videodromm
 				shaderUniforms[stringToIndex(aName + "W")].floatValue);
 			//return shaderUniforms[stringToIndex(aName)].vec4Value;
 		}
-		int								getIntUniformValueByName(const std::string& aName) {
+		/*int								getIntUniformValueByName(const std::string& aName) {
 			return shaderUniforms[stringToIndex(aName)].floatValue;
 		};
 		bool							getBoolUniformValueByIndex(unsigned int aIndex) {
 			return shaderUniforms[aIndex].floatValue;
 		}
+		
+		bool							getBoolUniformValueByName(const std::string& aName) {
+			return shaderUniforms[stringToIndex(aName)].floatValue;
+		}
+		
+		int								getIntUniformValueByIndex(unsigned int aIndex) {
+			return shaderUniforms[aIndex].floatValue;
+		}
+		*/
 		float							getMinUniformValue(unsigned int aIndex) {
 			return shaderUniforms[aIndex].minValue;
 		}
 		float							getMaxUniformValue(unsigned int aIndex) {
 			return shaderUniforms[aIndex].maxValue;
-		}
-		bool							getBoolUniformValueByName(const std::string& aName) {
-			return shaderUniforms[stringToIndex(aName)].floatValue;
 		}
 		float							getMinUniformValueByName(const std::string& aName) {
 			if (aName == "") {
@@ -315,10 +314,7 @@ namespace videodromm
 		int								getUniformAnim(unsigned int aIndex) {
 			return shaderUniforms[aIndex].anim;
 		}
-		
-		int								getIntUniformValueByIndex(unsigned int aIndex) {
-			return shaderUniforms[aIndex].floatValue;
-		}
+
 		int								getSampler2DUniformValueByName(const std::string& aName) {
 			return shaderUniforms[stringToIndex(aName)].textureIndex;
 		}
@@ -354,7 +350,7 @@ namespace videodromm
 		}
 
 	private:
-		
+
 		std::map<int, VDUniformStruct>		shaderUniforms;
 		//fs::path						mUniformsJson;
 		//! read a uniforms json file 

@@ -1,7 +1,13 @@
 #include "VDUniforms.h"
 
 using namespace videodromm;
-
+VDUniformsRef VDUniforms::UNIFORMS;
+VDUniformsRef	VDUniforms::create() {
+	if (UNIFORMS.use_count() == 0) {
+		UNIFORMS = VDUniformsRef(new VDUniforms());
+	}
+	return UNIFORMS;
+}
 VDUniforms::VDUniforms() {
 	// render windows
 	mRenderWidth = 1280;
@@ -136,7 +142,7 @@ VDUniforms::VDUniforms() {
 		// beat 
 		createFloatUniform("iBeat", IBEAT, 0.0f, 0.0f, 300.0f); // 51
 		// bar 
-		createFloatUniform("iBar", IBAR, 0.0f, 0.0f, 8.0f); // 52
+		createFloatUniform("iBar", IBAR, 0.0f, 0.0f, 3008.0f); // 52
 		// bar 
 		createFloatUniform("iBarBeat", IBARBEAT, 1.0f, 1.0f, 1200.0f); // 53		
 		// fbo A
@@ -149,6 +155,8 @@ VDUniforms::VDUniforms() {
 		createIntUniform("iOutH", IOUTH, mRenderHeight); // 57
 		// beats per bar 
 		createIntUniform("iBeatsPerBar", IBEATSPERBAR, 4); // 59
+		// iPhase 
+		createFloatUniform("iPhase", IPHASE, 1.0f); // 60
 
 		// vec3
 		// iResolutionX (should be fbowidth?) 
@@ -368,11 +376,7 @@ void VDUniforms::boolFromJson(const ci::JsonTree& json) {
 
 bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 	bool rtn = false;
-	/*if (aIndex ==51) {
-		if (aValue < 1.0f) {
-			shaderUniforms[aIndex].floatValue = aValue;
-		}
-	}*/
+	
 	// we can't change TIME at index 0
 	if (aIndex > 0) {
 		/*if (aIndex == 31) {
@@ -634,6 +638,7 @@ int VDUniforms::stringToIndex(const std::string& key) {
 		rtn = IBEATSPERBAR;
 	} // 59
 
+
 	// vec3
 	// iResolutionX (should be fbowidth?) 
 	else if (key == "iResolutionX") {
@@ -647,7 +652,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 		rtn = IRESOLUTION;
 	} // 120
 
-
+	// IPHASE 
+	else if (key == "iPhase") {
+		rtn = IPHASE;
+	} // 60
 	else if (key == "iColor") {
 		rtn = ICOLOR;
 	} // 61

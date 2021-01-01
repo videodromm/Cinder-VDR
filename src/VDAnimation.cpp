@@ -358,14 +358,14 @@ void VDAnimation::update() {
 		//shaderUniforms["iElapsed"].floatValue = shaderUniforms["iPhase"].floatValue * mVDSettings->iSpeedMultiplier * shaderUniforms["iTimeFactor"].floatValue;
 		// sos
 		// IBARBEAT = IBAR * 4 + IBEAT
-		int current = mVDUniforms->getIntUniformValueByIndex(mVDUniforms->IBARBEAT);
-		if (current == 426 || current == 428 || current == 442) { mLastBar = 0; } //38 to set iStart
-		if (mLastBar != mVDUniforms->getIntUniformValueByIndex(mVDUniforms->IBAR)) {
-			mLastBar = mVDUniforms->getIntUniformValueByIndex(mVDUniforms->IBAR);
+		float current = mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT); // 20210101 was int
+		if (current == 426.0f || current == 428.0f || current == 442.0f) { mLastBar = 0.0f; } //38 to set iStart
+		if (mLastBar != mVDUniforms->getUniformValue(mVDUniforms->IBAR)) {
+			mLastBar = mVDUniforms->getUniformValue(mVDUniforms->IBAR);
 			//if (mLastBar != 5 && mLastBar != 9 && mLastBar < 113) mVDSettings->iStart = mVDSession->getUniformValue(mVDUniforms->ITIME);
 			// TODO CHECK
 			//if (mLastBar != 107 && mLastBar != 111 && mLastBar < 205) mVDSettings->iStart = mVDSession->getUniformValue(mVDUniforms->ITIME);
-			if (mLastBar < 419 && mLastBar > 424) { mVDSettings->iStart = mVDUniforms->getUniformValue(mVDUniforms->ITIME); }
+			if (mLastBar < 419.0f && mLastBar > 424.0f) { mVDSettings->iStart = mVDUniforms->getUniformValue(mVDUniforms->ITIME); }
 		}
 	}
 	else
@@ -461,7 +461,7 @@ void VDAnimation::update() {
 		// TODO migrate:
 		if (mVDSettings->autoInvert)
 		{
-			setBoolUniformValueByIndex(mVDUniforms->IINVERT, (modulo < 0.1) ? 1.0 : 0.0);
+			mVDUniforms->setUniformValue(mVDUniforms->IINVERT, (modulo < 0.1) ? 1.0 : 0.0);
 		}
 
 		/*if (mVDSettings->tEyePointZ)
@@ -477,9 +477,9 @@ void VDAnimation::update() {
 #pragma endregion animation
 }
 bool VDAnimation::toggleValue(unsigned int aIndex) {
-	bool rtn = mVDUniforms->getBoolUniformValueByIndex(aIndex);
+	bool rtn = mVDUniforms->getUniformValue(aIndex);
 	rtn = !rtn;
-	setBoolUniformValueByIndex(aIndex, rtn);
+	mVDUniforms->setUniformValue(aIndex, rtn);
 	//shaderUniforms[aIndex].boolValue = !shaderUniforms[aIndex].boolValue;
 	return rtn;
 }

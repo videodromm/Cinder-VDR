@@ -238,7 +238,7 @@ bool VDSession::save()
 
 	JsonTree settings = JsonTree::makeArray("settings");
 	settings.addChild(ci::JsonTree("bpm", mOriginalBpm));
-	settings.addChild(ci::JsonTree("beatsperbar", mVDUniforms->getIntUniformValueByName("iBeatsPerBar")));
+	settings.addChild(ci::JsonTree("beatsperbar", mVDUniforms->getUniformValue(mVDUniforms->IBEATSPERBAR)));
 	//settings.addChild(ci::JsonTree("fadeindelay", mFadeInDelay));
 	//settings.addChild(ci::JsonTree("fadeoutdelay", mFadeOutDelay));
 	settings.addChild(ci::JsonTree("endframe", mVDAnimation->mEndFrame));
@@ -729,16 +729,16 @@ int VDSession::getSampler2DUniformValueByName(const std::string& aName) {
 	return mVDUniforms->getSampler2DUniformValueByName(aName);
 };
 int VDSession::getIntUniformValueByName(const std::string& aName) {
-	return mVDUniforms->getIntUniformValueByName(aName);
+	return mVDUniforms->getUniformValueByName(aName);
 };
 int VDSession::getIntUniformValueByIndex(unsigned int aCtrl) {
-	return mVDUniforms->getIntUniformValueByIndex(aCtrl);
+	return mVDUniforms->getUniformValue(aCtrl);
 };
 bool VDSession::getBoolUniformValueByName(const std::string& aName) {
-	return mVDUniforms->getBoolUniformValueByName(aName);
+	return mVDUniforms->getUniformValueByName(aName);
 };
 bool VDSession::getBoolUniformValueByIndex(unsigned int aCtrl) {
-	return mVDUniforms->getBoolUniformValueByIndex(aCtrl);
+	return mVDUniforms->getUniformValue(aCtrl);
 }
 
 float VDSession::getUniformValueByName(const std::string& aCtrlName) {

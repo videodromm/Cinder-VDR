@@ -147,7 +147,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 	if (mValid) {
 
 		gl::ScopedFramebuffer fbScp(mFbo);
-		if (mVDUniforms->getBoolUniformValueByIndex(mVDUniforms->ICLEAR)) {
+		if (mVDUniforms->getUniformValue(mVDUniforms->ICLEAR)) {
 			gl::clear(Color::black());
 		}
 		/*int f = 0;
@@ -246,11 +246,11 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 					// IBEAT 51
 					// IBAR 52
 					// IBARBEAT 53
-					mShader->uniform(name, mVDUniforms->getIntUniformValueByName(name));
+					mShader->uniform(name, mVDUniforms->getUniformValueByName(name));
 					break;
 				case GL_BOOL: // boolean 35670 GL_BOOL 0x8B56
 					//createBoolUniform(name, mVDAnimation->getUniformIndexForName(name), getBoolUniformValueByName(name)); // get same index as vdanimation
-					mShader->uniform(name, mVDUniforms->getBoolUniformValueByName(name));
+					mShader->uniform(name, mVDUniforms->getUniformValueByName(name));
 					break;
 				case GL_FLOAT_MAT4: // 35676 GL_FLOAT_MAT4 0x8B5C ciModelViewProjection
 					break;

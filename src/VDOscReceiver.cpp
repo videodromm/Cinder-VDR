@@ -161,7 +161,8 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 					if (msg.getArgType(0) == ArgType::INTEGER_32) {
 						int i = msg[0].int32();
 						if (i > 80 && i < 109) {
-							mVDUniforms->setBoolUniformValueByIndex(i, !mVDUniforms->getBoolUniformValueByIndex(i));
+							// 20210101 was bool mVDUniforms->setBoolUniformValueByIndex(i, !mVDUniforms->getBoolUniformValueByIndex(i));
+							mVDUniforms->setUniformValue(i, !mVDUniforms->getUniformValue(i));
 
 						}
 						// sos specific
@@ -186,24 +187,19 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 					}
 				}
 			}
-			mVDSettings->mMsg = "0beat: " + toString(mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
+			
 			if (!found)
 			{
 				// int32 1 to 4 beat from Transthor
 				ctrl = "/beat";
 				index = addr.find(ctrl);
 				if (index != std::string::npos)
-				{
-					
+				{				
 					found = true;
 					mVDUniforms->setUniformValue(mVDUniforms->IBEAT, msg[0].int32() - 1);
-					mVDSettings->mErrorMsg = "1beat: " + toString(msg[0].int32() - 1) + toString(mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
 					mVDUniforms->setUniformValue(
 						mVDUniforms->IBARBEAT,
 						mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
-
-					//CI_LOG_I("beat:" + toString(mVDUniforms->IBEAT) + " " + toString(mVDAnimation->getIntUniformValueByIndex(mVDUniforms->IBEAT)));
-
 				}
 			}
 			if (!found)
@@ -214,18 +210,21 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				if (index != std::string::npos)
 				{
 					found = true;
+					float previousBar = mVDUniforms->getUniformValue(mVDUniforms->IBAR); // 20210101 was int
+					
+					float newBar = (float)msg[0].int32();
+					mVDSettings->mErrorMsg = "0bar: " + toString(msg[0].int32() - 1) + " - " + toString(newBar);
+					mVDSettings->mMidiMsg = "1bar: " + toString(previousBar) + " - " + toString(mVDUniforms->getUniformValue(mVDUniforms->IBAR));
 					// TODO test if useless:
-					int previousBar = mVDUniforms->getIntUniformValueByIndex(mVDUniforms->IBAR);
-
-					if (previousBar != msg[0].int32()) {
+					if (previousBar != newBar) {
 						mVDSettings->iBarDuration = mVDUniforms->getUniformValue(mVDUniforms->ITIME) - mBarStart;
 						mBarStart = mVDUniforms->getUniformValue(mVDUniforms->ITIME);
 					}
 					// TODO END
-					mVDUniforms->setUniformValue(mVDUniforms->IBAR, msg[0].int32());
+					mVDUniforms->setUniformValue(mVDUniforms->IBAR, newBar);
 					mVDUniforms->setUniformValue(
 						mVDUniforms->IBARBEAT,
-						mVDUniforms->getIntUniformValueByIndex(mVDUniforms->IBAR) * 4 + mVDUniforms->getIntUniformValueByIndex(mVDUniforms->IBEAT));
+						mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
 
 				}
 			}
