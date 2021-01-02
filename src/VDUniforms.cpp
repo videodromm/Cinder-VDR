@@ -176,16 +176,16 @@ VDUniforms::VDUniforms() {
 		// boolean
 		// invert
 		// glitch
-		createFloatUniform("iGlitch", IGLITCH); // 81
+		createFloatUniform("iGlitch", IGLITCH, 0.0f); // 81
 		// vignette
-		createFloatUniform("iVignette", IVIGN); // 82 toggle
+		createFloatUniform("iVignette", IVIGN, 0.0f); // 82
 		// toggle
-		createFloatUniform("iToggle", ITOGGLE); // 83
+		createFloatUniform("iToggle", ITOGGLE, 0.0f); // 83
 		// invert
 		createFloatUniform("iInvert", IINVERT, 0.0f); // 86
 		// greyscale 
-		createFloatUniform("iGreyScale", IGREYSCALE); //87
-		createFloatUniform("iClear", ICLEAR, true); // 88
+		createFloatUniform("iGreyScale", IGREYSCALE, 0.0f); //87
+		createFloatUniform("iClear", ICLEAR, 0.0f); // 88
 		createFloatUniform("iDebug", IDEBUG); // 129
 		createFloatUniform("iXorY", IXORY); // 130
 		createFloatUniform("iFlipH", IFLIPH); // 131
