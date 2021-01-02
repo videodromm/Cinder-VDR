@@ -92,6 +92,7 @@ namespace videodromm
 		unsigned int			getWarpBFboIndex(unsigned int aWarpIndex);
 		float					getMinUniformValue(unsigned int aIndex);
 		float					getMaxUniformValue(unsigned int aIndex);
+		float					getDefaultUniformValue(unsigned int aIndex);
 		int						getFboTextureWidth(unsigned int aFboIndex);
 		int						getFboTextureHeight(unsigned int aFboIndex);
 		unsigned int			getWarpCount();
@@ -128,8 +129,8 @@ namespace videodromm
 		int						getUniformIndexForName(const std::string& aName);
 		float					getUniformValue(unsigned int aCtrl);
 		std::string				getUniformName(unsigned int aIndex);
-		void					setIntUniformValueByIndex(unsigned int aCtrl, int aValue);
-		void					setBoolUniformValueByIndex(unsigned int aCtrl, float aValue);
+		//void					setIntUniformValueByIndex(unsigned int aCtrl, int aValue);
+		//void					setBoolUniformValueByIndex(unsigned int aCtrl, float aValue);
 		// end terminal operations 
 		// begin events
 		bool					handleMouseMove(MouseEvent event);

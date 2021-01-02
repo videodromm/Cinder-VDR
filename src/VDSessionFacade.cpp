@@ -182,6 +182,9 @@ float VDSessionFacade::getMinUniformValue(unsigned int aIndex) {
 float VDSessionFacade::getMaxUniformValue(unsigned int aIndex) {
 	return mVDSession->getMinUniformValue(aIndex);
 }
+float VDSessionFacade::getDefaultUniformValue(unsigned int aIndex) {
+	return mVDSession->getDefaultUniformValue(aIndex);
+}
 /* 20201229*/
 int VDSessionFacade::getFboTextureWidth(unsigned int aFboIndex) {
 	return mVDSession->getFboTextureWidth(aFboIndex);
@@ -253,12 +256,12 @@ float VDSessionFacade::getUniformValue(unsigned int aCtrl) {
 std::string VDSessionFacade::getUniformName(unsigned int aIndex) {
 	return mVDMediator->getUniformName(aIndex);
 }
-void VDSessionFacade::setIntUniformValueByIndex(unsigned int aCtrl, int aValue) {
+/*void VDSessionFacade::setIntUniformValueByIndex(unsigned int aCtrl, int aValue) {
 	mVDMediator->setUniformValue(aCtrl, aValue);
 }
 void VDSessionFacade::setBoolUniformValueByIndex(unsigned int aCtrl, float aValue) {
 	mVDMediator->setUniformValue(aCtrl, aValue);
-}
+}*/
 // end terminal operations 
 // begin events
 bool VDSessionFacade::handleMouseMove(MouseEvent event)

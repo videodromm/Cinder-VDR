@@ -95,6 +95,7 @@ namespace videodromm {
 		void							toggleValue(unsigned int aCtrl);
 		float							getMinUniformValue(unsigned int aIndex);
 		float							getMaxUniformValue(unsigned int aIndex);
+		float							getDefaultUniformValue(unsigned int aIndex);
 		int								getSampler2DUniformValueByName(const std::string& aName);
 		/*int								getIntUniformValueByName(const std::string& aName);
 		int								getIntUniformValueByIndex(unsigned int aCtrl);

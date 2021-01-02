@@ -179,6 +179,7 @@ void VDSession::renderPostToFbo()
 		mGlslPost->uniform("iSobel", mVDUniforms->getUniformValue(mVDUniforms->ISOBEL));
 		mGlslPost->uniform("iExposure", mVDUniforms->getUniformValue(mVDUniforms->IEXPOSURE));
 		mGlslPost->uniform("iTrixels", mVDUniforms->getUniformValue(mVDUniforms->ITRIXELS)); // trixels if > 0.
+		mGlslPost->uniform("iPixelate", mVDUniforms->getUniformValue(mVDUniforms->IPIXELATE)); // pixelate if < 1.
 		mGlslPost->uniform("iZoom", mVDUniforms->getUniformValue(mVDUniforms->IZOOM));
 		mGlslPost->uniform("iChromatic", mVDUniforms->getUniformValue(mVDUniforms->ICHROMATIC));
 		mGlslPost->uniform("iFlipV", mVDUniforms->getUniformValue(mVDUniforms->IFLIPPOSTV));
@@ -706,6 +707,9 @@ float VDSession::getMinUniformValue(unsigned int aIndex) {
 float VDSession::getMaxUniformValue(unsigned int aIndex) {
 	return mVDUniforms->getMaxUniformValue(aIndex);
 };
+float VDSession::getDefaultUniformValue(unsigned int aIndex) {
+	return mVDUniforms->getDefaultUniformValue(aIndex);
+}
 int VDSession::getSampler2DUniformValueByName(const std::string& aName) {
 	return mVDUniforms->getSampler2DUniformValueByName(aName);
 };
