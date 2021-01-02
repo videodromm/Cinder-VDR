@@ -26,7 +26,7 @@ VDTexture::VDTexture(VDParamsRef aVDParams, const JsonTree& json) {
 	mName = mCurrentSeqFilename = mLastCachedFilename = (json.hasChild("texturename")) ? json.getValueForKey<string>("texturename") : "0.jpg";
 	mTypestr = (json.hasChild("texturetype")) ? json.getValueForKey<string>("texturetype") : "UNKNOWN";
 	mMode = (json.hasChild("texturemode")) ? json.getValueForKey<int>("texturemode") : 0;
-	mAssetsPath = (json.hasChild("assetpath")) ? json.getValueForKey<string>("assetpath") : "";
+	mAssetsPath = (json.hasChild("assetspath")) ? json.getValueForKey<string>("assetspath") : "";
 	mType = TextureType::UNKNOWN;
 	mStatus = "";
 	mLastCachedFilename = mName;

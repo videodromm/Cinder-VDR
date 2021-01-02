@@ -3,13 +3,14 @@
 using namespace videodromm;
 
 //namespace videodromm {
-VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, const JsonTree &json) 
+VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, const JsonTree &json, unsigned int aFboIndex, const std::string& aAssetsPath)
 	:mVDUniforms{ aVDUniforms }
 {
 	CI_LOG_V("VDFboShader constructor");
 	// Params
 	mVDParams = VDParams::create();
-
+	mAssetsPath = aAssetsPath;
+	mFboIndex = aFboIndex;
 	std::string shaderType = "fs";
 
 	// load default fragment shader
@@ -36,6 +37,7 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, const JsonTree &json)
 
 	mInputTextureIndex = 0;
 	mTextureName = "";
+
 	if (json.hasChild("shader")) {
 		JsonTree shaderJsonTree(json.getChild("shader"));
 		mShaderName = mShaderFileName = (shaderJsonTree.hasChild("shadername")) ? shaderJsonTree.getValueForKey<string>("shadername") : "inputImage.fs";
@@ -47,7 +49,7 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, const JsonTree &json)
 		JsonTree textureJsonTree(json.getChild("texture"));
 		//tmp
 		//string tx = (textureJsonTree.hasChild("texturename")) ? textureJsonTree.getValueForKey<string>("texturename") : "0.jpg";
-		mAssetsPath = (textureJsonTree.hasChild("assetpath")) ? textureJsonTree.getValueForKey<string>("assetpath") : "";
+		mAssetsPath = (textureJsonTree.hasChild("assetspath")) ? textureJsonTree.getValueForKey<string>("assetspath") : aAssetsPath;
 		createInputTexture(textureJsonTree);
 	}
 

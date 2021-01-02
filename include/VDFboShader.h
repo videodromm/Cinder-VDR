@@ -39,10 +39,10 @@ namespace videodromm
 
 	class VDFboShader {
 	public:
-		VDFboShader(VDUniformsRef aVDUniforms, const JsonTree &json);
+		VDFboShader(VDUniformsRef aVDUniforms, const JsonTree &json, unsigned int aFboIndex, const std::string& aAssetsPath);
 		~VDFboShader(void);
-		static VDFboShaderRef create(VDUniformsRef aVDUniforms, const JsonTree &json) {
-			return std::make_shared<VDFboShader>(aVDUniforms, json);
+		static VDFboShaderRef create(VDUniformsRef aVDUniforms, const JsonTree &json, unsigned int aFboIndex, const std::string& aAssetsPath) {
+			return std::make_shared<VDFboShader>(aVDUniforms, json, aFboIndex, aAssetsPath);
 		}
 
 		ci::gl::Texture2dRef					getTexture(); //TODO 20200610; = 0
@@ -115,5 +115,6 @@ namespace videodromm
 		static const int				mMsgLength = 150;
 		std::string						mMsg;
 		std::string						mAssetsPath = "";
+		unsigned int					mFboIndex = 0;
 	};
 }

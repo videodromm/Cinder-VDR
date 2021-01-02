@@ -21,6 +21,19 @@ namespace videodromm {
 		// Uniforms
 		mVDUniforms = aVDUniforms;
 		// TODO TMP mDefaultTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
+		// check to see if mix.json file exists and restore if it does
+		mixPath = getAssetPath("") / mixFileName;
+		if (fs::exists(mixPath))
+		{
+			restore();
+		}
+		else
+		{
+			// Create json file if it doesn't already exist.
+			std::ofstream oStream(mixPath.string());
+			oStream.close();
+			save();
+		}
 
 		mDefaultTexture = ci::gl::Texture::create(loadImage(loadAsset("0.jpg")));
 
@@ -49,12 +62,7 @@ namespace videodromm {
 
 
 		loadFbos();
-		/*fboShaderHydra0 = VDFboShader::create(aVDUniforms);
-		mFboShaderList.push_back(fboShaderHydra0);
-		fboShaderHydra1 = VDFboShader::create(aVDUniforms);
-		mFboShaderList.push_back(fboShaderHydra1);
-		fboShader = VDFboShader::create(aVDUniforms);
-		mFboShaderList.push_back(fboShader);*/
+		
 		// initialize the textures list with audio texture
 		/*mTexturesFilepath = getAssetPath("") / mVDSettings->mAssetsPath / "textures.xml";
 		initTextureList();
@@ -114,7 +122,37 @@ namespace videodromm {
 			}
 		}*/
 
+	} // constructor
+
+	bool VDMix::save()
+	{
+		JsonTree doc;
+
+		JsonTree settings = JsonTree::makeArray("settings");
+		settings.addChild(ci::JsonTree("assetspath", mAssetsPath));
+		doc.pushBack(settings);
+		doc.write(writeFile(mixPath), JsonTree::WriteOptions());
+		return true;
 	}
+
+	void VDMix::restore()
+	{
+		// check to see if json file exists
+		if (!fs::exists(mixPath)) {
+			return;
+		}
+		try {
+			JsonTree doc(loadFile(mixPath));
+			if (doc.hasChild("settings")) {
+				JsonTree settings(doc.getChild("settings"));	
+				if (settings.hasChild("assetspath")) mAssetsPath = settings.getValueForKey<string>("assetspath");
+			}
+		}
+		catch (const JsonTree::ExcJsonParserError& exc) {
+			CI_LOG_W(exc.what());
+		}
+	}
+
 	void VDMix::loadFbos() {
 
 		int f = 0;
@@ -143,7 +181,7 @@ namespace videodromm {
 	}
 	unsigned int VDMix::createFboShaderTexture(const JsonTree &json, unsigned int aFboIndex) {
 		unsigned int rtn = 0;
-		VDFboShaderRef fboRef = VDFboShader::create(mVDUniforms, json);
+		VDFboShaderRef fboRef = VDFboShader::create(mVDUniforms, json, aFboIndex, mAssetsPath);
 		if (aFboIndex == 0) {
 			mFboShaderList.push_back(fboRef);
 			rtn = mFboShaderList.size() - 1;
@@ -181,7 +219,7 @@ namespace videodromm {
 			if (found != rtn) {
 				if (aFboShaderIndex < MAXSHADERS) {
 					// create fbo
-					mFboShaderList.push_back(VDFboShader::create(mVDUniforms, json));
+					mFboShaderList.push_back(VDFboShader::create(mVDUniforms, json, mFboShaderList.size(), mAssetsPath));
 					rtn = mFboShaderList.size() - 1;
 				}
 			}

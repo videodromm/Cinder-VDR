@@ -190,6 +190,8 @@ namespace videodromm
 		VDFboShaderRef					fboShader;*/
 		// maintain a list of fbos specific to this mix
 		VDFboShaderList					mFboShaderList;
+		bool							save();
+		void							restore();
 		void							loadFbos();
 		gl::Texture::Format				fmt;
 		gl::Fbo::Format					fboFmt;
@@ -201,5 +203,8 @@ namespace videodromm
 		std::string						mError;
 		const int						MAXSHADERS = 7;
 		std::string						mAssetsPath = "";
+		const string					mixFileName = "mix.json";
+		fs::path						mixPath;
+
 	};
 }
