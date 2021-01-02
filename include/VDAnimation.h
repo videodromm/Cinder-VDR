@@ -46,9 +46,7 @@ namespace videodromm
 		}
 		void							update();
 		void							save();
-		std::string							getAssetsPath() {
-			return mVDSettings->mAssetsPath;
-		}
+		
 
 		const int						mBlendModes = 28;
 		void							blendRenderEnable(bool render) { mBlendRender = render; };

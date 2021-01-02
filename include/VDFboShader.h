@@ -39,10 +39,10 @@ namespace videodromm
 
 	class VDFboShader {
 	public:
-		VDFboShader(VDUniformsRef aVDUniforms);
+		VDFboShader(VDUniformsRef aVDUniforms, const JsonTree &json);
 		~VDFboShader(void);
-		static VDFboShaderRef create(VDUniformsRef aVDUniforms) {
-			return std::make_shared<VDFboShader>(aVDUniforms);
+		static VDFboShaderRef create(VDUniformsRef aVDUniforms, const JsonTree &json) {
+			return std::make_shared<VDFboShader>(aVDUniforms, json);
 		}
 
 		ci::gl::Texture2dRef					getTexture(); //TODO 20200610; = 0
@@ -53,15 +53,15 @@ namespace videodromm
 		void									setImageInputTexture(ci::gl::Texture2dRef aTextureRef, const std::string& aTextureFilename);
 		std::vector<ci::gl::GlslProg::Uniform>	getUniforms();
 		//new 
-		bool setFragmentShaderString(const std::string& aFragmentShaderString, const std::string& aName = "");
-		int								getUniformValueByLocation(unsigned int aLocationIndex) {
+		bool									setFragmentShaderString(const std::string& aFragmentShaderString, const std::string& aName = "");
+		int										getUniformValueByLocation(unsigned int aLocationIndex) {
 			return mUniformValueByLocation[aLocationIndex]; 
 		};
-		void							setUniformValueByLocation(unsigned int aLocationIndex, float aValue) { 
+		void									setUniformValueByLocation(unsigned int aLocationIndex, float aValue) { 
 			mUniformValueByLocation[aLocationIndex] = aValue;
 		};
 		std::string								getTextureName() {
-			return mTextureName;
+			return mTextureList[0]->getName();
 		};
 		std::string								getMsg() {
 			return mMsg;
@@ -78,14 +78,17 @@ namespace videodromm
 		// uniforms
 		VDUniformsRef					mVDUniforms;
 		//! Input textures
-		ci::gl::Texture2dRef			mTexture;
+		//ci::gl::Texture2dRef			mTexture;
+
+		//! Input textures
 		std::string						mTextureName;
-		//VDTextureList					mTextureList;
-		//unsigned int					mInputTextureIndex;
+		VDTextureList					mTextureList;
+		unsigned int					mInputTextureIndex;
+		unsigned int					createInputTexture(const JsonTree &json);
 		//! shader
 		gl::GlslProgRef					mShader;
 		std::vector<ci::gl::GlslProg::Uniform> mUniforms;
-		std::map<unsigned int, float>			mUniformValueByLocation;
+		std::map<unsigned int, float>	mUniformValueByLocation;
 		std::string						mShaderName = "";
 		std::string						mName = "";
 		std::string						mShaderFileName = "";
@@ -111,5 +114,6 @@ namespace videodromm
 		// messages
 		static const int				mMsgLength = 150;
 		std::string						mMsg;
+		std::string						mAssetsPath = "";
 	};
 }

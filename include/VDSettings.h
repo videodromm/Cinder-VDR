@@ -127,8 +127,6 @@ namespace videodromm {
 		bool						iRepeat;
 		int							iBlendmode;
 		ci::Anim<float> 			iAlpha;
-
-		std::string					mAssetsPath;
 		bool						iShowFps;
 		std::string					sFps;
 		unsigned int				shaderEditIndex;

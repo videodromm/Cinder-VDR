@@ -38,11 +38,6 @@ JsonTree	VDSettings::toJson(bool save) const
 
 	json.addChild(osc);
 
-	if (save) {
-		std::string jsonFileName = "settings.json";
-		fs::path jsonFile = getAssetPath("") / mAssetsPath / jsonFileName;
-		json.write(jsonFile);	
-	}
 	return json;
 }
 bool VDSettings::save()
@@ -178,10 +173,6 @@ bool VDSettings::save()
 	Info.setAttribute("value", toString(mInfo));
 	settings.push_back(Info);
 
-	XmlTree AssetsPath("AssetsPath", "");
-	AssetsPath.setAttribute("value", toString(mAssetsPath));
-	settings.push_back(AssetsPath);
-
 	XmlTree UseAudio("UseAudio", "");
 	UseAudio.setAttribute("value", mUseAudio);
 	settings.push_back(UseAudio);
@@ -309,15 +300,7 @@ bool VDSettings::restore()
 				XmlTree Info = settings.getChild("Info");
 				mInfo = Info.getAttributeValue<std::string>("value");
 			}
-			if (settings.hasChild("AssetsPath")) {
-				XmlTree AssetsPath = settings.getChild("AssetsPath");
-				mAssetsPath = AssetsPath.getAttributeValue<std::string>("value");
-				fs::path mPath = getAssetPath("") / mAssetsPath;
-				if (!fs::exists(mPath)) {
-					// reset path
-					mAssetsPath = "";
-				}
-			}
+			
 			if (settings.hasChild("UseAudio")) {
 				XmlTree UseAudio = settings.getChild("UseAudio");
 				mUseAudio = UseAudio.getAttributeValue<bool>("value");
@@ -447,7 +430,6 @@ void VDSettings::reset()
 	mCodeEditorWidth = 800;
 	mCodeEditorHeight = 600;
 	mCurrentFilePath = "currentMix.frag";
-	mAssetsPath = "";
 	mMarginSmall = 2;
 	mPreviewEnabled = true;
 	//audio

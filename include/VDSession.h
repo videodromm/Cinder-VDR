@@ -50,7 +50,10 @@ namespace videodromm {
 		void							update(unsigned int aClassIndex = 0);
 		
 		void							loadFromJsonFile(const fs::path& jsonFile);
-		
+		unsigned int					fboFromJson(const JsonTree& json, unsigned int aFboIndex = 0) {
+			return mVDMix->fboFromJson(json, aFboIndex);
+		};
+
 		//! Mix
 		ci::gl::TextureRef				getFboRenderedTexture(unsigned int aFboIndex);
 		ci::gl::TextureRef				getFboTexture(unsigned int aFboIndex);
@@ -107,11 +110,11 @@ namespace videodromm {
 		//void							setTimeFactor(const int &aTimeFactor) { mVDAnimation->setTimeFactor(aTimeFactor); };
 		// audio
 		ci::gl::TextureRef				getAudioTexture() { 
-			mVDMix->setFboAudioInputTexture(0);
+			mVDMix->setFboAudioInputTexture(0); // TODO 20210101 remove and update
 			return mVDAnimation->getAudioTexture(); 
 		};
 		void							setFboAudioInputTexture(unsigned int aFboIndex = 0) {
-			mVDMix->setFboAudioInputTexture(aFboIndex);
+			mVDMix->setFboAudioInputTexture(aFboIndex); // TODO 20210101 warning not updating
 		}
 		std::string						getAudioTextureName() { return mVDAnimation->getAudioTextureName(); };
 		float*							getFreqs() { return mVDAnimation->iFreqs; };
@@ -251,10 +254,6 @@ namespace videodromm {
 		unsigned int 					createFboShaderTexture(const JsonTree& json, unsigned int aFboIndex = 0) {
 			return mVDMix->createFboShaderTexture(json, aFboIndex);
 		};
-		unsigned int					fboFromJson(const JsonTree& json, unsigned int aFboIndex = 0);
-
-		
-
 		bool							isFboValid(unsigned int aFboIndex) {
 			return mVDMix->isFboValid(aFboIndex);
 		};

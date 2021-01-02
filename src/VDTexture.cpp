@@ -7,22 +7,85 @@
 //using namespace ci::app;
 using namespace videodromm;
 //namespace videodromm {
-VDTextureRef VDTexture::create(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, const JsonTree& json)
+VDTextureRef VDTexture::create(VDParamsRef aVDParams, const JsonTree& json)
 {
 	CI_LOG_V("VDTexture create");
-	return std::shared_ptr<VDTexture>(new VDTexture(aVDSettings, aVDAnimation, json));
+	return std::shared_ptr<VDTexture>(new VDTexture(aVDParams, json));
 }
-VDTexture::VDTexture(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, const JsonTree& json) {
-	mVDSettings = aVDSettings;
-	mVDAnimation = aVDAnimation;
-	CI_LOG_V("VDTexture constructor");
+VDTexture::VDTexture(VDParamsRef aVDParams, const JsonTree& json) {
 	// Params
-	mVDParams = VDParams::create();
+	mVDParams = aVDParams;
+	CI_LOG_V("VDTexture constructor");
+
 	mTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown(mFlipV));
 	mInputSurface = Surface(mVDParams->getFboWidth(), mVDParams->getFboHeight(), true);
 
 	fboFmt.setColorTextureFormat(fmt);
 	mFbo = gl::Fbo::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), fboFmt);
+	// From rewrite
+	mName = mCurrentSeqFilename = mLastCachedFilename = (json.hasChild("texturename")) ? json.getValueForKey<string>("texturename") : "0.jpg";
+	mTypestr = (json.hasChild("texturetype")) ? json.getValueForKey<string>("texturetype") : "UNKNOWN";
+	mMode = (json.hasChild("texturemode")) ? json.getValueForKey<int>("texturemode") : 0;
+	mAssetsPath = (json.hasChild("assetpath")) ? json.getValueForKey<string>("assetpath") : "";
+	mType = TextureType::UNKNOWN;
+	mStatus = "";
+	mLastCachedFilename = mName;
+	if (mName == "" || mName == "audio") {
+		mName = mTypestr = "audio";
+		mType = TextureType::AUDIO;
+		//mTexture = mVDAnimation->getAudioTexture();
+
+	}
+	fs::path texFileOrPath = getAssetPath("") / mAssetsPath / mName;
+	if (fs::exists(texFileOrPath)) {
+		if (fs::is_directory(texFileOrPath)) {
+			mType = TextureType::SEQUENCE;
+			mTypestr = "sequence";
+			mExt = "jpg";
+			mCurrentSeqFilename = mName + " (1)." + mExt;
+			mLastCachedFilename = mName + " (1)." + mExt;
+
+			fs::path jpgPath = getAssetPath("") / mAssetsPath / mName / mCurrentSeqFilename;
+			if (!fs::exists(jpgPath)) {
+				// try with png
+				mExt = "png";
+				mCurrentSeqFilename = mName + " (1)." + mExt;
+				mLastCachedFilename = mName + " (1)." + mExt;
+			}
+
+		}
+		else {
+			mExt = "";
+			int dotIndex = texFileOrPath.filename().string().find_last_of(".");
+			if (dotIndex != std::string::npos)  mExt = texFileOrPath.filename().string().substr(dotIndex + 1);
+			if (mExt == "jpg" || mExt == "png") {
+				mTexture = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+				mType = TextureType::IMAGE;
+				mTypestr = "image";
+			}
+			else {
+				/*if (ext == "mp4" || ext == "wmv" || ext == "avi" || ext == "mov") {
+					if (!mVideo.isStopped()) {
+						mVideo.stop();
+					}
+
+					mIsVideoLoaded = mVideo.loadMovie(texFileOrPath);
+					mType = MOVIE;
+					mVideoDuration = mVideo.getDuration();
+					mVideoPos = mVideo.getPosition();
+					mVideo.play();
+				}*/
+			}
+		}
+	}
+	else {
+		mName = mTypestr = "audio";
+		mType = TextureType::AUDIO;
+
+		//mTexture = mVDAnimation->getAudioTexture(); // init with audio texture
+	}
+	mStatus = mName;
+
 }
 VDTexture::VDTexture(TextureType aType)
 	: mPath("")

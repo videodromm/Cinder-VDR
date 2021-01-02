@@ -3,7 +3,7 @@
 using namespace videodromm;
 
 //namespace videodromm {
-VDFboShader::VDFboShader(VDUniformsRef aVDUniforms) //TODO json
+VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, const JsonTree &json) 
 	:mVDUniforms{ aVDUniforms }
 {
 	CI_LOG_V("VDFboShader constructor");
@@ -33,9 +33,27 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms) //TODO json
 
 	
 	shaderInclude = loadString(loadAsset("shadertoy.vd"));
+
+	mInputTextureIndex = 0;
+	mTextureName = "";
+	if (json.hasChild("shader")) {
+		JsonTree shaderJsonTree(json.getChild("shader"));
+		mShaderName = mShaderFileName = (shaderJsonTree.hasChild("shadername")) ? shaderJsonTree.getValueForKey<string>("shadername") : "inputImage.fs";
+		mShaderFragmentString = (shaderJsonTree.hasChild("shadertext")) ? shaderJsonTree.getValueForKey<string>("shadertext") : "";
+		shaderType = (json.hasChild("shadertype")) ? json.getValueForKey<string>("shadertype") : "fs";
+	}
+	if (json.hasChild("texture")) {
+
+		JsonTree textureJsonTree(json.getChild("texture"));
+		//tmp
+		//string tx = (textureJsonTree.hasChild("texturename")) ? textureJsonTree.getValueForKey<string>("texturename") : "0.jpg";
+		mAssetsPath = (textureJsonTree.hasChild("assetpath")) ? textureJsonTree.getValueForKey<string>("assetpath") : "";
+		createInputTexture(textureJsonTree);
+	}
+
 	// init texture
 	//mTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
-	mTexture = ci::gl::Texture::create(loadImage(loadAsset("0.jpg")), ci::gl::Texture::Format().loadTopDown()); //TODO json
+	//mTexture = ci::gl::Texture::create(loadImage(loadAsset("0.jpg")), ci::gl::Texture::Format().loadTopDown()); //TODO json
 	mRenderedTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
 	isReady = false;
 
@@ -46,10 +64,25 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms) //TODO json
 	mMsg = "";
 	mError = "";
 	mActive = true;
+	mValid = loadFragmentStringFromFile(mShaderName);
+
+	if (mValid) {
+		CI_LOG_V("VDFbo constructor success");
+	}
+	else {
+		mError = "VDFbo constructor failed";
+	}
 }
 VDFboShader::~VDFboShader(void) {
 }
+unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
+	unsigned int rtn = 0;
+	VDTextureRef texRef = VDTexture::create(mVDParams, json);
+	mTextureList.push_back(texRef);
+	rtn = mTextureList.size() - 1;
+	return rtn;
 
+}
 bool VDFboShader::loadFragmentStringFromFile(const string& aFileOrPath) {
 	mValid = false;
 	bool fileExists = true;
@@ -61,7 +94,7 @@ bool VDFboShader::loadFragmentStringFromFile(const string& aFileOrPath) {
 		else {
 			// try in assets folder			
 			if (!fs::exists(mFragFilePath)) {
-				mFragFilePath = getAssetPath("") / aFileOrPath;
+				mFragFilePath = getAssetPath("") / mAssetsPath / aFileOrPath;
 				if (!fs::exists(mFragFilePath)) {
 					fileExists = false;
 					mError = "VDFboShader file does not exist in assets root or current subfolder:" + aFileOrPath;
@@ -164,11 +197,12 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				mGlslMixette->uniform("iWeight" + toString(t), mVDAnimation->getUniformValue(mVDUniforms->IWEIGHT0 + t));
 			}
 			t++;
-		}for (size_t i{ 1 }; i < 14; i++)
+		}*/
+		for (size_t i{ 1 }; i < 14; i++)
 		{
 			mTextureList[0]->getTexture(i)->bind(253 + i);
-		}*/
-		mTexture->bind(253);// TODO  +i);
+		}
+		//mTexture->bind(253);// TODO  +i);
 		std::string name;
 		
 		int texNameEndIndex = 0;
@@ -309,7 +343,7 @@ ci::gl::Texture2dRef VDFboShader::getRenderedTexture() {
 	return mRenderedTexture;
 }
 ci::gl::Texture2dRef VDFboShader::getInputTexture() {
-	return mTexture;
+	return mTextureList[0]->getTexture();
 }
 bool									VDFboShader::isValid() {
 	return mValid;
@@ -320,8 +354,7 @@ std::string								VDFboShader::getShaderName() {
 };
 
 void									VDFboShader::setImageInputTexture(ci::gl::Texture2dRef aTextureRef, const std::string& aTextureFilename) {
-	// TODO 20200630
-	mTexture = aTextureRef;
+	mTextureList[0]->setImageInputTexture(aTextureRef, aTextureFilename);
 };
 
 std::vector<ci::gl::GlslProg::Uniform>	VDFboShader::getUniforms() { 

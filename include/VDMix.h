@@ -11,7 +11,6 @@
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/GlslProg.h"
-#include "cinder/Xml.h"
 #include "cinder/Json.h"
 #include "cinder/Capture.h"
 #include "cinder/Log.h"
@@ -45,12 +44,7 @@ namespace videodromm
 {
 	// stores the pointer to the VDMix instance
 	typedef std::shared_ptr<class VDMix> 	VDMixRef;
-	/*struct VDMixFbo
-	{
-		ci::gl::FboRef					fbo;
-		ci::gl::Texture2dRef			texture;
-		string							name;
-	};*/
+	
 	class VDMix {
 	public:
 		VDMix(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms);
@@ -77,7 +71,10 @@ namespace videodromm
 		std::string						getError(unsigned int aFboIndex) {
 			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getError();
 		};
-		unsigned int					findAvailableIndex(unsigned int aFboShaderIndex);
+		std::string						getAssetsPath() {
+			return mAssetsPath;
+		};
+		unsigned int					findAvailableIndex(unsigned int aFboShaderIndex, const JsonTree &json);
 		bool							setFragmentShaderString(const string& aFragmentShaderString, const std::string& aName = "");
 		/*bool							getFboBoolUniformValueByIndex(unsigned int aCtrl, unsigned int aFboIndex) {
 			return mFboList[math<int>::min(aFboIndex, mFboList.size() - 1)]->getBoolUniformValueByIndex(aCtrl);
@@ -160,20 +157,7 @@ namespace videodromm
 		int								getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex);
 		void							setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue);
 
-		unsigned int					createFboShaderTexture(const JsonTree &json, unsigned int aFboIndex = 0) {
-			unsigned int rtn = 0;
-			VDFboShaderRef fboRef = VDFboShader::create(mVDUniforms);//, json
-			if (aFboIndex == 0) {
-				mFboShaderList.push_back(fboRef);
-				rtn = mFboShaderList.size() - 1;
-			}
-			else {
-				rtn = math<int>::min(aFboIndex, mFboShaderList.size() - 1);
-				mFboShaderList[rtn] = fboRef;
-			}
-
-			return rtn;
-		}
+		unsigned int					createFboShaderTexture(const JsonTree &json, unsigned int aFboIndex = 0);
 		ci::gl::TextureRef				getFboRenderedTexture(unsigned int aFboIndex) {
 			if (mFboShaderList.size() == 0) return mDefaultTexture;
 			if (aFboIndex > mFboShaderList.size() - 1) aFboIndex = 0;
@@ -188,6 +172,7 @@ namespace videodromm
 		}
 		ci::gl::TextureRef				getMixetteTexture(unsigned int aFboIndex);
 		ci::gl::TextureRef				getRenderedMixetteTexture(unsigned int aFboIndex) { return mMixetteTexture; };
+		unsigned int					fboFromJson(const JsonTree& json, unsigned int aFboIndex = 0);
 
 	private:
 		// Params
@@ -200,11 +185,12 @@ namespace videodromm
 		VDUniformsRef					mVDUniforms;
 
 		//! FboShaders
-		VDFboShaderRef					fboShaderHydra0;
+		/*VDFboShaderRef					fboShaderHydra0;
 		VDFboShaderRef					fboShaderHydra1;
-		VDFboShaderRef					fboShader;
+		VDFboShaderRef					fboShader;*/
 		// maintain a list of fbos specific to this mix
 		VDFboShaderList					mFboShaderList;
+		void							loadFbos();
 		gl::Texture::Format				fmt;
 		gl::Fbo::Format					fboFmt;
 		gl::TextureRef					mDefaultTexture;
@@ -214,5 +200,6 @@ namespace videodromm
 		ci::gl::Texture2dRef			mMixetteTexture;
 		std::string						mError;
 		const int						MAXSHADERS = 7;
+		std::string						mAssetsPath = "";
 	};
 }

@@ -37,7 +37,7 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 	// TODO 20200305 was 20200302 if (getFboRenderedTexture(0)) Warp::setSize(mWarpList, getFboRenderedTexture(0)->getSize());
 	Warp::setSize(mWarpList, ivec2(mVDParams->getFboWidth(), mVDParams->getFboHeight())); //
 	// initialize warps
-	mSettings = getAssetPath("") / mVDSettings->mAssetsPath / "warps.xml";
+	mSettings = getAssetPath("") / mVDMix->getAssetsPath() / "warps.xml";
 	if (fs::exists(mSettings)) {
 		// load warp settings from file if one exists
 		mWarpList = Warp::readSettings(loadFile(mSettings));
@@ -85,8 +85,8 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 	reset();
 
 	mCurrentBlend = 0;
-	// check to see if VDSession.xml file exists and restore if it does
-	sessionPath = getAssetPath("") / mVDSettings->mAssetsPath / sessionFileName;
+	// check to see if session.json file exists and restore if it does
+	sessionPath = getAssetPath("") / sessionFileName;
 	if (fs::exists(sessionPath))
 	{
 		restore();
@@ -114,7 +114,7 @@ void VDSession::loadFbos() {
 	while (found) {
 		std::string jsonFileName = "fbo" + toString(f) + ".json";
 
-		fs::path jsonFile = getAssetPath("") / mVDSettings->mAssetsPath / jsonFileName;
+		fs::path jsonFile = getAssetPath("") / mVDMix->getAssetsPath() / jsonFileName;
 		if (fs::exists(jsonFile)) {
 			// nouveau
 				/*loadFromJsonFile(jsonFile)
@@ -588,18 +588,6 @@ bool VDSession::handleKeyUp(KeyEvent& event) {
 #pragma endregion fbos
 // shaders
 
-// mix
-#pragma region mix
-
-
-unsigned int VDSession::fboFromJson(const JsonTree& json, unsigned int aFboIndex) {
-	unsigned int rtn = 0;
-
-	rtn = createFboShaderTexture(json, aFboIndex);
-	return rtn;
-}
-
-#pragma endregion mix
 ci::gl::TextureRef VDSession::getFboRenderedTexture(unsigned int aFboIndex) {
 	return mVDMix->getFboRenderedTexture(aFboIndex);
 }

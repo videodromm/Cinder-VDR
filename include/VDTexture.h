@@ -40,8 +40,8 @@ namespace videodromm
 		enum class TextureType { UNKNOWN, IMAGE, SEQUENCE, CAMERA, SHARED, AUDIO, STREAM } ;
 	public:
 		VDTexture(TextureType aType = TextureType::UNKNOWN);
-		VDTexture(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, const JsonTree& json);
-		static VDTextureRef	create(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, const JsonTree& json);
+		VDTexture(VDParamsRef aVDParams, const JsonTree& json);
+		static VDTextureRef	create(VDParamsRef aVDParams, const JsonTree& json);
 		
 		virtual ~VDTexture(void);
 		void							setImageInputTexture(ci::gl::Texture2dRef aTextureRef, const std::string& aTextureFilename) {
@@ -107,14 +107,9 @@ namespace videodromm
 	protected:
 		// Params
 		VDParamsRef						mVDParams;
-		// Settings
-		VDSettingsRef					mVDSettings;
-		// Animation
-		VDAnimationRef					mVDAnimation;
 		std::string						mName;
 		bool							mFlipV;
 		bool							mFlipH;
-		TextureType						mType;
 		std::string						mPath;
 		std::string						mFolder;
 		unsigned int 					mWidth;
@@ -122,7 +117,6 @@ namespace videodromm
 		unsigned int 					mAreaWidth;
 		unsigned int					mAreaHeight;
 		int								mPosition;
-		std::string						mStatus;
 		//! Texture
 		ci::gl::Texture2dRef			mTexture;
 		//! Surface
@@ -137,7 +131,16 @@ namespace videodromm
 		gl::Texture::Format				fmt;
 		gl::Fbo::Format					fboFmt;
 		ci::gl::Texture2dRef			mRenderedTexture;
-
+		// from rewrite
+		map<string, ci::gl::TextureRef>	mCachedTextures;
+		string							mLastCachedFilename = "";
+		string							mCurrentSeqFilename = "";
+		string							mStatus = "";
+		TextureType						mType = TextureType::UNKNOWN;
+		string							mTypestr = "";
+		string							mExt = "jpg";
+		int								mMode = 0;
+		std::string						mAssetsPath = "";
 	private:
 	};
 }
