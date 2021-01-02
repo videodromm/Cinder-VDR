@@ -51,8 +51,8 @@ namespace videodromm
 		void						changeWarpFboIndex(unsigned int aWarpIndex, unsigned int aWarpFboIndex, unsigned int aSlot); //aSlot 0 = A, 1 = B,...
 		void                        changeFragmentShader(const std::string& aFragmentShaderText);
 		// received shaders
-		bool						hasReceivedShader() { return shaderReceived; };
-		std::string					getReceivedShader();
+		//bool						hasReceivedShader() { return shaderReceived; };
+		//std::string					getReceivedShader();
 		bool						hasReceivedUniforms() { return shaderUniforms; };
 		std::string					getReceivedUniforms();
 		// received stream
@@ -89,8 +89,8 @@ namespace videodromm
 		std::string					mWSHost;
 		int							mWSPort;
 		// received shaders
-		bool						shaderReceived; // TODO remove
-		std::string					receivedFragString; // TODO remove
+		//bool						shaderReceived; // TODO remove
+		//std::string					receivedFragString; // TODO remove
 		bool						shaderUniforms;
 		std::string					receivedUniformsString;
 

@@ -99,7 +99,7 @@ VDUniforms::VDUniforms() {
 		// weight mix fbo texture 0
 		createFloatUniform("iWeight0", IWEIGHT0, 1.0f); // 31
 		// weight texture 1
-		createFloatUniform("iWeight1", IWEIGHT1, 0.0f); // 32
+		createFloatUniform("iWeight1", IWEIGHT1, 0.5f); // 32
 		// weight texture 2
 		createFloatUniform("iWeight2", IWEIGHT2, 0.0f); // 33
 		// weight texture 3
@@ -182,7 +182,7 @@ VDUniforms::VDUniforms() {
 		// toggle
 		createFloatUniform("iToggle", ITOGGLE); // 83
 		// invert
-		createFloatUniform("iInvert", IINVERT); // 86
+		createFloatUniform("iInvert", IINVERT, 0.0f); // 86
 		// greyscale 
 		createFloatUniform("iGreyScale", IGREYSCALE); //87
 		createFloatUniform("iClear", ICLEAR, true); // 88
@@ -190,8 +190,8 @@ VDUniforms::VDUniforms() {
 		createFloatUniform("iXorY", IXORY); // 130
 		createFloatUniform("iFlipH", IFLIPH); // 131
 		createFloatUniform("iFlipV", IFLIPV); // 132
-		createFloatUniform("iFlipPostH", IFLIPPOSTH); // 133
-		createFloatUniform("iFlipPostV", IFLIPPOSTV); // 134
+		createFloatUniform("iFlipPostH", IFLIPPOSTH, 0.0f); // 133
+		createFloatUniform("iFlipPostV", IFLIPPOSTV, 0.0f); // 134
 
 		// 119 to 124 timefactor from midithor sos
 		// floats for warps

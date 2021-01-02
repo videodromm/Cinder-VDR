@@ -156,12 +156,3 @@ namespace videodromm
 
 
 }
-/*
-// Builder
-//VDRouterBuilderRef mVDRouterBuilder;
-mVDRouterBuilder = VDRouterBuilder::createVDRouter(aVDSettings, aVDAnimation)->setWarpBFboIndex(0, 1);
-mVDMediator->setUniformValue(a, b);
-mVDMediator->update([](observer, { "a": 1, "b" : 2 }) -> {
-	observer->setUniformValue(a, b);
-});
-*/

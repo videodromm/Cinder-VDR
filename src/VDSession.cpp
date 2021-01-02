@@ -70,15 +70,6 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 	mModesList[9] = "Warp"; // not used
 	mMode = 0;
 
-	// Message router
-	//mVDRouter = VDRouterBuilder::createVDRouter(mVDSettings, mVDAnimation)->addShader(0,6)->getInstance();
-	//mVDRouterBuilder = VDRouterBuilder::createVDRouter(mVDSettings, mVDAnimation)->setWarpBFboIndex(0, 1);
-	//Attente d'une récupération de données via socket io
-	//mVDRouterBuilder->setWarpAFboIndex(1, 1)->setWarpBFboIndex(1,0);
-	//Attente d'une autre autre récupération de données via socket io
-	//mVDRouterBuilder->setWarpAFboIndex(0, 0);
-	//mVDRouter = builder->getInstance();
-
 	// reset no matter what, so we don't miss anything
 	cmd = -1;
 	mFreqWSSend = false;
@@ -183,14 +174,16 @@ void VDSession::renderPostToFbo()
 		// not used yet mGlslPost->uniform("TIME", getUniformValue(mVDUniforms->ITIME) - mVDSettings->iStart);;
 		mGlslPost->uniform("iResolution", vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
 		mGlslPost->uniform("iChannel0", 40); // texture 0
+		// tmp 20210102
+		float ib = mVDUniforms->getUniformValue(mVDUniforms->ISOBEL);
 		mGlslPost->uniform("iSobel", mVDUniforms->getUniformValue(mVDUniforms->ISOBEL));
 		mGlslPost->uniform("iExposure", mVDUniforms->getUniformValue(mVDUniforms->IEXPOSURE));
 		mGlslPost->uniform("iTrixels", mVDUniforms->getUniformValue(mVDUniforms->ITRIXELS)); // trixels if > 0.
 		mGlslPost->uniform("iZoom", mVDUniforms->getUniformValue(mVDUniforms->IZOOM));
 		mGlslPost->uniform("iChromatic", mVDUniforms->getUniformValue(mVDUniforms->ICHROMATIC));
-		mGlslPost->uniform("iFlipV", (int)getBoolUniformValueByIndex(mVDUniforms->IFLIPPOSTV));
-		mGlslPost->uniform("iFlipH", (int)getBoolUniformValueByIndex(mVDUniforms->IFLIPPOSTH));
-		mGlslPost->uniform("iInvert", (int)getBoolUniformValueByIndex(mVDUniforms->IINVERT));
+		mGlslPost->uniform("iFlipV", mVDUniforms->getUniformValue(mVDUniforms->IFLIPPOSTV));
+		mGlslPost->uniform("iFlipH", mVDUniforms->getUniformValue(mVDUniforms->IFLIPPOSTH));
+		mGlslPost->uniform("iInvert", mVDUniforms->getUniformValue(mVDUniforms->IINVERT));
 		gl::drawSolidRect(Rectf(0, 0, mVDParams->getFboWidth(), mVDParams->getFboHeight()));
 	}
 }
@@ -371,8 +364,6 @@ void VDSession::fileDrop(FileDropEvent event) {
 		
 		else if (ext == "glsl" || ext == "frag" || ext == "fs") {
 			loadFragmentShader(absolutePath, index);
-
-			// façade fbo()->shader()->uniform()->execute() 
 		}
 		else if (ext == "png" || ext == "jpg") {
 			if (index < 1) index = 1;
@@ -382,13 +373,11 @@ void VDSession::fileDrop(FileDropEvent event) {
 		else if (ext == "wav" || ext == "mp3") {
 			loadAudioFile(absolutePath);
 		}
-		/*else if (ext == "xml") {
-		}
+		/*
 		else if (ext == "mov") {
 			loadMovie(absolutePath, index);
 		}
-		else if (ext == "txt") {
-		}*/
+		*/
 		else if (ext == "") {
 			// try loading image sequence from dir
 			if (!loadImageSequence(absolutePath, index)) {
@@ -409,7 +398,6 @@ bool VDSession::handleMouseMove(MouseEvent& event)
 {
 	bool handled = true;
 	// 20180318 handled in VDUIMouse mVDAnimation->setVec4UniformValueByIndex(70, vec4(event.getX(), event.getY(), event.isLeftDown(), event.isRightDown()));
-	// pass this mouse event to the warp editor first
 	// pass this mouse event to the warp editor first
 	if (!Warp::handleMouseMove(mWarpList, event)) {
 		// let your application perform its mouseMove handling here
@@ -594,22 +582,16 @@ ci::gl::TextureRef VDSession::getFboRenderedTexture(unsigned int aFboIndex) {
 ci::gl::TextureRef VDSession::getFboTexture(unsigned int aFboIndex) {
 	return mVDMix->getFboTexture(aFboIndex);
 }
-/*void VDSession::setFragmentShaderString(unsigned int aFboShaderIndex, const std::string& aFragmentShaderString, const std::string& aName) {
-	//mFboShaderList[aFboShaderIndex]->setFragmentShaderString(aFboShaderIndex, aFragmentShaderString, aName);
-	mVDMix->setFragmentShaderString
-}*/
+
 ci::gl::TextureRef VDSession::getFboShaderTexture(unsigned int aFboShaderIndex) {
-	//return mFboShaderList[aFboShaderIndex]->getRenderedTexture(); //20201229 or getTexture?
 	return mVDMix->getFboRenderedTexture(aFboShaderIndex); //20201229 or getTexture?
 };
 
 std::vector<ci::gl::GlslProg::Uniform> VDSession::getFboShaderUniforms(unsigned int aFboShaderIndex) {
-	//return mFboShaderList[aFboShaderIndex]->getUniforms();
 	return mVDMix->getFboShaderUniforms(aFboShaderIndex);
 }
 
 int VDSession::getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex) {
-	//return mFboShaderList[aFboShaderIndex]->getUniformValueByLocation(aLocationIndex);
 	return mVDMix->getUniformValueByLocation(aFboShaderIndex, aLocationIndex);
 };
 void VDSession::setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue) {
@@ -709,7 +691,13 @@ void VDSession::setAnim(unsigned int aCtrl, unsigned int aAnim) {
 }
 // control values
 void VDSession::toggleValue(unsigned int aCtrl) {
-	//! 20200526 mVDSocketio->toggleValue(aCtrl);
+	float val = mVDUniforms->getUniformValue(aCtrl);
+	if (val > 0.0f) {
+		mVDUniforms->setUniformValue(aCtrl, 0.0f);
+	}
+	else {
+		mVDUniforms->setUniformValue(aCtrl, 1.0f);
+	}
 };
 
 float VDSession::getMinUniformValue(unsigned int aIndex) {
@@ -721,7 +709,7 @@ float VDSession::getMaxUniformValue(unsigned int aIndex) {
 int VDSession::getSampler2DUniformValueByName(const std::string& aName) {
 	return mVDUniforms->getSampler2DUniformValueByName(aName);
 };
-int VDSession::getIntUniformValueByName(const std::string& aName) {
+/*int VDSession::getIntUniformValueByName(const std::string& aName) {
 	return mVDUniforms->getUniformValueByName(aName);
 };
 int VDSession::getIntUniformValueByIndex(unsigned int aCtrl) {
@@ -732,8 +720,7 @@ bool VDSession::getBoolUniformValueByName(const std::string& aName) {
 };
 bool VDSession::getBoolUniformValueByIndex(unsigned int aCtrl) {
 	return mVDUniforms->getUniformValue(aCtrl);
-}
-
+}*/
 float VDSession::getUniformValueByName(const std::string& aCtrlName) {
 	return mVDUniforms->getUniformValueByName(aCtrlName);
 };

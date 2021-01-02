@@ -96,10 +96,10 @@ namespace videodromm {
 		float							getMinUniformValue(unsigned int aIndex);
 		float							getMaxUniformValue(unsigned int aIndex);
 		int								getSampler2DUniformValueByName(const std::string& aName);
-		int								getIntUniformValueByName(const std::string& aName);
+		/*int								getIntUniformValueByName(const std::string& aName);
 		int								getIntUniformValueByIndex(unsigned int aCtrl);
 		bool							getBoolUniformValueByName(const std::string& aName);
-		bool							getBoolUniformValueByIndex(unsigned int aCtrl);
+		bool							getBoolUniformValueByIndex(unsigned int aCtrl);*/
 		float							getUniformValueByName(const std::string& aCtrlName);
 
 		// tempo
@@ -439,10 +439,7 @@ namespace videodromm {
 		VDAnimationRef					mVDAnimation;
 		// Settings
 		VDUniformsRef					mVDUniforms;
-		
-	
-		// Message router
-		//VDRouterRef					mVDRouter;
+
 		// Log
 		//VDLogRef						mVDLog;
 		// Mix

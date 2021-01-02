@@ -4,8 +4,8 @@ using namespace videodromm;
 
 VDWebsocket::VDWebsocket() {
 
-	shaderReceived = false;
-	receivedFragString = "";
+	/*shaderReceived = false;
+	receivedFragString = "";*/
 	shaderUniforms = false;
 	receivedUniformsString = "";
 	streamReceived = false;
@@ -129,9 +129,9 @@ void VDWebsocket::parseMessage(std::string msg) {
 						}*/
 						else if (val == "frag") {
 							// we received a fragment shader string
-							receivedFragString = json.getChild("message").getValue<std::string>();
-							shaderReceived = true;
-							mVDMediator->setFragmentShaderString(receivedFragString, "hydra");
+							//receivedFragString = json.getChild("message").getValue<std::string>();
+							//shaderReceived = true;
+							mVDMediator->setFragmentShaderString(json.getChild("message").getValue<std::string>(), "hydra");
 							// force to display
 							//mVDAnimation->setIntUniformValueByIndex(mVDUniforms->IFBOA, 0);
 							//mVDAnimation->setIntUniformValueByIndex(mVDUniforms->IFBOB, 1);
@@ -255,10 +255,10 @@ void VDWebsocket::parseMessage(std::string msg) {
 		}
 	}
 }
-std::string VDWebsocket::getReceivedShader() {
+/*std::string VDWebsocket::getReceivedShader() {
 	shaderReceived = false;
 	return receivedFragString;
-}
+}*/
 std::string VDWebsocket::getReceivedUniforms() {
 	shaderUniforms = false;
 	return receivedUniformsString;

@@ -203,6 +203,36 @@ namespace videodromm {
 	void VDMix::setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue) {
 		mFboShaderList[aFboShaderIndex]->setUniformValueByLocation(aLocationIndex, aValue);
 	};
+
+	unsigned int VDMix::findAvailableIndex(unsigned int aFboShaderIndex, const JsonTree &json) {
+		unsigned int rtn = aFboShaderIndex;
+		if (aFboShaderIndex > mFboShaderList.size() - 1) {
+			if (aFboShaderIndex < MAXSHADERS) {
+				// create fbo
+				mFboShaderList.push_back(VDFboShader::create(mVDUniforms, json, mFboShaderList.size(), mAssetsPath));
+				rtn = mFboShaderList.size() - 1;
+			}
+			else {
+				// reuse existing, last one if no invalid found
+				rtn = mFboShaderList.size() - 1;
+				unsigned int found = -1;
+				for (auto &fbo : mFboShaderList) {
+					found++;
+					if (!fbo->isValid()) {
+						rtn = found;
+						break;
+					}
+				}
+			}
+		}
+		else {
+			// replace existing returns aFboShaderIndex
+		}
+		return rtn;
+	}
+	/*
+	 
+	 
 	unsigned int VDMix::findAvailableIndex(unsigned int aFboShaderIndex, const JsonTree &json) {
 		unsigned int rtn = aFboShaderIndex;
 		if (aFboShaderIndex > mFboShaderList.size() - 1) {
@@ -228,7 +258,7 @@ namespace videodromm {
 			// replace existing returns aFboShaderIndex
 		}
 		return rtn;
-	}
+	} */
 	bool VDMix::setFragmentShaderString(const string& aFragmentShaderString, const std::string& aName) {
 		// received from websocket, tested with hydra
 		JsonTree		json;
