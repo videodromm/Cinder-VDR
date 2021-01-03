@@ -1,6 +1,5 @@
 /*
-	VDOscReceiver
-	
+	VDOscReceiver	
 */
 
 #pragma once

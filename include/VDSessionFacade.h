@@ -59,18 +59,19 @@ namespace videodromm
 		void					setOSCMsg(const std::string& aMsg);
 		std::string				getOSCMsg();
 		// midi
-		void							midiOutSendNoteOn(int i, int channel, int pitch, int velocity) { mVDMediator->midiOutSendNoteOn(i, channel, pitch, velocity); };
-		int								getMidiInPortsCount() { return mVDMediator->getMidiInPortsCount(); };
-		string							getMidiInPortName(int i) { return mVDMediator->getMidiInPortName(i); };
-		bool							isMidiInConnected(int i) { return mVDMediator->isMidiInConnected(i); };
-		void							openMidiInPort(int i) { mVDMediator->openMidiInPort(i); };
-		void							closeMidiInPort(int i) { mVDMediator->closeMidiInPort(i); };
-		int								getMidiOutPortsCount() { return mVDMediator->getMidiOutPortsCount(); };
-		string							getMidiOutPortName(int i) { return mVDMediator->getMidiOutPortName(i); };
-		bool							isMidiOutConnected(int i) { return mVDMediator->isMidiOutConnected(i); };
-		void							openMidiOutPort(int i) { mVDMediator->openMidiOutPort(i); };
-		void							closeMidiOutPort(int i) { mVDMediator->closeMidiOutPort(i); };
-
+		void					midiOutSendNoteOn(int i, int channel, int pitch, int velocity) { mVDMediator->midiOutSendNoteOn(i, channel, pitch, velocity); };
+		int						getMidiInPortsCount() { return mVDMediator->getMidiInPortsCount(); };
+		string					getMidiInPortName(int i) { return mVDMediator->getMidiInPortName(i); };
+		bool					isMidiInConnected(int i) { return mVDMediator->isMidiInConnected(i); };
+		void					openMidiInPort(int i) { mVDMediator->openMidiInPort(i); };
+		void					closeMidiInPort(int i) { mVDMediator->closeMidiInPort(i); };
+		int						getMidiOutPortsCount() { return mVDMediator->getMidiOutPortsCount(); };
+		string					getMidiOutPortName(int i) { return mVDMediator->getMidiOutPortName(i); };
+		bool					isMidiOutConnected(int i) { return mVDMediator->isMidiOutConnected(i); };
+		void					openMidiOutPort(int i) { mVDMediator->openMidiOutPort(i); };
+		void					closeMidiOutPort(int i) { mVDMediator->closeMidiOutPort(i); };
+		std::string				getMidiMsg() { return mVDMediator->getMidiMsg(); }
+		bool					isMidiSetup();
 		// websockets
 		bool					isWSClientConnected();
 		int						getWSClientPort();
@@ -160,13 +161,13 @@ namespace videodromm
 
 
 	private:
-		VDSessionFacade(VDSessionRef session, VDMediatorObservableRef mediator) : mVDSession(session), mVDMediator(mediator), mOscSenderConnected(false), mOscReceiverConnected(false), mWSClientConnected(false) { }
+		VDSessionFacade(VDSessionRef session, VDMediatorObservableRef mediator) : mVDSession(session), mVDMediator(mediator), mOscSenderConnected(false), mIsMidiSetup(false), mOscReceiverConnected(false), mWSClientConnected(false) { }
 		VDSessionRef						mVDSession;
 		VDMediatorObservableRef				mVDMediator;
 		bool								mOscSenderConnected = false;
 		bool								mOscReceiverConnected = false;
 		bool								mWSClientConnected = false;
-
+		bool								mIsMidiSetup = false;
 	};
 
 

@@ -27,10 +27,10 @@ VDSessionFacadeRef VDSessionFacade::setupOSCReceiver() {
 	return shared_from_this();
 }
 VDSessionFacadeRef VDSessionFacade::setupMidiReceiver() {
-	//if (!mMidiReceiverConnected) {
-	//	mMidiReceiverConnected = true;
+	if (!mIsMidiSetup) {
+		mIsMidiSetup = true;
 		mVDMediator->setupMidiReceiver();
-	//}
+	}
 	return shared_from_this();
 }
 VDSessionFacadeRef VDSessionFacade::setupWSClient() {
@@ -88,6 +88,10 @@ VDSessionFacadeRef VDSessionFacade::update() {
 // begin terminal operations
 bool VDSessionFacade::getUseTimeWithTempo() {
 	return mVDSession->getUseTimeWithTempo();
+};
+// midi
+bool VDSessionFacade::isMidiSetup() {
+	return mIsMidiSetup;
 };
 // osc
 bool VDSessionFacade::isOscSenderConnected() {

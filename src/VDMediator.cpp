@@ -34,7 +34,7 @@ VDMediatorObservableRef VDMediatorObservable::setupOSCReceiver() {
 // midi
 VDMediatorObservableRef VDMediatorObservable::setupMidiReceiver() {
 	// Midi in
-	mVDMidi = VDMidi::create(mVDSettings, mVDAnimation, mVDUniforms);
+	mVDMidi = VDMidi::create(mVDUniforms);
 	mVDMidi->setupMidi(shared_from_this());
 	return shared_from_this();
 }
@@ -51,6 +51,9 @@ bool VDMediatorObservable::isMidiOutConnected(int i) { return mVDMidi->isMidiOut
 void VDMediatorObservable::openMidiOutPort(int i) { mVDMidi->openMidiOutPort(i); };
 void VDMediatorObservable::closeMidiOutPort(int i) { mVDMidi->closeMidiOutPort(i); };
 
+std::string VDMediatorObservable::getMidiMsg() {
+	return mVDMidi->getMidiMsg();
+};
 
 
 VDMediatorObservableRef VDMediatorObservable::setupWSClient() {

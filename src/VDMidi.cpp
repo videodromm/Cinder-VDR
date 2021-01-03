@@ -2,19 +2,18 @@
 
 using namespace videodromm;
 
-VDMidiRef VDMidi::create(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms)
+VDMidiRef VDMidi::create(VDUniformsRef aVDUniforms)
 {
-	return std::shared_ptr<VDMidi>(new VDMidi(aVDSettings, aVDAnimation, aVDUniforms));
+	return std::shared_ptr<VDMidi>(new VDMidi(aVDUniforms));
 }
 
-VDMidi::VDMidi(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms) {
-	mVDSettings = aVDSettings;
-	mVDAnimation = aVDAnimation;
+VDMidi::VDMidi( VDUniformsRef aVDUniforms) {
+	
 	mVDUniforms = aVDUniforms;
 	CI_LOG_V("VDMidi constructor");
 	mMidiMsg = "";
 	// midi
-	if (mVDSettings->mMIDIOpenAllInputPorts) midiSetup();
+	//if (mVDSettings->mMIDIOpenAllInputPorts) midiSetup();
 
 }
 VDMidi::~VDMidi(void) {
@@ -24,7 +23,7 @@ VDMidi::~VDMidi(void) {
 	mMidiOut0.closePort();
 	mMidiOut1.closePort();
 	mMidiOut2.closePort();
-}*/
+}
 void VDMidi::setMidiMsg(const std::string& aMsg) {
 	mMidiMsg = aMsg;
 };
@@ -55,7 +54,7 @@ void VDMidi::saveMidiPorts() {
 	json.write(jsonFile);
 }
 void VDMidi::midiSetup() {
-	stringstream ss;
+	std::stringstream ss;
 	ss << "setupMidi ";
 	CI_LOG_V("midiSetup: " + ss.str());
 	if (mMidiIn0.getNumPorts() > 0)
@@ -72,15 +71,15 @@ void VDMidi::midiSetup() {
 				midiInput mIn;
 				mIn.portName = mMidiIn0.getPortName(i);
 				mMidiInputs.push_back(mIn);
-				if (mVDSettings->mMIDIOpenAllInputPorts) {
+				/*if (mVDSettings->mMIDIOpenAllInputPorts) {
 					openMidiInPort(i);
 					mMidiInputs[i].isConnected = true;
 					ss << "Opening MIDI in port " << i << " " << mMidiInputs[i].portName;
 				}
-				else {
+				else {*/
 					mMidiInputs[i].isConnected = false;
 					ss << "Available MIDI in port " << i << " " << mMidiIn0.getPortName(i);
-				}
+				//}
 			}
 		}
 	}
@@ -116,13 +115,13 @@ void VDMidi::midiSetup() {
 	midiControlType = "none";
 	midiControl = midiPitch = midiVelocity = midiNormalizedValue = midiValue = midiChannel = 0;
 	ss << std::endl;
-	mVDSettings->mMidiMsg = ss.str() + "\n" + mVDSettings->mMidiMsg.substr(0, mVDSettings->mMsgLength);
+	mMidiMsg = ss.str() + "\n";
 	CI_LOG_V(ss.str());
 }
 
 void VDMidi::openMidiInPort(int i) {
 	CI_LOG_V("openMidiInPort: " + toString(i));
-	stringstream ss;
+	std::stringstream ss;
 	if (i < mMidiIn0.getNumPorts()) {
 		if (i == 0) {
 			mMidiIn0.openPort(i);
@@ -140,7 +139,7 @@ void VDMidi::openMidiInPort(int i) {
 	mMidiInputs[i].isConnected = true;
 	ss << "Opening MIDI in port " << i << " " << mMidiInputs[i].portName << std::endl;
 
-	mVDSettings->mMidiMsg = ss.str() + "\n" + mVDSettings->mMidiMsg.substr(0, mVDSettings->mMsgLength);
+	mMidiMsg = ss.str() + "\n" ;
 
 	CI_LOG_V(ss.str());
 }
@@ -179,7 +178,7 @@ void VDMidi::midiOutSendNoteOn(int i, int channel, int pitch, int velocity) {
 }
 void VDMidi::openMidiOutPort(int i) {
 
-	stringstream ss;
+	std::stringstream ss;
 	ss << "Port " << i;
 	if (i < mMidiOutputs.size()) {
 		if (i == 0) {
@@ -214,7 +213,7 @@ void VDMidi::openMidiOutPort(int i) {
 		}
 	}
 	ss << std::endl;
-	mVDSettings->mMidiMsg = ss.str() + "\n" + mVDSettings->mMidiMsg.substr(0, mVDSettings->mMsgLength);
+	mMidiMsg = ss.str() + "\n" ;
 	CI_LOG_V(ss.str());
 }
 void VDMidi::closeMidiOutPort(int i) {
@@ -236,7 +235,7 @@ void VDMidi::closeMidiOutPort(int i) {
 }
 
 void VDMidi::midiListener(midi::Message msg) {
-	stringstream ss;
+	std::stringstream ss;
 	ss << "MIDI port: " << mMidiIn0.getPortName(msg.port);
 	midiChannel = msg.channel;
 	switch (msg.status)
@@ -249,7 +248,7 @@ void VDMidi::midiListener(midi::Message msg) {
 		ss << " cc Chn: " << midiChannel << " CC: " << midiControl << " Val: " << midiValue << " NVal: " << midiNormalizedValue;
 		CI_LOG_V("Midi: " + ss.str());
 
-		if (midiControl > 20 && midiControl < 49) {
+		//if (midiControl > 20 && midiControl < 49) {
 			/*if (midiControl > 20 && midiControl < 29) {
 				mSelectedWarp = midiControl - 21;
 			}
@@ -267,7 +266,7 @@ void VDMidi::midiListener(midi::Message msg) {
 		//}
 		//else {
 			//updateParams(midiControl, midiNormalizedValue);
-		}
+		//}
 		//mWebSockets->write("{\"params\" :[{" + controlType);
 		break;
 	case MIDI_NOTE_ON:
@@ -355,7 +354,7 @@ void VDMidi::midiListener(midi::Message msg) {
 	//ss << "MIDI Chn: " << midiChannel << " type: " << midiControlType << " CC: " << midiControl << " Pitch: " << midiPitch << " Vel: " << midiVelocity << " Val: " << midiValue << " NVal: " << midiNormalizedValue << std::endl;
 	//CI_LOG_V("Midi: " + ss.str());
 	ss << std::endl;
-	mVDSettings->mMidiMsg = ss.str() + "\n" + mVDSettings->mMidiMsg.substr(0, mVDSettings->mMsgLength);
+	mMidiMsg = ss.str() + "\n";
 }
 
 

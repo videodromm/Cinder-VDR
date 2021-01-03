@@ -1,6 +1,5 @@
 /*
-	VDMidiB
-	
+	VDMidi
 */
 
 #pragma once
@@ -8,10 +7,6 @@
 #include "cinder/app/App.h"
 #include "cinder/Json.h"
 
-// Settings
-#include "VDSettings.h"
-// Animation
-#include "VDAnimation.h"
 // Uniforms
 #include "VDUniforms.h"
 // Mediator
@@ -21,7 +16,6 @@
 
 using namespace ci;
 using namespace ci::app;
-using namespace std;
 
 namespace videodromm
 {
@@ -33,30 +27,30 @@ namespace videodromm
 	typedef std::shared_ptr<VDMidi> VDMidiRef;
 	struct midiInput
 	{
-		string			portName;
+		std::string			portName;
 		bool			isConnected;
 	};
 	struct midiOutput
 	{
-		string			portName;
+		std::string			portName;
 		bool			isConnected;
 	};
 	class VDMidi {
 	public:
-		VDMidi(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms);
-		static VDMidiRef	create(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms);
+		VDMidi(VDUniformsRef aVDUniforms);
+		static VDMidiRef			create(VDUniformsRef aVDUniforms);
 
-		void								setupMidi(VDMediatorObservableRef aVDMediator);
-		void								setMidiMsg(const std::string& aMsg);
-		std::string							getMidiMsg();
+		void						setupMidi(VDMediatorObservableRef aVDMediator);
+		void						setMidiMsg(const std::string& aMsg);
+		std::string					getMidiMsg();
 		// MIDI
 		void						midiSetup();
 		void						saveMidiPorts();
 		int							getMidiInPortsCount() { return mMidiInputs.size(); };
-		string						getMidiInPortName(unsigned int i) { return (i < mMidiInputs.size()) ? mMidiInputs[i].portName : "No midi in ports"; };
+		std::string					getMidiInPortName(unsigned int i) { return (i < mMidiInputs.size()) ? mMidiInputs[i].portName : "No midi in ports"; };
 		bool						isMidiInConnected(unsigned int i) { return (i < mMidiInputs.size()) ? mMidiInputs[i].isConnected : false; };
 		int							getMidiOutPortsCount() { return mMidiOutputs.size(); };
-		string						getMidiOutPortName(unsigned int i) { return (i < mMidiOutputs.size()) ? mMidiOutputs[i].portName : "No midi out ports"; };
+		std::string					getMidiOutPortName(unsigned int i) { return (i < mMidiOutputs.size()) ? mMidiOutputs[i].portName : "No midi out ports"; };
 		bool						isMidiOutConnected(unsigned int i) { return (i < mMidiOutputs.size()) ? mMidiOutputs[i].isConnected : false; };
 		void						midiOutSendNoteOn(int i, int channel, int pitch, int velocity);
 
@@ -66,18 +60,15 @@ namespace videodromm
 		void						closeMidiOutPort(int i);
 		~VDMidi(void);
 	private:
-		// Settings
-		VDSettingsRef						mVDSettings;
-		// Animation
-		VDAnimationRef						mVDAnimation;
 		// Uniforms
-		VDUniformsRef						mVDUniforms;
+		VDUniformsRef				mVDUniforms;
 		//Mediator
-		VDMediatorObservableRef				mVDMediator;
+		VDMediatorObservableRef		mVDMediator;
 
-		std::string							mMidiMsg;
+		std::string					mMidiMsg;
 		// MIDI
-		vector<midiInput>			mMidiInputs;
+		std::vector<midiInput>		mMidiInputs;
+
 		// midi inputs: couldn't make a vector
 		midi::Input					mMidiIn0;
 		midi::Input					mMidiIn1;
@@ -89,8 +80,8 @@ namespace videodromm
 		midi::MidiOut				mMidiOut1;
 		midi::MidiOut				mMidiOut2;
 		midi::MidiOut				mMidiOut3;
-		vector<midiOutput>			mMidiOutputs;
-		string						midiControlType;
+		std::vector<midiOutput>		mMidiOutputs;
+		std::string					midiControlType;
 		int							midiControl;
 		int							midiPitch;
 		int							midiVelocity;

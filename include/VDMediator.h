@@ -35,6 +35,9 @@ using namespace ci::app;
 namespace videodromm {
 	class VDOscReceiver;
 	typedef std::shared_ptr<VDOscReceiver> VDOscReceiverRef;
+	
+	class VDMidi;
+	typedef std::shared_ptr<VDMidi> VDMidiRef;
 
 	class VDWebsocket;
 	typedef std::shared_ptr<VDWebsocket> VDWebsocketRef;
@@ -70,6 +73,8 @@ namespace videodromm {
 		int								getMidiInPortsCount();
 		string							getMidiInPortName(int i);
 		bool							isMidiInConnected(int i);
+		bool							isMidiSetup();
+		std::string						getMidiMsg();
 		void							openMidiInPort(int i);
 		void							closeMidiInPort(int i);
 		int								getMidiOutPortsCount();
