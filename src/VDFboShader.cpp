@@ -15,7 +15,8 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, const JsonTree &json, unsign
 
 	// load default fragment shader
 	mShaderName = mShaderFileName = "inputImage.fs";
-	fs::path mDefaultFragmentFilePath = getAssetPath("") / mShaderFileName;
+	mShaderFragmentString = mVDParams->getDefaultShaderFragmentString();
+	/*fs::path mDefaultFragmentFilePath = getAssetPath("") / mShaderFileName;
 	if (!fs::exists(mDefaultFragmentFilePath)) {
 		mError = mDefaultFragmentFilePath.string() + " does not exist";
 		CI_LOG_V(mError);
@@ -23,7 +24,7 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, const JsonTree &json, unsign
 	}
 	else {
 		mShaderFragmentString = loadString(loadFile(mDefaultFragmentFilePath));
-	}
+	}*/
 	// load default vertex shader
 	/*fs::path mDefaultVertexFilePath = getAssetPath("") / "defaultvertex.fs";
 	if (!fs::exists(mDefaultVertexFilePath)) {
@@ -39,7 +40,7 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, const JsonTree &json, unsign
 	//mTextureName = mCurrentSeqFilename = mLastCachedFilename = textureFileName;
 	//mInputTextureIndex = 0;
 
-	
+
 	shaderInclude = loadString(loadAsset("shadertoy.vd"));
 
 	mInputTextureIndex = 0;
@@ -73,7 +74,12 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, const JsonTree &json, unsign
 	mMsg = "";
 	mError = "";
 	mActive = true;
-	mValid = loadFragmentStringFromFile(mShaderName);
+	if (mShaderFragmentString.length() > 0) {
+		mValid = setFragmentShaderString(mShaderFragmentString, mShaderName);
+	}
+	else {
+		mValid = loadFragmentShaderFromFile(mShaderName);
+	}
 
 	if (mValid) {
 		CI_LOG_V("VDFbo constructor success");
@@ -92,7 +98,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	return rtn;
 
 }
-bool VDFboShader::loadFragmentStringFromFile(const string& aFileOrPath) {
+bool VDFboShader::loadFragmentShaderFromFile(const string& aFileOrPath) {
 	mValid = false;
 	bool fileExists = true;
 	if (aFileOrPath.length() > 0) {
@@ -163,7 +169,7 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 		else {
 			mOutputFragmentString = "/* " + mName + " */\n" + mOriginalFragmentString;
 		}
-		
+
 		// try to compile a first time to get active mUniforms
 		mShader = gl::GlslProg::create(mVDParams->getDefaultVertexString(), mOutputFragmentString);
 		// update only if success
@@ -209,11 +215,11 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		}*/
 		for (size_t i{ 1 }; i < 14; i++)
 		{
-			mTextureList[0]->getTexture(i)->bind(253 + i);
+			mTextureList[mInputTextureIndex]->getTexture(i)->bind(253 + i);
 		}
 		//mTexture->bind(253);// TODO  +i);
 		std::string name;
-		
+
 		int texNameEndIndex = 0;
 		int texIndex = 0;
 		int channelIndex = 0;
@@ -225,81 +231,81 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		*/
 		mUniforms = mShader->getActiveUniforms();
 		for (const auto& uniform : mUniforms) {
-			
+
 			name = uniform.getName(); // TODO uniform.getType()
 			//CI_LOG_E(mShader->getLabel() + ", getShader uniform name:" + uniform.getName() + ", type:" + toString(uniform.getType()) + ", Location:" + toString(uniform.getLocation()));
 			//if (mVDAnimation->isExistingUniform(name)) {
-				int uniformType = uniform.getType();
-				switch (uniformType)
-				{
-				
-				case GL_FLOAT: // float 5126 GL_FLOAT 0x1406
-					if (name == "TIME" || name == "time") {
-						mShader->uniform(name, mVDUniforms->getUniformValueByName("TIME"));
-					}
-					else {
-					if (mVDUniforms->isExistingUniform(name)) {
-							mShader->uniform(name, mVDUniforms->getUniformValueByName(name));
-						}
-						else {
-							//mVDUniforms->createFloatUniform
-							//createFloatUniform(name, mVDAnimation->getUniformIndexForName(name), getIntUniformValueByName(name), mVDAnimation->getMinUniformValueByName(name), mVDAnimation->getMaxUniformValueByName(name));
-							//mShader->uniform(name, mVDAnimation->getUniformValue(0));
-							int l = uniform.getLocation();
-							//float v = getUniformValueByLocation(l);
-							// 20201231 BUG!! mShader->uniform(l, mUniformValueByLocation[l]);
-							mShader->uniform(name, mUniformValueByLocation[l]);
-						}
-					}
-					break;
-				case GL_SAMPLER_2D: // sampler2D 35678 GL_SAMPLER_2D 0x8B5E
-					texNameEndIndex = name.find_last_of("iChannel");
-					if (texNameEndIndex != std::string::npos) {
-						mTextureName = name.substr(0, texNameEndIndex + 1);
-						texIndex = 0;// (int)(name.substr(texNameEndIndex + 1));
-						CI_LOG_V(toString(texNameEndIndex) + mTextureName);
-						mShader->uniform(mTextureName + toString(channelIndex), (uint32_t)(253 + channelIndex));
-						channelIndex++;
-					}
-					else {
-						mShader->uniform(name, (uint32_t)(0));
-					}
-					//mShader->uniform(name, 253);
-					for (size_t i{ 1 }; i < 14; i++)
-					{
-						mShader->uniform(name, (uint32_t)(253 + i));
-					}
-					break;
-				case GL_FLOAT_VEC2://GL_FLOAT_VEC2: // vec2 35664 GL_FLOAT_VEC2 0x8B50
-					if (name == "RENDERSIZE" || name == "resolution") {
-						//mShader->uniform(name, vec2(mTexture->getWidth(), mTexture->getHeight()));
-						mShader->uniform(name, vec2(mVDParams->getFboWidth(), mVDParams->getFboHeight()));
-					}
-					else {
-						mShader->uniform(name, mVDUniforms->getVec2UniformValueByName(name));
-					}
-					break;
-				case GL_FLOAT_VEC3://GL_FLOAT_VEC3: // vec3 35665 GL_FLOAT_VEC3 0x8B51
-					mShader->uniform(name, mVDUniforms->getVec3UniformValueByName(name));
-					break;
-				case GL_FLOAT_VEC4://GL_FLOAT_VEC4: // vec4 35666 GL_FLOAT_VEC4 0x8B52
-					mShader->uniform(name, mVDUniforms->getVec4UniformValueByName(name));
-					break;
-				case GL_INT: // int 5124 GL_INT 0x1404
-					// IBEAT 51
-					// IBAR 52
-					// IBARBEAT 53
-					mShader->uniform(name, mVDUniforms->getUniformValueByName(name));
-					break;
-				case GL_BOOL: // boolean 35670 GL_BOOL 0x8B56
-					//createBoolUniform(name, mVDAnimation->getUniformIndexForName(name), getBoolUniformValueByName(name)); // get same index as vdanimation
-					mShader->uniform(name, mVDUniforms->getUniformValueByName(name));
-					break;
-				case GL_FLOAT_MAT4: // 35676 GL_FLOAT_MAT4 0x8B5C ciModelViewProjection
-					break;
-				default:
-					break;
+			int uniformType = uniform.getType();
+			switch (uniformType)
+			{
+
+			case GL_FLOAT: // float 5126 GL_FLOAT 0x1406
+				if (name == "TIME" || name == "time") {
+					mShader->uniform(name, mVDUniforms->getUniformValueByName("TIME"));
 				}
+				else {
+					if (mVDUniforms->isExistingUniform(name)) {
+						mShader->uniform(name, mVDUniforms->getUniformValueByName(name));
+					}
+					else {
+						//mVDUniforms->createFloatUniform
+						//createFloatUniform(name, mVDAnimation->getUniformIndexForName(name), getIntUniformValueByName(name), mVDAnimation->getMinUniformValueByName(name), mVDAnimation->getMaxUniformValueByName(name));
+						//mShader->uniform(name, mVDAnimation->getUniformValue(0));
+						int l = uniform.getLocation();
+						//float v = getUniformValueByLocation(l);
+						// 20201231 BUG!! mShader->uniform(l, mUniformValueByLocation[l]);
+						mShader->uniform(name, mUniformValueByLocation[l]);
+					}
+				}
+				break;
+			case GL_SAMPLER_2D: // sampler2D 35678 GL_SAMPLER_2D 0x8B5E
+				texNameEndIndex = name.find_last_of("iChannel");
+				if (texNameEndIndex != std::string::npos) {
+					mTextureName = name.substr(0, texNameEndIndex + 1);
+					texIndex = 0;// (int)(name.substr(texNameEndIndex + 1));
+					CI_LOG_V(toString(texNameEndIndex) + mTextureName);
+					mShader->uniform(mTextureName + toString(channelIndex), (uint32_t)(253 + channelIndex));
+					channelIndex++;
+				}
+				else {
+					mShader->uniform(name, (uint32_t)(0));
+				}
+				//mShader->uniform(name, 253);
+				for (size_t i{ 1 }; i < 14; i++)
+				{
+					mShader->uniform(name, (uint32_t)(253 + i));
+				}
+				break;
+			case GL_FLOAT_VEC2://GL_FLOAT_VEC2: // vec2 35664 GL_FLOAT_VEC2 0x8B50
+				if (name == "RENDERSIZE" || name == "resolution") {
+					//mShader->uniform(name, vec2(mTexture->getWidth(), mTexture->getHeight()));
+					mShader->uniform(name, vec2(mVDParams->getFboWidth(), mVDParams->getFboHeight()));
+				}
+				else {
+					mShader->uniform(name, mVDUniforms->getVec2UniformValueByName(name));
+				}
+				break;
+			case GL_FLOAT_VEC3://GL_FLOAT_VEC3: // vec3 35665 GL_FLOAT_VEC3 0x8B51
+				mShader->uniform(name, mVDUniforms->getVec3UniformValueByName(name));
+				break;
+			case GL_FLOAT_VEC4://GL_FLOAT_VEC4: // vec4 35666 GL_FLOAT_VEC4 0x8B52
+				mShader->uniform(name, mVDUniforms->getVec4UniformValueByName(name));
+				break;
+			case GL_INT: // int 5124 GL_INT 0x1404
+				// IBEAT 51
+				// IBAR 52
+				// IBARBEAT 53
+				mShader->uniform(name, mVDUniforms->getUniformValueByName(name));
+				break;
+			case GL_BOOL: // boolean 35670 GL_BOOL 0x8B56
+				//createBoolUniform(name, mVDAnimation->getUniformIndexForName(name), getBoolUniformValueByName(name)); // get same index as vdanimation
+				mShader->uniform(name, mVDUniforms->getUniformValueByName(name));
+				break;
+			case GL_FLOAT_MAT4: // 35676 GL_FLOAT_MAT4 0x8B5C ciModelViewProjection
+				break;
+			default:
+				break;
+			}
 			/*}
 			else {
 				if (name != "ciModelViewProjection") {//type 35676 GL_FLOAT_MAT4 0x8B5C
@@ -348,24 +354,24 @@ ci::gl::Texture2dRef VDFboShader::getTexture() {
 	return mRenderedTexture;
 }
 ci::gl::Texture2dRef VDFboShader::getRenderedTexture() {
-	
+
 	return mRenderedTexture;
 }
 ci::gl::Texture2dRef VDFboShader::getInputTexture() {
-	return mTextureList[0]->getTexture();
+	return mTextureList[mInputTextureIndex]->getTexture();
 }
 bool									VDFboShader::isValid() {
 	return mValid;
 };
 
-std::string								VDFboShader::getShaderName() { 
-	return mShaderName; 
+std::string								VDFboShader::getShaderName() {
+	return mShaderName;
 };
 
 void									VDFboShader::setImageInputTexture(ci::gl::Texture2dRef aTextureRef, const std::string& aTextureFilename) {
-	mTextureList[0]->setImageInputTexture(aTextureRef, aTextureFilename);
+	mTextureList[mInputTextureIndex]->setImageInputTexture(aTextureRef, aTextureFilename);
 };
 
-std::vector<ci::gl::GlslProg::Uniform>	VDFboShader::getUniforms() { 
-	return mUniforms; 
+std::vector<ci::gl::GlslProg::Uniform>	VDFboShader::getUniforms() {
+	return mUniforms;
 };

@@ -52,20 +52,23 @@ namespace videodromm {
 			CI_LOG_V(mError);
 			mVDSettings->mErrorMsg = mError + "\n" + mVDSettings->mErrorMsg.substr(0, mVDSettings->mMsgLength);
 		}
-		/*fs::path mDefaultVertexFilePath = getAssetPath("") / "defaultvertex.fs";
-		if (!fs::exists(mDefaultVertexFilePath)) {
-			mError = mDefaultVertexFilePath.string() + " does not exist";
-			CI_LOG_V(mError);
-			mVDSettings->mErrorMsg = mError + "\n" + mVDSettings->mErrorMsg.substr(0, mVDSettings->mMsgLength);
-			mDefaultVertexString = "#version 150\nuniform mat4 ciModelViewProjection; in vec4 ciPosition; in vec4 ciColor; in vec2 ciTexCoord0; out vec4 vertColor; out vec2 vertTexCoord0;"
-				"void main() { vertColor = ciColor; vertTexCoord0 = ciTexCoord0; gl_Position = ciModelViewProjection * ciPosition; }";
-		}
-		else {
-			mDefaultVertexString = loadString(loadFile(mDefaultVertexFilePath));
-		}*/
+		
 		mGlslMixette = gl::GlslProg::create(mVDParams->getDefaultVertexString(), loadString(loadFile(mMixetteFilePath)));
 
-
+		// init with mix shader of 2 fbos with crossfade
+		JsonTree		json;
+		JsonTree shader = ci::JsonTree::makeArray("shader");
+		shader.addChild(ci::JsonTree("shadername", "mix"));
+		shader.pushBack(ci::JsonTree("shadertype", "fs"));
+		shader.pushBack(ci::JsonTree("shadertext", mVDParams->getDefaultShaderFragmentString()));
+		json.addChild(shader);
+		JsonTree texture = ci::JsonTree::makeArray("texture");
+		texture.addChild(ci::JsonTree("texturename", "audio"));
+		texture.pushBack(ci::JsonTree("texturetype", "audio"));
+		texture.pushBack(ci::JsonTree("texturemode", 0));
+		json.addChild(texture);
+		mMixFboShader = VDFboShader::create(mVDUniforms, json, 0, mAssetsPath);
+		mFboShaderList.push_back(mMixFboShader);
 		loadFbos();
 		
 		// initialize the textures list with audio texture
@@ -239,38 +242,9 @@ namespace videodromm {
 			}
 		}
 		
-		
 		return rtn;
 	}
-	/*
-	 
-	 
-	unsigned int VDMix::findAvailableIndex(unsigned int aFboShaderIndex, const JsonTree &json) {
-		unsigned int rtn = aFboShaderIndex;
-		if (aFboShaderIndex > mFboShaderList.size() - 1) {
-			// reuse existing, last one if no invalid found
-			rtn = mFboShaderList.size() - 1;
-			unsigned int found = -1;
-			for (auto &fbo : mFboShaderList) {
-				found++;
-				if (!fbo->isValid()) {
-					rtn = found;
-					break;
-				}
-			}
-			if (found != rtn) {
-				if (aFboShaderIndex < MAXSHADERS) {
-					// create fbo
-					mFboShaderList.push_back(VDFboShader::create(mVDUniforms, json, mFboShaderList.size(), mAssetsPath));
-					rtn = mFboShaderList.size() - 1;
-				}
-			}
-		}
-		else {
-			// replace existing returns aFboShaderIndex
-		}
-		return rtn;
-	} */
+	
 	bool VDMix::setFragmentShaderString(const string& aFragmentShaderString, const std::string& aName) {
 		// received from websocket, tested with hydra
 		JsonTree		json;
@@ -303,7 +277,7 @@ namespace videodromm {
 		// if aFboShaderIndex is out of bounds try to find invalid fbo index or create a new fbo until MAX
 		int rtn = findAvailableIndex(aFboShaderIndex, json);
 
-		mFboShaderList[rtn]->loadFragmentStringFromFile(aFilePath);
+		mFboShaderList[rtn]->loadFragmentShaderFromFile(aFilePath);
 		mVDSettings->mMsg = "loaded " + mFboShaderList[rtn]->getShaderName() + "\n try at " + toString(aFboShaderIndex) + "\n valid at " + toString(rtn) + "\n" + mVDSettings->mMsg.substr(0, mVDSettings->mMsgLength);
 		return rtn;
 	}

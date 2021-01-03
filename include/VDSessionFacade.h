@@ -129,6 +129,9 @@ namespace videodromm
 		void					setFboAudioInputTexture(unsigned int aFboIndex = 0) {
 			mVDSession->setFboAudioInputTexture(aFboIndex);
 		}
+		unsigned int					getInputTexturesCount(unsigned int aFboIndex) {
+			return mVDSession->getInputTexturesCount(aFboIndex);
+		}
 		int						getFFTWindowSize();
 		float*					getFreqs();
 		float					getFreq(unsigned int aFreqIndex) { return mVDSession->getFreq(aFreqIndex); };

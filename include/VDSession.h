@@ -39,7 +39,7 @@ namespace videodromm {
 		STATE_FAILED_COMPILE = 3,
 		STATE_SUCCESS_COMPILE = 4
 	};
-	
+
 	class VDSession {
 	public:
 		STATE state;
@@ -48,7 +48,7 @@ namespace videodromm {
 		bool							handleKeyDown(KeyEvent& event);
 		bool							handleKeyUp(KeyEvent& event);
 		void							update(unsigned int aClassIndex = 0);
-		
+
 		void							loadFromJsonFile(const fs::path& jsonFile);
 		unsigned int					fboFromJson(const JsonTree& json, unsigned int aFboIndex = 0) {
 			return mVDMix->fboFromJson(json, aFboIndex);
@@ -110,10 +110,10 @@ namespace videodromm {
 		bool							getUseTimeWithTempo() { return mVDAnimation->getUseTimeWithTempo(); };
 		//void							setTimeFactor(const int &aTimeFactor) { mVDAnimation->setTimeFactor(aTimeFactor); };
 		// audio
-		ci::gl::TextureRef				getAudioTexture() { 
-			
+		ci::gl::TextureRef				getAudioTexture() {
+
 			mVDMix->setFboAudioInputTexture(0); // TODO 20210101 remove and use update()
-			return mVDAnimation->getAudioTexture(); 
+			return mVDAnimation->getAudioTexture();
 		};
 		void							setFboAudioInputTexture(unsigned int aFboIndex = 0) {
 			mVDMix->setFboAudioInputTexture(aFboIndex); // TODO 20210101 warning not updating
@@ -131,7 +131,7 @@ namespace videodromm {
 		bool							getUseLineIn() { return mVDAnimation->getUseLineIn(); };
 		void							setUseLineIn(bool useLineIn) { mVDAnimation->setUseLineIn(useLineIn); };
 		void							toggleUseLineIn() { mVDAnimation->toggleUseLineIn(); };
-		
+
 		int								loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex = 0) {
 			return mVDMix->loadFragmentShader(aFilePath, aFboShaderIndex);
 		};
@@ -240,7 +240,7 @@ namespace videodromm {
 
 		};
 		// fbos
-		/* 20201229 
+		/* 20201229
 		std::string						getFboName(unsigned int aFboIndex) {
 			return mVDMix->getFboName(aFboIndex);
 		};
@@ -283,7 +283,7 @@ namespace videodromm {
 		bool							setFboFloatUniformValueByIndex(unsigned int aCtrl, unsigned int aFboIndex, float aValue) {
 			return mVDMix->setFboFloatUniformValueByIndex(aCtrl, aFboIndex, aValue);
 		};*/
-		/* 20201229 
+		/* 20201229
 		bool									getGlobal(unsigned int aFboIndex) {
 			return mVDMix->getGlobal(aFboIndex);
 		};
@@ -299,7 +299,7 @@ namespace videodromm {
 		void							updateShaderThumbFile(unsigned int aFboIndex) {
 			mVDMix->updateShaderThumbFile(aFboIndex);
 		}
-		
+
 		*/
 		std::vector<ci::gl::GlslProg::Uniform>			getUniforms(unsigned int aFboIndex = 0) {
 			return mVDMix->getUniforms(aFboIndex);
@@ -310,10 +310,12 @@ namespace videodromm {
 		std::string						getFboInputTextureName(unsigned int aFboIndex = 0) {
 			return mVDMix->getFboTextureName(aFboIndex);
 		}
-		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aFboIndex = 0) {
+		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aFboIndex) {
 			return mVDMix->getFboInputTexture(aFboIndex);
 		}
-
+		unsigned int					getInputTexturesCount(unsigned int aFboIndex) {
+			return mVDMix->getInputTexturesCount(aFboIndex);
+		}
 		/*
 		// blendmodes
 		unsigned int					getFboBlendCount() { return mBlendFbos.size(); };
@@ -327,9 +329,8 @@ namespace videodromm {
 		};
 		bool							loadImageSequence(const string& aFolder, unsigned int aTextureIndex);
 		void							loadAudioFile(const string& aFile);
-		/*unsigned int					getInputTexturesCount() {
-			return mTextureList.size();
-		}
+
+		/*
 		string VDSession::getInputTextureName(unsigned int aTextureIndex) {
 			return mTextureList[math<int>::min(aTextureIndex, mTextureList.size() - 1)]->getName();
 		}*/
@@ -429,7 +430,7 @@ namespace videodromm {
 		void							toggleUI();
 		bool							showUI();
 		std::string						getModeName(unsigned int aMode);
-		
+
 
 	private:
 

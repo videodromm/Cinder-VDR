@@ -61,15 +61,18 @@ namespace videodromm
 			mUniformValueByLocation[aLocationIndex] = aValue;
 		};
 		std::string								getTextureName() {
-			return mTextureList[0]->getName();
+			return mTextureList[mInputTextureIndex]->getName();
 		};
+		unsigned int							getInputTexturesCount() {
+			return mTextureList.size();
+		}
 		std::string								getMsg() {
 			return mMsg;
 		};
 		std::string								getError() {
 			return mError;
 		};
-		bool									loadFragmentStringFromFile(const string& aFileOrPath);
+		bool									loadFragmentShaderFromFile(const string& aFileOrPath);
 	private:
 		// Params
 		VDParamsRef						mVDParams;
