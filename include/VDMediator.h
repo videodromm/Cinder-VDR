@@ -16,6 +16,8 @@
 #include "VDKeyboard.h"
 // Osc
 #include "VDOscReceiver.h"
+// Midi
+#include "VDMidi.h"
 // Mix
 #include "VDMix.h"
 // Websocket client
@@ -56,12 +58,27 @@ namespace videodromm {
 	public:
 		static VDMediatorObservableRef		createVDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms, VDMixRef aVDMix);
 		VDMediatorObservableRef				addObserver(VDUniformObserverRef o);
+		// osc
 		VDMediatorObservableRef				setupOSCReceiver();
 		int									getOSCReceiverPort();
 		void								setOSCReceiverPort(int aReceiverPort);
 		void								setOSCMsg(const std::string& aMsg);
 		std::string							getOSCMsg();
+		// midi
+		VDMediatorObservableRef				setupMidiReceiver();
+		void							midiOutSendNoteOn(int i, int channel, int pitch, int velocity);
+		int								getMidiInPortsCount();
+		string							getMidiInPortName(int i);
+		bool							isMidiInConnected(int i);
+		void							openMidiInPort(int i);
+		void							closeMidiInPort(int i);
+		int								getMidiOutPortsCount();
+		string							getMidiOutPortName(int i);
+		bool							isMidiOutConnected(int i);
+		void							openMidiOutPort(int i);
+		void							closeMidiOutPort(int i);
 
+		// ws
 		VDMediatorObservableRef				setupWSClient();
 		int									getWSClientPort();
 		void								setWSClientPort(int aPort);
@@ -90,6 +107,8 @@ namespace videodromm {
 		VDUniformsRef						mVDUniforms;
 		// OSC
 		VDOscReceiverRef					mVDOscReceiver;
+		// Midi
+		VDMidiRef							mVDMidi;
 		// Websockets
 		VDWebsocketRef						mVDWebsocket;
 		// Mix

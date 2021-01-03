@@ -52,13 +52,18 @@ namespace videodromm {
 			CI_LOG_V(mError);
 			mVDSettings->mErrorMsg = mError + "\n" + mVDSettings->mErrorMsg.substr(0, mVDSettings->mMsgLength);
 		}
-		fs::path mDefaultVertexFilePath = getAssetPath("") / "defaultvertex.fs";
+		/*fs::path mDefaultVertexFilePath = getAssetPath("") / "defaultvertex.fs";
 		if (!fs::exists(mDefaultVertexFilePath)) {
 			mError = mDefaultVertexFilePath.string() + " does not exist";
 			CI_LOG_V(mError);
 			mVDSettings->mErrorMsg = mError + "\n" + mVDSettings->mErrorMsg.substr(0, mVDSettings->mMsgLength);
+			mDefaultVertexString = "#version 150\nuniform mat4 ciModelViewProjection; in vec4 ciPosition; in vec4 ciColor; in vec2 ciTexCoord0; out vec4 vertColor; out vec2 vertTexCoord0;"
+				"void main() { vertColor = ciColor; vertTexCoord0 = ciTexCoord0; gl_Position = ciModelViewProjection * ciPosition; }";
 		}
-		mGlslMixette = gl::GlslProg::create(loadString(loadFile(mDefaultVertexFilePath)), loadString(loadFile(mMixetteFilePath)));
+		else {
+			mDefaultVertexString = loadString(loadFile(mDefaultVertexFilePath));
+		}*/
+		mGlslMixette = gl::GlslProg::create(mVDParams->getDefaultVertexString(), loadString(loadFile(mMixetteFilePath)));
 
 
 		loadFbos();
@@ -181,14 +186,14 @@ namespace videodromm {
 	}
 	unsigned int VDMix::createFboShaderTexture(const JsonTree &json, unsigned int aFboIndex) {
 		unsigned int rtn = 0;
-		VDFboShaderRef fboRef = VDFboShader::create(mVDUniforms, json, aFboIndex, mAssetsPath);
+		VDFboShaderRef fboShader = VDFboShader::create(mVDUniforms, json, aFboIndex, mAssetsPath);
 		if (aFboIndex == 0) {
-			mFboShaderList.push_back(fboRef);
+			mFboShaderList.push_back(fboShader);
 			rtn = mFboShaderList.size() - 1;
 		}
 		else {
 			rtn = math<int>::min(aFboIndex, mFboShaderList.size() - 1);
-			mFboShaderList[rtn] = fboRef;
+			mFboShaderList[rtn] = fboShader;
 		}
 
 		return rtn;
@@ -206,28 +211,35 @@ namespace videodromm {
 
 	unsigned int VDMix::findAvailableIndex(unsigned int aFboShaderIndex, const JsonTree &json) {
 		unsigned int rtn = aFboShaderIndex;
-		if (aFboShaderIndex > mFboShaderList.size() - 1) {
-			if (aFboShaderIndex < MAXSHADERS) {
-				// create fbo
-				mFboShaderList.push_back(VDFboShader::create(mVDUniforms, json, mFboShaderList.size(), mAssetsPath));
-				rtn = mFboShaderList.size() - 1;
-			}
-			else {
-				// reuse existing, last one if no invalid found
-				rtn = mFboShaderList.size() - 1;
-				unsigned int found = -1;
-				for (auto &fbo : mFboShaderList) {
-					found++;
-					if (!fbo->isValid()) {
-						rtn = found;
-						break;
+		if (mFboShaderList.size() == 0) {
+			// create fbo
+			VDFboShaderRef fboShader = VDFboShader::create(mVDUniforms, json, 0, mAssetsPath);
+			mFboShaderList.push_back(fboShader);
+			rtn = mFboShaderList.size() - 1;
+		}
+		else {
+			if (aFboShaderIndex > mFboShaderList.size() - 1) {
+				if (aFboShaderIndex < MAXSHADERS) {
+					// create fbo
+					mFboShaderList.push_back(VDFboShader::create(mVDUniforms, json, mFboShaderList.size(), mAssetsPath));
+					rtn = mFboShaderList.size() - 1;
+				}
+				else {
+					// reuse existing, last one if no invalid found
+					rtn = mFboShaderList.size() - 1;
+					unsigned int found = -1;
+					for (auto &fbo : mFboShaderList) {
+						found++;
+						if (!fbo->isValid()) {
+							rtn = found;
+							break;
+						}
 					}
 				}
 			}
 		}
-		else {
-			// replace existing returns aFboShaderIndex
-		}
+		
+		
 		return rtn;
 	}
 	/*

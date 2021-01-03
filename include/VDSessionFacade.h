@@ -36,6 +36,7 @@ namespace videodromm
 		VDSessionFacadeRef		setUniformValue(unsigned int aCtrl, float aValue);
 		VDSessionFacadeRef		addUIObserver(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms);
 		VDSessionFacadeRef		setupOSCReceiver();
+		VDSessionFacadeRef		setupMidiReceiver();
 		VDSessionFacadeRef		setupWSClient();
 		VDSessionFacadeRef		setupKeyboard();
 		VDSessionFacadeRef		addOSCObserver(const std::string& host, unsigned int port);
@@ -57,6 +58,19 @@ namespace videodromm
 		void					setOSCReceiverPort(int aReceiverPort);
 		void					setOSCMsg(const std::string& aMsg);
 		std::string				getOSCMsg();
+		// midi
+		void							midiOutSendNoteOn(int i, int channel, int pitch, int velocity) { mVDMediator->midiOutSendNoteOn(i, channel, pitch, velocity); };
+		int								getMidiInPortsCount() { return mVDMediator->getMidiInPortsCount(); };
+		string							getMidiInPortName(int i) { return mVDMediator->getMidiInPortName(i); };
+		bool							isMidiInConnected(int i) { return mVDMediator->isMidiInConnected(i); };
+		void							openMidiInPort(int i) { mVDMediator->openMidiInPort(i); };
+		void							closeMidiInPort(int i) { mVDMediator->closeMidiInPort(i); };
+		int								getMidiOutPortsCount() { return mVDMediator->getMidiOutPortsCount(); };
+		string							getMidiOutPortName(int i) { return mVDMediator->getMidiOutPortName(i); };
+		bool							isMidiOutConnected(int i) { return mVDMediator->isMidiOutConnected(i); };
+		void							openMidiOutPort(int i) { mVDMediator->openMidiOutPort(i); };
+		void							closeMidiOutPort(int i) { mVDMediator->closeMidiOutPort(i); };
+
 		// websockets
 		bool					isWSClientConnected();
 		int						getWSClientPort();

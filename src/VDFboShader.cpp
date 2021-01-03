@@ -19,15 +19,22 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, const JsonTree &json, unsign
 	if (!fs::exists(mDefaultFragmentFilePath)) {
 		mError = mDefaultFragmentFilePath.string() + " does not exist";
 		CI_LOG_V(mError);
+		mShaderFragmentString = "void main(void) { vec2 uv = gl_FragCoord.xy / RENDERSIZE.xy; vec3 rgb = IMG_NORM_PIXEL(inputImage, uv).xyz; fragColor=vec4(rgb, 1.0);}";
 	}
-	mShaderFragmentString = loadString(loadFile(mDefaultFragmentFilePath));
+	else {
+		mShaderFragmentString = loadString(loadFile(mDefaultFragmentFilePath));
+	}
 	// load default vertex shader
-	fs::path mDefaultVertexFilePath = getAssetPath("") / "defaultvertex.fs";
+	/*fs::path mDefaultVertexFilePath = getAssetPath("") / "defaultvertex.fs";
 	if (!fs::exists(mDefaultVertexFilePath)) {
 		mError = mDefaultVertexFilePath.string() + " does not exist";
 		CI_LOG_V(mError);
+		mDefaultVertexString = "#version 150\nuniform mat4 ciModelViewProjection; in vec4 ciPosition; in vec4 ciColor; in vec2 ciTexCoord0; out vec4 vertColor; out vec2 vertTexCoord0;"
+								"void main() { vertColor = ciColor; vertTexCoord0 = ciTexCoord0; gl_Position = ciModelViewProjection * ciPosition; }";
 	}
-	mDefaultVertexString = loadString(loadFile(mDefaultVertexFilePath));
+	else {
+		mDefaultVertexString = loadString(loadFile(mDefaultVertexFilePath));
+	}*/
 	//string textureFileName = "0.jpg"; 
 	//mTextureName = mCurrentSeqFilename = mLastCachedFilename = textureFileName;
 	//mInputTextureIndex = 0;
@@ -158,7 +165,7 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 		}
 		
 		// try to compile a first time to get active mUniforms
-		mShader = gl::GlslProg::create(mDefaultVertexString, mOutputFragmentString);
+		mShader = gl::GlslProg::create(mVDParams->getDefaultVertexString(), mOutputFragmentString);
 		// update only if success
 		mShaderFragmentString = mOutputFragmentString;
 		mMsg = mName + " compiled";

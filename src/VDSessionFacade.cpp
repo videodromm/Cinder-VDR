@@ -26,6 +26,13 @@ VDSessionFacadeRef VDSessionFacade::setupOSCReceiver() {
 	}
 	return shared_from_this();
 }
+VDSessionFacadeRef VDSessionFacade::setupMidiReceiver() {
+	//if (!mMidiReceiverConnected) {
+	//	mMidiReceiverConnected = true;
+		mVDMediator->setupMidiReceiver();
+	//}
+	return shared_from_this();
+}
 VDSessionFacadeRef VDSessionFacade::setupWSClient() {
 	if (!mWSClientConnected ) {
 		mWSClientConnected = true;

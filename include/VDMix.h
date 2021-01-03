@@ -130,7 +130,7 @@ namespace videodromm
 			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getUniforms();
 		}
 		void							setFboAudioInputTexture(unsigned int aFboIndex = 0) {
-			mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->setImageInputTexture( mVDAnimation->getAudioTexture(), "Audio");
+			if (mFboShaderList.size() > 0) mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->setImageInputTexture( mVDAnimation->getAudioTexture(), "Audio");
 		}
 		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aFboIndex = 0) {
 			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTexture();

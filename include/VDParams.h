@@ -9,9 +9,14 @@ namespace videodromm {
 		static VDParamsRef PARAMS;
 		VDUIParams		uiParams;
 		const float		mAspectRatio{ 0.5625 }; // ratio 4:3 (0.75) 16:9 (0.5625)
+		std::string						mDefaultVertexString;
 	public:
 		static VDParamsRef create();
 		VDParams() : uiParams{ } {}
+		std::string getDefaultVertexString() const noexcept {
+			return "#version 150\nuniform mat4 ciModelViewProjection; in vec4 ciPosition; in vec4 ciColor; in vec2 ciTexCoord0; out vec4 vertColor; out vec2 vertTexCoord0;"
+				"void main() { vertColor = ciColor; vertTexCoord0 = ciTexCoord0; gl_Position = ciModelViewProjection * ciPosition; }";
+		};
 		unsigned getFboWidth() const noexcept {
 			return uiParams.getFboWidth();
 		};

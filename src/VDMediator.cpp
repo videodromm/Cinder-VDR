@@ -31,6 +31,28 @@ VDMediatorObservableRef VDMediatorObservable::setupOSCReceiver() {
 	saveOSCReceiverToJson();
 	return shared_from_this();
 }
+// midi
+VDMediatorObservableRef VDMediatorObservable::setupMidiReceiver() {
+	// Midi in
+	mVDMidi = VDMidi::create(mVDSettings, mVDAnimation, mVDUniforms);
+	mVDMidi->setupMidi(shared_from_this());
+	return shared_from_this();
+}
+// midi
+void VDMediatorObservable::midiOutSendNoteOn(int i, int channel, int pitch, int velocity) { mVDMidi->midiOutSendNoteOn(i, channel, pitch, velocity); };
+int VDMediatorObservable::getMidiInPortsCount() { return mVDMidi->getMidiInPortsCount(); };
+string VDMediatorObservable::getMidiInPortName(int i) { return mVDMidi->getMidiInPortName(i); };
+bool VDMediatorObservable::isMidiInConnected(int i) { return mVDMidi->isMidiInConnected(i); };
+void VDMediatorObservable::openMidiInPort(int i) { mVDMidi->openMidiInPort(i); };
+void VDMediatorObservable::closeMidiInPort(int i) { mVDMidi->closeMidiInPort(i); };
+int VDMediatorObservable::getMidiOutPortsCount() { return mVDMidi->getMidiOutPortsCount(); };
+string VDMediatorObservable::getMidiOutPortName(int i) { return mVDMidi->getMidiOutPortName(i); };
+bool VDMediatorObservable::isMidiOutConnected(int i) { return mVDMidi->isMidiOutConnected(i); };
+void VDMediatorObservable::openMidiOutPort(int i) { mVDMidi->openMidiOutPort(i); };
+void VDMediatorObservable::closeMidiOutPort(int i) { mVDMidi->closeMidiOutPort(i); };
+
+
+
 VDMediatorObservableRef VDMediatorObservable::setupWSClient() {
 	// WS Receiver
 	mVDWebsocket = VDWebsocket::create();
@@ -71,7 +93,8 @@ void VDMediatorObservable::loadWSFromJsonFile(const fs::path& jsonFile) {
 bool VDMediatorObservable::validateJson(const JsonTree& tree) {
 	bool rtn = false;
 	if (tree.hasChild("port")) {
-		if (tree.getNodeType() == cinder::JsonTree::NodeType::NODE_VALUE) {
+		CI_LOG_W(tree.getNodeType());
+		if (tree.getNodeType() == cinder::JsonTree::NodeType::NODE_OBJECT) {//3 not 4 NODE_VALUE) {
 			int p = tree.getValueForKey<int>("port");
 			if (p > 0 && p < 65536) {
 				rtn = true;

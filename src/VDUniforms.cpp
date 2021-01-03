@@ -119,9 +119,9 @@ VDUniforms::VDUniforms() {
 
 
 		// iMouseX  
-		createFloatUniform("iMouseX", IMOUSEX, 320.0f, 0.0f, 1280.0f); // 42
+		createFloatUniform("iMouseX", IMOUSEX, 0.27710f, 0.0f, 1280.0f); // 42
 		// iMouseY  
-		createFloatUniform("iMouseY", IMOUSEY, 240.0f, 0.0f, 800.0f); // 43
+		createFloatUniform("iMouseY", IMOUSEY, 0.5648f, 0.0f, 800.0f); // 43
 		// iMouseZ  
 		createFloatUniform("iMouseZ", IMOUSEZ, 0.0f, 0.0f, 1.0f); // 44
 		// vignette amount
@@ -170,7 +170,7 @@ VDUniforms::VDUniforms() {
 		//createVec3Uniform("iChannelResolution[0]", 63, vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
 
 		// vec4
-		createVec4Uniform("iMouse", IMOUSE, vec4(320.0f, 240.0f, 0.0f, 0.0f));//70
+		createVec4Uniform("iMouse", IMOUSE, vec4(0.27710f, 0.5648f, 0.0f, 0.0f));//70
 		createVec4Uniform("iDate", IDATE, vec4(2019.0f, 12.0f, 1.0f, 5.0f));//71
 
 		// boolean
@@ -186,10 +186,10 @@ VDUniforms::VDUniforms() {
 		// greyscale 
 		createFloatUniform("iGreyScale", IGREYSCALE, 0.0f); //87
 		createFloatUniform("iClear", ICLEAR, 0.0f); // 88
-		createFloatUniform("iDebug", IDEBUG); // 129
-		createFloatUniform("iXorY", IXORY); // 130
-		createFloatUniform("iFlipH", IFLIPH); // 131
-		createFloatUniform("iFlipV", IFLIPV); // 132
+		createFloatUniform("iDebug", IDEBUG, 0.0f); // 129
+		createFloatUniform("iXorY", IXORY, 0.0f); // 130
+		createFloatUniform("iFlipH", IFLIPH, 0.0f); // 131
+		createFloatUniform("iFlipV", IFLIPV, 0.0f); // 132
 		createFloatUniform("iFlipPostH", IFLIPPOSTH, 0.0f); // 133
 		createFloatUniform("iFlipPostV", IFLIPPOSTV, 0.0f); // 134
 
