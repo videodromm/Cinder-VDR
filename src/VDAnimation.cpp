@@ -80,77 +80,7 @@ JsonTree VDAnimation::uniformToJson(int i)
 	json.pushBack(u);
 	return json;
 }
-void VDAnimation::saveUniforms()
-{
-	/*string jName;
-	int ctrlSize = math<int>::min(310, controlIndexes.size());
-	float jMin, jMax;
-	JsonTree		json;
-	// create uniforms json
-	JsonTree uniformsJson = JsonTree::makeArray("uniforms");
 
-	for (unsigned i{0}; i < ctrlSize; ++i) {
-		JsonTree		u(uniformToJson(i));
-		// create <uniform>
-		uniformsJson.pushBack(u);
-	}
-	// write file
-	json.pushBack(uniformsJson);
-	json.write(mUniformsJson);*/
-}
-
-/*
-bool VDAnimation::isExistingUniform(const string& aName) {
-	return shaderUniforms[stringToIndex(aName)].isValid;
-}
-*/
-
-void VDAnimation::save() {
-	saveAnimation();
-	saveUniforms();
-}
-void VDAnimation::saveAnimation() {
-	// save 
-	/*fs::path mJsonFilePath = app::getAssetPath("") / mVDSettings->mAssetsPath / "animation.json";
-	JsonTree doc;
-	JsonTree badtv = JsonTree::makeArray("badtv");
-
-	for (const auto& item : mBadTV) {
-		if (item.second > 0.0001) badtv.addChild(ci::JsonTree(ci::toString(item.first), ci::toString(item.second)));
-	}
-
-	doc.pushBack(badtv);
-	doc.write(writeFile(mJsonFilePath), JsonTree::WriteOptions()); */
-	// backup save
-	/*string fileName = "animation" + toString(getElapsedFrames()) + ".json";
-	mJsonFilePath = app::getAssetPath("") / mVDSettings->mAssetsPath / fileName;
-	doc.write(writeFile(mJsonFilePath), JsonTree::WriteOptions());*/
-}
-void VDAnimation::loadAnimation() {
-
-	/*fs::path mJsonFilePath = app::getAssetPath("") / mVDSettings->mAssetsPath / "animation.json";
-	// Create json file if it doesn't already exist.
-	if (!fs::exists(mJsonFilePath)) {
-		std::ofstream oStream(mJsonFilePath.string());
-		oStream.close();
-	}
-	if (!fs::exists(mJsonFilePath)) {
-		return;
-	}
-	try {
-		JsonTree doc(loadFile(mJsonFilePath));
-		JsonTree badtv(doc.getChild("badtv"));
-		for (JsonTree::ConstIter item = badtv.begin(); item != badtv.end(); ++item) {
-			const auto& key = std::stoi(item->getKey());
-			const auto& value = item->getValue<float>();
-			mBadTV[key] = value;
-
-		}
-	}
-	catch (const JsonTree::ExcJsonParserError&) {
-		CI_LOG_W("Failed to parse json file.");
-	} */
-}
 /*
 void VDAnimation::setExposure(float aExposure) {
 	mExposure = aExposure;

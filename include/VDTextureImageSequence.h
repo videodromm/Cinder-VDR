@@ -2,7 +2,7 @@
 	---- TextureImageSequence ------------------------------------------------
 	implements VDTexture
 */
-#pragma once
+/*#pragma once
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
@@ -28,7 +28,7 @@ public:
 	//!
 	//bool					fromXml(const XmlTree& xml) override;
 	//!
-	//virtual	XmlTree			toXml() const override;
+	//virtual	XmlTree			toJson() const override;
 	//!
 	virtual bool			loadFromFullPath(const std::string& aPath) override;
 	TextureImageSequence(VDUniformsRef aVDUniforms);
@@ -75,4 +75,4 @@ private:
 	float						mSpeed;
 	std::vector<ci::gl::TextureRef>	mSequenceTextures;
 };
-}
+}*/

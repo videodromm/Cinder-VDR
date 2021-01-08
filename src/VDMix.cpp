@@ -35,8 +35,11 @@ namespace videodromm {
 			save();
 		}
 
-		mDefaultTexture = ci::gl::Texture::create(loadImage(loadAsset("0.jpg")));
-
+		//mDefaultTexture = ci::gl::Texture::create(loadImage(loadAsset("0.jpg")));
+		//loadImageFile("0.jpg", 0);
+		TextureAudioRef t(TextureAudio::create(mVDAnimation));
+		
+		mTextureList.push_back(t);
 
 		mMixetteTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
 		// init fbo format
@@ -52,7 +55,7 @@ namespace videodromm {
 			CI_LOG_V(mError);
 			mVDSettings->mErrorMsg = mError + "\n" + mVDSettings->mErrorMsg.substr(0, mVDSettings->mMsgLength);
 		}
-		
+
 		mGlslMixette = gl::GlslProg::create(mVDParams->getDefaultVertexString(), loadString(loadFile(mMixetteFilePath)));
 
 		// init with mix shader of 2 fbos with crossfade
@@ -70,18 +73,12 @@ namespace videodromm {
 		mMixFboShader = VDFboShader::create(mVDUniforms, json, 0, mAssetsPath);
 		mFboShaderList.push_back(mMixFboShader);
 		loadFbos();
-		
+
 		// initialize the textures list with audio texture
 		/*mTexturesFilepath = getAssetPath("") / mVDSettings->mAssetsPath / "textures.xml";
 		initTextureList();
 
-		// initialize the shaders list
-		initShaderList();
-		mMixesFilepath = getAssetPath("") / "mixes.xml";
-		//if (fs::exists(mMixesFilepath)) {
-			// load textures from file if one exists
-			// TODO readSettings(mVDSettings, mVDAnimation, loadFile(mMixesFilepath));
-			//}
+
 			// render fbo
 		mRenderFbo = gl::Fbo::create(mVDSettings->mRenderWidth, mVDSettings->mRenderHeight, fboFmt);
 		// mix fbo to render
@@ -94,41 +91,9 @@ namespace videodromm {
 		{
 			mBlendFbos[i] = gl::Fbo::create(mVDParams->getPreviewFboWidth(), mVDParams->getPreviewFboHeight(), fboFmt);
 		}
-		try
-		{
-		mGlslMix = gl::GlslProg::create(mVDSettings->getDefaultVextexShaderString(), mVDSettings->getMixFragmentShaderString());
-		// 20161209 problem on Mac mGlslMix->setLabel("mixfbo");
-		mGlslBlend = gl::GlslProg::create(mVDSettings->getDefaultVextexShaderString(), mVDSettings->getMixFragmentShaderString());
-		// 20161209 problem on Mac mGlslBlend->setLabel("blend mixfbo");
-	}
-		catch (gl::GlslProgCompileExc &exc)
-		{
-			mError = "mix error:" + string(exc.what());
-			CI_LOG_V("setFragmentString, unable to compile live fragment shader:" + mError);
-		}
-		catch (const std::exception &e)
-		{
-			mError = "mix error:" + string(e.what());
-			CI_LOG_V("setFragmentString, error on live fragment shader:" + mError);
-		}
-		mVDSettings->mMsg = mError;
-		// shared output
-		mSharedOutputActive = false;
-		mSharedFboIndex = 0;
-		mSpoutInitialized = false;
-		strcpy(mSenderName, "videodromm Sender"); // we have to set a sender name first
-		mWarpAnimationActive = false;
-		mWarpActiveIndex = 0;
-		mSolo = -1;
-		// 20180416
-		for (int i {0}; i < 5; i++)
-		{
-			if (i < mTextureList.size() - 1) {
-				if (i < mFboList.size() - 1) {
-					setFboInputTexture(i, i);
-				}
-			}
-		}*/
+
+
+		*/
 
 	} // constructor
 
@@ -152,7 +117,7 @@ namespace videodromm {
 		try {
 			JsonTree doc(loadFile(mixPath));
 			if (doc.hasChild("settings")) {
-				JsonTree settings(doc.getChild("settings"));	
+				JsonTree settings(doc.getChild("settings"));
 				if (settings.hasChild("assetspath")) mAssetsPath = settings.getValueForKey<string>("assetspath");
 			}
 		}
@@ -172,7 +137,7 @@ namespace videodromm {
 			fs::path jsonFile = getAssetPath("") / mAssetsPath / jsonFileName;
 			if (fs::exists(jsonFile)) {
 				JsonTree json(loadFile(jsonFile));
-				fboFromJson(json, f);
+				createFboShaderTexture(json, f);
 				f++;
 			}
 			else {
@@ -181,12 +146,12 @@ namespace videodromm {
 		} //while
 
 	}
-	unsigned int VDMix::fboFromJson(const JsonTree& json, unsigned int aFboIndex) {
+	/*unsigned int VDMix::fboFromJson(const JsonTree& json, unsigned int aFboIndex) {
 		unsigned int rtn = 0;
 
 		rtn = createFboShaderTexture(json, aFboIndex);
 		return rtn;
-	}
+	}*/
 	unsigned int VDMix::createFboShaderTexture(const JsonTree &json, unsigned int aFboIndex) {
 		unsigned int rtn = 0;
 		VDFboShaderRef fboShader = VDFboShader::create(mVDUniforms, json, aFboIndex, mAssetsPath);
@@ -241,15 +206,15 @@ namespace videodromm {
 				}
 			}
 		}
-		
+
 		return rtn;
 	}
-	
+
 	bool VDMix::setFragmentShaderString(const string& aFragmentShaderString, const std::string& aName) {
 		// received from websocket, tested with hydra
 		JsonTree		json;
 		JsonTree shader = ci::JsonTree::makeArray("shader");
-		shader.addChild(ci::JsonTree("shadername", "todohydra.txt"));
+		shader.addChild(ci::JsonTree("shadername", aName));
 		shader.pushBack(ci::JsonTree("shadertype", "fs"));
 		shader.pushBack(ci::JsonTree("shadertext", aFragmentShaderString));
 		json.addChild(shader);
@@ -327,23 +292,25 @@ namespace videodromm {
 			int dotIndex = texFileOrPath.filename().string().find_last_of(".");
 			if (dotIndex != std::string::npos)  ext = texFileOrPath.filename().string().substr(dotIndex + 1);
 			if (ext == "jpg" || ext == "png") {
+				JsonTree		json;
+				JsonTree texture = ci::JsonTree::makeArray("texture");
+				texture.addChild(ci::JsonTree("texturename", texFileOrPath.filename().string()));
+				texture.pushBack(ci::JsonTree("texturetype", "image"));
+				json.addChild(texture);
+				TextureImageRef t(TextureImage::create());
+				t->fromJson(texture);
+				mTextureList.push_back(t);
+
 				if (mFboShaderList.size() < 1) {
 					// no fbos, create one
-					JsonTree		json;
 					JsonTree shader = ci::JsonTree::makeArray("shader");
 					shader.addChild(ci::JsonTree("shadername", "inputImage.fs"));
 					shader.pushBack(ci::JsonTree("shadertype", "fs"));
 					json.addChild(shader);
-					JsonTree texture = ci::JsonTree::makeArray("texture");
-					texture.addChild(ci::JsonTree("texturename", texFileOrPath.filename().string()));
-					texture.pushBack(ci::JsonTree("texturetype", "image"));
-					json.addChild(texture);
-
 					createFboShaderTexture(json);
 				}
 				else {
-					ci::gl::Texture2dRef mTexture = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
-					mFboShaderList[rtn]->setImageInputTexture(mTexture, texFileOrPath.filename().string());
+					mFboShaderList[rtn]->setInputTextureRef(mTextureList[mTextureList.size() - 1]->getTexture()); 
 				}
 			}
 		}
@@ -378,87 +345,7 @@ namespace videodromm {
 	unsigned int VDMix::getInputTexturesCount() {
 		return mTextureList.size();
 	}
-	unsigned int VDMix::getInputTextureOriginalWidth(unsigned int aTextureIndex) {
-		if (aTextureIndex > mTextureList.size() - 1) aTextureIndex = mTextureList.size() - 1;
-		return mTextureList[aTextureIndex]->getOriginalWidth();
-	}
-	unsigned int VDMix::getInputTextureOriginalHeight(unsigned int aTextureIndex) {
-		if (aTextureIndex > mTextureList.size() - 1) aTextureIndex = mTextureList.size() - 1;
-		return mTextureList[aTextureIndex]->getOriginalHeight();
-	}
-	int VDMix::getInputTextureXLeft(unsigned int aTextureIndex) {
-		if (aTextureIndex > mTextureList.size() - 1) aTextureIndex = mTextureList.size() - 1;
-		return mTextureList[aTextureIndex]->getXLeft();
-	}
-	void VDMix::setInputTextureXLeft(unsigned int aTextureIndex, int aXLeft) {
-		mTextureList[aTextureIndex]->setXLeft(aXLeft);
-	}
-	int VDMix::getInputTextureYTop(unsigned int aTextureIndex) {
-		if (aTextureIndex > mTextureList.size() - 1) aTextureIndex = mTextureList.size() - 1;
-		return mTextureList[aTextureIndex]->getYTop();
-	}
-	void VDMix::setInputTextureYTop(unsigned int aTextureIndex, int aYTop) {
-		mTextureList[aTextureIndex]->setYTop(aYTop);
-	}
-	int VDMix::getInputTextureXRight(unsigned int aTextureIndex) {
-		if (aTextureIndex > mTextureList.size() - 1) aTextureIndex = mTextureList.size() - 1;
-		return mTextureList[aTextureIndex]->getXRight();
-	}
-	void VDMix::setInputTextureXRight(unsigned int aTextureIndex, int aXRight) {
-		mTextureList[aTextureIndex]->setXRight(aXRight);
-	}
-	int VDMix::getInputTextureYBottom(unsigned int aTextureIndex) {
-		if (aTextureIndex > mTextureList.size() - 1) aTextureIndex = mTextureList.size() - 1;
-		return mTextureList[aTextureIndex]->getYBottom();
-	}
-	void VDMix::setInputTextureYBottom(unsigned int aTextureIndex, int aYBottom) {
-		if (aTextureIndex > mTextureList.size() - 1) aTextureIndex = mTextureList.size() - 1;
-		mTextureList[aTextureIndex]->setYBottom(aYBottom);
-	}
-	bool VDMix::isFlipVInputTexture(unsigned int aTextureIndex) {
-		if (aTextureIndex > mTextureList.size() - 1) aTextureIndex = mTextureList.size() - 1;
-		return mTextureList[aTextureIndex]->isFlipV();
-	}
-	void VDMix::inputTextureFlipV(unsigned int aTextureIndex) {
-		if (aTextureIndex > mTextureList.size() - 1) aTextureIndex = mTextureList.size() - 1;
-		mTextureList[aTextureIndex]->flipV();
-	}
-	bool VDMix::isFlipHInputTexture(unsigned int aTextureIndex) {
-		if (aTextureIndex > mTextureList.size() - 1) aTextureIndex = mTextureList.size() - 1;
-		return mTextureList[aTextureIndex]->isFlipH();
-	}
-	void VDMix::inputTextureFlipH(unsigned int aTextureIndex) {
-		if (aTextureIndex > mTextureList.size() - 1) aTextureIndex = mTextureList.size() - 1;
-		mTextureList[aTextureIndex]->flipH();
-	}
 
-	bool VDMix::getInputTextureLockBounds(unsigned int aTextureIndex) {
-		if (aTextureIndex > mTextureList.size() - 1) aTextureIndex = mTextureList.size() - 1;
-		return mTextureList[aTextureIndex]->getLockBounds();
-	}
-	void VDMix::toggleInputTextureLockBounds(unsigned int aTextureIndex) {
-		if (aTextureIndex > mTextureList.size() - 1) aTextureIndex = mTextureList.size() - 1;
-		mTextureList[aTextureIndex]->toggleLockBounds();
-	}
-	void VDMix::togglePlayPause(unsigned int aTextureIndex) {
-		if (aTextureIndex > mTextureList.size() - 1) aTextureIndex = mTextureList.size() - 1;
-		mTextureList[aTextureIndex]->togglePlayPause();
-	}
-
-	void VDMix::loadMovie(const string& aFile, unsigned int aTextureIndex) {
-#if defined( CINDER_MSW )
-		if (aTextureIndex > mTextureList.size() - 1) aTextureIndex = mTextureList.size() - 1;
-		CI_LOG_V("loadMovie " + aFile + " at textureIndex " + toString(aTextureIndex));
-		// add texture xml
-		XmlTree			textureXml;
-		textureXml.setTag("texture");
-		textureXml.setAttribute("id", "0");
-		textureXml.setAttribute("texturetype", "movie");
-		TextureMovieRef t(new TextureMovie());
-		t->fromXml(textureXml);
-		mTextureList.push_back(t);
-#endif
-	}
 	void VDMix::loadImageFile(const string& aFile, unsigned int aTextureIndex) {
 		if (aTextureIndex > mTextureList.size() - 1) aTextureIndex = mTextureList.size() - 1;
 		CI_LOG_V("loadImageFile " + aFile + " at textureIndex " + toString(aTextureIndex));
@@ -467,10 +354,7 @@ namespace videodromm {
 	void VDMix::loadAudioFile(const string& aFile) {
 		mTextureList[0]->loadFromFullPath(aFile);
 	}
-	bool VDMix::isMovie(unsigned int aTextureIndex) {
-		if (aTextureIndex > mTextureList.size() - 1) aTextureIndex = mTextureList.size() - 1;
-		return (mTextureList[aTextureIndex]->getType() == mTextureList[aTextureIndex]->MOVIE);
-	}
+
 
 	// sequence
 	bool VDMix::isSequence(unsigned int aTextureIndex) {

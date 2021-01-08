@@ -12,6 +12,7 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, const JsonTree &json, unsign
 	mAssetsPath = aAssetsPath;
 	mFboIndex = aFboIndex;
 	std::string shaderType = "fs";
+	//mIsAudioTexture = false;
 
 	// load default fragment shader
 	mShaderName = mShaderFileName = "inputImage.fs";
@@ -44,7 +45,8 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, const JsonTree &json, unsign
 	shaderInclude = loadString(loadAsset("shadertoy.vd"));
 
 	mInputTextureIndex = 0;
-	mTextureName = "";
+	mInputTextureName = "none";
+	mInputTextureRef = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
 
 	if (json.hasChild("shader")) {
 		JsonTree shaderJsonTree(json.getChild("shader"));
@@ -52,14 +54,14 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, const JsonTree &json, unsign
 		mShaderFragmentString = (shaderJsonTree.hasChild("shadertext")) ? shaderJsonTree.getValueForKey<string>("shadertext") : "";
 		shaderType = (json.hasChild("shadertype")) ? json.getValueForKey<string>("shadertype") : "fs";
 	}
-	if (json.hasChild("texture")) {
+	/*if (json.hasChild("texture")) {
 
 		JsonTree textureJsonTree(json.getChild("texture"));
 		//tmp
 		//string tx = (textureJsonTree.hasChild("texturename")) ? textureJsonTree.getValueForKey<string>("texturename") : "0.jpg";
 		mAssetsPath = (textureJsonTree.hasChild("assetspath")) ? textureJsonTree.getValueForKey<string>("assetspath") : aAssetsPath;
 		createInputTexture(textureJsonTree);
-	}
+	}*/
 
 	// init texture
 	//mTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
@@ -90,14 +92,14 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, const JsonTree &json, unsign
 }
 VDFboShader::~VDFboShader(void) {
 }
-unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
+/*unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	unsigned int rtn = 0;
 	VDTextureRef texRef = VDTexture::create(mVDParams, json);
-	mTextureList.push_back(texRef);
-	rtn = mTextureList.size() - 1;
+	mInputTextureList.push_back(texRef);
+	rtn = mInputTextureList.size() - 1;
 	return rtn;
 
-}
+}*/
 bool VDFboShader::loadFragmentShaderFromFile(const string& aFileOrPath) {
 	mValid = false;
 	bool fileExists = true;
@@ -193,7 +195,7 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 
 	if (mValid) {
-
+		// TODO 20200105 if (mAudioTexture) mVDAnimation->getAudioTexture();
 		gl::ScopedFramebuffer fbScp(mFbo);
 		if (mVDUniforms->getUniformValue(mVDUniforms->ICLEAR)) {
 			gl::clear(Color::black());
@@ -213,10 +215,11 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			}
 			t++;
 		}*/
-		for (size_t i{ 1 }; i < 14; i++)
+		mInputTextureRef->bind(0);
+		/*for (size_t i{ 1 }; i < 14; i++)
 		{
-			mTextureList[mInputTextureIndex]->getTexture(i)->bind(253 + i);
-		}
+			mInputTextureList[mInputTextureIndex]->getTexture(i)->bind(253 + i);
+		}*/
 		//mTexture->bind(253);// TODO  +i);
 		std::string name;
 
@@ -261,10 +264,10 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			case GL_SAMPLER_2D: // sampler2D 35678 GL_SAMPLER_2D 0x8B5E
 				texNameEndIndex = name.find_last_of("iChannel");
 				if (texNameEndIndex != std::string::npos) {
-					mTextureName = name.substr(0, texNameEndIndex + 1);
+					mInputTextureName = name.substr(0, texNameEndIndex + 1);
 					texIndex = 0;// (int)(name.substr(texNameEndIndex + 1));
-					CI_LOG_V(toString(texNameEndIndex) + mTextureName);
-					mShader->uniform(mTextureName + toString(channelIndex), (uint32_t)(253 + channelIndex));
+					CI_LOG_V(toString(texNameEndIndex) + mInputTextureName);
+					mShader->uniform(mInputTextureName + toString(channelIndex), (uint32_t)(253 + channelIndex));
 					channelIndex++;
 				}
 				else {
@@ -357,9 +360,9 @@ ci::gl::Texture2dRef VDFboShader::getRenderedTexture() {
 
 	return mRenderedTexture;
 }
-ci::gl::Texture2dRef VDFboShader::getInputTexture() {
-	return mTextureList[mInputTextureIndex]->getTexture();
-}
+/*ci::gl::Texture2dRef VDFboShader::getInputTexture() {
+	return mInputTextureList[mInputTextureIndex]->getTexture();
+}*/
 bool									VDFboShader::isValid() {
 	return mValid;
 };
@@ -367,10 +370,13 @@ bool									VDFboShader::isValid() {
 std::string								VDFboShader::getShaderName() {
 	return mShaderName;
 };
+/*void									VDFboShader::setAudioInputTexture() {
+	mIsAudioTexture = true;
+};*/
 
-void									VDFboShader::setImageInputTexture(ci::gl::Texture2dRef aTextureRef, const std::string& aTextureFilename) {
+/*void									VDFboShader::setImageInputTexture(ci::gl::Texture2dRef aTextureRef, const std::string& aTextureFilename) {
 	mTextureList[mInputTextureIndex]->setImageInputTexture(aTextureRef, aTextureFilename);
-};
+};*/
 
 std::vector<ci::gl::GlslProg::Uniform>	VDFboShader::getUniforms() {
 	return mUniforms;

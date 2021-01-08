@@ -129,8 +129,11 @@ namespace videodromm
 		void					setFboAudioInputTexture(unsigned int aFboIndex = 0) {
 			mVDSession->setFboAudioInputTexture(aFboIndex);
 		}
-		unsigned int					getInputTexturesCount(unsigned int aFboIndex) {
-			return mVDSession->getInputTexturesCount(aFboIndex);
+		unsigned int					getInputTexturesCount() {
+			return mVDSession->getInputTexturesCount();
+		}
+		std::string				getInputTextureName(unsigned int aTexIndex) {
+			return mVDSession->getInputTextureName(aTexIndex);
 		}
 		int						getFFTWindowSize();
 		float*					getFreqs();
@@ -142,6 +145,8 @@ namespace videodromm
 		VDSessionFacadeRef		toggleUI();
 		std::vector<ci::gl::GlslProg::Uniform> getUniforms(unsigned int aFboIndex = 0);
 		ci::gl::Texture2dRef	buildFboInputTexture(unsigned int aFboIndex = 0);
+		ci::gl::Texture2dRef	getInputTexture(unsigned int aTexIndex);
+
 		int						getMode();
 		std::string				getModeName(unsigned int aMode);
 		int						getUniformIndexForName(const std::string& aName);

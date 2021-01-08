@@ -51,7 +51,7 @@ namespace videodromm {
 
 		void							loadFromJsonFile(const fs::path& jsonFile);
 		unsigned int					fboFromJson(const JsonTree& json, unsigned int aFboIndex = 0) {
-			return mVDMix->fboFromJson(json, aFboIndex);
+			return mVDMix->createFboShaderTexture(json, aFboIndex);
 		};
 
 		//! Mix
@@ -313,8 +313,14 @@ namespace videodromm {
 		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aFboIndex) {
 			return mVDMix->getFboInputTexture(aFboIndex);
 		}
-		unsigned int					getInputTexturesCount(unsigned int aFboIndex) {
-			return mVDMix->getInputTexturesCount(aFboIndex);
+		ci::gl::Texture2dRef			getInputTexture(unsigned int aTexIndex) {
+			return mVDMix->getInputTexture(aTexIndex);
+		}
+		unsigned int					getInputTexturesCount() {
+			return mVDMix->getInputTexturesCount();
+		}
+		std::string				getInputTextureName(unsigned int aTexIndex) {
+			return mVDMix->getInputTextureName(aTexIndex);
 		}
 		/*
 		// blendmodes

@@ -45,9 +45,7 @@ namespace videodromm
 			return std::shared_ptr<VDAnimation>(new VDAnimation(aVDSettings, aVDUniforms));
 		}
 		void							update();
-		void							save();
-		
-
+	
 		const int						mBlendModes = 28;
 		void							blendRenderEnable(bool render) { mBlendRender = render; };
 		// tap tempo
@@ -113,10 +111,6 @@ namespace videodromm
 			return mVDUniforms->isExistingUniform(aName); 
 		};
 		
-		/*
-		string							getUniformNameForIndex(int aIndex) {
-			return shaderUniforms[aIndex].name; //controlIndexes[aIndex];
-		};*/
 		int								getUniformIndexForName(const std::string& aName) {
 			return mVDUniforms->getUniformIndexForName(aName);
 			//return shaderUniforms[stringToIndex(aName)].index;
@@ -148,8 +142,6 @@ namespace videodromm
 		unsigned char					dTexture[256];// MUST be < mWindowSize
 
 		// shaders
-		//! write a uniforms json file
-		void							saveUniforms();
 		ci::JsonTree					uniformToJson(int i);
 
 		// time
@@ -163,8 +155,6 @@ namespace videodromm
 		float							previousTime;
 		float							previousTimeBeatPerBar;
 		JsonTree						mData;
-		void							loadAnimation();
-		void							saveAnimation();
 		float							mLastBar = 0.0f; // 20210101 was int
 		std::unordered_map<int, float>	mBadTV;
 		bool							mBlendRender;

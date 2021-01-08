@@ -2,7 +2,7 @@
 /*
 ** ---- TextureCamera ------------------------------------------------
 */
-#include "VDTextureCamera.h"
+/*#include "VDTextureCamera.h"
 using namespace videodromm;
 
 
@@ -19,24 +19,7 @@ TextureCamera::TextureCamera() {
 		CI_LOG_EXCEPTION("Failed to init capture ", exc);
 	}
 }
-/*bool TextureCamera::fromXml(const XmlTree& xml) {
-	// init		
-	mTexture = ci::gl::Texture::create(mWidth, mHeight, ci::gl::Texture::Format().loadTopDown(mFlipV));
-	// retrieve attributes specific to this type of texture
-	mPath = xml.getAttributeValue<string>("path", "");
-	mName = "camera";
-	return true;
-}
-XmlTree	TextureCamera::toXml() const {
-	XmlTree xml = VDTexture::toXml();
 
-	// add attributes specific to this type of texture
-	xml.setAttribute("camera", mFirstCameraDeviceName);
-	xml.setAttribute("flipv", mFlipV);
-	xml.setAttribute("fliph", mFlipH);
-	xml.setAttribute("path", mPath);
-	return xml;
-}*/
 ci::gl::Texture2dRef TextureCamera::getTexture(unsigned int aIndex) {
 	if (mCapture && mCapture->checkNewFrame()) {
 		if (!mTexture) {
@@ -61,5 +44,5 @@ void TextureCamera::printDevices() {
 }
 TextureCamera::~TextureCamera(void) {
 
-}
+}*/
 

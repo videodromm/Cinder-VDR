@@ -2,7 +2,7 @@
 	---- TextureImage ------------------------------------------------
 	implements VDTexture
 */
-#pragma once
+/*#pragma once
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
@@ -26,9 +26,9 @@ namespace videodromm
 		//
 		static TextureImageRef	create() { return std::make_shared<TextureImage>(); }
 		//!
-		//bool					fromXml(const XmlTree &xml) override;
+		//bool					fromJson(const JsonTree& json) override;
 		//!
-		//virtual	XmlTree			toXml() const override;
+		//virtual	XmlTree			toJson() const override;
 		virtual bool			loadFromFullPath(const std::string& aPath) override;
 
 	public:
@@ -41,4 +41,4 @@ namespace videodromm
 		//! 
 		virtual ci::gl::Texture2dRef	getTexture(unsigned int aIndex = 0) override;
 	};
-}
+}*/

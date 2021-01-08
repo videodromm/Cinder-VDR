@@ -2,7 +2,7 @@
 	---- TextureCamera ------------------------------------------------
 	implements VDTexture
 */
-#pragma once
+/*#pragma once
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
@@ -28,7 +28,7 @@ namespace videodromm
 		//!
 		//bool				fromXml(const XmlTree& xml) override;
 		//!
-		//virtual	XmlTree	toXml() const override;
+		//virtual	XmlTree	toJson() const override;
 
 	public:
 		TextureCamera();
@@ -44,4 +44,4 @@ namespace videodromm
 		std::string					mFirstCameraDeviceName;
 		CaptureRef				mCapture;
 	};
-}
+}*/

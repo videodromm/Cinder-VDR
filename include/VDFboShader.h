@@ -47,10 +47,9 @@ namespace videodromm
 
 		ci::gl::Texture2dRef					getTexture(); //TODO 20200610; = 0
 		ci::gl::Texture2dRef					getRenderedTexture();
-		ci::gl::Texture2dRef					getInputTexture();
+		//ci::gl::Texture2dRef					getInputTexture();
 		bool									isValid();
 		std::string								getShaderName();
-		void									setImageInputTexture(ci::gl::Texture2dRef aTextureRef, const std::string& aTextureFilename);
 		std::vector<ci::gl::GlslProg::Uniform>	getUniforms();
 		//new 
 		bool									setFragmentShaderString(const std::string& aFragmentShaderString, const std::string& aName = "");
@@ -60,11 +59,14 @@ namespace videodromm
 		void									setUniformValueByLocation(unsigned int aLocationIndex, float aValue) { 
 			mUniformValueByLocation[aLocationIndex] = aValue;
 		};
+		//void									setImageInputTexture(ci::gl::Texture2dRef aTextureRef, const std::string& aTextureFilename);
+		void									setInputTextureRef(ci::gl::Texture2dRef aTextureRef) { mInputTextureRef = aTextureRef; };
+
 		std::string								getTextureName() {
-			return mTextureList[mInputTextureIndex]->getName();
+			return mInputTextureName;// mInputTextureList[mInputTextureIndex]->getName();
 		};
 		unsigned int							getInputTexturesCount() {
-			return mTextureList.size();
+			return 1;// mInputTextureList.size();
 		}
 		std::string								getMsg() {
 			return mMsg;
@@ -73,6 +75,12 @@ namespace videodromm
 			return mError;
 		};
 		bool									loadFragmentShaderFromFile(const string& aFileOrPath);
+		void									setInputTextureIndex(unsigned int aTexIndex = 0) { 
+			mInputTextureIndex = aTexIndex; 
+		};
+		unsigned int							getInputTextureIndex() {
+			return mInputTextureIndex;
+		};
 	private:
 		// Params
 		VDParamsRef						mVDParams;
@@ -84,10 +92,12 @@ namespace videodromm
 		//ci::gl::Texture2dRef			mTexture;
 
 		//! Input textures
-		std::string						mTextureName;
-		VDTextureList					mTextureList;
+		std::string						mInputTextureName;
+		//VDTextureList					mInputTextureList;
+		gl::TextureRef					mInputTextureRef;
 		unsigned int					mInputTextureIndex;
-		unsigned int					createInputTexture(const JsonTree &json);
+		//unsigned int					createInputTexture(const JsonTree &json);
+		//bool							mIsAudioTexture;
 		//! shader
 		gl::GlslProgRef					mShader;
 		std::vector<ci::gl::GlslProg::Uniform> mUniforms;

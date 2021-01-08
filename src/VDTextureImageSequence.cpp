@@ -1,7 +1,7 @@
 /*
 	** TextureImageSequence
 	*/
-#include "VDTextureImageSequence.h"
+	/*#include "VDTextureImageSequence.h"
 using namespace videodromm;
 
 TextureImageSequence::TextureImageSequence(VDUniformsRef aVDUniforms) {
@@ -104,36 +104,7 @@ bool TextureImageSequence::loadFromFullPath(const std::string& aPath)
 	}
 	return validFile;
 }
-/*bool TextureImageSequence::fromXml(const XmlTree& xml)
-{
-	bool rtn = false;
-	// init		
-	mTexture = ci::gl::Texture::create(mWidth, mHeight, ci::gl::Texture::Format().loadTopDown(mFlipV));
-	// retrieve attributes specific to this type of texture
-	mPath = xml.getAttributeValue<string>("path", "");
-	mName = mPath;
-	mFlipV = xml.getAttributeValue<bool>("flipv", "false");
-	mFlipH = xml.getAttributeValue<bool>("fliph", "false");
-	if (mPath.length() > 0) {
-		if (fs::exists(mPath)) {
-			rtn = loadFromFullPath(mPath);
-		}
-		else {
-			fs::path fullPath = getAssetPath("") / mPath;// TODO / mVDSettings->mAssetsPath
-			rtn = loadFromFullPath(fullPath.string());
-		}
-	}
-	return rtn;
-}
-XmlTree	TextureImageSequence::toXml() const {
-	XmlTree xml = VDTexture::toXml();
 
-	// add attributes specific to this type of texture
-	xml.setAttribute("path", mPath);
-	xml.setAttribute("flipv", mFlipV);
-	xml.setAttribute("fliph", mFlipH);
-	return xml;
-}*/
 void TextureImageSequence::loadNextImageFromDisk() {
 	if (!mLoadingPaused) {
 
@@ -231,18 +202,7 @@ ci::gl::Texture2dRef TextureImageSequence::getTexture(unsigned int aIndex) {
 	}
 	return mTexture;
 }
-/*ci::gl::Texture2dRef TextureImageSequence::getNextTexture() {
 
-	if (mSequenceTextures.size() > 1) {
-
-		if (mPosition+1 > mFramesLoaded) {
-			//error
-			mPosition = 0;
-		}
-		mTexture = mSequenceTextures[mPosition+1];
-	}
-	return mTexture;
-}*/
 // Stops playback and resets the playhead to zero
 void TextureImageSequence::stopSequence() {
 
@@ -280,4 +240,4 @@ void TextureImageSequence::toggleLoadingFromDisk() {
 	mLoadingPaused = !mLoadingPaused;
 }
 TextureImageSequence::~TextureImageSequence(void) {
-}
+}*/

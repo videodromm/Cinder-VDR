@@ -218,7 +218,9 @@ std::vector<ci::gl::GlslProg::Uniform> VDSessionFacade::getUniforms(unsigned int
 ci::gl::Texture2dRef VDSessionFacade::buildFboInputTexture(unsigned int aFboIndex) {
 	return mVDSession->getFboInputTexture(aFboIndex);
 }
-
+ci::gl::Texture2dRef VDSessionFacade::getInputTexture(unsigned int aTexIndex) {
+	return mVDSession->getInputTexture(aTexIndex);
+}
 
 void VDSessionFacade::createWarp() {
 	mVDSession->createWarp();
