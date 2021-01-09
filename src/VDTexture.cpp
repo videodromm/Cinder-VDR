@@ -175,8 +175,7 @@ namespace videodromm {
 		mAssetsPath = (json.hasChild("assetspath")) ? json.getValueForKey<string>("assetspath") : "";
 		mName = mPath;
 		if (mPath.length() > 0) {
-			fs::path fullPath = getAssetPath("") / mAssetsPath / mPath;
-			loadFromFullPath(fullPath.string());
+			loadFromFullPath(mPath);
 		}
 		return true;
 	}
@@ -186,8 +185,15 @@ namespace videodromm {
 			mInputSurface = Surface(loadImage(aPath));
 		}
 		else {
-			mTexture = ci::gl::Texture::create(mWidth, mHeight);
-			mInputSurface = Surface(mWidth, mHeight, true);
+			fs::path fullPath = getAssetPath("") / mAssetsPath / aPath;
+			if (fs::exists(fullPath)) {
+				mTexture = ci::gl::Texture::create(loadImage(fullPath.string()));
+				mInputSurface = Surface(loadImage(aPath));
+			}
+			else {
+				mTexture = ci::gl::Texture::create(mWidth, mHeight);
+				mInputSurface = Surface(mWidth, mHeight, true);
+			}
 		}
 		mXLeft = 0;
 		mYTop = 0;

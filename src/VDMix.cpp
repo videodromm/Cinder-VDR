@@ -294,7 +294,7 @@ namespace videodromm {
 			if (ext == "jpg" || ext == "png") {
 				JsonTree		json;
 				JsonTree texture = ci::JsonTree::makeArray("texture");
-				texture.addChild(ci::JsonTree("texturename", texFileOrPath.filename().string()));
+				texture.addChild(ci::JsonTree("texturename", aFile));
 				texture.pushBack(ci::JsonTree("texturetype", "image"));
 				json.addChild(texture);
 				TextureImageRef t(TextureImage::create());

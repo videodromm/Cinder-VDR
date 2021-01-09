@@ -112,11 +112,14 @@ namespace videodromm {
 		// audio
 		ci::gl::TextureRef				getAudioTexture() {
 
-			mVDMix->setFboAudioInputTexture(0); // TODO 20210101 remove and use update()
+			//mVDMix->setFboAudioInputTexture(0); // TODO 20210101 remove and use update()
 			return mVDAnimation->getAudioTexture();
 		};
-		void							setFboAudioInputTexture(unsigned int aFboIndex = 0) {
+		/*void							setFboAudioInputTexture(unsigned int aFboIndex = 0) {
 			mVDMix->setFboAudioInputTexture(aFboIndex); // TODO 20210101 warning not updating
+		}*/
+		void							setFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0) {
+			mVDMix->setFboInputTexture(aFboIndex, aTexIndex);
 		}
 		std::string						getAudioTextureName() { return mVDAnimation->getAudioTextureName(); };
 		float*							getFreqs() { return mVDAnimation->iFreqs; };
@@ -188,9 +191,7 @@ namespace videodromm {
 		float							getTargetFps() { return mTargetFps; };
 		void							blendRenderEnable(bool render);
 		void							fileDrop(FileDropEvent event);
-		void							setFboInputTexture(unsigned int aFboIndex, unsigned int aInputTextureIndex) {
-			//mFboList[math<int>::min(aFboIndex, mFboList.size() - 1)]->setInputTexture(mTextureList[aInputTextureIndex]->getTexture());
-		}
+		
 		// utils
 		int								getWindowsResolution() {
 			mVDSettings->mDisplayCount = 0;
@@ -310,8 +311,11 @@ namespace videodromm {
 		std::string						getFboInputTextureName(unsigned int aFboIndex = 0) {
 			return mVDMix->getFboTextureName(aFboIndex);
 		}
-		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aFboIndex) {
+		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aFboIndex = 0) {
 			return mVDMix->getFboInputTexture(aFboIndex);
+		}
+		unsigned int			getFboInputTextureIndex(unsigned int aFboIndex = 0) {
+			return mVDMix->getFboInputTextureIndex(aFboIndex);
 		}
 		ci::gl::Texture2dRef			getInputTexture(unsigned int aTexIndex) {
 			return mVDMix->getInputTexture(aTexIndex);

@@ -81,14 +81,22 @@ namespace videodromm
 		std::vector<ci::gl::GlslProg::Uniform>			getUniforms(unsigned int aFboIndex = 0) {
 			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getUniforms();
 		}
-		void							setFboAudioInputTexture(unsigned int aFboIndex = 0) {
+		/*void							setFboAudioInputTexture(unsigned int aFboIndex = 0) {
 			if (mFboShaderList.size() > 0) {
 				mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->setInputTextureIndex(0);
 				//mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->setImageInputTexture(mVDAnimation->getAudioTexture(), "Audio");
 			}
+		}*/
+		void							setFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0) {
+			if (mFboShaderList.size() > 0) {
+				mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->setInputTextureIndex(aTexIndex);
+			}
 		}
 		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aFboIndex = 0) {
 			return mTextureList[ mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTextureIndex()]->getTexture();
+		}
+		unsigned int					getFboInputTextureIndex(unsigned int aFboIndex) {
+			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTextureIndex();
 		}
 		ci::gl::Texture2dRef			getInputTexture(unsigned int aTexIndex) {
 			return mTextureList[math<int>::min(aTexIndex, mTextureList.size() - 1)]->getTexture();

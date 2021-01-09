@@ -117,6 +117,8 @@ namespace videodromm
 		int						getWarpHeight(unsigned int aWarpIndex);
 		std::string				getFboInputTextureName(unsigned int aFboIndex = 0);
 		ci::gl::Texture2dRef	getFboInputTexture(unsigned int aFboIndex = 0);
+		unsigned int			getFboInputTextureIndex(unsigned int aFboIndex = 0);
+
 		std::string				getFboName(unsigned int aFboIndex);
 		// audio
 		ci::gl::TextureRef		getAudioTexture() { return mVDSession->getAudioTexture(); };
@@ -126,8 +128,8 @@ namespace videodromm
 		void					toggleUseLineIn() { mVDSession->toggleUseLineIn(); };
 		bool					isAudioBuffered() { return mVDSession->isAudioBuffered(); };
 		void					toggleAudioBuffered() { mVDSession->toggleAudioBuffered(); };
-		void					setFboAudioInputTexture(unsigned int aFboIndex = 0) {
-			mVDSession->setFboAudioInputTexture(aFboIndex);
+		void					setFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0) {
+			mVDSession->setFboInputTexture(aFboIndex, aTexIndex);
 		}
 		unsigned int					getInputTexturesCount() {
 			return mVDSession->getInputTexturesCount();

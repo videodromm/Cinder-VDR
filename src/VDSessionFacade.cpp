@@ -209,6 +209,9 @@ std::string VDSessionFacade::getFboInputTextureName(unsigned int aFboIndex) {
 ci::gl::Texture2dRef VDSessionFacade::getFboInputTexture(unsigned int aFboIndex) {
 	return mVDSession->getFboInputTexture(aFboIndex);
 }
+unsigned int VDSessionFacade::getFboInputTextureIndex(unsigned int aFboIndex) {
+	return mVDSession->getFboInputTextureIndex(aFboIndex);
+}
 std::string VDSessionFacade::getFboName(unsigned int aFboIndex) {
 	return mVDSession->getFboShaderName(aFboIndex);
 }
