@@ -189,6 +189,7 @@ namespace videodromm {
 			if (fs::exists(fullPath)) {
 				mTexture = ci::gl::Texture::create(loadImage(fullPath.string()));
 				mInputSurface = Surface(loadImage(aPath));
+				mName = fullPath.filename().string();
 			}
 			else {
 				mTexture = ci::gl::Texture::create(mWidth, mHeight);

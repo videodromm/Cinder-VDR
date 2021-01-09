@@ -3,8 +3,9 @@
 using namespace videodromm;
 
 //namespace videodromm {
-VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, const JsonTree &json, unsigned int aFboIndex, const std::string& aAssetsPath)
-	:mVDUniforms{ aVDUniforms }
+VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation, const JsonTree &json, unsigned int aFboIndex, const std::string& aAssetsPath)
+	:mVDUniforms{ aVDUniforms },
+	mVDAnimation{ aVDAnimation }
 {
 	CI_LOG_V("VDFboShader constructor");
 	// Params
@@ -46,7 +47,8 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, const JsonTree &json, unsign
 
 	mInputTextureIndex = 0;
 	mInputTextureName = "none";
-	mInputTextureRef = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
+	//mInputTextureRef = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
+	mInputTextureRef = mVDAnimation->getAudioTexture();
 
 	if (json.hasChild("shader")) {
 		JsonTree shaderJsonTree(json.getChild("shader"));
@@ -195,7 +197,13 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 
 	if (mValid) {
-		// TODO 20200105 if (mAudioTexture) mVDAnimation->getAudioTexture();
+		// TODO 20200105 
+		if (mInputTextureIndex == 0) {
+			mInputTextureRef = mVDAnimation->getAudioTexture();
+		}
+		else {
+			//mInputTextureRef = 
+		}
 		gl::ScopedFramebuffer fbScp(mFbo);
 		if (mVDUniforms->getUniformValue(mVDUniforms->ICLEAR)) {
 			gl::clear(Color::black());

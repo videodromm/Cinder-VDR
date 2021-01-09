@@ -70,7 +70,7 @@ namespace videodromm {
 		texture.pushBack(ci::JsonTree("texturetype", "audio"));
 		texture.pushBack(ci::JsonTree("texturemode", 0));
 		json.addChild(texture);
-		mMixFboShader = VDFboShader::create(mVDUniforms, json, 0, mAssetsPath);
+		mMixFboShader = VDFboShader::create(mVDUniforms, mVDAnimation, json, 0, mAssetsPath);
 		mFboShaderList.push_back(mMixFboShader);
 		loadFbos();
 
@@ -154,7 +154,7 @@ namespace videodromm {
 	}*/
 	unsigned int VDMix::createFboShaderTexture(const JsonTree &json, unsigned int aFboIndex) {
 		unsigned int rtn = 0;
-		VDFboShaderRef fboShader = VDFboShader::create(mVDUniforms, json, aFboIndex, mAssetsPath);
+		VDFboShaderRef fboShader = VDFboShader::create(mVDUniforms, mVDAnimation, json, aFboIndex, mAssetsPath);
 		if (aFboIndex == 0) {
 			mFboShaderList.push_back(fboShader);
 			rtn = mFboShaderList.size() - 1;
@@ -181,7 +181,7 @@ namespace videodromm {
 		unsigned int rtn = aFboShaderIndex;
 		if (mFboShaderList.size() == 0) {
 			// create fbo
-			VDFboShaderRef fboShader = VDFboShader::create(mVDUniforms, json, 0, mAssetsPath);
+			VDFboShaderRef fboShader = VDFboShader::create(mVDUniforms, mVDAnimation, json, 0, mAssetsPath);
 			mFboShaderList.push_back(fboShader);
 			rtn = mFboShaderList.size() - 1;
 		}
@@ -189,7 +189,7 @@ namespace videodromm {
 			if (aFboShaderIndex > mFboShaderList.size() - 1) {
 				if (aFboShaderIndex < MAXSHADERS) {
 					// create fbo
-					mFboShaderList.push_back(VDFboShader::create(mVDUniforms, json, mFboShaderList.size(), mAssetsPath));
+					mFboShaderList.push_back(VDFboShader::create(mVDUniforms, mVDAnimation, json, mFboShaderList.size(), mAssetsPath));
 					rtn = mFboShaderList.size() - 1;
 				}
 				else {

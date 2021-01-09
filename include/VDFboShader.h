@@ -18,8 +18,10 @@
 
 // textures
 #include "VDTexture.h"
-//!  Uniforms
+//! Uniforms
 #include "VDUniforms.h"
+//! Animation
+#include "VDAnimation.h"
 // Params
 #include "VDParams.h"
 
@@ -39,10 +41,10 @@ namespace videodromm
 
 	class VDFboShader {
 	public:
-		VDFboShader(VDUniformsRef aVDUniforms, const JsonTree &json, unsigned int aFboIndex, const std::string& aAssetsPath);
+		VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation, const JsonTree &json, unsigned int aFboIndex, const std::string& aAssetsPath);
 		~VDFboShader(void);
-		static VDFboShaderRef create(VDUniformsRef aVDUniforms, const JsonTree &json, unsigned int aFboIndex, const std::string& aAssetsPath) {
-			return std::make_shared<VDFboShader>(aVDUniforms, json, aFboIndex, aAssetsPath);
+		static VDFboShaderRef create(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation, const JsonTree &json, unsigned int aFboIndex, const std::string& aAssetsPath) {
+			return std::make_shared<VDFboShader>(aVDUniforms, aVDAnimation, json, aFboIndex, aAssetsPath);
 		}
 
 		ci::gl::Texture2dRef					getTexture(); //TODO 20200610; = 0
@@ -60,7 +62,9 @@ namespace videodromm
 			mUniformValueByLocation[aLocationIndex] = aValue;
 		};
 		//void									setImageInputTexture(ci::gl::Texture2dRef aTextureRef, const std::string& aTextureFilename);
-		void									setInputTextureRef(ci::gl::Texture2dRef aTextureRef) { mInputTextureRef = aTextureRef; };
+		void									setInputTextureRef(ci::gl::Texture2dRef aTextureRef) { 
+			mInputTextureRef = aTextureRef; 
+		};
 
 		std::string								getTextureName() {
 			return mInputTextureName;// mInputTextureList[mInputTextureIndex]->getName();
@@ -85,7 +89,7 @@ namespace videodromm
 		// Params
 		VDParamsRef						mVDParams;
 		// Animation
-		//const VDAnimationRef			mVDAnimation;
+		const VDAnimationRef			mVDAnimation;
 		// uniforms
 		VDUniformsRef					mVDUniforms;
 		//! Input textures
