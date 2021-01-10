@@ -91,7 +91,7 @@ VDUniforms::VDUniforms() {
 		// background blue
 		createFloatUniform("iBB", IBB, 1.0f); // 28
 		// Max Volume
-		createFloatUniform("iMaxVolume", IMAXVOLUME, 0.0f); // 29
+		createFloatUniform("volume0", IMAXVOLUME, 0.0f, 0.0f, 255.0f); // 29
 
 
 		// contour
@@ -525,7 +525,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iBB") {
 		rtn = IBB;
 	} // 28
-
+	// volume0 from hydra 
+	else if (key == "volume0") {
+		rtn = IMAXVOLUME;
+	} // 29
 	// contour
 	else if (key == "iContour") {
 		rtn = ICONTOUR;

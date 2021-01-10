@@ -151,17 +151,21 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 			preventLineInCrash(); // at next launch
 			try
 			{
-				std::vector<ci::audio::DeviceRef> inputDevices = ci::audio::Device::getInputDevices();
-				std::vector<ci::audio::DeviceRef> outputDevices = ci::audio::Device::getOutputDevices();
+				inputDevices = ci::audio::Device::getInputDevices();
+				outputDevices = ci::audio::Device::getOutputDevices();
+				mVDSettings->mMsg = "inputs\n";
 				JsonTree doc;
 				JsonTree audioinputs = JsonTree::makeArray("audioinputs");
 				for (ci::audio::DeviceRef in : inputDevices) {
 					audioinputs.addChild(ci::JsonTree(in->getKey(), in->getName()));
+					mVDSettings->mMsg += in->getName() + "\n";
 				}
 				doc.pushBack(audioinputs);
+				mVDSettings->mMsg += "outputs\n";
 				JsonTree audiooutputs = JsonTree::makeArray("audiooutputs");
 				for (ci::audio::DeviceRef out : outputDevices) {
 					audiooutputs.addChild(ci::JsonTree(out->getKey(), out->getName()));
+					mVDSettings->mMsg += out->getName() + "\n";
 				}
 				doc.pushBack(audiooutputs);
 				doc.write(writeFile(getAssetPath("") / "audio.json"), JsonTree::WriteOptions());

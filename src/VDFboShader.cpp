@@ -252,7 +252,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 
 			case GL_FLOAT: // float 5126 0x1406
 				if (name == "TIME" || name == "time") {
-					mShader->uniform(name, mVDUniforms->getUniformValueByName("TIME"));
+					mShader->uniform(name, mVDUniforms->getUniformValue(mVDUniforms->ITIME));
 				}
 				else {
 					if (mVDUniforms->isExistingUniform(name)) {
@@ -270,7 +270,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				}
 				break;
 			case GL_SAMPLER_2D: // sampler2D 35678 0x8B5E
-				texNameEndIndex = name.find_last_of("iChannel");
+				texNameEndIndex = name.find("iChannel");
 				if (texNameEndIndex != std::string::npos) {
 					mInputTextureName = name.substr(0, texNameEndIndex + 1);
 					texIndex = 0;// (int)(name.substr(texNameEndIndex + 1));

@@ -135,6 +135,10 @@ namespace videodromm
 		// Settings
 		VDSettingsRef					mVDSettings;
 		VDUniformsRef					mVDUniforms;
+		// Audio
+		std::vector<ci::audio::DeviceRef> inputDevices;
+		std::vector<ci::audio::DeviceRef> outputDevices;
+
 		std::map<int, int>				freqIndexes;
 		bool							mAudioBuffered;
 		ci::gl::TextureRef				mAudioTexture;
