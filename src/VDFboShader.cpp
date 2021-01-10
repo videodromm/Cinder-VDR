@@ -202,7 +202,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			mInputTextureRef = mVDAnimation->getAudioTexture();
 		}
 		else {
-			//mInputTextureRef = 
+			//mInputTextureRef = mvd
 		}
 		gl::ScopedFramebuffer fbScp(mFbo);
 		if (mVDUniforms->getUniformValue(mVDUniforms->ICLEAR)) {
@@ -228,7 +228,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		{
 			mInputTextureList[mInputTextureIndex]->getTexture(i)->bind(253 + i);
 		}*/
-		//mTexture->bind(253);// TODO  +i);
+		//mInputTextureRef->bind(253);
 		std::string name;
 
 		int texNameEndIndex = 0;
@@ -271,19 +271,19 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				break;
 			case GL_SAMPLER_2D: // sampler2D 35678 0x8B5E
 				texNameEndIndex = name.find("iChannel");
-				if (texNameEndIndex != std::string::npos) {
-					mInputTextureName = name.substr(0, texNameEndIndex + 1);
-					texIndex = 0;// (int)(name.substr(texNameEndIndex + 1));
+				if (texNameEndIndex != std::string::npos && texNameEndIndex != -1) {
+					mInputTextureName = name.substr(0, texNameEndIndex + 7);
+					texIndex = 0;
 					mShader->uniform(mInputTextureName + toString(channelIndex), (uint32_t)(253 + channelIndex));
 					channelIndex++;
 				}
 				else {
 					mShader->uniform(name, (uint32_t)(0));
 				}
-				for (size_t i{ 1 }; i < 14; i++)
+				/*for (size_t i{ 1 }; i < 14; i++)
 				{
 					mShader->uniform(name, (uint32_t)(253 + i));
-				}
+				}*/
 				break;
 			case GL_FLOAT_VEC2:// vec2 35664 0x8B50
 				if (name == "RENDERSIZE" || name == "resolution") {

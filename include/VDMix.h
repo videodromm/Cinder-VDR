@@ -89,7 +89,10 @@ namespace videodromm
 		}*/
 		void							setFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0) {
 			if (mFboShaderList.size() > 0) {
-				mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->setInputTextureIndex(aTexIndex);
+				unsigned int fboIndex = math<int>::min(aFboIndex, mFboShaderList.size() - 1);
+				unsigned int texIndex = math<int>::min(aTexIndex, mTextureList.size() - 1);
+				mFboShaderList[fboIndex]->setInputTextureIndex(texIndex);
+				mFboShaderList[fboIndex]->setInputTextureRef(mTextureList[texIndex]->getTexture());
 			}
 		}
 		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aFboIndex = 0) {
@@ -108,12 +111,14 @@ namespace videodromm
 			return mTextureList[aTexIndex]->getName();
 		}
 		int								getFboInputTextureWidth(unsigned int aFboIndex) {
-			//return mFboList[math<int>::min(aFboIndex, mFboList.size() - 1)]->getInputTexture() ? mFboList[math<int>::min(aFboIndex, mFboList.size() - 1)]->getInputTexture()->getWidth() : mVDParams->getFboWidth();
-			return mVDParams->getFboWidth();
+			//return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTexture() ? mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTexture()->getWidth() : mVDParams->getFboWidth();
+			//return mVDParams->getFboWidth();
+			return mTextureList[mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTextureIndex()]->getTextureWidth();
 		};
 		int								getFboInputTextureHeight(unsigned int aFboIndex) {
-			//return mFboList[math<int>::min(aFboIndex, mFboList.size() - 1)]->getInputTexture() ? mFboList[math<int>::min(aFboIndex, mFboList.size() - 1)]->getInputTexture()->getHeight() : mVDParams->getFboHeight();
-			return mVDParams->getFboHeight();
+			//return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTexture() ? mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTexture()->getHeight() : mVDParams->getFboHeight();
+			//return mVDParams->getFboHeight();
+			return mTextureList[mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTextureIndex()]->getTextureHeight();
 		};
 
 		std::string						getFboShaderName(unsigned int aFboIndex) {

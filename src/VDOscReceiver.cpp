@@ -41,7 +41,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 			// midi cc in osc
 			ss << addr;
 			ctrl = "/cc";
-			index = addr.find(ctrl);
+			index = addr.find(ctrl); // 20210110 TODO check if npos or -1 to compare
 			if (index != std::string::npos)
 			{
 				// from midi2osc (Cinder) or hydra standalone

@@ -122,6 +122,8 @@ namespace videodromm {
 		mBoundsLocked = !mBoundsLocked;
 	};
 	unsigned int VDTexture::getTextureWidth() {
+		int aw = mTexture->getActualWidth();
+		int w = mTexture->getWidth();
 		return mWidth;
 	};
 
@@ -720,8 +722,8 @@ namespace videodromm {
 	}
 
 	ci::gl::Texture2dRef TextureAudio::getTexture() {
-
-		auto fmt = gl::Texture2d::Format().swizzleMask(GL_RED, GL_RED, GL_RED, GL_ONE).internalFormat(GL_RED);
+		return mVDAnimation->getAudioTexture();
+		/*auto fmt = gl::Texture2d::Format().swizzleMask(GL_RED, GL_RED, GL_RED, GL_ONE).internalFormat(GL_RED);
 		auto ctx = audio::Context::master();
 		if (!mLineInInitialized) {
 #if (defined( CINDER_MSW ) || defined( CINDER_MAC ))
@@ -828,7 +830,7 @@ namespace videodromm {
 			mTexture = gl::Texture::create(dTexture, GL_RED, 64, 2, fmt);
 		}
 
-		return mTexture;
+		return mTexture;*/
 	}
 	ci::gl::Texture2dRef TextureAudio::getCachedTexture(string aFilename) {
 		return TextureAudio::getTexture();
