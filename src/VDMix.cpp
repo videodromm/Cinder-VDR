@@ -243,7 +243,7 @@ namespace videodromm {
 		int rtn = findAvailableIndex(aFboShaderIndex, json);
 
 		mFboShaderList[rtn]->loadFragmentShaderFromFile(aFilePath);
-		mVDSettings->mMsg = "loaded " + mFboShaderList[rtn]->getShaderName() + "\n try at " + toString(aFboShaderIndex) + "\n valid at " + toString(rtn) + "\n" + mVDSettings->mMsg.substr(0, mVDSettings->mMsgLength);
+		mVDSettings->mMsg = "loaded " + mFboShaderList[rtn]->getShaderName() + "\n try at " + toString(aFboShaderIndex) + " valid at " + toString(rtn) + "\n" + mVDSettings->mMsg.substr(0, mVDSettings->mMsgLength);
 		return rtn;
 	}
 	ci::gl::TextureRef VDMix::getMixetteTexture(unsigned int aFboIndex) {

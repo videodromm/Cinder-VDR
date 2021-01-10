@@ -243,14 +243,14 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		mUniforms = mShader->getActiveUniforms();
 		for (const auto& uniform : mUniforms) {
 
-			name = uniform.getName(); // TODO uniform.getType()
+			name = uniform.getName();
 			//CI_LOG_E(mShader->getLabel() + ", getShader uniform name:" + uniform.getName() + ", type:" + toString(uniform.getType()) + ", Location:" + toString(uniform.getLocation()));
 			//if (mVDAnimation->isExistingUniform(name)) {
 			int uniformType = uniform.getType();
 			switch (uniformType)
 			{
 
-			case GL_FLOAT: // float 5126 GL_FLOAT 0x1406
+			case GL_FLOAT: // float 5126 0x1406
 				if (name == "TIME" || name == "time") {
 					mShader->uniform(name, mVDUniforms->getUniformValueByName("TIME"));
 				}
@@ -269,25 +269,23 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 					}
 				}
 				break;
-			case GL_SAMPLER_2D: // sampler2D 35678 GL_SAMPLER_2D 0x8B5E
+			case GL_SAMPLER_2D: // sampler2D 35678 0x8B5E
 				texNameEndIndex = name.find_last_of("iChannel");
 				if (texNameEndIndex != std::string::npos) {
 					mInputTextureName = name.substr(0, texNameEndIndex + 1);
 					texIndex = 0;// (int)(name.substr(texNameEndIndex + 1));
-					CI_LOG_V(toString(texNameEndIndex) + mInputTextureName);
 					mShader->uniform(mInputTextureName + toString(channelIndex), (uint32_t)(253 + channelIndex));
 					channelIndex++;
 				}
 				else {
 					mShader->uniform(name, (uint32_t)(0));
 				}
-				//mShader->uniform(name, 253);
 				for (size_t i{ 1 }; i < 14; i++)
 				{
 					mShader->uniform(name, (uint32_t)(253 + i));
 				}
 				break;
-			case GL_FLOAT_VEC2://GL_FLOAT_VEC2: // vec2 35664 GL_FLOAT_VEC2 0x8B50
+			case GL_FLOAT_VEC2:// vec2 35664 0x8B50
 				if (name == "RENDERSIZE" || name == "resolution") {
 					//mShader->uniform(name, vec2(mTexture->getWidth(), mTexture->getHeight()));
 					mShader->uniform(name, vec2(mVDParams->getFboWidth(), mVDParams->getFboHeight()));
@@ -296,43 +294,28 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 					mShader->uniform(name, mVDUniforms->getVec2UniformValueByName(name));
 				}
 				break;
-			case GL_FLOAT_VEC3://GL_FLOAT_VEC3: // vec3 35665 GL_FLOAT_VEC3 0x8B51
+			case GL_FLOAT_VEC3:// vec3 35665 0x8B51
 				mShader->uniform(name, mVDUniforms->getVec3UniformValueByName(name));
 				break;
-			case GL_FLOAT_VEC4://GL_FLOAT_VEC4: // vec4 35666 GL_FLOAT_VEC4 0x8B52
+			case GL_FLOAT_VEC4:// vec4 35666 0x8B52
 				mShader->uniform(name, mVDUniforms->getVec4UniformValueByName(name));
 				break;
-			case GL_INT: // int 5124 GL_INT 0x1404
+			case GL_INT: // int 5124 0x1404
 				// IBEAT 51
 				// IBAR 52
 				// IBARBEAT 53
 				mShader->uniform(name, mVDUniforms->getUniformValueByName(name));
 				break;
-			case GL_BOOL: // boolean 35670 GL_BOOL 0x8B56
+			case GL_BOOL: // boolean 35670 0x8B56
 				//createBoolUniform(name, mVDAnimation->getUniformIndexForName(name), getBoolUniformValueByName(name)); // get same index as vdanimation
 				mShader->uniform(name, mVDUniforms->getUniformValueByName(name));
 				break;
-			case GL_FLOAT_MAT4: // 35676 GL_FLOAT_MAT4 0x8B5C ciModelViewProjection
+			case GL_FLOAT_MAT4: // 35676 0x8B5C ciModelViewProjection
 				break;
 			default:
 				break;
 			}
-			/*}
-			else {
-				if (name != "ciModelViewProjection") {//type 35676 GL_FLOAT_MAT4 0x8B5C
-					mError = "fbo uniform not found " + name;
-					mMsg = mError + "\n" + mMsg.substr(0, mMsgLength);
-					CI_LOG_E(mError);
-				}
-				else {
-					mError = "should not happen: " + name;
-				}
-			}*/
 		}
-		//mShader->uniform("RENDERSIZE", vec2(mVDParams->getFboWidth(), mVDParams->getFboHeight()));
-		//mShader->uniform("TIME", (float)getElapsedSeconds());// mVDAnimation->getUniformValue(0));
-		//mShader->uniform("resolution", vec2(mVDParams->getFboWidth(), mVDParams->getFboHeight())); // 20201231 useless?
-		//mShader->uniform("time", mVDUniforms->getUniformValue(0)); // 20201231 useless?
 
 		gl::ScopedGlslProg glslScope(mShader);
 		// TODO: test gl::ScopedViewport sVp(0, 0, mFbo->getWidth(), mFbo->getHeight());	

@@ -12,15 +12,15 @@ VDAnimation::VDAnimation(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms) {
 	mLineInInitialized = false;
 	mWaveInitialized = false;
 	mAudioName = "not initialized";
-	for (int i{0}; i < 7; i++)
+	for (int i{ 0 }; i < 7; i++)
 	{
 		freqIndexes[i] = i * 7;
 	}
-	for (int i{0}; i < mFFTWindowSize; i++)
+	for (int i{ 0 }; i < mFFTWindowSize; i++)
 	{
 		iFreqs[i] = 0.0f;
 	}
-	
+
 	currentScene = 0;
 
 	previousTime = 0.0f;
@@ -151,8 +151,23 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 			preventLineInCrash(); // at next launch
 			try
 			{
+				std::vector<ci::audio::DeviceRef> inputDevices = ci::audio::Device::getInputDevices();
+				std::vector<ci::audio::DeviceRef> outputDevices = ci::audio::Device::getOutputDevices();
+				JsonTree doc;
+				JsonTree audioinputs = JsonTree::makeArray("audioinputs");
+				for (ci::audio::DeviceRef in : inputDevices) {
+					audioinputs.addChild(ci::JsonTree(in->getKey(), in->getName()));
+				}
+				doc.pushBack(audioinputs);
+				JsonTree audiooutputs = JsonTree::makeArray("audiooutputs");
+				for (ci::audio::DeviceRef out : outputDevices) {
+					audiooutputs.addChild(ci::JsonTree(out->getKey(), out->getName()));
+				}
+				doc.pushBack(audiooutputs);
+				doc.write(writeFile(getAssetPath("") / "audio.json"), JsonTree::WriteOptions());
+				auto device = ci::audio::Device::findDeviceByKey("{0.0.1.00000000}.{550b0d08-c4c6-4b80-bf32-61f20f743e0d}");
 				CI_LOG_W("trying to open mic/line in, if no line follows in the log, the app crashed so put UseLineIn to false in the VDSettings.xml file");
-				mLineIn = ctx->createInputDeviceNode(); //crashes if linein is present but disabled, doesn't go to catch block
+				mLineIn = ctx->createInputDeviceNode(device); //crashes if linein is present but disabled, doesn't go to catch block
 				CI_LOG_V("mic/line in opened");
 				saveLineIn();
 				mAudioName = mLineIn->getDevice()->getName();
@@ -210,7 +225,7 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 		if (mDataSize > 0 && mDataSize < mFFTWindowSize + 1) {
 			float db;
 			unsigned char signal[mFFTWindowSize];
-			for (size_t i{0}; i < mDataSize; i++) {
+			for (size_t i{ 0 }; i < mDataSize; i++) {
 				float f = mMagSpectrum[i];
 				db = audio::linearToDecibel(f);
 				f = db * mVDUniforms->getUniformValue(mVDUniforms->IAUDIOX);
@@ -240,7 +255,7 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 		// get freqs from Speckthor in VDRouter.cpp
 		float db;
 		unsigned char signal[mFFTWindowSize];
-		for (size_t i{0}; i < mFFTWindowSize; i++) {
+		for (size_t i{ 0 }; i < mFFTWindowSize; i++) {
 			float f = iFreqs[i];
 			if (f > mVDUniforms->getUniformValue(mVDUniforms->IMAXVOLUME))
 			{
@@ -310,7 +325,7 @@ void VDAnimation::update() {
 	mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->IRESOLUTION, vec3(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY), 1.0));
 	mVDUniforms->setVec2UniformValueByIndex(mVDUniforms->RESOLUTION, vec2(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY)));
 	mVDUniforms->setVec2UniformValueByIndex(mVDUniforms->RENDERSIZE, vec2(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY)));
-	
+
 	// iDate
 	time_t now = time(0);
 	tm *   t = gmtime(&now);
@@ -353,10 +368,10 @@ void VDAnimation::update() {
 		previousTime = mVDUniforms->getUniformValue(mVDUniforms->ITEMPOTIME);
 
 		// TODO (modulo < 0.1) ? tempoMvg->setNameColor(ColorA::white()) : tempoMvg->setNameColor(UIController::DEFAULT_NAME_COLOR);
-		for (unsigned int anim{1} ; anim < 29; anim++)
+		for (unsigned int anim{ 1 }; anim < 29; anim++)
 		{
 			//unsigned int animType = mVDUniforms->getUniformAnim(anim)
-			switch (mVDUniforms->getUniformAnim(anim)) {				
+			switch (mVDUniforms->getUniformAnim(anim)) {
 			case 1: // ANIM_TIME
 				mVDUniforms->setUniformValue(anim, (modulo < 0.1) ? mVDUniforms->getMaxUniformValue(anim) : mVDUniforms->getMinUniformValue(anim));
 				break;
@@ -439,7 +454,7 @@ void VDAnimation::calculateTempo()
 {
 	// NORMAL AVERAGE
 	double tAverage = 0;
-	for (int i{0}; i < buffer.size(); i++)
+	for (int i{ 0 }; i < buffer.size(); i++)
 	{
 		tAverage += buffer[i];
 	}

@@ -336,7 +336,6 @@ namespace videodromm
 		//! 
 		virtual ci::gl::Texture2dRef	getTexture() override;
 		virtual ci::gl::Texture2dRef	getCachedTexture(string aFilename) override;
-		//float							getIntensity() override;
 	private:
 		// Animation
 		VDAnimationRef					mVDAnimation;
