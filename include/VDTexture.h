@@ -46,7 +46,7 @@
 
 using namespace ci;
 using namespace ci::app;
-using namespace std;
+//using namespace std;
 
 
 namespace videodromm
@@ -70,7 +70,7 @@ namespace videodromm
 		virtual ~VDTexture(void);
 
 		virtual ci::gl::Texture2dRef	getTexture();
-		virtual ci::gl::Texture2dRef	getCachedTexture(string aFilename);
+		virtual ci::gl::Texture2dRef	getCachedTexture(const std::string& aFilename);
 		//! returns a shared pointer to this input texture
 		VDTextureRef					getPtr() { return shared_from_this(); }
 		ci::ivec2						getSize();
@@ -91,8 +91,8 @@ namespace videodromm
 		//static VDTextureList			readSettings(VDAnimationRef aVDAnimation, const ci::DataSourceRef &source);
 		//! write a xml file
 		//static void						writeSettings(const VDTextureList &vdtexturelist, const ci::DataTargetRef &target);
-		virtual bool					loadFromFullPath(string aPath);
-		string							getStatus() { return mStatus; };
+		virtual bool					loadFromFullPath(const std::string& aPath);
+		std::string						getStatus() { return mStatus; };
 		//! area to display
 		void							lockBounds(bool lock, unsigned int aWidth, unsigned int aHeight);
 		void							setXLeft(int aXleft);
@@ -163,7 +163,7 @@ namespace videodromm
 		bool					fromJson(const JsonTree& json) override;
 		//!
 		//virtual	XmlTree			toJson() const override;
-		virtual bool			loadFromFullPath(string aPath) override;
+		virtual bool			loadFromFullPath(const std::string& aPath) override;
 
 	public:
 		TextureImage();
@@ -174,7 +174,7 @@ namespace videodromm
 	protected:
 		//! 
 		virtual ci::gl::Texture2dRef	getTexture() override;
-		virtual ci::gl::Texture2dRef	getCachedTexture(string aFilename) override;
+		virtual ci::gl::Texture2dRef	getCachedTexture(const std::string& aFilename) override;
 	};
 
 	/*
@@ -192,7 +192,7 @@ namespace videodromm
 		//!
 		//virtual	XmlTree			toJson() const override;
 		//!
-		virtual bool			loadFromFullPath(string aPath) override;
+		virtual bool			loadFromFullPath(const std::string& aPath) override;
 		TextureImageSequence(VDAnimationRef aVDAnimation);
 		virtual ~TextureImageSequence(void);
 
@@ -211,7 +211,7 @@ namespace videodromm
 	protected:
 		//! 
 		virtual ci::gl::Texture2dRef	getTexture() override;
-		virtual ci::gl::Texture2dRef	getCachedTexture(string aFilename) override;
+		virtual ci::gl::Texture2dRef	getCachedTexture(const std::string& aFilename) override;
 
 	private:
 		// Animation
@@ -221,19 +221,19 @@ namespace videodromm
 		void						loadNextImageFromDisk();
 		void						updateSequence();
 		bool						mIsSequence;
-		string						mFolder;
-		string						mPrefix;
-		string						mExt;
+		std::string					mFolder;
+		std::string					mPrefix;
+		std::string					mExt;
 		int							mNumberOfDigits;
 		int							mNextIndexFrameToTry;
 		std::chrono::steady_clock::time_point	startGlobal;
 		int							mCurrentLoadedFrame;
 		int							mFramesLoaded;
 		int							currentSecond;
-		//int							mPlayheadPosition;
+		//int						mPlayheadPosition;
 		bool						mLoadingPaused;
 		bool						mLoadingFilesComplete;
-		string						mLastCachedFilename;
+		std::string					mLastCachedFilename;
 
 		vector<ci::gl::TextureRef>	mSequenceTextures;
 		map<string, ci::gl::TextureRef>	mCachedTextures;
@@ -264,10 +264,10 @@ namespace videodromm
 	protected:
 		//! 
 		virtual ci::gl::Texture2dRef	getTexture() override;
-		virtual ci::gl::Texture2dRef	getCachedTexture(string aFilename) override;
+		virtual ci::gl::Texture2dRef	getCachedTexture(const std::string& aFilename) override;
 	private:
 		void printDevices();
-		string					mFirstCameraDeviceName;
+		std::string				mFirstCameraDeviceName;
 		CaptureRef				mCapture;
 	};
 #endif
@@ -296,7 +296,7 @@ namespace videodromm
 	protected:
 		//! 
 		virtual ci::gl::Texture2dRef	getTexture() override;
-		virtual ci::gl::Texture2dRef	getCachedTexture(string aFilename) override;
+		virtual ci::gl::Texture2dRef	getCachedTexture(const std::string& aFilename) override;
 	private:
 #if defined( CINDER_MSW )
 		// -------- SPOUT -------------
@@ -324,7 +324,7 @@ namespace videodromm
 		//!
 		//virtual	XmlTree			toJson() const override;
 		//!
-		virtual bool			loadFromFullPath(string aPath) override;
+		virtual bool			loadFromFullPath(const std::string& aPath) override;
 
 	public:
 		TextureAudio(VDAnimationRef aVDAnimation);
@@ -335,7 +335,7 @@ namespace videodromm
 	protected:
 		//! 
 		virtual ci::gl::Texture2dRef	getTexture() override;
-		virtual ci::gl::Texture2dRef	getCachedTexture(string aFilename) override;
+		virtual ci::gl::Texture2dRef	getCachedTexture(const std::string& aFilename) override;
 	private:
 		// Animation
 		VDAnimationRef					mVDAnimation;
@@ -355,7 +355,7 @@ namespace videodromm
 		audio::MonitorSpectralNodeRef	mScopeLineInFmt;
 		audio::BufferPlayerNodeRef		mBufferPlayerNode;
 
-		vector<float>					mMagSpectrum;
+		std::vector<float>				mMagSpectrum;
 
 		// number of frequency bands of our spectrum
 		static const int				kBands = 16;
@@ -381,7 +381,7 @@ namespace videodromm
 		//!
 		//virtual	XmlTree			toJson() const override;
 		//!
-		virtual bool			loadFromFullPath(string aStream) override;
+		virtual bool			loadFromFullPath(const std::string& aStream) override;
 
 	public:
 		TextureStream(VDAnimationRef aVDAnimation);
@@ -392,7 +392,7 @@ namespace videodromm
 	protected:
 		//! 
 		virtual ci::gl::Texture2dRef	getTexture() override;
-		virtual ci::gl::Texture2dRef	getCachedTexture(string aFilename) override;
+		virtual ci::gl::Texture2dRef	getCachedTexture(const std::string& aFilename) override;
 	private:
 		// Animation
 		VDAnimationRef					mVDAnimation;

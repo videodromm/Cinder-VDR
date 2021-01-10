@@ -81,7 +81,7 @@ namespace videodromm {
 	int VDTexture::getMaxFrame() {
 		return 1;
 	}
-	bool VDTexture::loadFromFullPath(string aPath) {
+	bool VDTexture::loadFromFullPath(const std::string& aPath) {
 		// initialize texture
 		mTexture = ci::gl::Texture::create(mWidth, mHeight, ci::gl::Texture::Format().loadTopDown());
 		return true;
@@ -155,7 +155,7 @@ namespace videodromm {
 	ci::gl::TextureRef VDTexture::getTexture() {
 		return mTexture;
 	}
-	ci::gl::Texture2dRef VDTexture::getCachedTexture(string aFilename) {
+	ci::gl::Texture2dRef VDTexture::getCachedTexture(const std::string& aFilename) {
 		return mTexture;
 	}
 	/*
@@ -175,13 +175,23 @@ namespace videodromm {
 		// retrieve attributes specific to this type of texture
 		mPath = (json.hasChild("texturename")) ? json.getValueForKey<string>("texturename") : "0.jpg";
 		mAssetsPath = (json.hasChild("assetspath")) ? json.getValueForKey<string>("assetspath") : "";
-		mName = mPath;
+
+		// find filename without full path
+		int slashIndex = mPath.find_last_of("\\");
+
+		if (slashIndex != std::string::npos) {
+			mName = mPath.substr(slashIndex + 1);
+		}
+		else {
+			mName = mPath;
+		}
 		if (mPath.length() > 0) {
 			loadFromFullPath(mPath);
 		}
 		return true;
 	}
-	bool TextureImage::loadFromFullPath(string aPath) {
+	bool TextureImage::loadFromFullPath(const std::string& aPath) {
+		
 		if (fs::exists(aPath)) {
 			mTexture = ci::gl::Texture::create(loadImage(aPath));
 			mInputSurface = Surface(loadImage(aPath));
@@ -211,7 +221,7 @@ namespace videodromm {
 		mTexture = gl::Texture2d::create(mProcessedSurface, ci::gl::Texture::Format().loadTopDown());
 		return mTexture;
 	}
-	ci::gl::Texture2dRef TextureImage::getCachedTexture(string aFilename) {
+	ci::gl::Texture2dRef TextureImage::getCachedTexture(const std::string& aFilename) {
 		return TextureImage::getTexture();
 	}
 	TextureImage::~TextureImage(void) {
@@ -240,7 +250,7 @@ namespace videodromm {
 		startGlobal = Clock::now();
 		mStatus = "...";
 	}
-	bool TextureImageSequence::loadFromFullPath(string aPath)
+	bool TextureImageSequence::loadFromFullPath(const std::string& aPath)
 	{
 		bool validFile = false; // if no valid files in the folder, we keep existing vector
 		string anyImagefileName = "0.jpg";
@@ -477,7 +487,7 @@ namespace videodromm {
 		}
 		return mTexture;
 	}
-	ci::gl::Texture2dRef TextureImageSequence::getCachedTexture(string aFilename) {
+	ci::gl::Texture2dRef TextureImageSequence::getCachedTexture(const std::string& aFilename) {
 
 		if (mCachedTextures[aFilename]) {
 			CI_LOG_V(aFilename + " in cache");
@@ -587,7 +597,7 @@ namespace videodromm {
 		}
 		return mTexture;
 	}
-	ci::gl::Texture2dRef TextureCamera::getCachedTexture(string aFilename) {
+	ci::gl::Texture2dRef TextureCamera::getCachedTexture(const std::string& aFilename) {
 		return TextureCamera::getTexture();
 	}
 	void TextureCamera::printDevices() {
@@ -641,7 +651,7 @@ namespace videodromm {
 #endif
 		return mTexture;
 	}
-	ci::gl::Texture2dRef TextureShared::getCachedTexture(string aFilename) {
+	ci::gl::Texture2dRef TextureShared::getCachedTexture(const std::string& aFilename) {
 		return TextureShared::getTexture();
 	}
 	TextureShared::~TextureShared(void) {
@@ -678,7 +688,7 @@ namespace videodromm {
 		mTexture = gl::Texture::create(dTexture, GL_RED, 64, 2, fmt);
 		return true;
 	}
-	bool TextureAudio::loadFromFullPath(string aPath)
+	bool TextureAudio::loadFromFullPath(const std::string& aPath)
 	{
 		CI_LOG_V("TextureAudio::loadFromFullPath: " + aPath);
 		try {
@@ -832,7 +842,7 @@ namespace videodromm {
 
 		return mTexture;*/
 	}
-	ci::gl::Texture2dRef TextureAudio::getCachedTexture(string aFilename) {
+	ci::gl::Texture2dRef TextureAudio::getCachedTexture(const std::string& aFilename) {
 		return TextureAudio::getTexture();
 	}
 	TextureAudio::~TextureAudio(void) {
@@ -855,7 +865,7 @@ namespace videodromm {
 		mTexture = gl::Texture::create(mWidth, mHeight);
 		return true;
 	}
-	bool TextureStream::loadFromFullPath(string aStream)
+	bool TextureStream::loadFromFullPath(const std::string& aStream)
 	{
 		bool rtn = false;
 		size_t len;
@@ -881,7 +891,7 @@ namespace videodromm {
 	ci::gl::Texture2dRef TextureStream::getTexture() {
 		return mTexture;
 	}
-	ci::gl::Texture2dRef TextureStream::getCachedTexture(string aFilename) {
+	ci::gl::Texture2dRef TextureStream::getCachedTexture(const std::string& aFilename) {
 		return TextureStream::getTexture();
 	}
 	TextureStream::~TextureStream(void) {
