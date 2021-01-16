@@ -128,6 +128,10 @@ namespace videodromm
 		void					toggleUseLineIn() { mVDSession->toggleUseLineIn(); };
 		bool					isAudioBuffered() { return mVDSession->isAudioBuffered(); };
 		void					toggleAudioBuffered() { mVDSession->toggleAudioBuffered(); };
+		bool					getUseWaveMonitor() { return mVDSession->getUseWaveMonitor(); };
+		void					toggleUseWaveMonitor() { mVDSession->toggleUseWaveMonitor(); };
+		bool					getUseRandom() { return mVDSession->getUseRandom(); };
+		void					toggleUseRandom() { mVDSession->toggleUseRandom(); };
 		void					setFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0) {
 			mVDSession->setFboInputTexture(aFboIndex, aTexIndex);
 		}

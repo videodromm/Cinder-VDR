@@ -88,20 +88,32 @@ namespace videodromm
 		std::string						mAudioName;
 		void							preventLineInCrash(); // at next launch
 		void							saveLineIn();
+		void							preventWaveMonitorCrash(); // at next launch
+		void							saveWaveMonitor();
 		bool							getUseAudio() {
-			return mVDSettings->mUseAudio;
+			return mUseAudio;
 		};
 		bool							getUseLineIn() {
-			return mVDSettings->mUseLineIn;
+			return mUseLineIn;
 		};
 		void							setUseLineIn(bool useLineIn) {
-			mVDSettings->mUseLineIn = useLineIn;
+			mUseLineIn = useLineIn;
 		};
-		void							toggleUseLineIn() { mVDSettings->mUseLineIn = !mVDSettings->mUseLineIn; };
+		void							setUseWaveMonitor(bool useWaveMonitor) {
+			mUseAudio = useWaveMonitor;
+		};
+		bool							getUseWaveMonitor() { return mUseAudio; };
+		void							toggleUseWaveMonitor() { mUseAudio = !mUseAudio; };
+
+		void							toggleUseLineIn() { mUseLineIn = !mUseLineIn; };
 
 		// audio
 		bool							isAudioBuffered() { return mAudioBuffered; };
-		void							toggleAudioBuffered() { mAudioBuffered = !mAudioBuffered; };
+		void							toggleAudioBuffered() {
+			mAudioBuffered = !mAudioBuffered; 
+		};
+		bool							getUseRandom() { return mUseRandom; };
+		void							toggleUseRandom() { mUseRandom = !mUseRandom; };
 
 		// shaders
 		int								getUniformTypeByName(const std::string& aName) {
@@ -138,12 +150,14 @@ namespace videodromm
 		// Audio
 		std::vector<ci::audio::DeviceRef> inputDevices;
 		std::vector<ci::audio::DeviceRef> outputDevices;
-
+		bool							mUseAudio = true;
+		bool							mUseRandom = false;
+		bool							mUseLineIn = false;
 		std::map<int, int>				freqIndexes;
-		bool							mAudioBuffered;
+		bool							mAudioBuffered = false;
 		ci::gl::TextureRef				mAudioTexture;
 		gl::Texture2d::Format			mAudioFormat;
-		unsigned char					dTexture[256];// MUST be < mWindowSize
+		//unsigned char					dTexture[256];// MUST be < mWindowSize
 
 		// shaders
 		ci::JsonTree					uniformToJson(int i);

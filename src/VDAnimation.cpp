@@ -7,7 +7,10 @@ VDAnimation::VDAnimation(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms) {
 	mVDUniforms = aVDUniforms;
 	mBlendRender = false;
 	//audio
-	mAudioBuffered = false;	mAudioFormat = gl::Texture2d::Format().swizzleMask(GL_RED, GL_RED, GL_RED, GL_ONE).internalFormat(GL_RED);
+	mAudioBuffered = false;	
+	mUseAudio = true;
+	mUseLineIn = false;
+	mAudioFormat = gl::Texture2d::Format().swizzleMask(GL_RED, GL_RED, GL_RED, GL_ONE).internalFormat(GL_RED);
 	mAudioTexture = ci::gl::Texture::create(64, 2, mAudioFormat);
 	mLineInInitialized = false;
 	mWaveInitialized = false;
@@ -192,12 +195,24 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 #endif
 	if (!mWaveInitialized) {
 		if (getUseAudio()) {
-			// also initialize wave monitor
-			auto scopeWaveFmt = audio::MonitorSpectralNode::Format().fftSize(mFFTWindowSize * 2).windowSize(mFFTWindowSize);// CHECK is * 2 needed
-			mMonitorWaveSpectralNode = ctx->makeNode(new audio::MonitorSpectralNode(scopeWaveFmt));
-			ctx->enable();
-			mAudioName = "wave";
-			mWaveInitialized = true;
+
+			preventWaveMonitorCrash(); // at next launch
+			try
+			{
+				//initialize wave monitor
+				auto scopeWaveFmt = audio::MonitorSpectralNode::Format().fftSize(mFFTWindowSize * 2).windowSize(mFFTWindowSize);// CHECK is * 2 needed
+				mMonitorWaveSpectralNode = ctx->makeNode(new audio::MonitorSpectralNode(scopeWaveFmt));
+				ctx->enable();
+				mAudioName = "wave";
+				saveWaveMonitor();
+				mWaveInitialized = true;
+			}
+			catch (const std::exception& ex)
+			{
+				CI_LOG_V("wave monitor crashed");
+				mVDSettings->mMsg = "wave monitor crashed";
+				mVDSettings->mErrorMsg = ex.what();
+			}
 		}
 	}
 #if (defined( CINDER_MSW ) || defined( CINDER_MAC ))
@@ -254,26 +269,32 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 		}
 	}
 	else {
-		// generate random values
-		// 20200222 for (int i{0}; i < 128; ++i) dTexture[i] = (unsigned char)(i);
-		// get freqs from Speckthor in VDRouter.cpp
-		float db;
+		//float db;
 		unsigned char signal[mFFTWindowSize];
-		for (size_t i{ 0 }; i < mFFTWindowSize; i++) {
-			float f = iFreqs[i];
-			if (f > mVDUniforms->getUniformValue(mVDUniforms->IMAXVOLUME))
-			{
-				mVDUniforms->setUniformValue(mVDUniforms->IMAXVOLUME, f);
+		if (mUseRandom) {
+			// generate random values			
+			for (int i{ 0 }; i < mFFTWindowSize; ++i) {
+				signal[i] = (unsigned char)(i);
 			}
-			// update iFreq uniforms 
-			if (i == getFreqIndex(0)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ0, f);
-			if (i == getFreqIndex(1)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ1, f);
-			if (i == getFreqIndex(2)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ2, f);
-			if (i == getFreqIndex(3)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ3, f);
+		}
+		else {
+			// get freqs from Speckthor in VDRouter.cpp
+			for (size_t i{ 0 }; i < mFFTWindowSize; i++) {
+				float f = iFreqs[i];
+				if (f > mVDUniforms->getUniformValue(mVDUniforms->IMAXVOLUME))
+				{
+					mVDUniforms->setUniformValue(mVDUniforms->IMAXVOLUME, f);
+				}
+				// update iFreq uniforms 
+				if (i == getFreqIndex(0)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ0, f);
+				if (i == getFreqIndex(1)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ1, f);
+				if (i == getFreqIndex(2)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ2, f);
+				if (i == getFreqIndex(3)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ3, f);
 
-			if (i < mFFTWindowSize) {
-				int ger = f;
-				signal[i] = static_cast<unsigned char>(ger);
+				if (i < mFFTWindowSize) {
+					int ger = f;
+					signal[i] = static_cast<unsigned char>(ger);
+				}
 			}
 		}
 		// store it as a 512x2 texture
@@ -469,9 +490,17 @@ void VDAnimation::calculateTempo()
 
 void VDAnimation::preventLineInCrash() {
 	setUseLineIn(false);
-	mVDSettings->save();
+	//mVDSettings->save();
+}
+void VDAnimation::preventWaveMonitorCrash() {
+	setUseWaveMonitor(false);
+	//mVDSettings->save();
 }
 void VDAnimation::saveLineIn() {
 	setUseLineIn(true);
-	mVDSettings->save();
+	//mVDSettings->save();
+}
+void VDAnimation::saveWaveMonitor() {
+	setUseWaveMonitor(true);
+	//mVDSettings->save();
 }

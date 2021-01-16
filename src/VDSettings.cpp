@@ -173,14 +173,6 @@ bool VDSettings::save()
 	Info.setAttribute("value", toString(mInfo));
 	settings.push_back(Info);
 
-	XmlTree UseAudio("UseAudio", "");
-	UseAudio.setAttribute("value", mUseAudio);
-	settings.push_back(UseAudio);
-
-	XmlTree UseLineIn("UseLineIn", "");
-	UseLineIn.setAttribute("value", mUseLineIn);
-	settings.push_back(UseLineIn);
-
 	XmlTree SplitWarpH("SplitWarpH", "");
 	SplitWarpH.setAttribute("value", toString(mSplitWarpH));
 	settings.push_back(SplitWarpH);
@@ -301,14 +293,6 @@ bool VDSettings::restore()
 				mInfo = Info.getAttributeValue<std::string>("value");
 			}
 			
-			if (settings.hasChild("UseAudio")) {
-				XmlTree UseAudio = settings.getChild("UseAudio");
-				mUseAudio = UseAudio.getAttributeValue<bool>("value");
-			}
-			if (settings.hasChild("UseLineIn")) {
-				XmlTree UseLineIn = settings.getChild("UseLineIn");
-				mUseLineIn = UseLineIn.getAttributeValue<bool>("value");
-			}
 			if (settings.hasChild("SplitWarpH")) {
 				XmlTree SplitWarpH = settings.getChild("SplitWarpH");
 				mSplitWarpH = SplitWarpH.getAttributeValue<bool>("value");

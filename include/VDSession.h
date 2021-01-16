@@ -131,6 +131,13 @@ namespace videodromm {
 		bool							getUseAudio() { return mVDAnimation->getUseAudio(); };
 		bool							isAudioBuffered() { return mVDAnimation->isAudioBuffered(); };
 		void							toggleAudioBuffered() { mVDAnimation->toggleAudioBuffered(); };
+
+		bool							getUseWaveMonitor() { return mVDAnimation->getUseWaveMonitor(); };
+		void							toggleUseWaveMonitor() { mVDAnimation->toggleUseWaveMonitor(); };
+		
+		bool							getUseRandom() { return mVDAnimation->getUseRandom(); };
+		void							toggleUseRandom() { mVDAnimation->toggleUseRandom(); };
+
 		bool							getUseLineIn() { return mVDAnimation->getUseLineIn(); };
 		void							setUseLineIn(bool useLineIn) { mVDAnimation->setUseLineIn(useLineIn); };
 		void							toggleUseLineIn() { mVDAnimation->toggleUseLineIn(); };

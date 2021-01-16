@@ -162,8 +162,7 @@ namespace videodromm {
 		ColorA						ColorPurple;
 		// audio
 		bool						mIsPlaying;
-		bool						mUseAudio;
-		bool						mUseLineIn;
+
 		float						iSeed;
 
 		// z EyePointZ

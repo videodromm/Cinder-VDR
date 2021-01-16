@@ -168,7 +168,6 @@ namespace videodromm {
 		mType = IMAGE;
 	}
 	
-
 	bool TextureImage::fromJson(const JsonTree& json)
 	{
 		VDTexture::fromJson(json);
@@ -201,7 +200,6 @@ namespace videodromm {
 			if (fs::exists(fullPath)) {
 				mTexture = ci::gl::Texture::create(loadImage(fullPath.string()));
 				mInputSurface = Surface(loadImage(aPath));
-				mName = fullPath.filename().string();
 			}
 			else {
 				mTexture = ci::gl::Texture::create(mWidth, mHeight);
@@ -733,114 +731,7 @@ namespace videodromm {
 
 	ci::gl::Texture2dRef TextureAudio::getTexture() {
 		return mVDAnimation->getAudioTexture();
-		/*auto fmt = gl::Texture2d::Format().swizzleMask(GL_RED, GL_RED, GL_RED, GL_ONE).internalFormat(GL_RED);
-		auto ctx = audio::Context::master();
-		if (!mLineInInitialized) {
-#if (defined( CINDER_MSW ) || defined( CINDER_MAC ))
-			if (mVDAnimation->getUseLineIn()) {
-				// linein
-				mVDAnimation->preventLineInCrash(); // at next launch
-				CI_LOG_W("trying to open mic/line in, if no line follows in the log, the app crashed so put UseLineIn to false in the VDSettings.xml file");
-				mLineIn = ctx->createInputDeviceNode(); //crashes if linein is present but disabled, doesn't go to catch block
-				CI_LOG_V("mic/line in opened");
-				mVDAnimation->saveLineIn();
-				mName = mLineIn->getDevice()->getName();
-				auto scopeLineInFmt = audio::MonitorSpectralNode::Format().fftSize(mVDAnimation->mFFTWindowSize * 2).windowSize(mVDAnimation->mFFTWindowSize);// CHECK is * 2 needed
-				mMonitorLineInSpectralNode = ctx->makeNode(new audio::MonitorSpectralNode(scopeLineInFmt));
-				mLineIn >> mMonitorLineInSpectralNode;
-				mLineIn->enable();
-				mLineInInitialized = true;
-			}
-		}
-#endif
-		if (!mWaveInitialized) {
-			if (mVDAnimation->getUseAudio()) {
-				// also initialize wave monitor
-				auto scopeWaveFmt = audio::MonitorSpectralNode::Format().fftSize(mVDAnimation->mFFTWindowSize * 2).windowSize(mVDAnimation->mFFTWindowSize);
-				mMonitorWaveSpectralNode = ctx->makeNode(new audio::MonitorSpectralNode(scopeWaveFmt));
-
-				ctx->enable();
-				mWaveInitialized = true;
-			}
-		}
-
-#if (defined( CINDER_MSW ) || defined( CINDER_MAC ))
-		if (mVDAnimation->getUseLineIn()) {
-			mMagSpectrum = mMonitorLineInSpectralNode->getMagSpectrum();
-		}
-		else {
-#endif
-			if (mVDAnimation->getUseAudio()) {
-				if (mVDAnimation->isAudioBuffered()) {
-					if (mBufferPlayerNode) {
-						mMagSpectrum = mMonitorWaveSpectralNode->getMagSpectrum();
-					}
-				}
-				else {
-					if (mSamplePlayerNode) {
-						mMagSpectrum = mMonitorWaveSpectralNode->getMagSpectrum();
-						mPosition = mSamplePlayerNode->getReadPosition();
-					}
-				}
-			}
-#if (defined( CINDER_MSW ) || defined( CINDER_MAC ))
-		}
-#endif
-		if (!mMagSpectrum.empty()) {
-
-			
-			mVDUniforms = VDUniforms::create();
-			mVDUniforms->setUniformValue(mVDUniforms->IMAXVOLUME, 0.0f);
-			size_t mDataSize = mMagSpectrum.size();
-			if (mDataSize > 0 && mDataSize < mVDAnimation->mFFTWindowSize + 1) {
-				float db;
-				unsigned char signal[kBands];
-				for (size_t i = 0; i < mDataSize; i++) {
-					float f = mMagSpectrum[i];
-					db = audio::linearToDecibel(f);
-					f = db * mVDUniforms->getUniformValue(mVDUniforms->IAUDIOX);
-					if (f > mVDUniforms->getUniformValue(mVDUniforms->IMAXVOLUME))
-					{
-						mVDUniforms->setUniformValue(mVDUniforms->IMAXVOLUME, f);
-					}
-					mVDAnimation->iFreqs[i] = f;
-					// update iFreq uniforms 
-					if (i == mVDAnimation->getFreqIndex(0)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ0, f);
-					if (i == mVDAnimation->getFreqIndex(1)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ1, f);
-					if (i == mVDAnimation->getFreqIndex(2)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ2, f);
-					if (i == mVDAnimation->getFreqIndex(3)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ3, f);
-
-					if (i < 16) {
-						int ger = f;
-						signal[i] = static_cast<unsigned char>(ger);
-					}
-				}
-				// store it as a 512x2 texture
-				mTexture = gl::Texture::create(signal, GL_RED, 64, 2, fmt);
-				if (mVDAnimation->isAudioBuffered() && mBufferPlayerNode) {
-					gl::ScopedFramebuffer fbScp(mFbo);
-					gl::clear(Color::black());
-
-					mTexture->bind(0);
-
-					//mWaveformPlot.draw();
-					// draw the current play position
-					mPosition = mBufferPlayerNode->getReadPosition();
-					float readPos = (float)mWidth * mPosition / mBufferPlayerNode->getNumFrames();
-					gl::color(ColorA(0, 1, 0, 0.7f));
-					gl::drawSolidRect(Rectf(readPos - 2, 0, readPos + 2, (float)mHeight));
-					mRenderedTexture = mFbo->getColorTexture();
-					return mRenderedTexture;
-				}
-			}
-		}
-		else {
-			// generate random values
-			for (int i = 0; i < 128; ++i) dTexture[i] = (unsigned char)(i);
-			mTexture = gl::Texture::create(dTexture, GL_RED, 64, 2, fmt);
-		}
-
-		return mTexture;*/
+	
 	}
 	ci::gl::Texture2dRef TextureAudio::getCachedTexture(const std::string& aFilename) {
 		return TextureAudio::getTexture();
