@@ -93,10 +93,12 @@ namespace videodromm
 				unsigned int texIndex = math<int>::min(aTexIndex, mTextureList.size() - 1);
 				mFboShaderList[fboIndex]->setInputTextureIndex(texIndex);
 				mFboShaderList[fboIndex]->setInputTextureRef(mTextureList[texIndex]->getTexture());
+				
+
 			}
 		}
 		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aFboIndex = 0) {
-			return mTextureList[ mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTextureIndex()]->getTexture();
+			return mTextureList[mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTextureIndex()]->getTexture();
 		}
 		unsigned int					getFboInputTextureIndex(unsigned int aFboIndex) {
 			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTextureIndex();
@@ -145,6 +147,11 @@ namespace videodromm
 		ci::gl::TextureRef				getFboTexture(unsigned int aFboIndex) {
 			if (mFboShaderList.size() == 0) return mTextureList[0]->getTexture();
 			if (aFboIndex > mFboShaderList.size() - 1) aFboIndex = 0;
+			if (mFboShaderList[aFboIndex]->isHydraTex()) {
+				// fbo as inputTexture
+				mFboShaderList[aFboIndex]->setInputTextureRef(mFboShaderList[1]->getTexture());
+			}
+
 			return mFboShaderList[aFboIndex]->getTexture();
 
 		}

@@ -13,7 +13,7 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation,
 	mAssetsPath = aAssetsPath;
 	mFboIndex = aFboIndex;
 	std::string shaderType = "fs";
-	//mIsAudioTexture = false;
+	mIsHydraTex = false;
 
 	// load default fragment shader
 	mShaderName = mShaderFileName = "inputImage.fs";
@@ -145,6 +145,7 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 	std::string mOutputFragmentString = aFragmentShaderString;
 	mError = "";
 	mName = aName;
+	mIsHydraTex = false;
 	// we would like a name without extension
 	if (mName.length() == 0) {
 		mName = toString((int)getElapsedSeconds());
@@ -201,28 +202,12 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		if (mInputTextureIndex == 0) {
 			mInputTextureRef = mVDAnimation->getAudioTexture();
 		}
-		else {
-			//mInputTextureRef = mvd
-		}
+		
 		gl::ScopedFramebuffer fbScp(mFbo);
 		if (mVDUniforms->getUniformValue(mVDUniforms->ICLEAR)) {
 			gl::clear(Color::black());
 		}
-		/*int f = 0;
-		for (auto &fbo : mTextureList) {
-			if (fbo->isValid() && mVDAnimation->getUniformValue(mVDUniforms->IWEIGHT0 + f) > 0.05f) {
-				fbo->getTexture()->bind(f);
-			}
-			f++;
-		}
-		int t = 0;
-		for (auto &tex : mTextureList) {
-			if (tex->isValid() && mVDAnimation->getUniformValue(mVDUniforms->IWEIGHT0 + t) > 0.1f) {
-				mGlslMixette->uniform("iChannel" + toString(t), t);
-				mGlslMixette->uniform("iWeight" + toString(t), mVDAnimation->getUniformValue(mVDUniforms->IWEIGHT0 + t));
-			}
-			t++;
-		}*/
+		
 		mInputTextureRef->bind(0);
 		/*for (size_t i{ 1 }; i < 14; i++)
 		{
@@ -232,7 +217,6 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		std::string name;
 
 		int texNameEndIndex = 0;
-		int texIndex = 0;
 		int channelIndex = 0;
 		/* hydra
 			uniform float time;
@@ -273,12 +257,27 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				texNameEndIndex = name.find("iChannel");
 				if (texNameEndIndex != std::string::npos && texNameEndIndex != -1) {
 					mInputTextureName = name.substr(0, texNameEndIndex + 7);
-					texIndex = 0;
 					mShader->uniform(mInputTextureName + toString(channelIndex), (uint32_t)(253 + channelIndex));
 					channelIndex++;
 				}
 				else {
-					mShader->uniform(name, (uint32_t)(0));
+					if (name == "inputImage") {
+						mShader->uniform(name, (uint32_t)(0));
+					}
+					else {
+						texNameEndIndex = name.find("tex");
+						if (texNameEndIndex != std::string::npos && texNameEndIndex != -1) {
+							// hydra fbo
+							mIsHydraTex = true;
+							mInputTextureName = name.substr(0, texNameEndIndex + 3);
+							// 20210116 TODO mShader->uniform(mInputTextureName + toString(channelIndex), (uint32_t)(253 + channelIndex));
+							mShader->uniform(name, (uint32_t)(0));
+							channelIndex++;
+						}
+						else {
+							mShader->uniform(name, (uint32_t)(0));
+						}
+					}
 				}
 				/*for (size_t i{ 1 }; i < 14; i++)
 				{
@@ -361,9 +360,7 @@ bool									VDFboShader::isValid() {
 std::string								VDFboShader::getShaderName() {
 	return mShaderName;
 };
-/*void									VDFboShader::setAudioInputTexture() {
-	mIsAudioTexture = true;
-};*/
+
 
 /*void									VDFboShader::setImageInputTexture(ci::gl::Texture2dRef aTextureRef, const std::string& aTextureFilename) {
 	mTextureList[mInputTextureIndex]->setImageInputTexture(aTextureRef, aTextureFilename);

@@ -58,7 +58,7 @@ VDUniforms::VDUniforms() {
 		// zoom
 		createFloatUniform("iZoom", IZOOM, 1.0f, 0.95f, 1.1f); // 12
 		// Audio multfactor 
-		createFloatUniform("iAudioMult", IAUDIOX, 1.0f, 0.01f, 12.0f); // 13
+		createFloatUniform("iAudioMult", IAUDIOX, 1.0f, 0.01f, 20.0f); // 13
 		// exposure
 		createFloatUniform("iExposure", IEXPOSURE, 1.0f, 0.0f, 3.0f); // 14
 		// Pixelate

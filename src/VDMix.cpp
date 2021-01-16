@@ -201,6 +201,7 @@ namespace videodromm {
 			rtn = mFboShaderList.size() - 1;
 		}
 		else {
+			// change current existing fbo
 			if (aFboShaderIndex < mFboShaderList.size()) {
 				rtn = aFboShaderIndex;
 			}
@@ -210,11 +211,6 @@ namespace videodromm {
 					// create fbo
 					mFboShaderList.push_back(VDFboShader::create(mVDUniforms, mVDAnimation, json, mFboShaderList.size(), mAssetsPath));
 					rtn = mFboShaderList.size() - 1;
-				}
-
-				
-				/*if (aFboShaderIndex > mFboShaderList.size() - 1) {
-
 				}
 				else {
 					// reuse existing, last one if no invalid found
@@ -227,10 +223,7 @@ namespace videodromm {
 							break;
 						}
 					}
-
-				}*/
-
-
+				}
 			}
 		}
 

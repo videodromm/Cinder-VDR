@@ -118,12 +118,6 @@ namespace videodromm {
 		VDWebsocketRef						mVDWebsocket;
 		// Mix
 		VDMixRef							mVDMix;
-		// FboShaders
-		/*VDFboShaderRef						fboShaderHydra0;
-		VDFboShaderRef						fboShaderHydra1;
-		VDFboShaderRef						fboShader;
-		// maintain a list of fbos 
-		VDFboShaderList						mFboShaderList;*/
 		//! OSC
 		bool								validateJson(const JsonTree& tree);
 		int									mOSCReceiverPort;

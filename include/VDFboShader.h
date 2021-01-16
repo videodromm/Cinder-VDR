@@ -85,6 +85,10 @@ namespace videodromm
 		unsigned int							getInputTextureIndex() {
 			return mInputTextureIndex;
 		};
+		bool									isHydraTex() {
+			return mIsHydraTex;
+		}
+		
 	private:
 		// Params
 		VDParamsRef						mVDParams;
@@ -101,7 +105,7 @@ namespace videodromm
 		gl::TextureRef					mInputTextureRef;
 		unsigned int					mInputTextureIndex;
 		//unsigned int					createInputTexture(const JsonTree &json);
-		//bool							mIsAudioTexture;
+		bool							mIsHydraTex = false;
 		//! shader
 		gl::GlslProgRef					mShader;
 		std::vector<ci::gl::GlslProg::Uniform> mUniforms;
