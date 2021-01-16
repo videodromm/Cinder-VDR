@@ -68,6 +68,9 @@ namespace videodromm
 		void									setInputTextureRefByIndex(unsigned int aTexIndex, ci::gl::Texture2dRef aTextureRef) {
 			mInputTextureList[aTexIndex] = aTextureRef;
 		};
+		ci::gl::Texture2dRef					getFboInputTextureListItem(unsigned int aTexIndex) {
+			return mInputTextureList[aTexIndex];
+		};
 		std::string								getTextureName() {
 			if (mIsHydraTex) {
 				return "fbotex" + mInputTextureIndex;

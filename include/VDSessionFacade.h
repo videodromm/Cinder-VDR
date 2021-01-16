@@ -135,7 +135,7 @@ namespace videodromm
 		void					setFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0) {
 			mVDSession->setFboInputTexture(aFboIndex, aTexIndex);
 		}
-		unsigned int					getInputTexturesCount() {
+		unsigned int			getInputTexturesCount() {
 			return mVDSession->getInputTexturesCount();
 		}
 		std::string				getInputTextureName(unsigned int aTexIndex) {
@@ -151,6 +151,7 @@ namespace videodromm
 		VDSessionFacadeRef		toggleUI();
 		std::vector<ci::gl::GlslProg::Uniform> getUniforms(unsigned int aFboIndex = 0);
 		ci::gl::Texture2dRef	buildFboInputTexture(unsigned int aFboIndex = 0);
+		ci::gl::Texture2dRef	getFboInputTextureListItem(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0);
 		ci::gl::Texture2dRef	getInputTexture(unsigned int aTexIndex);
 
 		int						getMode();

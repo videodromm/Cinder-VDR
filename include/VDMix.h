@@ -100,6 +100,9 @@ namespace videodromm
 		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aFboIndex = 0) {
 			return mTextureList[mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTextureIndex()]->getTexture();
 		}
+		ci::gl::Texture2dRef			getFboInputTextureListItem(unsigned int aFboIndex, unsigned int aTexIndex) {
+			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getFboInputTextureListItem(aTexIndex);
+		}
 		unsigned int					getFboInputTextureIndex(unsigned int aFboIndex) {
 			return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTextureIndex();
 		}
@@ -157,8 +160,6 @@ namespace videodromm
 		ci::gl::TextureRef				getFboTexture(unsigned int aFboIndex) {
 			if (mFboShaderList.size() == 0) return mTextureList[0]->getTexture();
 			if (aFboIndex > mFboShaderList.size() - 1) aFboIndex = 0;
-			
-
 			return mFboShaderList[aFboIndex]->getTexture();
 
 		}
