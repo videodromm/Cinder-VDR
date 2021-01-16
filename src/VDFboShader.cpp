@@ -13,8 +13,12 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation,
 	mAssetsPath = aAssetsPath;
 	mFboIndex = aFboIndex;
 	std::string shaderType = "fs";
+	// hydra
 	mIsHydraTex = false;
-
+	for (size_t i{ 0 }; i < 4; i++)
+	{
+		mInputTextureList[i] = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
+	}
 	// load default fragment shader
 	mShaderName = mShaderFileName = "inputImage.fs";
 	mShaderFragmentString = mVDParams->getDefaultShaderFragmentString();
@@ -209,11 +213,14 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		}
 		
 		mInputTextureRef->bind(0);
-		/*for (size_t i{ 1 }; i < 14; i++)
-		{
-			mInputTextureList[mInputTextureIndex]->getTexture(i)->bind(253 + i);
-		}*/
-		//mInputTextureRef->bind(253);
+		mInputTextureRef->bind(253);
+		if (mIsHydraTex) {
+			for (size_t i{ 0 }; i < 4; i++)
+			{
+				mInputTextureList[i]->bind(254 + i);
+			}
+
+		}
 		std::string name;
 
 		int texNameEndIndex = 0;
@@ -270,8 +277,9 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 							// hydra fbo
 							mIsHydraTex = true;
 							mInputTextureName = name.substr(0, texNameEndIndex + 3);
-							// 20210116 TODO mShader->uniform(mInputTextureName + toString(channelIndex), (uint32_t)(253 + channelIndex));
-							mShader->uniform(name, (uint32_t)(0));
+							// 20210116 TODO 
+							mShader->uniform(name, (uint32_t)(254 + channelIndex));
+							//mShader->uniform(name, (uint32_t)(0));
 							channelIndex++;
 						}
 						else {

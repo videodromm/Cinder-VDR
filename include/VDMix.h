@@ -141,16 +141,23 @@ namespace videodromm
 		ci::gl::TextureRef				getFboRenderedTexture(unsigned int aFboIndex) {
 			if (mFboShaderList.size() == 0) return mTextureList[0]->getTexture();
 			if (aFboIndex > mFboShaderList.size() - 1) aFboIndex = 0;
+
+			if (mFboShaderList[aFboIndex]->isHydraTex()) {
+				// fbo as inputTexture
+				//mFboShaderList[aFboIndex]->setInputTextureRef(mFboShaderList[1]->getTexture());
+				for (size_t i = 0; i < 4; i++)
+				{
+					mFboShaderList[aFboIndex]->setInputTextureRefByIndex(i, mFboShaderList[math<int>::min(i, mFboShaderList.size() - 1)]->getTexture());
+				}
+			}
+
 			return mFboShaderList[aFboIndex]->getRenderedTexture();
 
 		}
 		ci::gl::TextureRef				getFboTexture(unsigned int aFboIndex) {
 			if (mFboShaderList.size() == 0) return mTextureList[0]->getTexture();
 			if (aFboIndex > mFboShaderList.size() - 1) aFboIndex = 0;
-			if (mFboShaderList[aFboIndex]->isHydraTex()) {
-				// fbo as inputTexture
-				mFboShaderList[aFboIndex]->setInputTextureRef(mFboShaderList[1]->getTexture());
-			}
+			
 
 			return mFboShaderList[aFboIndex]->getTexture();
 

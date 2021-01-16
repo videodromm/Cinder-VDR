@@ -65,13 +65,20 @@ namespace videodromm
 		void									setInputTextureRef(ci::gl::Texture2dRef aTextureRef) { 
 			mInputTextureRef = aTextureRef; 
 		};
-
-		std::string								getTextureName() {
-			return mInputTextureName;// mInputTextureList[mInputTextureIndex]->getName();
+		void									setInputTextureRefByIndex(unsigned int aTexIndex, ci::gl::Texture2dRef aTextureRef) {
+			mInputTextureList[aTexIndex] = aTextureRef;
 		};
-		unsigned int							getInputTexturesCount() {
+		std::string								getTextureName() {
+			if (mIsHydraTex) {
+				return "fbotex" + mInputTextureIndex;
+			}
+			else {
+				return mInputTextureName;
+			}
+		};
+		/*unsigned int							getInputTexturesCount() {
 			return 1;// mInputTextureList.size();
-		}
+		}*/
 		std::string								getMsg() {
 			return mMsg;
 		};
@@ -101,7 +108,7 @@ namespace videodromm
 
 		//! Input textures
 		std::string						mInputTextureName;
-		//VDTextureList					mInputTextureList;
+		std::map<unsigned int, gl::TextureRef>		mInputTextureList;
 		gl::TextureRef					mInputTextureRef;
 		unsigned int					mInputTextureIndex;
 		//unsigned int					createInputTexture(const JsonTree &json);
