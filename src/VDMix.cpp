@@ -38,7 +38,7 @@ namespace videodromm {
 		//mDefaultTexture = ci::gl::Texture::create(loadImage(loadAsset("0.jpg")));
 		//loadImageFile("0.jpg", 0);
 		TextureAudioRef t(TextureAudio::create(mVDAnimation));
-		
+
 		mTextureList.push_back(t);
 
 		mMixetteTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
@@ -179,6 +179,21 @@ namespace videodromm {
 
 	unsigned int VDMix::findAvailableIndex(unsigned int aFboShaderIndex, const JsonTree &json) {
 		unsigned int rtn = aFboShaderIndex;
+		unsigned int iSecond = (unsigned int)getElapsedSeconds();
+		CI_LOG_V(" mCurrentSecond " + toString(mCurrentSecond) + " getElapsedSeconds " + toString(iSecond) + " mCurrentIndex " + toString(mCurrentIndex));
+		// For hydra, several shaders can be received at once
+		if (aFboShaderIndex == 0) {
+			if (iSecond != mCurrentSecond) {
+				mCurrentSecond = iSecond;
+				mCurrentIndex = 0;
+			}
+			else {
+				mCurrentIndex++;
+			}
+		}
+		aFboShaderIndex = mCurrentIndex;
+
+		// init the list the first time
 		if (mFboShaderList.size() == 0) {
 			// create fbo
 			VDFboShaderRef fboShader = VDFboShader::create(mVDUniforms, mVDAnimation, json, 0, mAssetsPath);
@@ -186,11 +201,20 @@ namespace videodromm {
 			rtn = mFboShaderList.size() - 1;
 		}
 		else {
-			if (aFboShaderIndex > mFboShaderList.size() - 1) {
+			if (aFboShaderIndex < mFboShaderList.size()) {
+				rtn = aFboShaderIndex;
+			}
+			else {
+				// add to list until MAXSHADERS is reached
 				if (aFboShaderIndex < MAXSHADERS) {
 					// create fbo
 					mFboShaderList.push_back(VDFboShader::create(mVDUniforms, mVDAnimation, json, mFboShaderList.size(), mAssetsPath));
 					rtn = mFboShaderList.size() - 1;
+				}
+
+				
+				/*if (aFboShaderIndex > mFboShaderList.size() - 1) {
+
 				}
 				else {
 					// reuse existing, last one if no invalid found
@@ -203,7 +227,10 @@ namespace videodromm {
 							break;
 						}
 					}
-				}
+
+				}*/
+
+
 			}
 		}
 
@@ -223,8 +250,9 @@ namespace videodromm {
 		texture.pushBack(ci::JsonTree("texturetype", "audio"));
 		texture.pushBack(ci::JsonTree("texturemode", 0));
 		json.addChild(texture);
-
-		return mFboShaderList[findAvailableIndex(MAXSHADERS, json)]->setFragmentShaderString(aFragmentShaderString, aName);
+		int rtn = findAvailableIndex(0, json);
+		mFboShaderList[rtn]->setFragmentShaderString(aFragmentShaderString, aName + toString(rtn));
+		return rtn;
 	}
 	int VDMix::loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex) {
 		JsonTree		json;
@@ -310,7 +338,7 @@ namespace videodromm {
 					createFboShaderTexture(json);
 				}
 				else {
-					mFboShaderList[rtn]->setInputTextureRef(mTextureList[mTextureList.size() - 1]->getTexture()); 
+					mFboShaderList[rtn]->setInputTextureRef(mTextureList[mTextureList.size() - 1]->getTexture());
 				}
 			}
 		}

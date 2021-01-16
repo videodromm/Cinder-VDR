@@ -7,7 +7,7 @@ VDAnimation::VDAnimation(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms) {
 	mVDUniforms = aVDUniforms;
 	mBlendRender = false;
 	//audio
-	mAudioBuffered = false;	
+	mAudioBuffered = false;
 	mUseAudio = true;
 	mUseLineIn = false;
 	mAudioFormat = gl::Texture2d::Format().swizzleMask(GL_RED, GL_RED, GL_RED, GL_ONE).internalFormat(GL_RED);
@@ -269,34 +269,35 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 		}
 	}
 	else {
-		//float db;
 		unsigned char signal[mFFTWindowSize];
-		if (mUseRandom) {
-			// generate random values			
-			for (int i{ 0 }; i < mFFTWindowSize; ++i) {
-				signal[i] = (unsigned char)(i);
+		float f = 0.0f;
+		int ger = 0;
+		for (size_t i{ 0 }; i < mFFTWindowSize; i++) {
+			if (mUseRandom) {
+				// generate random values
+				f = (float)(i + 23);
 			}
-		}
-		else {
-			// get freqs from Speckthor in VDRouter.cpp
-			for (size_t i{ 0 }; i < mFFTWindowSize; i++) {
-				float f = iFreqs[i];
-				if (f > mVDUniforms->getUniformValue(mVDUniforms->IMAXVOLUME))
-				{
-					mVDUniforms->setUniformValue(mVDUniforms->IMAXVOLUME, f);
-				}
-				// update iFreq uniforms 
-				if (i == getFreqIndex(0)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ0, f);
-				if (i == getFreqIndex(1)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ1, f);
-				if (i == getFreqIndex(2)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ2, f);
-				if (i == getFreqIndex(3)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ3, f);
+			else {
+				// get freqs from Speckthor in VDRouter.cpp
+				f = iFreqs[i];
+			}
+			ger = f;
+			signal[i] = static_cast<unsigned char>(ger);
 
-				if (i < mFFTWindowSize) {
-					int ger = f;
-					signal[i] = static_cast<unsigned char>(ger);
-				}
+			if (f > mVDUniforms->getUniformValue(mVDUniforms->IMAXVOLUME))
+			{
+				mVDUniforms->setUniformValue(mVDUniforms->IMAXVOLUME, f);
 			}
+			// update iFreq uniforms 
+			if (i == getFreqIndex(0)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ0, f);
+			if (i == getFreqIndex(1)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ1, f);
+			if (i == getFreqIndex(2)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ2, f);
+			if (i == getFreqIndex(3)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ3, f);
+
+
+
 		}
+
 		// store it as a 512x2 texture
 		mAudioTexture = gl::Texture::create(signal, GL_RED, 32, 1, mAudioFormat);
 		mAudioName = "speckthor";

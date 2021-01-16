@@ -184,6 +184,7 @@ namespace videodromm
 		std::string						mAssetsPath = "";
 		const string					mixFileName = "mix.json";
 		fs::path						mixPath;
-
+		unsigned int					mCurrentSecond = 0;
+		unsigned int					mCurrentIndex = 0;
 	};
 }
