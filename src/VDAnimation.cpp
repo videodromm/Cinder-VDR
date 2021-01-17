@@ -420,10 +420,7 @@ void VDAnimation::update() {
 			}
 		}
 
-		// foreground color vec3 update1
-		// tmp
-		float r = mVDUniforms->getUniformValue(mVDUniforms->ICOLORX);
-		CI_LOG_V("red:" + toString(r) + " icolorR:" + toString(mVDUniforms->getVec3UniformValueByName("iColor").r));
+		// foreground color vec3 update
 		mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->ICOLOR, vec3(mVDUniforms->getUniformValue(mVDUniforms->ICOLORX), mVDUniforms->getUniformValue(mVDUniforms->ICOLORY), mVDUniforms->getUniformValue(mVDUniforms->ICOLORZ)));
 
 		// background color vec3 update

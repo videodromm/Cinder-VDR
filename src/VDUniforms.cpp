@@ -15,7 +15,7 @@ VDUniforms::VDUniforms() {
 	// textures
 	for (size_t i{ 0 }; i < 30; i++)
 	{
-		createSampler2DUniform("iChannel" + toString(i), 300 + i, i);// TODO verify doesn't mess up type (uint!)
+		createSampler2DUniform("iChannel" + toString(i), 400 + i, i);// TODO verify doesn't mess up type (uint!)
 	}
 	createSampler2DUniform("inputImage", 399, 0);// TODO verify doesn't mess up type (uint!)
 

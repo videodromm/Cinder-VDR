@@ -234,12 +234,6 @@ namespace videodromm
 				shaderUniforms[stringToIndex(aName + "Y")].floatValue);
 		}
 		vec3							getVec3UniformValueByName(const std::string& aName) {
-			if (aName == "iColor") {
-				std::string sti = toString(stringToIndex(aName + "X"));
-				std::string stu = toString(shaderUniforms[stringToIndex(aName + "X")].floatValue);
-				std::string stn = aName ;
-			}
-
 			return vec3(shaderUniforms[stringToIndex(aName + "X")].floatValue,
 				shaderUniforms[stringToIndex(aName + "Y")].floatValue,
 				shaderUniforms[stringToIndex(aName + "Z")].floatValue);
