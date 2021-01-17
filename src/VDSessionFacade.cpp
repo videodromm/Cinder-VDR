@@ -9,6 +9,7 @@ VDSessionFacadeRef VDSessionFacade::createVDSession(VDSettingsRef aVDSettings, V
 	// OK ->addObserver(VDSocketIOObserver::connect(aVDSettings->mSocketIOHost, aVDSettings->mSocketIOPort))
 	// OK ->addObserver(VDOscObserver::connect(aVDSettings->mOSCDestinationHost, aVDSettings->mOSCDestinationPort));
 	// OK ->addObserver(VDUIObserver::connect(aVDSettings, aVDAnimation));// ->addObserver(new UIDisplay());	
+	mediator->setupKeyboard();
 	return VDSessionFacadeRef(new VDSessionFacade(VDSessionRef(new VDSession(aVDSettings, aVDAnimation, aVDUniforms, aVDMix)), mediator));
 }
 VDSessionFacadeRef VDSessionFacade::setUniformValue(unsigned int aCtrl, float aValue) {
@@ -77,8 +78,11 @@ VDSessionFacadeRef VDSessionFacade::useTimeWithTempo() {
 };
 
 VDSessionFacadeRef VDSessionFacade::setMode(int aMode) {
-	mVDSession->setMode(aMode);
+	mVDMediator->setMode(aMode);
 	return shared_from_this();
+}
+int VDSessionFacade::getMode() {
+	return mVDMediator->getMode();
 }
 VDSessionFacadeRef VDSessionFacade::update() {
 	mVDSession->update();
@@ -252,9 +256,7 @@ float* VDSessionFacade::getFreqs() {
 	return mVDSession->getFreqs();
 }
 
-int VDSessionFacade::getMode() {
-	return mVDSession->getMode();
-}
+
 bool VDSessionFacade::showUI() {
 	return mVDSession->showUI();
 };

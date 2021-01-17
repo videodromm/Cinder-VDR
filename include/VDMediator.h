@@ -69,19 +69,19 @@ namespace videodromm {
 		std::string							getOSCMsg();
 		// midi
 		VDMediatorObservableRef				setupMidiReceiver();
-		void							midiOutSendNoteOn(int i, int channel, int pitch, int velocity);
-		int								getMidiInPortsCount();
-		string							getMidiInPortName(int i);
-		bool							isMidiInConnected(int i);
-		bool							isMidiSetup();
-		std::string						getMidiMsg();
-		void							openMidiInPort(int i);
-		void							closeMidiInPort(int i);
-		int								getMidiOutPortsCount();
-		string							getMidiOutPortName(int i);
-		bool							isMidiOutConnected(int i);
-		void							openMidiOutPort(int i);
-		void							closeMidiOutPort(int i);
+		void								midiOutSendNoteOn(int i, int channel, int pitch, int velocity);
+		int									getMidiInPortsCount();
+		string								getMidiInPortName(int i);
+		bool								isMidiInConnected(int i);
+		//bool							isMidiSetup();
+		std::string							getMidiMsg();
+		void								openMidiInPort(int i);
+		void								closeMidiInPort(int i);
+		int									getMidiOutPortsCount();
+		string								getMidiOutPortName(int i);
+		bool								isMidiOutConnected(int i);
+		void								openMidiOutPort(int i);
+		void								closeMidiOutPort(int i);
 
 		// ws
 		VDMediatorObservableRef				setupWSClient();
@@ -100,6 +100,9 @@ namespace videodromm {
 		//VDMediatorObservableRef				updateShaderText(int aIndex, float aValue);
 		bool								handleKeyDown(KeyEvent& event);
 		bool								handleKeyUp(KeyEvent& event);
+		// Render Modes
+		int									getMode();
+		void								setMode(unsigned int aIndex);
 
 		bool								setFragmentShaderString(const std::string& aFragmentShaderString, const std::string& aName = "");
 	private:
@@ -137,6 +140,7 @@ namespace videodromm {
 		VDKeyboardRef						mVDKeyboard;
 		//VDMediatorObservable() {}
 		VDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms, VDMixRef aVDMix);
+		int									mMode = 7;
 	};
 
 }

@@ -69,7 +69,7 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 	mModesList[7] = "Post";
 	mModesList[8] = "Mixette";
 	mModesList[9] = "Warp"; // not used
-	mMode = 0;
+	//mMode = 0;
 
 	// reset no matter what, so we don't miss anything
 	cmd = -1;
@@ -126,7 +126,7 @@ void VDSession::loadFbos() {
 	} //while
 
 }
-int  VDSession::getMode() { 
+/*int  VDSession::getMode() { 
 	return mMode; 
 };
 void VDSession::setMode(int aMode) { 
@@ -134,7 +134,7 @@ void VDSession::setMode(int aMode) {
 };
 int VDSession::getModesCount() { 
 	return mModesList.size() - 1; 
-};
+};*/
 void VDSession::toggleUI() {
 	mShowUI = !mShowUI; 
 };
@@ -487,7 +487,7 @@ bool VDSession::handleKeyDown(KeyEvent& event)
 			}
 			break;
 
-		case KeyEvent::KEY_F1:
+		/*case KeyEvent::KEY_F1:
 			mMode = 0;
 			break;
 		case KeyEvent::KEY_F2:
@@ -516,7 +516,7 @@ bool VDSession::handleKeyDown(KeyEvent& event)
 			break;
 		case KeyEvent::KEY_F10:
 			mMode = 9;
-			break;
+			break;*/
 
 		
 		case KeyEvent::KEY_UP:

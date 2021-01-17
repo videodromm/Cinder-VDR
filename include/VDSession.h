@@ -444,9 +444,9 @@ namespace videodromm {
 		ci::gl::TextureRef				getHydraTexture() { return mHydraFbo->getColorTexture(); };*/
 
 		// modeint
-		int								getMode();
-		void							setMode(int aMode);
-		int								getModesCount();
+		//int								getMode();
+		//void							setMode(int aMode);
+		//int								getModesCount();
 		void							toggleUI();
 		bool							showUI();
 		std::string						getModeName(unsigned int aMode);
@@ -454,7 +454,7 @@ namespace videodromm {
 
 	private:
 
-		int								mMode = 1;
+		//int								mMode = 1;
 		VDParamsRef						mVDParams;
 		// Settings
 		VDSettingsRef					mVDSettings;

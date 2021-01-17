@@ -301,10 +301,12 @@ void VDMidi::midiListener(midi::Message msg) {
 		//mVDMediator->setUniformValue(midiPitch + 80, true);
 
 		// This does mVDSession->setFboFragmentShaderIndex(0, midiPitch);
-		if (midiPitch == 2) {
+		if (midiPitch == 8) {
 			midiShift = true;
 		}
-		if (midiPitch < 9) {
+		if (midiPitch < 7) {
+			mVDMediator->setMode(midiPitch);
+			
 			//mSelectedFboA = midiPitch;
 			//mFBOAChanged = true;
 		}
@@ -320,8 +322,14 @@ void VDMidi::midiListener(midi::Message msg) {
 		break;
 	case MIDI_NOTE_OFF:
 		midiPitch = msg.pitch;
-		if (midiPitch == 2) {
+		if (midiPitch == 8) {
 			midiShift = false;
+		}
+		if (midiPitch < 7) {
+			mVDMediator->setMode(7);
+
+			//mSelectedFboA = midiPitch;
+			//mFBOAChanged = true;
 		}
 		if (midiPitch > 17 && midiPitch < 24) {
 			mVDMediator->setUniformValue(midiPitch + 80 - 17, false);
