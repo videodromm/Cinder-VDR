@@ -175,7 +175,7 @@ VDUniforms::VDUniforms() {
 	// glitch
 	createFloatUniform("iGlitch", IGLITCH, 0.0f); // 81
 	// vignette
-	createFloatUniform("iVignette", IVIGN, 0.0f); // 82
+	createFloatUniform("iVignette", IVIGNETTE, 0.0f); // 82
 	// toggle
 	createFloatUniform("iToggle", ITOGGLE, 0.0f); // 83
 	// invert
@@ -674,7 +674,7 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	} // 81
 	// vignette
 	else if (key == "iVignette") {
-		rtn = IVIGN;
+		rtn = IVIGNETTE;
 	} // 82 toggle
 	// toggle
 	else if (key == "iToggle") {
