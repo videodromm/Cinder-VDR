@@ -79,9 +79,9 @@ namespace videodromm
 			IPIXELX = 23,
 			IPIXELY = 24,
 			IDELTATIME = 25,
-			ISTEPS = 26, //10
-			IRATIO = 27,//11,
-			IZOOM = 28,//12,
+			ISTEPS = 26,
+			IRATIO = 27,
+			IZOOM = 28,
 			IMAXVOLUME = 29,
 			ICONTOUR = 30,
 
@@ -94,12 +94,12 @@ namespace videodromm
 			IWEIGHT6 = 37,
 			IWEIGHT7 = 38,
 			IWEIGHT8 = 39,
-			IAUDIOX = 40,//13,
-
+			IAUDIOX = 40,
+			IMOUSE = 41,
 			IMOUSEX = 42,
 			IMOUSEY = 43,
 			IMOUSEZ = 44,
-			IVAMOUNT = 45,
+			IMOUSEW = 45,
 			IVFALLOFF = 46,
 			TIME = 47,
 			IBADTV = 48,
@@ -116,8 +116,9 @@ namespace videodromm
 			IBEATSPERBAR = 59,
 			IPHASE = 60,
 			ICOLOR = 61,
+			IVAMOUNT = 62,
 
-			IMOUSE = 70,
+
 			// booleans 80 to 110
 			IGLITCH = 81,	// A4
 			IVIGN = 82,		// A#4

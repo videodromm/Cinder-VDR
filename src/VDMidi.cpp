@@ -248,11 +248,11 @@ void VDMidi::midiListener(midi::Message msg) {
 		ss << " cc Chn:" << midiChannel << " CC:" << midiControl << " Val:" << midiValue << " NVal:" << midiNormalizedValue;
 		CI_LOG_V("Midi: " + ss.str());
 		if (midiWeights) {
-			midiControl += 30;
+			if (midiControl > 0 && midiControl < 9) {
+				midiControl += 30;
+			}
 		}
-		if (midiBackColor) {
-			midiControl += 25;
-		}
+		
 		//if (midiControl > 20 && midiControl < 49) {
 			/*if (midiControl > 20 && midiControl < 29) {
 				mSelectedWarp = midiControl - 21;
@@ -307,9 +307,7 @@ void VDMidi::midiListener(midi::Message msg) {
 		if (midiPitch == 8) {
 			midiWeights = true;
 		}
-		if (midiPitch == 9) {
-			midiBackColor = true;
-		}
+		
 		/*if (midiPitch < 7) {
 			mVDMediator->setMode(midiPitch);			
 			//mSelectedFboA = midiPitch;
@@ -330,9 +328,7 @@ void VDMidi::midiListener(midi::Message msg) {
 		if (midiPitch == 8) {
 			midiWeights = false;
 		}
-		if (midiPitch == 9) {
-			midiBackColor = false;
-		}
+		
 		if (midiPitch < 7) {
 			mVDMediator->setMode(7);
 

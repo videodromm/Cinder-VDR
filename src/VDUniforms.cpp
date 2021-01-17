@@ -48,10 +48,15 @@ VDUniforms::VDUniforms() {
 	// RotationSpeed
 	createFloatUniform("iRotationSpeed", IROTATIONSPEED, 0.02f, -0.1f, 0.1f); // 9
 
+	// background red
+	createFloatUniform("iBackgroundColorX", IBACKGROUNDCOLORX, 0.56f); // 11
+	// background green
+	createFloatUniform("iBackgroundColorY", IBACKGROUNDCOLORY, 0.0f); // 12
+	// background blue
+	createFloatUniform("iBackgroundColorZ", IBACKGROUNDCOLORZ, 1.0f); // 13
+	createVec3Uniform("iBackgroundColor", IBACKGROUNDCOLOR, vec3(getUniformValue(IBACKGROUNDCOLORX), getUniformValue(IBACKGROUNDCOLORY), getUniformValue(IBACKGROUNDCOLORZ))); // 10
 
 	// rotary
-
-
 	// exposure
 	createFloatUniform("iExposure", IEXPOSURE, 1.0f, 0.0f, 3.0f); // 14
 	// Pixelate
@@ -82,15 +87,8 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iRatio", IRATIO, 20.0f, 0.00000000001f, 20.0f); // 27
 	// zoom
 	createFloatUniform("iZoom", IZOOM, 1.0f, 0.95f, 1.1f); // 28
-	/* // background red
-	createFloatUniform("iBR", IBR, 0.56f); // 26
-	// background green
-	createFloatUniform("iBG", IBG, 0.0f); // 27
-	// background blue
-	createFloatUniform("iBB", IBB, 1.0f); // 28*/
 	// Max Volume
 	createFloatUniform("volume0", IMAXVOLUME, 0.0f, 0.0f, 255.0f); // 29
-
 
 	// contour
 	createFloatUniform("iContour", ICONTOUR, 0.0f, 0.0f, 0.5f); // 30
@@ -114,9 +112,10 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iWeight8", IWEIGHT8, 0.0f); // 39
 	// elapsed in bar 
 	//createFloatUniform("iElapsed", IELAPSED, 0.0f); // 39
-			// Audio multfactor 
+	// Audio multfactor 
 	createFloatUniform("iAudioX", IAUDIOX, 1.0f, 0.01f, 30.0f); // 40
-
+	// vec4
+	createVec4Uniform("iMouse", IMOUSE, vec4(0.27710f, 0.5648f, 0.0f, 0.0f)); // 41
 	// iMouseX  
 	createFloatUniform("iMouseX", IMOUSEX, 0.27710f, 0.0f, 1280.0f); // 42
 	// iMouseY  
@@ -124,7 +123,7 @@ VDUniforms::VDUniforms() {
 	// iMouseZ  
 	createFloatUniform("iMouseZ", IMOUSEZ, 0.0f, 0.0f, 1.0f); // 44
 	// vignette amount
-	createFloatUniform("iVAmount", IVAMOUNT, 0.91f, 0.0f, 1.0f); // 45
+	createFloatUniform("iMouseW", IMOUSEW, 0.91f, 0.0f, 1.0f); // 45
 	// vignette falloff
 	createFloatUniform("iVFallOff", IVFALLOFF, 0.31f, 0.0f, 1.0f); // 46
 	// hydra time
@@ -165,18 +164,11 @@ VDUniforms::VDUniforms() {
 
 
 	createVec3Uniform("iColor", ICOLOR, vec3(0.45, 0.0, 1.0)); // 61
-
-	// background red
-	createFloatUniform("iBackgroundColorX", IBACKGROUNDCOLORX, 0.56f); // 125
-	// background green
-	createFloatUniform("iBackgroundColorY", IBACKGROUNDCOLORY, 0.0f); // 126
-	// background blue
-	createFloatUniform("iBackgroundColorZ", IBACKGROUNDCOLORZ, 1.0f); // 127
-	createVec3Uniform("iBackgroundColor", IBACKGROUNDCOLOR, vec3(getUniformValue(IBACKGROUNDCOLORX), getUniformValue(IBACKGROUNDCOLORY), getUniformValue(IBACKGROUNDCOLORZ))); // 124
+	// vignette amount
+	createFloatUniform("iVAmount", IVAMOUNT, 0.91f, 0.0f, 1.0f); // 62
 	//createVec3Uniform("iChannelResolution[0]", 63, vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
 
-	// vec4
-	createVec4Uniform("iMouse", IMOUSE, vec4(0.27710f, 0.5648f, 0.0f, 0.0f));//70
+
 	createVec4Uniform("iDate", IDATE, vec4(2019.0f, 12.0f, 1.0f, 5.0f));//71
 
 	// boolean
@@ -573,8 +565,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iAudioX") {
 		rtn = IAUDIOX;
 	} // 40
-
-
+	// IMouse vec4
+	else if (key == "iMouse") {
+		rtn = IMOUSE;
+	}// 41
 	// iMouseX  
 	else if (key == "iMouseX") {
 		rtn = IMOUSEX;
@@ -587,9 +581,9 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iMouseZ") {
 		rtn = IMOUSEZ;
 	} // 44
-	// vignette amount
-	else if (key == "iVAmount") {
-		rtn = IVAMOUNT;
+	// iMouseW
+	else if (key == "iMouseW") {
+		rtn = IMOUSEW;
 	} // 45
 	// vignette falloff
 	else if (key == "iVFallOff") {
@@ -639,9 +633,11 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	} // 57
 	// beats per bar 
 	else if (key == "iBeatsPerBar") {
-		rtn = IBEATSPERBAR;
+	rtn = IBEATSPERBAR;
 	} // 59
-
+	else if (key == "iVAmount") {
+	rtn = IVAMOUNT;
+	} // 62
 	// vec3
 	else if (key == "iResolution") {
 		rtn = IRESOLUTION;
@@ -665,9 +661,7 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	} // 61
 
 	// vec4
-	else if (key == "iMouse") {
-		rtn = IMOUSE;
-	}//70
+	
 	else if (key == "iDate") {
 		rtn = IDATE;
 	}//71

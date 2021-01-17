@@ -94,7 +94,7 @@ namespace videodromm
 		int							midiStickyPrevIndex;
 		// toggles 
 		bool						midiWeights = false; // nano mix weights
-		bool						midiBackColor = false; // nano mix weights
+		
 	};
 }
 

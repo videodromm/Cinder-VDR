@@ -406,7 +406,6 @@ void VDSession::loadAudioFile(const string& aFile) {
 bool VDSession::handleMouseMove(MouseEvent& event)
 {
 	bool handled = true;
-	// 20180318 handled in VDUIMouse mVDAnimation->setVec4UniformValueByIndex(70, vec4(event.getX(), event.getY(), event.isLeftDown(), event.isRightDown()));
 	// pass this mouse event to the warp editor first
 	if (!Warp::handleMouseMove(mWarpList, event)) {
 		// let your application perform its mouseMove handling here
@@ -424,7 +423,6 @@ bool VDSession::handleMouseDown(MouseEvent& event)
 		// let your application perform its mouseMove handling here
 		handled = false;
 	}
-	// 20180318 handled in VDUIMouse mVDAnimation->setVec4UniformValueByIndex(70, vec4(event.getX(), event.getY(), event.isLeftDown(), event.isRightDown()));
 	event.setHandled(handled);
 	return event.isHandled();
 }
@@ -438,7 +436,6 @@ bool VDSession::handleMouseDrag(MouseEvent& event)
 		// let your application perform its mouseMove handling here
 		handled = false;
 	}
-	// 20180318 handled in VDUIMouse mVDAnimation->setVec4UniformValueByIndex(70, vec4(event.getX(), event.getY(), event.isLeftDown(), event.isRightDown()));
 	event.setHandled(handled);
 	return event.isHandled();
 }
@@ -452,7 +449,6 @@ bool VDSession::handleMouseUp(MouseEvent& event)
 		handled = false;
 	}
 
-	// 20180318 handled in VDUIMouse mVDAnimation->setVec4UniformValueByIndex(70, vec4(event.getX(), event.getY(), event.isLeftDown(), event.isRightDown()));
 	event.setHandled(handled);
 	return event.isHandled();
 }
