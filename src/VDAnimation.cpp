@@ -420,11 +420,14 @@ void VDAnimation::update() {
 			}
 		}
 
-		// foreground color vec3 update
+		// foreground color vec3 update1
+		// tmp
+		float r = mVDUniforms->getUniformValue(mVDUniforms->IFR);
+		CI_LOG_V("red:" + toString(r) + " icolorR:" + toString(mVDUniforms->getVec3UniformValueByName("iColor").r));
 		mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->ICOLOR, vec3(mVDUniforms->getUniformValue(mVDUniforms->IFR), mVDUniforms->getUniformValue(mVDUniforms->IFG), mVDUniforms->getUniformValue(mVDUniforms->IFB)));
 
 		// background color vec3 update
-		mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->IBACKGROUNDCOLOR, vec3(mVDUniforms->getUniformValue(mVDUniforms->IBR), mVDUniforms->getUniformValue(mVDUniforms->IBG), mVDUniforms->getUniformValue(mVDUniforms->IBB)));
+		mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->IBACKGROUNDCOLOR, vec3(mVDUniforms->getUniformValue(mVDUniforms->IBACKGROUNDCOLORX), mVDUniforms->getUniformValue(mVDUniforms->IBACKGROUNDCOLORY), mVDUniforms->getUniformValue(mVDUniforms->IBACKGROUNDCOLORZ)));
 
 		// mouse vec4 update
 		mVDUniforms->setVec4UniformValueByIndex(mVDUniforms->IMOUSE, vec4(mVDUniforms->getUniformValue(mVDUniforms->IMOUSEX), mVDUniforms->getUniformValue(mVDUniforms->IMOUSEY), mVDUniforms->getUniformValue(mVDUniforms->IMOUSEZ), 0.0f));

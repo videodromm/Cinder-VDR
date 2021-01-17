@@ -25,220 +25,226 @@ VDUniforms::VDUniforms() {
 		loadUniforms(loadFile(mUniformsJson));
 	}
 	else {*/
-		// global time in seconds
-		// TODO 20200301 get rid of iTime createFloatUniform("iTime", ITIME, 0.0f); // 0
-		createFloatUniform("TIME", ITIME, 0.0f); // 0
-		// sliders
-		// red
-		createFloatUniform("r", IFR, 0.45f); // 1
-		// green
-		createFloatUniform("g", IFG, 0.0f); // 2
-		// blue
-		createFloatUniform("b", IFB, 1.0f); // 3
-		// Alpha 
-		createFloatUniform("iAlpha", IFA, 1.0f); // 4
-		// red multiplier 
-		createFloatUniform("iRedMultiplier", IFRX, 1.0f, 0.0f, 3.0f); // 5
-		// green multiplier 
-		createFloatUniform("iGreenMultiplier", IFGX, 1.0f, 0.0f, 3.0f); // 6
-		// blue multiplier 
-		createFloatUniform("iBlueMultiplier", IFBX, 1.0f, 0.0f, 3.0f); // 7
-		// gstnsmk
-		createFloatUniform("iSobel", ISOBEL, 0.02f, 0.02f, 1.0f); // 8
-		// RotationSpeed
-		createFloatUniform("iRotationSpeed", IROTATIONSPEED, 0.02f, -0.1f, 0.1f); // 9
-
-		// Steps
-		createFloatUniform("iSteps", ISTEPS, 16.0f, 1.0f, 128.0f); // 10
-
-		// rotary
-		// ratio
-		//createFloatUniform("iRatio", IRATIO, 1.0f, 0.01f, 1.0f); // 11
-		createFloatUniform("iRatio", IRATIO, 20.0f, 0.00000000001f, 20.0f); // 11
-		// zoom
-		createFloatUniform("iZoom", IZOOM, 1.0f, 0.95f, 1.1f); // 12
-		// Audio multfactor 
-		createFloatUniform("iAudioMult", IAUDIOX, 1.0f, 0.01f, 20.0f); // 13
-		// exposure
-		createFloatUniform("iExposure", IEXPOSURE, 1.0f, 0.0f, 3.0f); // 14
-		// Pixelate
-		createFloatUniform("iPixelate", IPIXELATE, 1.0f, 0.01f); // 15
-		// Trixels
-		createFloatUniform("iTrixels", ITRIXELS, 0.0f); // 16
-		// iChromatic
-		createFloatUniform("iChromatic", ICHROMATIC, 0.0f, 0.000000001f); // 17
-		// iCrossfade
-		createFloatUniform("iCrossfade", IXFADE, 1.0f); // 18
-		// tempo time
-		createFloatUniform("iTempoTime", ITEMPOTIME, 0.1f); // 19
-		// fps
-		createFloatUniform("iFps", IFPS, 60.0f, 0.0f, 500.0f); // 20	
-		// iBpm 
-		createFloatUniform("iBpm", IBPM, 165.0f, 0.000000001f, 400.0f); // 21
-		// Speed 
-		createFloatUniform("speed", ISPEED, 0.01f, 0.01f, 12.0f); // 22
-		// slitscan / matrix (or other) Param1 
-		createFloatUniform("iPixelX", IPIXELX, 0.01f, -1.5f, 1.5f); // 23
-		// slitscan / matrix(or other) Param2 
-		createFloatUniform("iPixelY", IPIXELY, 0.01f, -1.5f, 1.5f); // 24
-		// delta time in seconds
-		createFloatUniform("iDeltaTime", IDELTATIME, 60.0f / 160.0f); // 25
-
-		 // background red
-		createFloatUniform("iBR", IBR, 0.56f); // 26
-		// background green
-		createFloatUniform("iBG", IBG, 0.0f); // 27
-		// background blue
-		createFloatUniform("iBB", IBB, 1.0f); // 28
-		// Max Volume
-		createFloatUniform("volume0", IMAXVOLUME, 0.0f, 0.0f, 255.0f); // 29
+	// global time in seconds
+	// TODO 20200301 get rid of iTime createFloatUniform("iTime", ITIME, 0.0f); // 0
+	createFloatUniform("TIME", ITIME, 0.0f); // 0
+	// sliders
+	// red
+	createFloatUniform("r", IFR, 0.45f); // 1
+	// green
+	createFloatUniform("g", IFG, 0.0f); // 2
+	// blue
+	createFloatUniform("b", IFB, 1.0f); // 3
+	// Alpha 
+	createFloatUniform("iAlpha", IFA, 1.0f); // 4
+	// red multiplier 
+	createFloatUniform("iRedMultiplier", IFRX, 1.0f, 0.0f, 3.0f); // 5
+	// green multiplier 
+	createFloatUniform("iGreenMultiplier", IFGX, 1.0f, 0.0f, 3.0f); // 6
+	// blue multiplier 
+	createFloatUniform("iBlueMultiplier", IFBX, 1.0f, 0.0f, 3.0f); // 7
+	// gstnsmk
+	createFloatUniform("iSobel", ISOBEL, 0.02f, 0.02f, 1.0f); // 8
+	// RotationSpeed
+	createFloatUniform("iRotationSpeed", IROTATIONSPEED, 0.02f, -0.1f, 0.1f); // 9
 
 
-		// contour
-		createFloatUniform("iContour", ICONTOUR, 0.0f, 0.0f, 0.5f); // 30
-		// weight mix fbo texture 0
-		createFloatUniform("iWeight0", IWEIGHT0, 1.0f); // 31
-		// weight texture 1
-		createFloatUniform("iWeight1", IWEIGHT1, 0.5f); // 32
-		// weight texture 2
-		createFloatUniform("iWeight2", IWEIGHT2, 0.0f); // 33
-		// weight texture 3
-		createFloatUniform("iWeight3", IWEIGHT3, 0.0f); // 34
-		// weight texture 4
-		createFloatUniform("iWeight4", IWEIGHT4, 0.0f); // 35
-		// weight texture 5
-		createFloatUniform("iWeight5", IWEIGHT5, 0.0f); // 36
-		// weight texture 6
-		createFloatUniform("iWeight6", IWEIGHT6, 0.0f); // 37
-		// weight texture 7
-		createFloatUniform("iWeight7", IWEIGHT7, 0.0f); // 38
-		// weight texture 8 
-		createFloatUniform("iWeight8", IWEIGHT8, 0.0f); // 39
-		// elapsed in bar 
-		//createFloatUniform("iElapsed", IELAPSED, 0.0f); // 39
+	// rotary
 
 
-		// iMouseX  
-		createFloatUniform("iMouseX", IMOUSEX, 0.27710f, 0.0f, 1280.0f); // 42
-		// iMouseY  
-		createFloatUniform("iMouseY", IMOUSEY, 0.5648f, 0.0f, 800.0f); // 43
-		// iMouseZ  
-		createFloatUniform("iMouseZ", IMOUSEZ, 0.0f, 0.0f, 1.0f); // 44
-		// vignette amount
-		createFloatUniform("iVAmount", IVAMOUNT, 0.91f, 0.0f, 1.0f); // 45
-		// vignette falloff
-		createFloatUniform("iVFallOff", IVFALLOFF, 0.31f, 0.0f, 1.0f); // 46
-		// hydra time
-		//createFloatUniform("time", TIME, 0.0f); // 47
-		
-		// bad tv
-		createFloatUniform("iBadTv", IBADTV, 0.0f, 0.0f, 5.0f); // 48
-		// iTimeFactor
-		createFloatUniform("iTimeFactor", ITIMEFACTOR, 1.0f); // 49
-		// int
-		// blend mode 
-		createFloatUniform("iBlendmode", IBLENDMODE, 0); // 50
-		// beat 
-		createFloatUniform("iBeat", IBEAT, 0.0f, 0.0f, 300.0f); // 51
-		// bar 
-		createFloatUniform("iBar", IBAR, 0.0f, 0.0f, 3008.0f); // 52
-		// bar 
-		createFloatUniform("iBarBeat", IBARBEAT, 1.0f, 1.0f, 1200.0f); // 53		
-		// fbo A
-		createFloatUniform("iFboA", IFBOA, 0); // 54
-		// fbo B
-		createFloatUniform("iFboB", IFBOB, 1); // 55
-		// iOutW
-		createFloatUniform("iOutW", IOUTW, mRenderWidth); // 56
-		// iOutH  
-		createFloatUniform("iOutH", IOUTH, mRenderHeight); // 57
-		// beats per bar 
-		createFloatUniform("iBeatsPerBar", IBEATSPERBAR, 4); // 59
-		// iPhase 
-		createFloatUniform("iPhase", IPHASE, 1.0f); // 60
-
-		// vec3
-		// iResolutionX (should be fbowidth?) 
-		createFloatUniform("iResolutionX", IRESOLUTIONX, mRenderWidth, 320.01f, 4280.0f); // 121
-		// iResolutionY (should be fboheight?)  
-		createFloatUniform("iResolutionY", IRESOLUTIONY, mRenderHeight, 240.01f, 2160.0f); // 122
-		createVec3Uniform("iResolution", IRESOLUTION, vec3(getUniformValue(IRESOLUTIONX), getUniformValue(IRESOLUTIONY), 1.0)); // 120
+	// exposure
+	createFloatUniform("iExposure", IEXPOSURE, 1.0f, 0.0f, 3.0f); // 14
+	// Pixelate
+	createFloatUniform("iPixelate", IPIXELATE, 1.0f, 0.01f); // 15
+	// Trixels
+	createFloatUniform("iTrixels", ITRIXELS, 0.0f); // 16
+	// iChromatic
+	createFloatUniform("iChromatic", ICHROMATIC, 0.0f, 0.000000001f); // 17
+	// iCrossfade
+	createFloatUniform("iCrossfade", IXFADE, 1.0f); // 18
+	// tempo time
+	createFloatUniform("iTempoTime", ITEMPOTIME, 0.1f); // 19
+	// fps
+	createFloatUniform("iFps", IFPS, 60.0f, 0.0f, 500.0f); // 20	
+	// iBpm 
+	createFloatUniform("iBpm", IBPM, 165.0f, 0.000000001f, 400.0f); // 21
+	// Speed 
+	createFloatUniform("speed", ISPEED, 0.01f, 0.01f, 12.0f); // 22
+	// slitscan / matrix (or other) Param1 
+	createFloatUniform("iPixelX", IPIXELX, 0.01f, -1.5f, 1.5f); // 23
+	// slitscan / matrix(or other) Param2 
+	createFloatUniform("iPixelY", IPIXELY, 0.01f, -1.5f, 1.5f); // 24
+	// delta time in seconds
+	createFloatUniform("iDeltaTime", IDELTATIME, 60.0f / 160.0f); // 25
+	// Steps
+	createFloatUniform("iSteps", ISTEPS, 16.0f, 1.0f, 128.0f); // 26
+	// ratio
+	createFloatUniform("iRatio", IRATIO, 20.0f, 0.00000000001f, 20.0f); // 27
+	// zoom
+	createFloatUniform("iZoom", IZOOM, 1.0f, 0.95f, 1.1f); // 28
+	/* // background red
+	createFloatUniform("iBR", IBR, 0.56f); // 26
+	// background green
+	createFloatUniform("iBG", IBG, 0.0f); // 27
+	// background blue
+	createFloatUniform("iBB", IBB, 1.0f); // 28*/
+	// Max Volume
+	createFloatUniform("volume0", IMAXVOLUME, 0.0f, 0.0f, 255.0f); // 29
 
 
-		createVec3Uniform("iColor", ICOLOR, vec3(0.45, 0.0, 1.0)); // 61
-		createVec3Uniform("iBackgroundColor", IBACKGROUNDCOLOR); // 62
-		//createVec3Uniform("iChannelResolution[0]", 63, vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
+	// contour
+	createFloatUniform("iContour", ICONTOUR, 0.0f, 0.0f, 0.5f); // 30
+	// weight mix fbo texture 0
+	createFloatUniform("iWeight0", IWEIGHT0, 1.0f); // 31
+	// weight texture 1
+	createFloatUniform("iWeight1", IWEIGHT1, 0.5f); // 32
+	// weight texture 2
+	createFloatUniform("iWeight2", IWEIGHT2, 0.0f); // 33
+	// weight texture 3
+	createFloatUniform("iWeight3", IWEIGHT3, 0.0f); // 34
+	// weight texture 4
+	createFloatUniform("iWeight4", IWEIGHT4, 0.0f); // 35
+	// weight texture 5
+	createFloatUniform("iWeight5", IWEIGHT5, 0.0f); // 36
+	// weight texture 6
+	createFloatUniform("iWeight6", IWEIGHT6, 0.0f); // 37
+	// weight texture 7
+	createFloatUniform("iWeight7", IWEIGHT7, 0.0f); // 38
+	// weight texture 8 
+	createFloatUniform("iWeight8", IWEIGHT8, 0.0f); // 39
+	// elapsed in bar 
+	//createFloatUniform("iElapsed", IELAPSED, 0.0f); // 39
+			// Audio multfactor 
+	createFloatUniform("iAudioX", IAUDIOX, 1.0f, 0.01f, 30.0f); // 40
 
-		// vec4
-		createVec4Uniform("iMouse", IMOUSE, vec4(0.27710f, 0.5648f, 0.0f, 0.0f));//70
-		createVec4Uniform("iDate", IDATE, vec4(2019.0f, 12.0f, 1.0f, 5.0f));//71
+	// iMouseX  
+	createFloatUniform("iMouseX", IMOUSEX, 0.27710f, 0.0f, 1280.0f); // 42
+	// iMouseY  
+	createFloatUniform("iMouseY", IMOUSEY, 0.5648f, 0.0f, 800.0f); // 43
+	// iMouseZ  
+	createFloatUniform("iMouseZ", IMOUSEZ, 0.0f, 0.0f, 1.0f); // 44
+	// vignette amount
+	createFloatUniform("iVAmount", IVAMOUNT, 0.91f, 0.0f, 1.0f); // 45
+	// vignette falloff
+	createFloatUniform("iVFallOff", IVFALLOFF, 0.31f, 0.0f, 1.0f); // 46
+	// hydra time
+	//createFloatUniform("time", TIME, 0.0f); // 47
 
-		// boolean
-		// invert
-		// glitch
-		createFloatUniform("iGlitch", IGLITCH, 0.0f); // 81
-		// vignette
-		createFloatUniform("iVignette", IVIGN, 0.0f); // 82
-		// toggle
-		createFloatUniform("iToggle", ITOGGLE, 0.0f); // 83
-		// invert
-		createFloatUniform("iInvert", IINVERT, 0.0f); // 86
-		// greyscale 
-		createFloatUniform("iGreyScale", IGREYSCALE, 0.0f); //87
-		createFloatUniform("iClear", ICLEAR, 0.0f); // 88
-		createFloatUniform("iDebug", IDEBUG, 0.0f); // 129
-		createFloatUniform("iXorY", IXORY, 0.0f); // 130
-		createFloatUniform("iFlipH", IFLIPH, 0.0f); // 131
-		createFloatUniform("iFlipV", IFLIPV, 0.0f); // 132
-		createFloatUniform("iFlipPostH", IFLIPPOSTH, 0.0f); // 133
-		createFloatUniform("iFlipPostV", IFLIPPOSTV, 0.0f); // 134
+	// bad tv
+	createFloatUniform("iBadTv", IBADTV, 0.0f, 0.0f, 5.0f); // 48
+	// iTimeFactor
+	createFloatUniform("iTimeFactor", ITIMEFACTOR, 1.0f); // 49
+	// int
+	// blend mode 
+	createFloatUniform("iBlendmode", IBLENDMODE, 0); // 50
+	// beat 
+	createFloatUniform("iBeat", IBEAT, 0.0f, 0.0f, 300.0f); // 51
+	// bar 
+	createFloatUniform("iBar", IBAR, 0.0f, 0.0f, 3008.0f); // 52
+	// bar 
+	createFloatUniform("iBarBeat", IBARBEAT, 1.0f, 1.0f, 1200.0f); // 53		
+	// fbo A
+	createFloatUniform("iFboA", IFBOA, 0); // 54
+	// fbo B
+	createFloatUniform("iFboB", IFBOB, 1); // 55
+	// iOutW
+	createFloatUniform("iOutW", IOUTW, mRenderWidth); // 56
+	// iOutH  
+	createFloatUniform("iOutH", IOUTH, mRenderHeight); // 57
+	// beats per bar 
+	createFloatUniform("iBeatsPerBar", IBEATSPERBAR, 4); // 59
+	// iPhase 
+	createFloatUniform("iPhase", IPHASE, 1.0f); // 60
 
-		// 119 to 124 timefactor from midithor sos
-		// floats for warps
-		// srcArea 
-		createFloatUniform("srcXLeft", SRCXLEFT, 0.0f, 0.0f, 4280.0f); // 160
-		createFloatUniform("srcXRight", SRCXRIGHT, mRenderWidth, 320.01f, 4280.0f); // 161
-		createFloatUniform("srcYLeft", SRCYLEFT, 0.0f, 0.0f, 1024.0f); // 162
-		createFloatUniform("srcYRight", SRCYRIGHT, mRenderHeight, 0.0f, 1024.0f); // 163
-		// iFreq0  
-		createFloatUniform("iFreq0", IFREQ0, 0.0f, 0.01f, 256.0f); // 140	
-		// iFreq1  
-		createFloatUniform("iFreq1", IFREQ1, 0.0f, 0.01f, 256.0f); // 141
-		// iFreq2  
-		createFloatUniform("iFreq2", IFREQ2, 0.0f, 0.01f, 256.0f); // 142
-		// iFreq3  
-		createFloatUniform("iFreq3", IFREQ3, 0.0f, 0.01f, 256.0f); // 143
+	// vec3
+	// iResolutionX (should be fbowidth?) 
+	createFloatUniform("iResolutionX", IRESOLUTIONX, mRenderWidth, 320.01f, 4280.0f); // 121
+	// iResolutionY (should be fboheight?)  
+	createFloatUniform("iResolutionY", IRESOLUTIONY, mRenderHeight, 240.01f, 2160.0f); // 122
+	createVec3Uniform("iResolution", IRESOLUTION, vec3(getUniformValue(IRESOLUTIONX), getUniformValue(IRESOLUTIONY), 1.0)); // 120
 
-		// vec2
-		createVec2Uniform("resolution", RESOLUTION, vec2(1280.0f, 720.0f)); // hydra 150
-		createVec2Uniform("RENDERSIZE", RENDERSIZE, vec2(getUniformValueByName("iResolutionX"), getUniformValueByName("iResolutionY"))); // isf 151
 
-		// vec4 kinect2
-		createVec4Uniform("iSpineBase", 200, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("SpineMid", 201, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("Neck", 202, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("Head", 203, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("ShldrL", 204, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("ElbowL", 205, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("WristL", 206, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("HandL", 207, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("ShldrR", 208, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("ElbowR", 209, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("WristR", 210, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("HandR", 211, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("HipL", 212, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("KneeL", 213, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("AnkleL", 214, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("FootL", 215, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("HipR", 216, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("KneeR", 217, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("AnkleR", 218, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("FootR", 219, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("SpineShldr", 220, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("HandTipL", 221, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("ThumbL", 222, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("HandTipR", 223, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-		createVec4Uniform("ThumbR", 224, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec3Uniform("iColor", ICOLOR, vec3(0.45, 0.0, 1.0)); // 61
+
+	// background red
+	createFloatUniform("iBackgroundColorX", IBACKGROUNDCOLORX, 0.56f); // 125
+	// background green
+	createFloatUniform("iBackgroundColorY", IBACKGROUNDCOLORY, 0.0f); // 126
+	// background blue
+	createFloatUniform("iBackgroundColorZ", IBACKGROUNDCOLORZ, 1.0f); // 127
+	createVec3Uniform("iBackgroundColor", IBACKGROUNDCOLOR, vec3(getUniformValue(IBACKGROUNDCOLORX), getUniformValue(IBACKGROUNDCOLORY), getUniformValue(IBACKGROUNDCOLORZ))); // 124
+	//createVec3Uniform("iChannelResolution[0]", 63, vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
+
+	// vec4
+	createVec4Uniform("iMouse", IMOUSE, vec4(0.27710f, 0.5648f, 0.0f, 0.0f));//70
+	createVec4Uniform("iDate", IDATE, vec4(2019.0f, 12.0f, 1.0f, 5.0f));//71
+
+	// boolean
+	// invert
+	// glitch
+	createFloatUniform("iGlitch", IGLITCH, 0.0f); // 81
+	// vignette
+	createFloatUniform("iVignette", IVIGN, 0.0f); // 82
+	// toggle
+	createFloatUniform("iToggle", ITOGGLE, 0.0f); // 83
+	// invert
+	createFloatUniform("iInvert", IINVERT, 0.0f); // 86
+	// greyscale 
+	createFloatUniform("iGreyScale", IGREYSCALE, 0.0f); //87
+	createFloatUniform("iClear", ICLEAR, 0.0f); // 88
+	createFloatUniform("iDebug", IDEBUG, 0.0f); // 129
+	createFloatUniform("iXorY", IXORY, 0.0f); // 130
+	createFloatUniform("iFlipH", IFLIPH, 0.0f); // 131
+	createFloatUniform("iFlipV", IFLIPV, 0.0f); // 132
+	createFloatUniform("iFlipPostH", IFLIPPOSTH, 0.0f); // 133
+	createFloatUniform("iFlipPostV", IFLIPPOSTV, 0.0f); // 134
+
+	// 119 to 124 timefactor from midithor sos
+	// floats for warps
+	// srcArea 
+	createFloatUniform("srcXLeft", SRCXLEFT, 0.0f, 0.0f, 4280.0f); // 160
+	createFloatUniform("srcXRight", SRCXRIGHT, mRenderWidth, 320.01f, 4280.0f); // 161
+	createFloatUniform("srcYLeft", SRCYLEFT, 0.0f, 0.0f, 1024.0f); // 162
+	createFloatUniform("srcYRight", SRCYRIGHT, mRenderHeight, 0.0f, 1024.0f); // 163
+	// iFreq0  
+	createFloatUniform("iFreq0", IFREQ0, 0.0f, 0.01f, 256.0f); // 140	
+	// iFreq1  
+	createFloatUniform("iFreq1", IFREQ1, 0.0f, 0.01f, 256.0f); // 141
+	// iFreq2  
+	createFloatUniform("iFreq2", IFREQ2, 0.0f, 0.01f, 256.0f); // 142
+	// iFreq3  
+	createFloatUniform("iFreq3", IFREQ3, 0.0f, 0.01f, 256.0f); // 143
+
+	// vec2
+	createVec2Uniform("resolution", RESOLUTION, vec2(1280.0f, 720.0f)); // hydra 150
+	createVec2Uniform("RENDERSIZE", RENDERSIZE, vec2(getUniformValueByName("iResolutionX"), getUniformValueByName("iResolutionY"))); // isf 151
+
+	// vec4 kinect2
+	createVec4Uniform("iSpineBase", 200, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("SpineMid", 201, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("Neck", 202, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("Head", 203, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("ShldrL", 204, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("ElbowL", 205, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("WristL", 206, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("HandL", 207, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("ShldrR", 208, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("ElbowR", 209, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("WristR", 210, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("HandR", 211, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("HipL", 212, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("KneeL", 213, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("AnkleL", 214, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("FootL", 215, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("HipR", 216, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("KneeR", 217, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("AnkleR", 218, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("FootR", 219, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("SpineShldr", 220, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("HandTipL", 221, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("ThumbL", 222, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("HandTipR", 223, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("ThumbR", 224, vec4(320.0f, 240.0f, 0.0f, 0.0f));
 	//}
 }
 void VDUniforms::loadUniforms(const ci::DataSourceRef& source) {
@@ -376,17 +382,14 @@ void VDUniforms::boolFromJson(const ci::JsonTree& json) {
 
 bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 	bool rtn = false;
-	
+
 	// we can't change TIME at index 0
 	if (aIndex > 0) {
-	
 		if (aIndex == IBPM) {
 			if (aValue > 0.0f) {
 				setUniformValue(IDELTATIME, 60 / aValue);
 			}
 		}
-		
-		//string uniformName = getUniformNameForIndex(aIndex);
 		if (shaderUniforms[aIndex].floatValue != aValue) {
 			if ((aValue >= shaderUniforms[aIndex].minValue && aValue <= shaderUniforms[aIndex].maxValue) || shaderUniforms[aIndex].anim > 0) {
 				shaderUniforms[aIndex].floatValue = aValue;
@@ -446,24 +449,21 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iRotationSpeed") {
 		rtn = IROTATIONSPEED;
 	} // 9
-	// Steps
-	else if (key == "iSteps") {
-		rtn = ISTEPS;
+	// background 
+	else if (key == "iBackgroundColor") {
+		rtn = IBACKGROUNDCOLOR;
 	} // 10
+	else if (key == "iBackgroundColorX") {
+		rtn = IBACKGROUNDCOLORX;
+	} // 11
+	else if (key == "iBackgroundColorY") {
+		rtn = IBACKGROUNDCOLORY;
+	} // 12
+	else if (key == "iBackgroundColorZ") {
+		rtn = IBACKGROUNDCOLORZ;
+	} // 13
 
 	// rotary
-	// ratio
-	else if (key == "iRatio") {
-		rtn = IRATIO;
-	} // 11
-	// zoom
-	else if (key == "iZoom") {
-		rtn = IZOOM;
-	} // 12
-	// Audio multfactor 
-	else if (key == "iAudioMult") {
-		rtn = IAUDIOX;
-	} // 13
 	// exposure
 	else if (key == "iExposure") {
 		rtn = IEXPOSURE;
@@ -512,18 +512,17 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iDeltaTime") {
 		rtn = IDELTATIME;
 	} // 25
-
-	 // background red
-	else if (key == "iBR") {
-		rtn = IBR;
+	// Steps
+	else if (key == "iSteps") {
+		rtn = ISTEPS;
 	} // 26
-	// background green
-	else if (key == "iBG") {
-		rtn = IBG;
-	}// 27
-	// background blue
-	else if (key == "iBB") {
-		rtn = IBB;
+	// ratio
+	else if (key == "iRatio") {
+		rtn = IRATIO;
+	} // 27
+	// zoom
+	else if (key == "iZoom") {
+		rtn = IZOOM;
 	} // 28
 	// volume0 from hydra 
 	else if (key == "volume0") {
@@ -570,6 +569,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iWeight8") {
 		rtn = IWEIGHT8;
 	} // 39
+	// Audio multfactor 
+	else if (key == "iAudioX") {
+		rtn = IAUDIOX;
+	} // 40
 
 
 	// iMouseX  
@@ -639,8 +642,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 		rtn = IBEATSPERBAR;
 	} // 59
 
-
 	// vec3
+	else if (key == "iResolution") {
+		rtn = IRESOLUTION;
+	} // 120
 	// iResolutionX (should be fbowidth?) 
 	else if (key == "iResolutionX") {
 		rtn = IRESOLUTIONX;
@@ -649,9 +654,7 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iResolutionY") {
 		rtn = IRESOLUTIONY;
 	} // 122
-	else if (key == "iResolution") {
-		rtn = IRESOLUTION;
-	} // 120
+
 
 	// IPHASE 
 	else if (key == "iPhase") {
@@ -660,9 +663,6 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iColor") {
 		rtn = ICOLOR;
 	} // 61
-	else if (key == "iBackgroundColor") {
-		rtn = IBACKGROUNDCOLOR;
-	} // 62
 
 	// vec4
 	else if (key == "iMouse") {
@@ -770,5 +770,5 @@ int VDUniforms::stringToIndex(const std::string& key) {
 }
 
 bool VDUniforms::isExistingUniform(const std::string& aName) {
- return stringToIndex(aName) != -1; 
+	return stringToIndex(aName) != -1;
 };

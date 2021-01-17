@@ -43,7 +43,7 @@ bool VDKeyboard::handleKeyDown(KeyEvent& event) {
 		break;
 	case KeyEvent::KEY_r:
 		if (isAltDown) {
-			mVDMediator->setUniformValue(mVDUniforms->IBR, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IBR) + delta, 0.0f));
+			mVDMediator->setUniformValue(mVDUniforms->IBACKGROUNDCOLORX, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IBACKGROUNDCOLORX) + delta, 0.0f));
 		}
 		else {
 			mVDMediator->setUniformValue(mVDUniforms->IFR, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IFR) + delta, 0.0f));
@@ -51,7 +51,7 @@ bool VDKeyboard::handleKeyDown(KeyEvent& event) {
 		break;
 	case KeyEvent::KEY_g:
 		if (isAltDown) {
-			mVDMediator->setUniformValue(mVDUniforms->IBG, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IBG) + delta, 0.0f));
+			mVDMediator->setUniformValue(mVDUniforms->IBACKGROUNDCOLORY, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IBACKGROUNDCOLORY) + delta, 0.0f));
 		}
 		else {
 			mVDMediator->setUniformValue(mVDUniforms->IFG, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IFG) + delta, 0.0f));
@@ -59,7 +59,7 @@ bool VDKeyboard::handleKeyDown(KeyEvent& event) {
 		break;
 	case KeyEvent::KEY_b:
 		if (isAltDown) {
-			mVDMediator->setUniformValue(mVDUniforms->IBB, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IBB) + delta, 0.0f));
+			mVDMediator->setUniformValue(mVDUniforms->IBACKGROUNDCOLORZ, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IBACKGROUNDCOLORZ) + delta, 0.0f));
 		}
 		else {
 			mVDMediator->setUniformValue(mVDUniforms->IFB, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IFB) + delta, 0.0f));

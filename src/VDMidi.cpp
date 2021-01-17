@@ -247,8 +247,11 @@ void VDMidi::midiListener(midi::Message msg) {
 		midiNormalizedValue = lmap<float>(midiValue, 0.0, 127.0, 0.0, 1.0);
 		ss << " cc Chn:" << midiChannel << " CC:" << midiControl << " Val:" << midiValue << " NVal:" << midiNormalizedValue;
 		CI_LOG_V("Midi: " + ss.str());
-		if (midiShift) {
+		if (midiWeights) {
 			midiControl += 30;
+		}
+		if (midiBackColor) {
+			midiControl += 25;
 		}
 		//if (midiControl > 20 && midiControl < 49) {
 			/*if (midiControl > 20 && midiControl < 29) {
@@ -302,18 +305,20 @@ void VDMidi::midiListener(midi::Message msg) {
 
 		// This does mVDSession->setFboFragmentShaderIndex(0, midiPitch);
 		if (midiPitch == 8) {
-			midiShift = true;
+			midiWeights = true;
 		}
-		if (midiPitch < 7) {
-			mVDMediator->setMode(midiPitch);
-			
+		if (midiPitch == 9) {
+			midiBackColor = true;
+		}
+		/*if (midiPitch < 7) {
+			mVDMediator->setMode(midiPitch);			
 			//mSelectedFboA = midiPitch;
 			//mFBOAChanged = true;
 		}
 		if (midiPitch > 8 && midiPitch < 17) {
 			//mSelectedFboB = midiPitch - 8;
 			//mFBOBChanged = true;
-		}
+		}*/
 		if (midiPitch > 17 && midiPitch < 24) {
 			mVDMediator->setUniformValue(midiPitch + 80 - 17, true);
 		}
@@ -323,7 +328,10 @@ void VDMidi::midiListener(midi::Message msg) {
 	case MIDI_NOTE_OFF:
 		midiPitch = msg.pitch;
 		if (midiPitch == 8) {
-			midiShift = false;
+			midiWeights = false;
+		}
+		if (midiPitch == 9) {
+			midiBackColor = false;
 		}
 		if (midiPitch < 7) {
 			mVDMediator->setMode(7);

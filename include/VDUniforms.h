@@ -60,10 +60,12 @@ namespace videodromm
 			IFBX = 7,
 			ISOBEL = 8,
 			IROTATIONSPEED = 9,
-			ISTEPS = 10,
-			IRATIO = 11,
-			IZOOM = 12,
-			IAUDIOX = 13,
+
+			IBACKGROUNDCOLOR = 10,
+			IBACKGROUNDCOLORX = 11,
+			IBACKGROUNDCOLORY = 12,
+			IBACKGROUNDCOLORZ = 13,
+			
 			IEXPOSURE = 14,
 			IPIXELATE = 15,
 			ITRIXELS = 16,
@@ -77,9 +79,9 @@ namespace videodromm
 			IPIXELX = 23,
 			IPIXELY = 24,
 			IDELTATIME = 25,
-			IBR = 26,
-			IBG = 27,
-			IBB = 28,
+			ISTEPS = 26, //10
+			IRATIO = 27,//11,
+			IZOOM = 28,//12,
 			IMAXVOLUME = 29,
 			ICONTOUR = 30,
 
@@ -92,6 +94,7 @@ namespace videodromm
 			IWEIGHT6 = 37,
 			IWEIGHT7 = 38,
 			IWEIGHT8 = 39,
+			IAUDIOX = 40,//13,
 
 			IMOUSEX = 42,
 			IMOUSEY = 43,
@@ -113,7 +116,7 @@ namespace videodromm
 			IBEATSPERBAR = 59,
 			IPHASE = 60,
 			ICOLOR = 61,
-			IBACKGROUNDCOLOR = 62,
+
 			IMOUSE = 70,
 			// booleans 80 to 110
 			IGLITCH = 81,	// A4
@@ -273,21 +276,7 @@ namespace videodromm
 				shaderUniforms[stringToIndex(aName + "W")].floatValue);
 			//return shaderUniforms[stringToIndex(aName)].vec4Value;
 		}
-		/*int								getIntUniformValueByName(const std::string& aName) {
-			return shaderUniforms[stringToIndex(aName)].floatValue;
-		};
-		bool							getBoolUniformValueByIndex(unsigned int aIndex) {
-			return shaderUniforms[aIndex].floatValue;
-		}
 		
-		bool							getBoolUniformValueByName(const std::string& aName) {
-			return shaderUniforms[stringToIndex(aName)].floatValue;
-		}
-		
-		int								getIntUniformValueByIndex(unsigned int aIndex) {
-			return shaderUniforms[aIndex].floatValue;
-		}
-		*/
 		float							getMinUniformValue(unsigned int aIndex) {
 			return shaderUniforms[aIndex].minValue;
 		}
@@ -296,16 +285,12 @@ namespace videodromm
 		}
 		float							getMinUniformValueByName(const std::string& aName) {
 			if (aName == "") {
-				//CI_LOG_V("empty error");
 			}
-
 			return shaderUniforms[stringToIndex(aName)].minValue;
 		}
 		float							getMaxUniformValueByName(const std::string& aName) {
 			if (aName == "") {
-				//CI_LOG_V("empty error");
 			}
-
 			return shaderUniforms[stringToIndex(aName)].maxValue;
 		}
 		float							getUniformValue(unsigned int aIndex) {
@@ -320,7 +305,6 @@ namespace videodromm
 		}
 		float							getUniformValueByName(const std::string& aName) {
 			if (aName == "") {
-				//CI_LOG_V("getUniformValueByName name empty");
 				return 1.0f;
 			}
 			else {
