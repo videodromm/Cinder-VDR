@@ -92,6 +92,8 @@ namespace videodromm
 		bool						midiSticky;
 		bool						midiStickyPrevValue;
 		int							midiStickyPrevIndex;
+		// toggle nano mix mode
+		bool						midiShift = false;
 	};
 }
 

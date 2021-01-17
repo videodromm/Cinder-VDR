@@ -190,8 +190,8 @@ namespace videodromm {
 			else {
 				mCurrentIndex++;
 			}
+			aFboShaderIndex = mCurrentIndex;
 		}
-		aFboShaderIndex = mCurrentIndex;
 
 		// init the list the first time
 		if (mFboShaderList.size() == 0) {

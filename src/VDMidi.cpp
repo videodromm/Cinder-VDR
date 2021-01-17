@@ -236,7 +236,7 @@ void VDMidi::closeMidiOutPort(int i) {
 
 void VDMidi::midiListener(midi::Message msg) {
 	std::stringstream ss;
-	ss << "MIDI port: " << mMidiIn0.getPortName(msg.port);
+	ss << "MIDI port: " << mMidiIn0.getPortName(msg.port) << "\n";
 	midiChannel = msg.channel;
 	switch (msg.status)
 	{
@@ -245,9 +245,11 @@ void VDMidi::midiListener(midi::Message msg) {
 		midiControl = msg.control;
 		midiValue = msg.value;
 		midiNormalizedValue = lmap<float>(midiValue, 0.0, 127.0, 0.0, 1.0);
-		ss << " cc Chn: " << midiChannel << " CC: " << midiControl << " Val: " << midiValue << " NVal: " << midiNormalizedValue;
+		ss << " cc Chn:" << midiChannel << " CC:" << midiControl << " Val:" << midiValue << " NVal:" << midiNormalizedValue;
 		CI_LOG_V("Midi: " + ss.str());
-
+		if (midiShift) {
+			midiControl += 30;
+		}
 		//if (midiControl > 20 && midiControl < 49) {
 			/*if (midiControl > 20 && midiControl < 29) {
 				mSelectedWarp = midiControl - 21;
@@ -271,7 +273,7 @@ void VDMidi::midiListener(midi::Message msg) {
 		break;
 	case MIDI_NOTE_ON:
 		/*
-		TODO nano notes instad of cc
+		TODO nano notes instead of cc
 		if (midiControl > 20 && midiControl < 29) {
 				mSelectedWarp = midiControl - 21;
 			}
@@ -299,6 +301,9 @@ void VDMidi::midiListener(midi::Message msg) {
 		//mVDMediator->setUniformValue(midiPitch + 80, true);
 
 		// This does mVDSession->setFboFragmentShaderIndex(0, midiPitch);
+		if (midiPitch == 2) {
+			midiShift = true;
+		}
 		if (midiPitch < 9) {
 			//mSelectedFboA = midiPitch;
 			//mFBOAChanged = true;
@@ -315,6 +320,9 @@ void VDMidi::midiListener(midi::Message msg) {
 		break;
 	case MIDI_NOTE_OFF:
 		midiPitch = msg.pitch;
+		if (midiPitch == 2) {
+			midiShift = false;
+		}
 		if (midiPitch > 17 && midiPitch < 24) {
 			mVDMediator->setUniformValue(midiPitch + 80 - 17, false);
 		}
@@ -354,7 +362,7 @@ void VDMidi::midiListener(midi::Message msg) {
 	//ss << "MIDI Chn: " << midiChannel << " type: " << midiControlType << " CC: " << midiControl << " Pitch: " << midiPitch << " Vel: " << midiVelocity << " Val: " << midiValue << " NVal: " << midiNormalizedValue << std::endl;
 	//CI_LOG_V("Midi: " + ss.str());
 	ss << std::endl;
-	mMidiMsg = ss.str() + "\n";
+	mMidiMsg = ss.str();
 }
 
 

@@ -206,12 +206,12 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		if (mInputTextureIndex == 0) {
 			mInputTextureRef = mVDAnimation->getAudioTexture();
 		}
-		
+
 		gl::ScopedFramebuffer fbScp(mFbo);
 		if (mVDUniforms->getUniformValue(mVDUniforms->ICLEAR)) {
 			gl::clear(Color::black());
 		}
-		
+
 		mInputTextureRef->bind(0);
 		mInputTextureRef->bind(253);
 		if (mIsHydraTex) {
@@ -279,7 +279,14 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 							mInputTextureName = name.substr(0, texNameEndIndex + 3);
 							// 20210116 TODO 
 							mShader->uniform(name, (uint32_t)(254 + channelIndex));
-							//mShader->uniform(name, (uint32_t)(0));
+							/*
+								osc(1,0.5,2).mult(shape(3)).out(o0)
+								osc(2,0.5,2).mult(shape(4)).out(o1)
+								osc(3,0.5).mult(shape(5)).out(o2)
+								osc(4,0.5,2).mult(shape(6)).out(o3)
+								src(o2).scale(1.05).rotate(0.1).blend(o1,0.1).blend(o3,0.1).blend(o0,0.1).out(o2)
+								render(o2)
+							*/
 							channelIndex++;
 						}
 						else {
