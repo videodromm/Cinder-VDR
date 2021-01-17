@@ -30,13 +30,13 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("TIME", ITIME, 0.0f); // 0
 	// sliders
 	// red
-	createFloatUniform("r", IFR, 0.45f); // 1
+	createFloatUniform("iColorX", ICOLORX, 0.45f); // 1
 	// green
-	createFloatUniform("g", IFG, 0.0f); // 2
+	createFloatUniform("iColorY", ICOLORY, 0.0f); // 2
 	// blue
-	createFloatUniform("b", IFB, 1.0f); // 3
+	createFloatUniform("iColorZ", ICOLORZ, 1.0f); // 3
 	// Alpha 
-	createFloatUniform("iAlpha", IFA, 1.0f); // 4
+	createFloatUniform("iAlpha", IALPHA, 1.0f); // 4
 	// red multiplier 
 	createFloatUniform("iRedMultiplier", IFRX, 1.0f, 0.0f, 3.0f); // 5
 	// green multiplier 
@@ -54,7 +54,7 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iBackgroundColorY", IBACKGROUNDCOLORY, 0.0f); // 12
 	// background blue
 	createFloatUniform("iBackgroundColorZ", IBACKGROUNDCOLORZ, 1.0f); // 13
-	createVec3Uniform("iBackgroundColor", IBACKGROUNDCOLOR, vec3(getUniformValue(IBACKGROUNDCOLORX), getUniformValue(IBACKGROUNDCOLORY), getUniformValue(IBACKGROUNDCOLORZ))); // 10
+	createVec3Uniform("iBackgroundColor", IBACKGROUNDCOLOR, vec3(getUniformValue(IBACKGROUNDCOLORX), getUniformValue(IBACKGROUNDCOLORY), getUniformValue(IBACKGROUNDCOLORZ))); // 311
 
 	// rotary
 	// exposure
@@ -114,8 +114,7 @@ VDUniforms::VDUniforms() {
 	//createFloatUniform("iElapsed", IELAPSED, 0.0f); // 39
 	// Audio multfactor 
 	createFloatUniform("iAudioX", IAUDIOX, 1.0f, 0.01f, 30.0f); // 40
-	// vec4
-	createVec4Uniform("iMouse", IMOUSE, vec4(0.27710f, 0.5648f, 0.0f, 0.0f)); // 41
+
 	// iMouseX  
 	createFloatUniform("iMouseX", IMOUSEX, 0.27710f, 0.0f, 1280.0f); // 42
 	// iMouseY  
@@ -160,10 +159,10 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iResolutionX", IRESOLUTIONX, mRenderWidth, 320.01f, 4280.0f); // 121
 	// iResolutionY (should be fboheight?)  
 	createFloatUniform("iResolutionY", IRESOLUTIONY, mRenderHeight, 240.01f, 2160.0f); // 122
-	createVec3Uniform("iResolution", IRESOLUTION, vec3(getUniformValue(IRESOLUTIONX), getUniformValue(IRESOLUTIONY), 1.0)); // 120
+	createVec3Uniform("iResolution", IRESOLUTION, vec3(getUniformValue(IRESOLUTIONX), getUniformValue(IRESOLUTIONY), 1.0)); // 421
 
 
-	createVec3Uniform("iColor", ICOLOR, vec3(0.45, 0.0, 1.0)); // 61
+	createVec3Uniform("iColor", ICOLOR, vec3(0.45, 0.0, 1.0)); // 301
 	// vignette amount
 	createFloatUniform("iVAmount", IVAMOUNT, 0.91f, 0.0f, 1.0f); // 62
 	//createVec3Uniform("iChannelResolution[0]", 63, vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
@@ -209,8 +208,9 @@ VDUniforms::VDUniforms() {
 
 	// vec2
 	createVec2Uniform("resolution", RESOLUTION, vec2(1280.0f, 720.0f)); // hydra 150
-	createVec2Uniform("RENDERSIZE", RENDERSIZE, vec2(getUniformValueByName("iResolutionX"), getUniformValueByName("iResolutionY"))); // isf 151
-
+	createVec2Uniform("RENDERSIZE", RENDERSIZE, vec2(getUniformValue(IRESOLUTIONX), getUniformValue(IRESOLUTIONY))); // isf 151
+		// vec4
+	createVec4Uniform("iMouse", IMOUSE, vec4(0.27710f, 0.5648f, 0.0f, 0.0f)); // 342
 	// vec4 kinect2
 	createVec4Uniform("iSpineBase", 200, vec4(320.0f, 240.0f, 0.0f, 0.0f));
 	createVec4Uniform("SpineMid", 201, vec4(320.0f, 240.0f, 0.0f, 0.0f));
@@ -406,20 +406,20 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	if (key == "iTime" || key == "uTime" || key == "time" || key == "TIME") {
 		rtn = ITIME;
 	}
-	else if (key == "r") {
-		rtn = IFR;
+	else if (key == "iColorX") {
+		rtn = ICOLORX;
 	} // 1
 	// green
-	else if (key == "g") {
-		rtn = IFG;
+	else if (key == "iColorY") {
+		rtn = ICOLORY;
 	} // 2
 	// blue
-	else if (key == "b") {
-		rtn = IFB;
+	else if (key == "iColorZ") {
+		rtn = ICOLORZ;
 	} // 3
 	// Alpha 
 	else if (key == "iAlpha") {
-		rtn = IFA;
+		rtn = IALPHA;
 	} // 4
 	// red multiplier 
 	else if (key == "iRedMultiplier") {
@@ -658,7 +658,7 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	} // 60
 	else if (key == "iColor") {
 		rtn = ICOLOR;
-	} // 61
+	} // 301
 
 	// vec4
 	

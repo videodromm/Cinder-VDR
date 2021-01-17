@@ -51,17 +51,17 @@ namespace videodromm
 			// uniform indexes
 			// float
 			ITIME = 0,
-			IFR = 1,
-			IFG = 2,
-			IFB = 3,
-			IFA = 4,
+			ICOLORX = 1,
+			ICOLORY = 2,
+			ICOLORZ = 3,
+			IALPHA = 4,
 			IFRX = 5,
 			IFGX = 6,
 			IFBX = 7,
 			ISOBEL = 8,
 			IROTATIONSPEED = 9,
 
-			IBACKGROUNDCOLOR = 10,
+
 			IBACKGROUNDCOLORX = 11,
 			IBACKGROUNDCOLORY = 12,
 			IBACKGROUNDCOLORZ = 13,
@@ -95,7 +95,7 @@ namespace videodromm
 			IWEIGHT7 = 38,
 			IWEIGHT8 = 39,
 			IAUDIOX = 40,
-			IMOUSE = 41,
+
 			IMOUSEX = 42,
 			IMOUSEY = 43,
 			IMOUSEZ = 44,
@@ -115,7 +115,7 @@ namespace videodromm
 			IOUTH = 57,
 			IBEATSPERBAR = 59,
 			IPHASE = 60,
-			ICOLOR = 61,
+
 			IVAMOUNT = 62,
 
 
@@ -127,7 +127,7 @@ namespace videodromm
 			IGREYSCALE = 87,
 			ICLEAR = 88,	// 
 
-			IRESOLUTION = 120,
+
 			IRESOLUTIONX = 121,
 			IRESOLUTIONY = 122,
 
@@ -139,12 +139,12 @@ namespace videodromm
 			IFLIPPOSTV = 134,
 
 			/*
-						IRHANDX = 110,
-						IRHANDY = 111,
-						IRHANDZ = 112,
-						ILHANDX = 113,
-						ILHANDY = 114,
-						ILHANDZ = 115,*/
+				IRHANDX = 110,
+				IRHANDY = 111,
+				IRHANDZ = 112,
+				ILHANDX = 113,
+				ILHANDY = 114,
+				ILHANDZ = 115,*/
 
 			IFREQ0 = 140,
 			IFREQ1 = 141,
@@ -159,7 +159,10 @@ namespace videodromm
 			SRCXRIGHT = 161,
 			SRCYLEFT = 162,
 			SRCYRIGHT = 163,
-
+			ICOLOR = 301,
+			IBACKGROUNDCOLOR = 311,
+			IMOUSE = 342,
+			IRESOLUTION = 421,
 		};
 		bool							isExistingUniform(const std::string& aName);
 		int								getUniformType(unsigned int aIndex) {
@@ -185,28 +188,6 @@ namespace videodromm
 		int								getUniformIndexForName(const std::string& aName) {
 			return shaderUniforms[stringToIndex(aName)].index;
 		};
-		/*bool							setBoolUniformValueByIndex(unsigned int aIndex, bool aValue) {
-			shaderUniforms[aIndex].floatValue = aValue;
-			return aValue;
-		}
-		void							setIntUniformValueByName(const std::string& aName, int aValue) {
-			if (aName == "") {
-				//CI_LOG_E("empty error");
-			}
-			else {
-				shaderUniforms[stringToIndex(aName)].floatValue = aValue;
-			}
-		}
-		void							setIntUniformValueByIndex(unsigned int aIndex, int aValue) {
-
-			if (IBEAT == aIndex) {
-				if (aValue != mLastBeat) {
-					mLastBeat = aValue;
-					if (aValue == 0) setIntUniformValueByIndex(IBAR, getIntUniformValueByIndex(IBAR) + 1);
-				}
-			}
-			shaderUniforms[aIndex].floatValue = aValue;
-		}*/
 		
 		void setVec2UniformValueByName(const std::string& aName, vec2 aValue) {
 			if (aName == "") {
@@ -218,33 +199,24 @@ namespace videodromm
 			}
 		}
 		void setVec2UniformValueByIndex(unsigned int aIndex, vec2 aValue) {
-			//shaderUniforms[aIndex].vec2Value = aValue; //IRES 120 IRESX 121 IRESY 122 TODO COLOR RENDERSIZE
-			shaderUniforms[aIndex + 1].floatValue = aValue.x;
-			shaderUniforms[aIndex + 2].floatValue = aValue.y;
+			//IRES 120 IRESX 121 IRESY 122 TODO COLOR RENDERSIZE
+			shaderUniforms[aIndex - 300].floatValue = aValue.x;
+			shaderUniforms[aIndex - 299].floatValue = aValue.y;
 		}
 		void setVec3UniformValueByName(const std::string& aName, vec3 aValue) {
-			if (aName == "") {
-				//CI_LOG_E("empty error");
-			}
-			else {
-				//shaderUniforms[stringToIndex(aName)].vec3Value = aValue;
+			if (aName != "") {
 				shaderUniforms[stringToIndex(aName + "X")].floatValue = aValue.x;
 				shaderUniforms[stringToIndex(aName + "Y")].floatValue = aValue.y;
 				shaderUniforms[stringToIndex(aName + "Z")].floatValue = aValue.z;
 			}
 		}
 		void setVec3UniformValueByIndex(unsigned int aIndex, vec3 aValue) {
-			//shaderUniforms[aIndex].vec3Value = aValue;
-			shaderUniforms[aIndex + 1].floatValue = aValue.x;
-			shaderUniforms[aIndex + 2].floatValue = aValue.y;
-			shaderUniforms[aIndex + 3].floatValue = aValue.z;
+			shaderUniforms[aIndex - 300].floatValue = aValue.x;
+			shaderUniforms[aIndex - 299].floatValue = aValue.y;
+			shaderUniforms[aIndex - 298].floatValue = aValue.z;
 		}
 		void setVec4UniformValueByName(const std::string& aName, vec4 aValue) {
-			if (aName == "") {
-				//CI_LOG_E("empty error");
-			}
-			else {
-				//shaderUniforms[stringToIndex(aName)].vec4Value = aValue;
+			if (aName != "") {
 				shaderUniforms[stringToIndex(aName + "X")].floatValue = aValue.x;
 				shaderUniforms[stringToIndex(aName + "Y")].floatValue = aValue.y;
 				shaderUniforms[stringToIndex(aName + "Z")].floatValue = aValue.z;
@@ -252,30 +224,31 @@ namespace videodromm
 			}
 		}
 		void setVec4UniformValueByIndex(unsigned int aIndex, vec4 aValue) {
-			//shaderUniforms[aIndex].vec4Value = aValue;
-			shaderUniforms[aIndex + 1].floatValue = aValue.x;
-			shaderUniforms[aIndex + 2].floatValue = aValue.y;
-			shaderUniforms[aIndex + 3].floatValue = aValue.z;
-			shaderUniforms[aIndex + 4].floatValue = aValue.w;
+			shaderUniforms[aIndex - 300].floatValue = aValue.x;
+			shaderUniforms[aIndex - 299].floatValue = aValue.y;
+			shaderUniforms[aIndex - 298].floatValue = aValue.z;
+			shaderUniforms[aIndex - 297].floatValue = aValue.w;
 		}
 		vec2							getVec2UniformValueByName(const std::string& aName) {
 			return vec2(shaderUniforms[stringToIndex(aName + "X")].floatValue,
 				shaderUniforms[stringToIndex(aName + "Y")].floatValue);
-			//return shaderUniforms[stringToIndex(aName)].vec2Value;
 		}
 		vec3							getVec3UniformValueByName(const std::string& aName) {
+			if (aName == "iColor") {
+				std::string sti = toString(stringToIndex(aName + "X"));
+				std::string stu = toString(shaderUniforms[stringToIndex(aName + "X")].floatValue);
+				std::string stn = aName ;
+			}
+
 			return vec3(shaderUniforms[stringToIndex(aName + "X")].floatValue,
 				shaderUniforms[stringToIndex(aName + "Y")].floatValue,
 				shaderUniforms[stringToIndex(aName + "Z")].floatValue);
-			//return shaderUniforms[stringToIndex(aName)].vec3Value;
-			// OUI AU TEL
 		}
 		vec4							getVec4UniformValueByName(const std::string& aName) {
 			return vec4(shaderUniforms[stringToIndex(aName + "X")].floatValue,
 				shaderUniforms[stringToIndex(aName + "Y")].floatValue,
 				shaderUniforms[stringToIndex(aName + "Z")].floatValue,
 				shaderUniforms[stringToIndex(aName + "W")].floatValue);
-			//return shaderUniforms[stringToIndex(aName)].vec4Value;
 		}
 		
 		float							getMinUniformValue(unsigned int aIndex) {

@@ -250,12 +250,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 						mShader->uniform(name, mVDUniforms->getUniformValueByName(name));
 					}
 					else {
-						//mVDUniforms->createFloatUniform
-						//createFloatUniform(name, mVDAnimation->getUniformIndexForName(name), getIntUniformValueByName(name), mVDAnimation->getMinUniformValueByName(name), mVDAnimation->getMaxUniformValueByName(name));
-						//mShader->uniform(name, mVDAnimation->getUniformValue(0));
-						int l = uniform.getLocation();
-						//float v = getUniformValueByLocation(l);
-						// 20201231 BUG!! mShader->uniform(l, mUniformValueByLocation[l]);
+						int l = uniform.getLocation();						
 						mShader->uniform(name, mUniformValueByLocation[l]);
 					}
 				}

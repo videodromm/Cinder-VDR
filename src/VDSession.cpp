@@ -19,10 +19,6 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 
 	// Animation
 	// TODO: needed? mVDAnimation->tapTempo();
-	//createFboShaderTexture("default.fs", "0.jpg");
-	//createFboShaderTexture("audio.fs", "audio");
-	// allow log to file
-	//mVDLog = VDLog::create();
 	// fbo
 	gl::Fbo::Format format;
 	//format.setSamples( 4 ); // uncomment this to enable 4x antialiasing
@@ -35,7 +31,7 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 	mWarpTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
 	// adjust the content size of the warps
 
-	// TODO 20200305 was 20200302 if (getFboRenderedTexture(0)) Warp::setSize(mWarpList, getFboRenderedTexture(0)->getSize());
+	// TODO 20200305 if (getFboRenderedTexture(0)) Warp::setSize(mWarpList, getFboRenderedTexture(0)->getSize());
 	Warp::setSize(mWarpList, ivec2(mVDParams->getFboWidth(), mVDParams->getFboHeight())); //
 	// initialize warps
 	mSettings = getAssetPath("") / mVDMix->getAssetsPath() / "warps.xml";
@@ -48,16 +44,7 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 		mWarpList.push_back(WarpPerspectiveBilinear::create());
 	}
 	loadFbos();
-	//loadWarps();
-	// init fbo format
-	//fmt.setWrap(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
-	//fmt.setBorderColor(Color::black());
-	// uncomment this to enable 4x antialiasing
-	//fboFmt.setSamples( 4 );
-	/*fboFmt.setColorTextureFormat(fmt);
-	mPosX = mPosY = 0.0f;
-	mZoom = 1.0f;
-	mSelectedWarp = 0;*/
+	
 	// Modes
 	mModesList[0] = "Fbo0";
 	mModesList[1] = "Fbo1";
@@ -69,7 +56,6 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 	mModesList[7] = "Post";
 	mModesList[8] = "Mixette";
 	mModesList[9] = "Warp"; // not used
-	//mMode = 0;
 
 	// reset no matter what, so we don't miss anything
 	cmd = -1;
@@ -108,7 +94,7 @@ void VDSession::loadFbos() {
 
 		fs::path jsonFile = getAssetPath("") / mVDMix->getAssetsPath() / jsonFileName;
 		if (fs::exists(jsonFile)) {
-			// nouveau
+			// new
 				/*loadFromJsonFile(jsonFile)
 						->createShader()
 						->createUniforms()
@@ -126,15 +112,7 @@ void VDSession::loadFbos() {
 	} //while
 
 }
-/*int  VDSession::getMode() { 
-	return mMode; 
-};
-void VDSession::setMode(int aMode) { 
-	mMode = aMode; 
-};
-int VDSession::getModesCount() { 
-	return mModesList.size() - 1; 
-};*/
+
 void VDSession::toggleUI() {
 	mShowUI = !mShowUI; 
 };
@@ -330,19 +308,7 @@ void VDSession::reset()
 {
 	// parameters exposed in json file
 	mOriginalBpm = 166;
-	/* TODO 20200221
-	mWaveFileName = "";
-	mWavePlaybackDelay = 10;
-	mMovieFileName = "";
-	mImageSequencePath = "";
-	mMoviePlaybackDelay = 10;
-	mFadeInDelay = 5;
-	mFadeOutDelay = 1;
-	mText = "";
-	mTextPlaybackDelay = 10;
-	mTextPlaybackEnd = 2020000;*/
 	mVDAnimation->mEndFrame = 20000000;
-
 	resetSomeParams();
 }
 
@@ -482,39 +448,6 @@ bool VDSession::handleKeyDown(KeyEvent& event)
 				Warp::enableEditMode(!Warp::isEditModeEnabled());
 			}
 			break;
-
-		/*case KeyEvent::KEY_F1:
-			mMode = 0;
-			break;
-		case KeyEvent::KEY_F2:
-			mMode = 1;
-			break;
-		case KeyEvent::KEY_F3:
-			mMode = 2;
-			break;
-		case KeyEvent::KEY_F4:
-			mMode = 3;
-			break;
-		case KeyEvent::KEY_F5:
-			mMode = 4;
-			break;
-		case KeyEvent::KEY_F6:
-			mMode = 5;
-			break;
-		case KeyEvent::KEY_F7:
-			mMode = 6;
-			break;
-		case KeyEvent::KEY_F8:
-			mMode = 7;
-			break;
-		case KeyEvent::KEY_F9:
-			mMode = 8;
-			break;
-		case KeyEvent::KEY_F10:
-			mMode = 9;
-			break;*/
-
-		
 		case KeyEvent::KEY_UP:
 			// imgseq next
 			//incrementSequencePosition();
@@ -619,7 +552,6 @@ ci::gl::TextureRef VDSession::getRenderedWarpFboTexture() {
 	return mWarpTexture;
 };
 void VDSession::resize() {
-	//mRenderFbo = gl::Fbo::create(mVDSettings->mRenderWidth, mVDSettings->mRenderHeight, fboFmt);
 	// tell the fbos our window has been resized, so they properly scale up or down
 	Warp::handleResize(mWarpList);
 	Warp::setSize(mWarpList, ivec2(mVDParams->getFboWidth(), mVDParams->getFboHeight()));
@@ -643,15 +575,11 @@ unsigned int VDSession::getWarpBFboIndex(unsigned int aWarpIndex) { return mWarp
 void VDSession::setWarpAFboIndex(unsigned int aWarpIndex, unsigned int aWarpFboIndex) {
 	if (aWarpIndex < mWarpList.size() && aWarpFboIndex < mVDMix->getFboShaderListSize()) {
 		mWarpList[aWarpIndex]->setAFboIndex(aWarpFboIndex);
-		/* 20201229
-updateWarpName(aWarpIndex);*/
 	}
 }
 void VDSession::setWarpBFboIndex(unsigned int aWarpIndex, unsigned int aWarpFboIndex) {
 	if (aWarpIndex < mWarpList.size() && aWarpFboIndex < mVDMix->getFboShaderListSize()) {
 		mWarpList[aWarpIndex]->setBFboIndex(aWarpFboIndex);
-		/* 20201229
-updateWarpName(aWarpIndex);*/
 	}
 }
 
@@ -717,18 +645,6 @@ float VDSession::getDefaultUniformValue(unsigned int aIndex) {
 int VDSession::getSampler2DUniformValueByName(const std::string& aName) {
 	return mVDUniforms->getSampler2DUniformValueByName(aName);
 };
-/*int VDSession::getIntUniformValueByName(const std::string& aName) {
-	return mVDUniforms->getUniformValueByName(aName);
-};
-int VDSession::getIntUniformValueByIndex(unsigned int aCtrl) {
-	return mVDUniforms->getUniformValue(aCtrl);
-};
-bool VDSession::getBoolUniformValueByName(const std::string& aName) {
-	return mVDUniforms->getUniformValueByName(aName);
-};
-bool VDSession::getBoolUniformValueByIndex(unsigned int aCtrl) {
-	return mVDUniforms->getUniformValue(aCtrl);
-}*/
 float VDSession::getUniformValueByName(const std::string& aCtrlName) {
 	return mVDUniforms->getUniformValueByName(aCtrlName);
 };

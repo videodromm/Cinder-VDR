@@ -97,10 +97,6 @@ namespace videodromm {
 		float							getMaxUniformValue(unsigned int aIndex);
 		float							getDefaultUniformValue(unsigned int aIndex);
 		int								getSampler2DUniformValueByName(const std::string& aName);
-		/*int								getIntUniformValueByName(const std::string& aName);
-		int								getIntUniformValueByIndex(unsigned int aCtrl);
-		bool							getBoolUniformValueByName(const std::string& aName);
-		bool							getBoolUniformValueByIndex(unsigned int aCtrl);*/
 		float							getUniformValueByName(const std::string& aCtrlName);
 
 		// tempo
@@ -145,48 +141,7 @@ namespace videodromm {
 		int								loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex = 0) {
 			return mVDMix->loadFragmentShader(aFilePath, aFboShaderIndex);
 		};
-		/*bool							getFreqWSSend() { return mFreqWSSend; };
-		void							toggleFreqWSSend() { mFreqWSSend = !mFreqWSSend; };
-		// uniforms
-		//void							setMixCrossfade(unsigned int aWarpIndex, float aCrossfade) { mVDSettings->xFade = aCrossfade; mVDSettings->xFadeChanged = true; };
-		//float							getMixCrossfade(unsigned int aWarpIndex) { return mVDSettings->xFade; };
-		float							getCrossfade() {
-			return mVDAnimation->getUniformValue(mVDUniforms->IXFADE);
-		};
-		void							setCrossfade(float aCrossfade) {
-			mVDAnimation->setUniformValue(mVDUniforms->IXFADE, aCrossfade);
-		};
-		void							setFboAIndex(unsigned int aIndex, unsigned int aFboIndex);
-		void							setFboBIndex(unsigned int aIndex, unsigned int aFboIndex);
-		unsigned int					getFboAIndex(unsigned int aIndex) { return mVDAnimation->getIntUniformValueByName("iFboA"); };
-		unsigned int					getFboBIndex(unsigned int aIndex) { return mVDAnimation->getIntUniformValueByName("iFboB"); };
-
-		void							setFboFragmentShaderIndex(unsigned int aFboIndex, unsigned int aFboShaderIndex);
-		unsigned int					getFboFragmentShaderIndex(unsigned int aFboIndex);
-		bool							loadShaderFolder(const string& aFolder);
-
-		unsigned int					getShadersCount() { return mShaderList.size(); };
-		string							getShaderName(unsigned int aShaderIndex);
-		ci::gl::TextureRef				getShaderThumb(unsigned int aShaderIndex);
-		string							getFragmentString(unsigned int aShaderIndex) { return mShaderList[aShaderIndex]->getFragmentString(); };
-		void							setFragmentShaderString(unsigned int aShaderIndex, const string& aFragmentShaderString, const string& aName = "");
-		//string							getVertexShaderString(unsigned int aShaderIndex) { return mVDMix->getVertexShaderString(aShaderIndex); };
-		string							getFragmentShaderString(unsigned int aShaderIndex);
-		//string							getVertexShaderString(unsigned int aShaderIndex) { return mVDMix->getVertexShaderString(aShaderIndex); };
-		void							setHydraFragmentShaderString(const string& aFragmentShaderString, const string& aName = "");
-		string							getHydraFragmentShaderString();
-		void							updateShaderThumbFile(unsigned int aShaderIndex);
-		void							removeShader(unsigned int aShaderIndex);
-
-		// file operations (filedrop, etc)
-		//int								loadFileFromAbsolutePath(const string& aAbsolutePath, int aIndex = 0);
-
-		unsigned int					getFboInputTextureIndex(unsigned int aFboIndex) ;
-
-		ci::gl::TextureRef				getFboTexture(unsigned int aFboIndex = 0);
-		ci::gl::TextureRef				getFboThumb(unsigned int aBlendIndex) { return mBlendFbos[aBlendIndex]->getColorTexture(); };
-		unsigned int					createShaderFboFromString(const string& aFragmentShaderString, const string& aShaderFilename);*/
-		/* 20201229 */
+		
 		int								getFboTextureWidth(unsigned int aFboIndex) {
 			return mVDMix->getFboInputTextureWidth(aFboIndex);
 		};
@@ -273,48 +228,14 @@ namespace videodromm {
 		std::string								getError(unsigned int aFboIndex) {
 			return mVDMix->getError(aFboIndex);
 		};
-		// fbo 
-		/*bool							getFboBoolUniformValueByIndex(unsigned int aCtrl, unsigned int aFboIndex) {
-			return mVDMix->getFboBoolUniformValueByIndex(aCtrl, aFboIndex);
-		};
-
-		void							toggleFboValue(unsigned int aCtrl, unsigned int aFboIndex) {
-			mVDMix->toggleFboValue(aCtrl, aFboIndex);
-		};
-		int								getFboIntUniformValueByIndex(unsigned int aCtrl, unsigned int aFboIndex) {
-			return mVDMix->getFboIntUniformValueByIndex(aCtrl, aFboIndex);
-		};
-
-		float							getFboFloatUniformValueByIndex(unsigned int aCtrl, unsigned int aFboIndex) {
-			return mVDMix->getFboFloatUniformValueByIndex(aCtrl, aFboIndex);
-		};
-		bool							setFboFloatUniformValueByIndex(unsigned int aCtrl, unsigned int aFboIndex, float aValue) {
-			return mVDMix->setFboFloatUniformValueByIndex(aCtrl, aFboIndex, aValue);
-		};*/
-		/* 20201229
-		bool									getGlobal(unsigned int aFboIndex) {
-			return mVDMix->getGlobal(aFboIndex);
-		};
-		void									toggleGlobal(unsigned int aFboIndex) {
-			mVDMix->toggleGlobal(aFboIndex);
-		};
-		unsigned int					getFboInputTexturesCount(unsigned int aFboIndex = 0) {
-			return 1; //TODO support several textures
-		}
-		std::string							getFboStatus(unsigned int aFboIndex = 0) {
-			return mVDMix->getFboStatus(aFboIndex);
-		}
-		void							updateShaderThumbFile(unsigned int aFboIndex) {
-			mVDMix->updateShaderThumbFile(aFboIndex);
-		}
-
-		*/
+		
 		std::vector<ci::gl::GlslProg::Uniform>			getUniforms(unsigned int aFboIndex = 0) {
 			return mVDMix->getUniforms(aFboIndex);
 		}
 		int								getUniformIndexForName(const std::string& aName) {
 			return mVDAnimation->getUniformIndexForName(aName);
 		};
+		// Fbo
 		std::string						getFboInputTextureName(unsigned int aFboIndex = 0) {
 			return mVDMix->getFboTextureName(aFboIndex);
 		}
@@ -350,49 +271,7 @@ namespace videodromm {
 		bool							loadImageSequence(const string& aFolder, unsigned int aTextureIndex);
 		void							loadAudioFile(const string& aFile);
 
-		/*
-		string VDSession::getInputTextureName(unsigned int aTextureIndex) {
-			return mTextureList[math<int>::min(aTextureIndex, mTextureList.size() - 1)]->getName();
-		}*/
-
-		//ci::gl::TextureRef				getInputTexture(unsigned int aTextureIndex);
-		/*ci::gl::TextureRef				getCachedTexture(unsigned int aTextureIndex, const string& aFilename);
-		//ci::gl::TextureRef				getNextInputTexture(unsigned int aTextureIndex);
-
-		void							loadAudioFile(const string& aFile);
-		void							loadMovie(const string& aFile, unsigned int aTextureIndex);
-		//void							toggleSharedOutput(unsigned int aMixFboIndex = 0);
-		//bool							isSharedOutputActive() { return mVDMix->isSharedOutputActive(); };
-		//unsigned int					getSharedMixIndex() { return mVDMix->getSharedMixIndex(); };
-		// move, rotate, zoom methods
-		//void							setPosition(int x, int y);
-		//void							setZoom(float aZoom);
-		int								getInputTextureXLeft(unsigned int aTextureIndex);
-		void							setInputTextureXLeft(unsigned int aTextureIndex, int aXLeft);
-		int								getInputTextureYTop(unsigned int aTextureIndex);
-		void							setInputTextureYTop(unsigned int aTextureIndex, int aYTop);
-		int								getInputTextureXRight(unsigned int aTextureIndex);
-		void							setInputTextureXRight(unsigned int aTextureIndex, int aXRight);
-		int								getInputTextureYBottom(unsigned int aTextureIndex);
-		void							setInputTextureYBottom(unsigned int aTextureIndex, int aYBottom);
-		bool							isFlipVInputTexture(unsigned int aTextureIndex);
-		bool							isFlipHInputTexture(unsigned int aTextureIndex);
-		void							inputTextureFlipV(unsigned int aTextureIndex);
-		void							inputTextureFlipH(unsigned int aTextureIndex);
-		bool							getInputTextureLockBounds(unsigned int aTextureIndex);
-		void							toggleInputTextureLockBounds(unsigned int aTextureIndex);
-		unsigned int					getInputTextureOriginalWidth(unsigned int aTextureIndex);
-		unsigned int					getInputTextureOriginalHeight(unsigned int aTextureIndex);
-		void							togglePlayPause(unsigned int aTextureIndex);
-		string							getStatus(unsigned int aTextureIndex);
-		// movie
-		bool							isMovie(unsigned int aTextureIndex);
-		// sequence
-		bool							isSequence(unsigned int aTextureIndex);
-		bool							isLoadingFromDisk(unsigned int aTextureIndex);
-		void							toggleLoadingFromDisk(unsigned int aTextureIndex);
-		void							syncToBeat(unsigned int aTextureIndex);
-		void							reverse(unsigned int aTextureIndex);*/
+		
 		/*float							getSpeed(unsigned int aTextureIndex) {
 			return mTextureList[math<int>::min(aTextureIndex, mTextureList.size() - 1)]->getSpeed();
 		};
@@ -432,29 +311,12 @@ namespace videodromm {
 		void							deleteWindow() { cmd = 1; };
 
 		int								getCmd() { int rtn = cmd; cmd = -1; return rtn; };
-		// utils
-		/*float							formatFloat(float f) { return mVDUtils->formatFloat(f); };
-
-		void							load();
-		void							updateAudio() {mTextureList[0]->getTexture();}
-		void							updateMixUniforms();
-		void							updateBlendUniforms();
-		// hydra
-		string							getHydraUniformsString() { return mHydraUniformsValuesString; };
-		ci::gl::TextureRef				getHydraTexture() { return mHydraFbo->getColorTexture(); };*/
-
-		// modeint
-		//int								getMode();
-		//void							setMode(int aMode);
-		//int								getModesCount();
 		void							toggleUI();
 		bool							showUI();
 		std::string						getModeName(unsigned int aMode);
 
 
 	private:
-
-		//int								mMode = 1;
 		VDParamsRef						mVDParams;
 		// Settings
 		VDSettingsRef					mVDSettings;
@@ -463,8 +325,6 @@ namespace videodromm {
 		// Settings
 		VDUniformsRef					mVDUniforms;
 
-		// Log
-		//VDLogRef						mVDLog;
 		// Mix
 		VDMixRef						mVDMix;
 		const std::string				sessionFileName = "session.json";
@@ -475,77 +335,16 @@ namespace videodromm {
 		float							mTargetFps;
 		// audio
 		bool							mFreqWSSend;
-		// files and paths
-		/*string							mWaveFileName;
-		string							mMovieFileName;
-		string							mImageSequencePath;
-		// delay
-		int								mWavePlaybackDelay;
-		int								mMoviePlaybackDelay;
-		unsigned int					mFadeInDelay;
-		unsigned int					mFadeOutDelay;
-		// font and text
-		string							mText;
-		int								mTextPlaybackDelay;
-		int								mTextPlaybackEnd;
-		//! Fbos
-		// maintain a list of fbo for right only or left/right or more fbos specific to this mix
-		//VDFboList						mFboList;
-		fs::path						mFbosFilepath;
-		// fbo
-		gl::Texture::Format				fmt;
-		gl::Fbo::Format					fboFmt;
-		bool							mEnabledAlphaBlending;
-		bool							mRenderTexture;
-		//! Warps
-		int								mSelectedWarp;
-		//! Shaders
-		string							mShaderLeft;
-		string							mShaderRight;
-		//! hydra
-		string							mHydraUniformsValuesString;
-		void							updateHydraUniforms();
-		void							renderHydra();
-		ci::gl::FboRef					mHydraFbo;
-		gl::GlslProgRef					mGlslHydra;
-		gl::GlslProgRef					mGlslRender;
-		//! textures
-		int								mWidth;
-		int								mHeight;
-		float							mPosX;
-		float							mPosY;
-		float							mZoom;
-		void							updateStream(string * aStringPtr);*/
 		//! window management
 		int								cmd = -1;
 		bool							mShowUI = false;
-		// mix
-
-/*
-		std::string						mFbosPath;
-
-		//! mix shader
-		gl::GlslProgRef					mMixShader;
-		string							mError;
-
-		//! Fbos
-		map<int, VDMixFbo>				mMixFbos;
-		*/
-
+	
 		//! Modes
-		std::map<int, std::string>				mModesList;
+		std::map<int, std::string>		mModesList;
 		// blendmodes fbos
-		std::map<int, ci::gl::FboRef>		mBlendFbos;
+		std::map<int, ci::gl::FboRef>	mBlendFbos;
 		int								mCurrentBlend;
-		/*gl::GlslProgRef					mGlslMix, mGlslBlend, mGlslFeedback, mGlslMixette;
-		// render
-		void							renderMix();
-		void							renderBlend();
-		// warping
-		gl::FboRef						mRenderFbo;
-		// warp rendered texture
-		ci::gl::Texture2dRef			mRenderedTexture, mMixetteTexture;
-		*/
+		
 		//! fbos
 		gl::Texture::Format				fmt;
 		gl::Fbo::Format					fboFmt;
@@ -560,12 +359,7 @@ namespace videodromm {
 
 		WarpList						mWarpList;
 		fs::path						mSettings;
-		/* 20201229
-		void							updateWarpName(unsigned int aWarpIndex) {
-			if (aWarpIndex < mWarpList.size()) {
-				mWarpList[aWarpIndex]->setName(mVDMix->getFboName(mWarpList[aWarpIndex]->getAFboIndex()));
-			}
-		}*/
+		
 		void							loadFbos();
 
 		bool							odd = false;

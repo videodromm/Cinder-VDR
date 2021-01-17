@@ -298,7 +298,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 								found = true;
 								f = msg[0].flt();
 								i = std::stoi(addr.substr(index + ctrl.length()));
-								mVDMediator->setUniformValue(i, f);// starts at 1: mVDUniforms->IFR G B
+								mVDMediator->setUniformValue(i, f);// starts at 1: mVDUniforms->ICOLORX G B
 							}
 						}
 						if (!found)

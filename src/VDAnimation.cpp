@@ -422,9 +422,9 @@ void VDAnimation::update() {
 
 		// foreground color vec3 update1
 		// tmp
-		float r = mVDUniforms->getUniformValue(mVDUniforms->IFR);
+		float r = mVDUniforms->getUniformValue(mVDUniforms->ICOLORX);
 		CI_LOG_V("red:" + toString(r) + " icolorR:" + toString(mVDUniforms->getVec3UniformValueByName("iColor").r));
-		mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->ICOLOR, vec3(mVDUniforms->getUniformValue(mVDUniforms->IFR), mVDUniforms->getUniformValue(mVDUniforms->IFG), mVDUniforms->getUniformValue(mVDUniforms->IFB)));
+		mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->ICOLOR, vec3(mVDUniforms->getUniformValue(mVDUniforms->ICOLORX), mVDUniforms->getUniformValue(mVDUniforms->ICOLORY), mVDUniforms->getUniformValue(mVDUniforms->ICOLORZ)));
 
 		// background color vec3 update
 		mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->IBACKGROUNDCOLOR, vec3(mVDUniforms->getUniformValue(mVDUniforms->IBACKGROUNDCOLORX), mVDUniforms->getUniformValue(mVDUniforms->IBACKGROUNDCOLORY), mVDUniforms->getUniformValue(mVDUniforms->IBACKGROUNDCOLORZ)));
@@ -437,16 +437,6 @@ void VDAnimation::update() {
 		{
 			mVDUniforms->setUniformValue(mVDUniforms->IINVERT, (modulo < 0.1) ? 1.0 : 0.0);
 		}
-
-		/*if (mVDSettings->tEyePointZ)
-		{
-			mVDSettings->mCamEyePointZ = (modulo < 0.1) ? mVDSettings->minEyePointZ : mVDSettings->maxEyePointZ;
-		}
-		else
-		{
-			mVDSettings->mCamEyePointZ = mVDSettings->autoEyePointZ ? lmap<float>(shaderUniforms[mVDUniforms->ITEMPOTIME].floatValue, 0.00001, getUniformValue(mVDUniforms->IDELTATIME), mVDSettings->minEyePointZ, mVDSettings->maxEyePointZ) : mVDSettings->mCamEyePointZ;
-		}*/
-
 	}
 #pragma endregion animation
 }

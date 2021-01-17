@@ -46,7 +46,7 @@ bool VDKeyboard::handleKeyDown(KeyEvent& event) {
 			mVDMediator->setUniformValue(mVDUniforms->IBACKGROUNDCOLORX, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IBACKGROUNDCOLORX) + delta, 0.0f));
 		}
 		else {
-			mVDMediator->setUniformValue(mVDUniforms->IFR, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IFR) + delta, 0.0f));
+			mVDMediator->setUniformValue(mVDUniforms->ICOLORX, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->ICOLORX) + delta, 0.0f));
 		}
 		break;
 	case KeyEvent::KEY_g:
@@ -54,7 +54,7 @@ bool VDKeyboard::handleKeyDown(KeyEvent& event) {
 			mVDMediator->setUniformValue(mVDUniforms->IBACKGROUNDCOLORY, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IBACKGROUNDCOLORY) + delta, 0.0f));
 		}
 		else {
-			mVDMediator->setUniformValue(mVDUniforms->IFG, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IFG) + delta, 0.0f));
+			mVDMediator->setUniformValue(mVDUniforms->ICOLORY, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->ICOLORY) + delta, 0.0f));
 		}
 		break;
 	case KeyEvent::KEY_b:
@@ -62,11 +62,11 @@ bool VDKeyboard::handleKeyDown(KeyEvent& event) {
 			mVDMediator->setUniformValue(mVDUniforms->IBACKGROUNDCOLORZ, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IBACKGROUNDCOLORZ) + delta, 0.0f));
 		}
 		else {
-			mVDMediator->setUniformValue(mVDUniforms->IFB, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IFB) + delta, 0.0f));
+			mVDMediator->setUniformValue(mVDUniforms->ICOLORZ, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->ICOLORZ) + delta, 0.0f));
 		}
 		break;
 	case KeyEvent::KEY_a:
-		mVDMediator->setUniformValue(mVDUniforms->IFA, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IFA) + delta, 0.0f));
+		mVDMediator->setUniformValue(mVDUniforms->IALPHA, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IALPHA) + delta, 0.0f));
 		break;
 	case KeyEvent::KEY_u:
 		// chromatic
