@@ -214,7 +214,7 @@ namespace videodromm {
 		ci::gl::TextureRef					getFboShaderTexture(unsigned int aFboShaderIndex);
 
 		std::vector<ci::gl::GlslProg::Uniform>	getFboShaderUniforms(unsigned int aFboShaderIndex);
-		int									getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex);
+		float									getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex);
 		void								setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue);
 		unsigned int 					createFboShaderTexture(const JsonTree& json, unsigned int aFboIndex = 0) {
 			return mVDMix->createFboShaderTexture(json, aFboIndex);

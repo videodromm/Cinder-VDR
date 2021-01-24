@@ -101,7 +101,12 @@ namespace videodromm {
 			CI_LOG_W(exc.what());
 		}
 	}
-
+	unsigned int VDMix::getValidFboIndex(unsigned int aFboIndex) {
+		return math<int>::min(aFboIndex, (unsigned int)mFboShaderList.size() - 1);
+	}
+	unsigned int VDMix::getValidTexIndex(unsigned int aTexIndex) {
+		return math<int>::min(aTexIndex, (unsigned int)mTextureList.size() - 1);
+	}	
 	void VDMix::loadFbos() {
 
 		int f = 0;
@@ -133,10 +138,10 @@ namespace videodromm {
 		VDFboShaderRef fboShader = VDFboShader::create(mVDUniforms, mVDAnimation, json, aFboIndex, mAssetsPath);
 		if (aFboIndex == 0) {
 			mFboShaderList.push_back(fboShader);
-			rtn = mFboShaderList.size() - 1;
+			rtn = (unsigned int)mFboShaderList.size() - 1;
 		}
 		else {
-			rtn = math<int>::min(aFboIndex, mFboShaderList.size() - 1);
+			rtn = getValidFboIndex(aFboIndex);
 			mFboShaderList[rtn] = fboShader;
 		}
 
@@ -146,7 +151,7 @@ namespace videodromm {
 		return mFboShaderList[aFboShaderIndex]->getUniforms();
 	}
 
-	int VDMix::getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex) {
+	float VDMix::getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex) {
 		return mFboShaderList[aFboShaderIndex]->getUniformValueByLocation(aLocationIndex);
 	};
 	void VDMix::setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue) {
@@ -174,7 +179,7 @@ namespace videodromm {
 			// create fbo
 			VDFboShaderRef fboShader = VDFboShader::create(mVDUniforms, mVDAnimation, json, 0, mAssetsPath);
 			mFboShaderList.push_back(fboShader);
-			rtn = mFboShaderList.size() - 1;
+			rtn = (unsigned int)mFboShaderList.size() - 1;
 		}
 		else {
 			// change current existing fbo

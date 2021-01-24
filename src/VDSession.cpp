@@ -531,7 +531,7 @@ std::vector<ci::gl::GlslProg::Uniform> VDSession::getFboShaderUniforms(unsigned 
 	return mVDMix->getFboShaderUniforms(aFboShaderIndex);
 }
 
-int VDSession::getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex) {
+float VDSession::getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex) {
 	return mVDMix->getUniformValueByLocation(aFboShaderIndex, aLocationIndex);
 };
 void VDSession::setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue) {

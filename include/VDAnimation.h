@@ -82,7 +82,7 @@ namespace videodromm
 		std::vector<float>				mMagSpectrum;
 
 		// number of frequency bands of our spectrum
-		static const int				mFFTWindowSize = 32;
+		static const int				mFFTWindowSize = 32; 
 		float							iFreqs[mFFTWindowSize];
 		int								mPosition;
 		std::string						mAudioName;
@@ -138,8 +138,8 @@ namespace videodromm
 
 		// timed animation
 		int								mEndFrame;
-		int								getFreqIndexSize() { return freqIndexes.size(); };
-		int								getFreqIndex(unsigned int aFreqIndex) { return freqIndexes[aFreqIndex]; };
+		unsigned int					getFreqIndexSize() { return (unsigned int)freqIndexes.size(); };
+		unsigned int					getFreqIndex(unsigned int aFreqIndex) { return (unsigned int)freqIndexes[aFreqIndex]; };
 		void							setFreqIndex(unsigned int aFreqIndex, unsigned int aFreq) { freqIndexes[aFreqIndex] = aFreq; };
 		//float							getFreq(unsigned int aFreqIndex) { return iFreqs[freqIndexes[aFreqIndex]]; };
 	

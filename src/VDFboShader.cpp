@@ -167,12 +167,12 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 	std::string mNotFoundUniformsString = "/* " + mName + "\n";
 
 	// load fragment shader
-	CI_LOG_V("setFragmentShaderString, loading" + mName);
+	CI_LOG_V("setFragmentShaderString, loading " + mName);
 	try
 	{
 		std::size_t foundUniform = mOriginalFragmentString.find("uniform ");
 		if (foundUniform == std::string::npos) {
-			CI_LOG_V("setFragmentShaderString, no uniforms found, we add from shadertoy.inc");
+			CI_LOG_V("setFragmentShaderString, no uniforms found, we add from shadertoy.vd");
 			mOutputFragmentString = "/* " + mName + " */\n" + shaderInclude + mOriginalFragmentString;
 		}
 		else {

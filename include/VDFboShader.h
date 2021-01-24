@@ -55,7 +55,7 @@ namespace videodromm
 		std::vector<ci::gl::GlslProg::Uniform>	getUniforms();
 		//new 
 		bool									setFragmentShaderString(const std::string& aFragmentShaderString, const std::string& aName = "");
-		int										getUniformValueByLocation(unsigned int aLocationIndex) {
+		float									getUniformValueByLocation(unsigned int aLocationIndex) {
 			return mUniformValueByLocation[aLocationIndex]; 
 		};
 		void									setUniformValueByLocation(unsigned int aLocationIndex, float aValue) { 

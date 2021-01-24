@@ -230,7 +230,7 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 			else {
 				if (mSamplePlayerNode) {
 					mMagSpectrum = mMonitorWaveSpectralNode->getMagSpectrum();
-					mPosition = mSamplePlayerNode->getReadPosition();
+					mPosition = (int)mSamplePlayerNode->getReadPosition();
 				}
 			}
 		}
@@ -260,7 +260,7 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 				if (i == getFreqIndex(3)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ3, f);
 
 				if (i < mFFTWindowSize) {
-					int ger = f;
+					int ger = (int)f;
 					signal[i] = static_cast<unsigned char>(ger);
 				}
 			}
@@ -281,7 +281,7 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 				// get freqs from Speckthor in VDRouter.cpp
 				f = iFreqs[i];
 			}
-			ger = f;
+			ger = (int)f;
 			signal[i] = static_cast<unsigned char>(ger);
 
 			if (f > mVDUniforms->getUniformValue(mVDUniforms->IMAXVOLUME))
@@ -316,10 +316,10 @@ void VDAnimation::update() {
 		mVDUniforms->setUniformValue(mVDUniforms->IBADTV, 5.0f);
 	}
 
-	mVDSettings->iChannelTime[0] = getElapsedSeconds();
-	mVDSettings->iChannelTime[1] = getElapsedSeconds() - 1;
-	mVDSettings->iChannelTime[2] = getElapsedSeconds() - 2;
-	mVDSettings->iChannelTime[3] = getElapsedSeconds() - 3;
+	mVDSettings->iChannelTime[0] = (float)getElapsedSeconds();
+	mVDSettings->iChannelTime[1] = (float)(getElapsedSeconds() - 1.0);
+	mVDSettings->iChannelTime[2] = (float)(getElapsedSeconds() - 2.0);
+	mVDSettings->iChannelTime[3] = (float)(getElapsedSeconds() - 3.0);
 	// TIME
 	if (mUseTimeWithTempo)
 	{
@@ -342,7 +342,7 @@ void VDAnimation::update() {
 	else
 	{
 		mVDUniforms->setUniformValue(mVDUniforms->ITIME,
-			getElapsedSeconds() * mVDSettings->iSpeedMultiplier * mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
+			(float)getElapsedSeconds() * mVDSettings->iSpeedMultiplier * mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
 
 		//shaderUniforms[mVDUniforms->ITIME].floatValue = getElapsedSeconds() * mVDSettings->iSpeedMultiplier * shaderUniforms[mVDUniforms->ITIMEFACTOR].floatValue;//mVDSettings->iTimeFactor;
 		//shaderUniforms["iElapsed"].floatValue = getElapsedSeconds() * mVDSettings->iSpeedMultiplier * shaderUniforms["iTimeFactor"].floatValue;//mVDSettings->iTimeFactor;
@@ -364,11 +364,11 @@ void VDAnimation::update() {
 	// TODO check bounds
 	//if (mAutoBeatAnimation) mVDSettings->liveMeter = maxVolume * 2;
 
-	int time = (currentTime - startTime)*1000000.0;
+	int time = (int)((currentTime - startTime)*1000000.0);
 
-	int elapsed = mVDUniforms->getUniformValue(mVDUniforms->IDELTATIME) * 1000000.0;
-	int elapsedBeatPerBar = mVDUniforms->getUniformValue(mVDUniforms->IDELTATIME) /
-		(mVDUniforms->getUniformValue(mVDUniforms->IBEATSPERBAR) + 1)*1000000.0;
+	int elapsed = (int)(mVDUniforms->getUniformValue(mVDUniforms->IDELTATIME) * 1000000.0);
+	int elapsedBeatPerBar = (int)(mVDUniforms->getUniformValue(mVDUniforms->IDELTATIME) /
+		(mVDUniforms->getUniformValue(mVDUniforms->IBEATSPERBAR) + 1)*1000000.0);
 	/*if (elapsedBeatPerBar > 0)
 	{
 		double moduloBeatPerBar = (time % elapsedBeatPerBar) / 1000000.0;
@@ -402,7 +402,7 @@ void VDAnimation::update() {
 				mVDUniforms->setUniformValue(anim, (modulo < 0.1) ? mVDUniforms->getMaxUniformValue(anim) : mVDUniforms->getMinUniformValue(anim));
 				break;
 			case 2: // ANIM_AUTO
-				mVDUniforms->setUniformValue(anim, lmap<float>(mVDUniforms->getUniformValue(mVDUniforms->ITEMPOTIME), 0.00001,
+				mVDUniforms->setUniformValue(anim, lmap<float>(mVDUniforms->getUniformValue(mVDUniforms->ITEMPOTIME), 0.00001f,
 					mVDUniforms->getUniformValue(mVDUniforms->IDELTATIME), mVDUniforms->getMinUniformValue(anim), mVDUniforms->getMaxUniformValue(anim)));
 				break;
 			case 3: // ANIM_BASS
@@ -432,7 +432,7 @@ void VDAnimation::update() {
 		// TODO migrate:
 		if (mVDSettings->autoInvert)
 		{
-			mVDUniforms->setUniformValue(mVDUniforms->IINVERT, (modulo < 0.1) ? 1.0 : 0.0);
+			mVDUniforms->setUniformValue(mVDUniforms->IINVERT, (modulo < 0.1) ? 1.0f : 0.0f);
 		}
 	}
 #pragma endregion animation
@@ -475,8 +475,8 @@ void VDAnimation::calculateTempo()
 		tAverage += buffer[i];
 	}
 	averageTime = (double)(tAverage / buffer.size());
-	mVDUniforms->setUniformValue(mVDUniforms->IDELTATIME, averageTime);
-	mVDUniforms->setUniformValue(mVDUniforms->IBPM, 60 / averageTime);
+	mVDUniforms->setUniformValue(mVDUniforms->IDELTATIME, (float)averageTime);
+	mVDUniforms->setUniformValue(mVDUniforms->IBPM, (float)(60.0 / averageTime));
 }
 
 void VDAnimation::preventLineInCrash() {

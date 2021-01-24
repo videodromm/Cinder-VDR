@@ -49,12 +49,12 @@ namespace videodromm
 		int							getMidiInPortsCount() { return mMidiInputs.size(); };
 		std::string					getMidiInPortName(unsigned int i) { return (i < mMidiInputs.size()) ? mMidiInputs[i].portName : "No midi in ports"; };
 		bool						isMidiInConnected(unsigned int i) { return (i < mMidiInputs.size()) ? mMidiInputs[i].isConnected : false; };
-		int							getMidiOutPortsCount() { return mMidiOutputs.size(); };
+		unsigned int				getMidiOutPortsCount() { return (unsigned int)mMidiOutputs.size(); };
 		std::string					getMidiOutPortName(unsigned int i) { return (i < mMidiOutputs.size()) ? mMidiOutputs[i].portName : "No midi out ports"; };
 		bool						isMidiOutConnected(unsigned int i) { return (i < mMidiOutputs.size()) ? mMidiOutputs[i].isConnected : false; };
 		void						midiOutSendNoteOn(int i, int channel, int pitch, int velocity);
 
-		void						openMidiInPort(int i);
+		void						openMidiInPort(unsigned int i);
 		void						closeMidiInPort(int i);
 		void						openMidiOutPort(int i);
 		void						closeMidiOutPort(int i);

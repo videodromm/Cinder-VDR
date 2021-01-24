@@ -113,13 +113,14 @@ void VDMidi::midiSetup() {
 	}
 	saveMidiPorts();
 	midiControlType = "none";
-	midiControl = midiPitch = midiVelocity = midiNormalizedValue = midiValue = midiChannel = 0;
+	midiControl = midiPitch = midiVelocity = midiValue = midiChannel = 0;
+	midiNormalizedValue = 0.0f;
 	ss << std::endl;
 	mMidiMsg = ss.str() + "\n";
 	CI_LOG_V(ss.str());
 }
 
-void VDMidi::openMidiInPort(int i) {
+void VDMidi::openMidiInPort(unsigned int i) {
 	CI_LOG_V("openMidiInPort: " + toString(i));
 	std::stringstream ss;
 	if (i < mMidiIn0.getNumPorts()) {
