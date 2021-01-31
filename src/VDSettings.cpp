@@ -427,7 +427,6 @@ void VDSettings::reset()
 		iChannelTime[i] = i;
 	}
 
-	sFps = "60";
 	iShowFps = true;
 
 	currentSelectedIndex = 0;

@@ -20,6 +20,10 @@ namespace videodromm {
 		mVDUniforms = aVDUniforms;
 		// TODO TMP mDefaultTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
 		// check to see if mix.json file exists and restore if it does
+		// must have one texture initialized
+		TextureAudioRef t(TextureAudio::create(mVDAnimation));
+		mTextureList.push_back(t);
+
 		mixPath = getAssetPath("") / mixFileName;
 		if (fs::exists(mixPath))
 		{
@@ -35,9 +39,6 @@ namespace videodromm {
 
 		//mDefaultTexture = ci::gl::Texture::create(loadImage(loadAsset("0.jpg")));
 		//loadImageFile("0.jpg", 0);
-		TextureAudioRef t(TextureAudio::create(mVDAnimation));
-
-		mTextureList.push_back(t);
 
 		mMixetteTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
 		// init fbo format
@@ -70,6 +71,7 @@ namespace videodromm {
 		json.addChild(texture);
 		mMixFboShader = VDFboShader::create(mVDUniforms, mVDAnimation, json, 0, mAssetsPath);
 		mFboShaderList.push_back(mMixFboShader);
+		setFboInputTexture(0, 1);
 		loadFbos();
 	} // constructor
 
@@ -83,7 +85,11 @@ namespace videodromm {
 		doc.write(writeFile(mixPath), JsonTree::WriteOptions());
 		return true;
 	}
-
+	void VDMix::selectSenderPanel() {
+		if (ts) {
+			ts->getMaxFrame(); // TODO 20210130 rename or create new fct
+		}
+	}
 	void VDMix::restore()
 	{
 		// check to see if json file exists
@@ -95,6 +101,20 @@ namespace videodromm {
 			if (doc.hasChild("settings")) {
 				JsonTree settings(doc.getChild("settings"));
 				if (settings.hasChild("assetspath")) mAssetsPath = settings.getValueForKey<string>("assetspath");
+			}
+			if (doc.hasChild("shared")) {
+				JsonTree settings(doc.getChild("shared"));
+				if (settings.hasChild("name")) {
+					ts = TextureShared::create();					
+					mTextureList.push_back(ts);
+				}
+			}
+			if (doc.hasChild("camera")) {
+				JsonTree settings(doc.getChild("camera"));
+				if (settings.hasChild("name")) {
+					TextureCameraRef tc(TextureCamera::create());
+					mTextureList.push_back(tc);
+				}
 			}
 		}
 		catch (const JsonTree::ExcJsonParserError& exc) {

@@ -290,7 +290,7 @@ namespace videodromm
 	public:
 		TextureShared();
 		virtual ~TextureShared(void);
-
+		int getMaxFrame() override;
 		//! returns a shared pointer 
 		TextureSharedRef	getPtr() { return std::static_pointer_cast<TextureShared>(shared_from_this()); }
 	protected:

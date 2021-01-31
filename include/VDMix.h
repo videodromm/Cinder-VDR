@@ -166,7 +166,7 @@ namespace videodromm
 		ci::gl::TextureRef				getMixetteTexture(unsigned int aFboIndex);
 		ci::gl::TextureRef				getRenderedMixetteTexture(unsigned int aFboIndex) { return mMixetteTexture; };
 		//unsigned int					fboFromJson(const JsonTree& json, unsigned int aFboIndex = 0);
-
+		void							selectSenderPanel();
 	private:
 		// Params
 		VDParamsRef						mVDParams;
@@ -203,5 +203,6 @@ namespace videodromm
 		unsigned int					mCurrentIndex = 0;
 		unsigned int					getValidFboIndex(unsigned int aFboIndex);
 		unsigned int					getValidTexIndex(unsigned int aTexIndex);
+		TextureSharedRef				ts;
 	};
 }

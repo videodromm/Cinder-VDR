@@ -18,7 +18,7 @@ namespace videodromm {
 				"void main() { vertColor = ciColor; vertTexCoord0 = ciTexCoord0; gl_Position = ciModelViewProjection * ciPosition; }";
 		};
 		std::string getDefaultShaderFragmentString() const noexcept {
-			return "void main(void) { vec2 uv = gl_FragCoord.xy / RENDERSIZE.xy; vec3 rgb = IMG_NORM_PIXEL(inputImage, uv).xyz; fragColor=vec4(rgb, 1.0);}";
+			return "void main(void) { vec2 uv = gl_FragCoord.xy / RENDERSIZE.xy; vec3 rgb = 1.0 - IMG_NORM_PIXEL(inputImage, uv).xyz; fragColor=vec4(rgb, 1.0);}";
 		};
 		unsigned getFboWidth() const noexcept {
 			return uiParams.getFboWidth();

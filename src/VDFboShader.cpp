@@ -183,7 +183,7 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 		mShader = gl::GlslProg::create(mVDParams->getDefaultVertexString(), mOutputFragmentString);
 		// update only if success
 		mShaderFragmentString = mOutputFragmentString;
-		mMsg = mName + " compiled";
+		mMsg = mName + " ok";
 		mValid = true;
 	}
 	catch (gl::GlslProgCompileExc& exc)

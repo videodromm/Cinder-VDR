@@ -128,7 +128,6 @@ namespace videodromm {
 		int							iBlendmode;
 		ci::Anim<float> 			iAlpha;
 		bool						iShowFps;
-		std::string					sFps;
 		unsigned int				shaderEditIndex;
 		// transition
 		int							iTransition;

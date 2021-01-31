@@ -30,11 +30,11 @@ namespace videodromm {
 		}
 		// init the texture whatever happens next
 		if (mPath.length() > 0) {
-			mTexture = ci::gl::Texture::create(ci::loadImage(mPath), ci::gl::Texture::Format().loadTopDown());
+			mTexture = ci::gl::Texture::create(ci::loadImage(mPath), ci::gl::Texture::Format().loadTopDown(false));
 			mInputSurface = Surface(loadImage(mPath));
 		}
 		else {
-			mTexture = ci::gl::Texture::create(mWidth, mHeight, ci::gl::Texture::Format().loadTopDown());
+			mTexture = ci::gl::Texture::create(mWidth, mHeight, ci::gl::Texture::Format().loadTopDown(false));
 			mInputSurface = Surface(mWidth, mHeight, true);
 		}
 		fboFmt.setColorTextureFormat(fmt);
@@ -44,7 +44,7 @@ namespace videodromm {
 	VDTexture::~VDTexture(void) {
 
 	}
-	
+
 	bool VDTexture::fromJson(const JsonTree& json)
 	{
 		return true;
@@ -167,7 +167,7 @@ namespace videodromm {
 	TextureImage::TextureImage() {
 		mType = IMAGE;
 	}
-	
+
 	bool TextureImage::fromJson(const JsonTree& json)
 	{
 		VDTexture::fromJson(json);
@@ -190,7 +190,7 @@ namespace videodromm {
 		return true;
 	}
 	bool TextureImage::loadFromFullPath(const std::string& aPath) {
-		
+
 		if (fs::exists(aPath)) {
 			mTexture = ci::gl::Texture::create(loadImage(aPath));
 			mInputSurface = Surface(loadImage(aPath));
@@ -216,7 +216,7 @@ namespace videodromm {
 	ci::gl::Texture2dRef TextureImage::getTexture() {
 		Area area(mXLeft, mYTop, mXRight, mYBottom);
 		mProcessedSurface = mInputSurface.clone(area);
-		mTexture = gl::Texture2d::create(mProcessedSurface, ci::gl::Texture::Format().loadTopDown());
+		mTexture = gl::Texture2d::create(mProcessedSurface, ci::gl::Texture::Format().loadTopDown(false));
 		return mTexture;
 	}
 	ci::gl::Texture2dRef TextureImage::getCachedTexture(const std::string& aFilename) {
@@ -321,9 +321,9 @@ namespace videodromm {
 			if (!validFile) {
 				// might want to remove default file as we are now using a boolean to notify the caller
 				if (anyImagefileName.length() > 0) {
-					mTexture = ci::gl::Texture::create(loadImage(loadAsset(anyImagefileName)), ci::gl::Texture::Format().loadTopDown());
+					mTexture = ci::gl::Texture::create(loadImage(loadAsset(anyImagefileName)), ci::gl::Texture::Format().loadTopDown(false));
 					//mSequenceTextures[anyImagefileName] = mTexture;
-					mSequenceTextures.push_back(ci::gl::Texture::create(loadImage(loadAsset(anyImagefileName)), gl::Texture::Format().loadTopDown()));
+					mSequenceTextures.push_back(ci::gl::Texture::create(loadImage(loadAsset(anyImagefileName)), gl::Texture::Format().loadTopDown(false)));
 					mLoadingFilesComplete = true;
 					mFramesLoaded = 1;
 				}
@@ -335,7 +335,7 @@ namespace videodromm {
 	{
 		bool rtn = false;
 		// init		
-		mTexture = ci::gl::Texture::create(mWidth, mHeight, ci::gl::Texture::Format().loadTopDown());
+		mTexture = ci::gl::Texture::create(mWidth, mHeight, ci::gl::Texture::Format().loadTopDown(false));
 		// retrieve attributes specific to this type of texture
 		mPath = (json.hasChild("texturename")) ? json.getValueForKey<string>("texturename") : "intro";
 		mAssetsPath = (json.hasChild("assetspath")) ? json.getValueForKey<string>("assetspath") : "";
@@ -352,7 +352,7 @@ namespace videodromm {
 		}
 		return rtn;
 	}
-	
+
 	void TextureImageSequence::loadNextImageFromDisk() {
 		// can't pause if UI not ready anyways if (!mLoadingPaused) {
 
@@ -385,9 +385,9 @@ namespace videodromm {
 				}
 				else {
 					// 20190727 TODO CHECK
-					mSequenceTextures.push_back(ci::gl::Texture::create(loadImage(fileToLoad), gl::Texture::Format().loadTopDown()));
+					mSequenceTextures.push_back(ci::gl::Texture::create(loadImage(fileToLoad), gl::Texture::Format().loadTopDown(false)));
 					// 20191014
-					mCachedTextures[fileNameToLoad] = ci::gl::Texture::create(loadImage(fileToLoad), gl::Texture::Format().loadTopDown());
+					mCachedTextures[fileNameToLoad] = ci::gl::Texture::create(loadImage(fileToLoad), gl::Texture::Format().loadTopDown(false));
 				}
 
 				/*mTexture = ci::gl::Texture::create(loadImage(fileToLoad));
@@ -497,7 +497,7 @@ namespace videodromm {
 			if (fs::exists(fullPath)) {
 				// start profiling
 				auto start = Clock::now();
-				mCachedTextures[aFilename] = ci::gl::Texture::create(loadImage(fullPath), gl::Texture::Format().loadTopDown());
+				mCachedTextures[aFilename] = ci::gl::Texture::create(loadImage(fullPath), gl::Texture::Format().loadTopDown(false));
 				auto end = Clock::now();
 				auto msdur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 				int milli = msdur.count();
@@ -576,18 +576,18 @@ namespace videodromm {
 	}
 	bool TextureCamera::fromJson(const JsonTree& json) {
 		// init		
-		mTexture = ci::gl::Texture::create(mWidth, mHeight, ci::gl::Texture::Format().loadTopDown());
+		mTexture = ci::gl::Texture::create(mWidth, mHeight, ci::gl::Texture::Format().loadTopDown(false));
 		// retrieve attributes specific to this type of texture
 		mPath = (json.hasChild("texturename")) ? json.getValueForKey<string>("texturename") : "cam";
 		mName = "camera";
 		return true;
 	}
-	
+
 	ci::gl::Texture2dRef TextureCamera::getTexture() {
 		if (mCapture && mCapture->checkNewFrame()) {
 			if (!mTexture) {
 				// Capture images come back as top-down, and it's more efficient to keep them that way
-				mTexture = gl::Texture::create(*mCapture->getSurface(), gl::Texture::Format().loadTopDown());
+				mTexture = gl::Texture::create(*mCapture->getSurface(), gl::Texture::Format().loadTopDown(false));
 			}
 			else {
 				mTexture->update(*mCapture->getSurface());
@@ -619,6 +619,7 @@ namespace videodromm {
 #if (defined(  CINDER_MSW) ) || (defined( CINDER_MAC ))
 	TextureShared::TextureShared() {
 		mType = SHARED;
+
 #if defined( CINDER_MAC )
 		mClientSyphon.setup();
 		mClientSyphon.setServerName("Reymenta client");
@@ -634,11 +635,14 @@ namespace videodromm {
 		mName = "shared";
 		return true;
 	}
-	
+	int TextureShared::getMaxFrame() {
+mSpoutIn.getSpoutReceiver().SelectSenderPanel();
+		return 0;
+	}
 
 	ci::gl::Texture2dRef TextureShared::getTexture() {
 #if defined( CINDER_MSW )
-
+		
 		mTexture = mSpoutIn.receiveTexture();
 		// set name for UI
 		mName = mSpoutIn.getSenderName();
@@ -673,7 +677,7 @@ namespace videodromm {
 		for (int i = 0; i < 128; ++i) dTexture[i] = (unsigned char)(Rand::randUint() & 0xFF);
 		mTexture = gl::Texture::create(dTexture, GL_RED, 64, 2, fmt);
 	}
-	
+
 
 	bool TextureAudio::fromJson(const JsonTree& json)
 	{
@@ -731,7 +735,7 @@ namespace videodromm {
 
 	ci::gl::Texture2dRef TextureAudio::getTexture() {
 		return mVDAnimation->getAudioTexture();
-	
+
 	}
 	ci::gl::Texture2dRef TextureAudio::getCachedTexture(const std::string& aFilename) {
 		return TextureAudio::getTexture();
@@ -747,7 +751,7 @@ namespace videodromm {
 		mName = "stream";
 		mTexture = gl::Texture::create(mWidth, mHeight);
 	}
-	
+
 
 	bool TextureStream::fromJson(const JsonTree& json)
 	{
@@ -854,7 +858,7 @@ VDTexture::VDTexture(VDParamsRef aVDParams, const JsonTree& json) {
 				mType = TextureType::IMAGE;
 				mTypestr = "image";
 			}
-			
+
 		}
 	}
 	else {

@@ -354,7 +354,7 @@ void VDAnimation::update() {
 
 	// iDate
 	time_t now = time(0);
-	tm *   t = gmtime(&now);
+	struct tm *   t = gmtime(&now);
 	mVDUniforms->setVec4UniformValueByIndex(mVDUniforms->IDATE,
 		vec4(float(t->tm_year + 1900), float(t->tm_mon + 1), float(t->tm_mday), float(t->tm_hour * 3600 + t->tm_min * 60 + t->tm_sec)));
 

@@ -127,7 +127,6 @@ std::string VDSession::getModeName(unsigned int aMode) {
 void VDSession::update(unsigned int aClassIndex) {
 
 	// fps calculated in main app
-	mVDSettings->sFps = toString(floor(mVDUniforms->getUniformValue(mVDUniforms->IFPS)));
 	mVDAnimation->update();
 
 	mVDMix->getMixetteTexture(0);
@@ -168,6 +167,7 @@ void VDSession::renderPostToFbo()
 		mGlslPost->uniform("iFlipV", mVDUniforms->getUniformValue(mVDUniforms->IFLIPPOSTV));
 		mGlslPost->uniform("iFlipH", mVDUniforms->getUniformValue(mVDUniforms->IFLIPPOSTH));
 		mGlslPost->uniform("iInvert", mVDUniforms->getUniformValue(mVDUniforms->IINVERT));
+		mGlslPost->uniform("iToggle", mVDUniforms->getUniformValue(mVDUniforms->ITOGGLE));
 		mGlslPost->uniform("iGreyScale", mVDUniforms->getUniformValue(mVDUniforms->IGREYSCALE));		
 		mGlslPost->uniform("iVignette", mVDUniforms->getUniformValue(mVDUniforms->IVIGNETTE));
 		mGlslPost->uniform("iRedMultiplier", mVDUniforms->getUniformValue(mVDUniforms->IFRX));
@@ -438,6 +438,10 @@ bool VDSession::handleKeyDown(KeyEvent& event)
 	if (!Warp::handleKeyDown(mWarpList, event)) {
 
 		switch (event.getCode()) {
+		case KeyEvent::KEY_s:
+			// Spout UI
+			mVDMix->selectSenderPanel();
+			break;
 		case KeyEvent::KEY_w:
 			CI_LOG_V("oscConnect");
 			if (isModDown) {
