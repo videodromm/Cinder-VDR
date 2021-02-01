@@ -16,6 +16,11 @@ VDSessionFacadeRef VDSessionFacade::setUniformValue(unsigned int aCtrl, float aV
 	mVDMediator->setUniformValue(aCtrl, aValue);
 	return shared_from_this();
 }
+VDSessionFacadeRef VDSessionFacade::getWindowsResolution() {
+	mVDSession->getWindowsResolution();
+	return shared_from_this();
+}
+
 VDSessionFacadeRef VDSessionFacade::addUIObserver(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms) {
 	mVDMediator->addObserver(VDUIObserver::connect(aVDSettings, aVDUniforms));
 	return shared_from_this();

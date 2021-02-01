@@ -35,6 +35,7 @@ namespace videodromm
 
 		VDSessionFacadeRef		setUniformValue(unsigned int aCtrl, float aValue);
 		VDSessionFacadeRef		addUIObserver(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms);
+		VDSessionFacadeRef		getWindowsResolution();
 		VDSessionFacadeRef		setupOSCReceiver();
 		VDSessionFacadeRef		setupMidiReceiver();
 		VDSessionFacadeRef		setupWSClient();
