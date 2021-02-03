@@ -8,6 +8,7 @@
 	summary=" block for Cinder 0.9: utilities for Spout, WebSockets, Shaders"
 	url="https://github.com/videodromm/Cinder-VDR"
 	git="git://github.com/videodromm/Cinder-VDR.git"
+	core="true"
 	>
 	<supports os="msw" />
 	<includePath>include</includePath>

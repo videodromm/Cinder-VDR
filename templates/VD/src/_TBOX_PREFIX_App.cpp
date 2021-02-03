@@ -269,7 +269,7 @@ void _TBOX_PREFIX_App::draw()
 	// OK
 	 mSpoutOut.sendTexture(mVDSessionFacade->buildRenderedMixetteTexture(0));
 
-	getWindow()->setTitle(mVDSettings->sFps + " fps");
+	getWindow()->setTitle(toString((int)getAverageFps()) + " fps");
 }
 void prepareSettings(App::Settings *settings)
 {
