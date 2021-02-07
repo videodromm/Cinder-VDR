@@ -179,7 +179,7 @@ namespace videodromm
 
 		//! FboShaders
 		VDFboShaderRef					mMixFboShader;
-
+		VDFboShaderRef					mFboShader;
 		// maintain a list of fbos specific to this mix
 		VDFboShaderList					mFboShaderList;
 		// list of textures

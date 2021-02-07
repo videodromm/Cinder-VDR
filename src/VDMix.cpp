@@ -57,8 +57,24 @@ namespace videodromm {
 
 		mGlslMixette = gl::GlslProg::create(mVDParams->getDefaultVertexString(), loadString(loadFile(mMixetteFilePath)));
 
-		// init with mix shader of 2 fbos with crossfade
-		JsonTree		json;
+		// init with shader, colors inverted
+		JsonTree jsonInverted;
+		JsonTree shaderInverted = ci::JsonTree::makeArray("shader");
+		shaderInverted.addChild(ci::JsonTree("shadername", "mix"));
+		shaderInverted.pushBack(ci::JsonTree("shadertype", "fs"));
+		shaderInverted.pushBack(ci::JsonTree("shadertext", mVDParams->getInvertedDefaultShaderFragmentString()));
+		jsonInverted.addChild(shaderInverted);
+		JsonTree textureInverted = ci::JsonTree::makeArray("texture");
+		textureInverted.addChild(ci::JsonTree("texturename", "audio"));
+		textureInverted.pushBack(ci::JsonTree("texturetype", "audio"));
+		textureInverted.pushBack(ci::JsonTree("texturemode", 0));
+		jsonInverted.addChild(textureInverted);
+		mMixFboShader = VDFboShader::create(mVDUniforms, mVDAnimation, jsonInverted, 0, mAssetsPath);
+		mFboShaderList.push_back(mMixFboShader);
+		setFboInputTexture(0, 1);
+
+		// init shader
+		/*JsonTree json;
 		JsonTree shader = ci::JsonTree::makeArray("shader");
 		shader.addChild(ci::JsonTree("shadername", "mix"));
 		shader.pushBack(ci::JsonTree("shadertype", "fs"));
@@ -68,10 +84,11 @@ namespace videodromm {
 		texture.addChild(ci::JsonTree("texturename", "audio"));
 		texture.pushBack(ci::JsonTree("texturetype", "audio"));
 		texture.pushBack(ci::JsonTree("texturemode", 0));
-		json.addChild(texture);
-		mMixFboShader = VDFboShader::create(mVDUniforms, mVDAnimation, json, 0, mAssetsPath);
-		mFboShaderList.push_back(mMixFboShader);
-		setFboInputTexture(0, 1);
+		json.addChild(texture);		
+		mFboShader = VDFboShader::create(mVDUniforms, mVDAnimation, json, 0, mAssetsPath);
+		mFboShaderList.push_back(mFboShader);
+		setFboInputTexture(1, 2);*/
+
 		loadFbos();
 	} // constructor
 
@@ -102,18 +119,18 @@ namespace videodromm {
 				JsonTree settings(doc.getChild("settings"));
 				if (settings.hasChild("assetspath")) mAssetsPath = settings.getValueForKey<string>("assetspath");
 			}
-			if (doc.hasChild("shared")) {
-				JsonTree settings(doc.getChild("shared"));
-				if (settings.hasChild("name")) {
-					ts = TextureShared::create();					
-					mTextureList.push_back(ts);
-				}
-			}
 			if (doc.hasChild("camera")) {
 				JsonTree settings(doc.getChild("camera"));
 				if (settings.hasChild("name")) {
 					TextureCameraRef tc(TextureCamera::create());
 					mTextureList.push_back(tc);
+				}
+			}
+			if (doc.hasChild("shared")) {
+				JsonTree settings(doc.getChild("shared"));
+				if (settings.hasChild("name")) {
+					ts = TextureShared::create();					
+					mTextureList.push_back(ts);
 				}
 			}
 		}
