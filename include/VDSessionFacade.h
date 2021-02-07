@@ -113,6 +113,9 @@ namespace videodromm
 		int						getFboTextureHeight(unsigned int aFboIndex);
 		unsigned int			getWarpCount();
 		void					createWarp();
+		void					saveWarps() {
+			mVDSession->saveWarps();
+		};
 		std::string				getWarpName(unsigned int aWarpIndex);// or trycatch
 		int						getWarpWidth(unsigned int aWarpIndex);
 		int						getWarpHeight(unsigned int aWarpIndex);

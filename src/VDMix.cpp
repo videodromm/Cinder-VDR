@@ -60,7 +60,7 @@ namespace videodromm {
 		// init with shader, colors inverted
 		JsonTree jsonInverted;
 		JsonTree shaderInverted = ci::JsonTree::makeArray("shader");
-		shaderInverted.addChild(ci::JsonTree("shadername", "mix"));
+		shaderInverted.addChild(ci::JsonTree("shadername", "inverted"));
 		shaderInverted.pushBack(ci::JsonTree("shadertype", "fs"));
 		shaderInverted.pushBack(ci::JsonTree("shadertext", mVDParams->getInvertedDefaultShaderFragmentString()));
 		jsonInverted.addChild(shaderInverted);
@@ -74,7 +74,7 @@ namespace videodromm {
 		setFboInputTexture(0, 1);
 
 		// init shader
-		/*JsonTree json;
+		JsonTree json;
 		JsonTree shader = ci::JsonTree::makeArray("shader");
 		shader.addChild(ci::JsonTree("shadername", "mix"));
 		shader.pushBack(ci::JsonTree("shadertype", "fs"));
@@ -87,7 +87,7 @@ namespace videodromm {
 		json.addChild(texture);		
 		mFboShader = VDFboShader::create(mVDUniforms, mVDAnimation, json, 0, mAssetsPath);
 		mFboShaderList.push_back(mFboShader);
-		setFboInputTexture(1, 2);*/
+		setFboInputTexture(1, 2);
 
 		loadFbos();
 	} // constructor
@@ -145,7 +145,7 @@ namespace videodromm {
 		return math<int>::min(aTexIndex, (unsigned int)mTextureList.size() - 1);
 	}	
 	void VDMix::loadFbos() {
-
+/* done better in Session
 		int f = 0;
 		bool found = true;
 		string shaderFileName;
@@ -162,7 +162,7 @@ namespace videodromm {
 				found = false;
 			}
 		} //while
-
+*/
 	}
 	/*unsigned int VDMix::fboFromJson(const JsonTree& json, unsigned int aFboIndex) {
 		unsigned int rtn = 0;

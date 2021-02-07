@@ -95,12 +95,12 @@ void VDSession::loadFbos() {
 		fs::path jsonFile = getAssetPath("") / mVDMix->getAssetsPath() / jsonFileName;
 		if (fs::exists(jsonFile)) {
 			// new
-				/*loadFromJsonFile(jsonFile)
-						->createShader()
-						->createUniforms()
-						->compile()
-						->createFboWhenSuccess()
-						->addToFboList();*/
+				//loadFromJsonFile(jsonFile)
+				//		->createShader()
+				//		->createUniforms()
+				//		->compile()
+				//		->createFboWhenSuccess()
+				//		->addToFboList();
 						// ancien
 			JsonTree json(loadFile(jsonFile));
 			fboFromJson(json);
