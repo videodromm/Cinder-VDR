@@ -87,7 +87,7 @@ namespace videodromm {
 		json.addChild(texture);		
 		mFboShader = VDFboShader::create(mVDUniforms, mVDAnimation, json, 0, mAssetsPath);
 		mFboShaderList.push_back(mFboShader);
-		setFboInputTexture(1, 2);
+		setFboInputTexture(1, 0);
 
 		loadFbos();
 	} // constructor

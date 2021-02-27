@@ -79,7 +79,17 @@ void VDWebsocket::parseMessage(std::string msg) {
 						mVDMediator->setUniformValue(name, value);
 					}
 				}
-
+				if (json.hasChild("anim")) {
+					JsonTree jsonParams = json.getChild("anim");
+					for (JsonTree::ConstIter jsonElement = jsonParams.begin(); jsonElement != jsonParams.end(); ++jsonElement) {
+						int name = jsonElement->getChild("name").getValue<int>();
+						float value = jsonElement->getChild("value").getValue<float>();
+						// basic name value 
+						mVDMediator->setAnim(name, value);
+						
+					}
+				}
+				// kinect 2
 				if (json.hasChild("k2")) {
 					JsonTree jsonParams = json.getChild("k2");
 					for (JsonTree::ConstIter jsonElement = jsonParams.begin(); jsonElement != jsonParams.end(); ++jsonElement) {
