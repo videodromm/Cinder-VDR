@@ -198,6 +198,9 @@ std::string VDMediatorObservable::getUniformName(unsigned int aIndex) {
 }
 void VDMediatorObservable::setAnim(int aIndex, float aValue) {
 	mVDUniforms->setAnim(aIndex, aValue);
+	if (aValue == 0) {
+		setUniformValue(aIndex, mVDUniforms->getDefaultUniformValue(aIndex));
+	}
 }
 VDMediatorObservableRef VDMediatorObservable::setUniformValue(int aIndex, float aValue) {
 	if (aIndex != mVDUniforms->IFPS) {

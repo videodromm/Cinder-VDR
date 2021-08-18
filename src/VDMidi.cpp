@@ -309,11 +309,13 @@ void VDMidi::midiListener(midi::Message msg) {
 			midiWeights = true;
 		}
 		
-		/*if (midiPitch < 7) {
-			mVDMediator->setMode(midiPitch);			
+		if (midiPitch < 7) {
+			mVDUniforms->setUniformValue(mVDUniforms->IWEIGHT0 + midiPitch, 1.0);
+			//mVDMediator->setMode(midiPitch);			
 			//mSelectedFboA = midiPitch;
 			//mFBOAChanged = true;
 		}
+		/*
 		if (midiPitch > 8 && midiPitch < 17) {
 			//mSelectedFboB = midiPitch - 8;
 			//mFBOBChanged = true;
@@ -331,8 +333,8 @@ void VDMidi::midiListener(midi::Message msg) {
 		}
 		
 		if (midiPitch < 7) {
-			mVDMediator->setMode(7);
-
+			//mVDMediator->setMode(7);
+			mVDUniforms->setUniformValue(mVDUniforms->IWEIGHT0 + midiPitch, 0.0);
 			//mSelectedFboA = midiPitch;
 			//mFBOAChanged = true;
 		}
