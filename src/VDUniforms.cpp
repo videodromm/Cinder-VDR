@@ -47,7 +47,8 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iSobel", ISOBEL, 0.02f, 0.02f, 1.0f); // 8
 	// RotationSpeed
 	createFloatUniform("iRotationSpeed", IROTATIONSPEED, 0.02f, -0.1f, 0.1f); // 9
-
+	// vignette
+	createFloatUniform("iVignette", IVIGNETTE, 0.0f); // 10
 	// background red
 	createFloatUniform("iBackgroundColorX", IBACKGROUNDCOLORX, 0.56f); // 11
 	// background green
@@ -174,8 +175,7 @@ VDUniforms::VDUniforms() {
 	// invert
 	// glitch
 	createFloatUniform("iGlitch", IGLITCH, 0.0f); // 81
-	// vignette
-	createFloatUniform("iVignette", IVIGNETTE, 0.0f); // 82
+
 	// toggle
 	createFloatUniform("iToggle", ITOGGLE, 0.0f); // 83
 	// invert
@@ -672,10 +672,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iGlitch") {
 		rtn = IGLITCH;
 	} // 81
-	// vignette
+	// vignette 10
 	else if (key == "iVignette") {
 		rtn = IVIGNETTE;
-	} // 82 toggle
+	} // 10
 	// toggle
 	else if (key == "iToggle") {
 		rtn = ITOGGLE;

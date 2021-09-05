@@ -61,6 +61,7 @@ namespace videodromm
 			ISOBEL = 8,
 			IROTATIONSPEED = 9,
 
+			IVIGNETTE = 10,		// was 82 A#4
 
 			IBACKGROUNDCOLORX = 11,
 			IBACKGROUNDCOLORY = 12,
@@ -121,7 +122,6 @@ namespace videodromm
 
 			// booleans 80 to 110
 			IGLITCH = 81,	// A4
-			IVIGNETTE = 82,		// A#4
 			ITOGGLE = 83,	// B4 for sos
 			IINVERT = 86,	// D5
 			IGREYSCALE = 87,
