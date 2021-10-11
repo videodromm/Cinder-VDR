@@ -154,7 +154,13 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iBeatsPerBar", IBEATSPERBAR, 4); // 59
 	// iPhase 
 	createFloatUniform("iPhase", IPHASE, 1.0f); // 60
-
+	// vignette amount
+	createFloatUniform("iVAmount", IVAMOUNT, 0.91f, 0.0f, 1.0f); // 62
+	//createVec3Uniform("iChannelResolution[0]", 63, vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
+	createFloatUniform("iDateX", IDATEX, 0.91f, 0.0f, 90000.0f); // 25 hours
+	createFloatUniform("iDateY", IDATEY, 0.91f, 0.0f, 90000.0f); // 25 hours
+	createFloatUniform("iDateZ", IDATEZ, 0.91f, 0.0f, 90000.0f); // 25 hours
+	createFloatUniform("iDateW", IDATEW, 0.91f, 0.0f, 90000.0f); // 25 hours
 	// vec3
 	// iResolutionX (should be fbowidth?) 
 	createFloatUniform("iResolutionX", IRESOLUTIONX, mRenderWidth, 320.01f, 4280.0f); // 121
@@ -164,12 +170,9 @@ VDUniforms::VDUniforms() {
 
 
 	createVec3Uniform("iColor", ICOLOR, vec3(0.45, 0.0, 1.0)); // 301
-	// vignette amount
-	createFloatUniform("iVAmount", IVAMOUNT, 0.91f, 0.0f, 1.0f); // 62
-	//createVec3Uniform("iChannelResolution[0]", 63, vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
 
 
-	createVec4Uniform("iDate", IDATE, vec4(2019.0f, 12.0f, 1.0f, 5.0f));//71
+	createVec4Uniform("iDate", IDATE, vec4(2021.0f, 12.0f, 1.0f, 5.0f));// 152
 
 	// boolean
 	// invert

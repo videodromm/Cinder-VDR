@@ -355,8 +355,16 @@ void VDAnimation::update() {
 	// iDate
 	time_t now = time(0);
 	struct tm *   t = gmtime(&now);
+	//mVDUniforms->setVec4UniformValueByIndex(mVDUniforms->IDATE,
+	//	vec4(float(t->tm_year + 1900), float(t->tm_mon + 1), float(t->tm_mday), float(t->tm_hour * 3600 + t->tm_min * 60 + t->tm_sec)));
 	mVDUniforms->setVec4UniformValueByIndex(mVDUniforms->IDATE,
-		vec4(float(t->tm_year + 1900), float(t->tm_mon + 1), float(t->tm_mday), float(t->tm_hour * 3600 + t->tm_min * 60 + t->tm_sec)));
+		vec4(float(t->tm_hour), float(t->tm_min), float(t->tm_sec), float(t->tm_hour * 3600 + t->tm_min * 60 + t->tm_sec)));
+	mVDUniforms->setUniformValue(mVDUniforms->IDATEX, float(t->tm_hour * 3600 + t->tm_min * 60 + t->tm_sec));
+	mVDUniforms->setUniformValue(mVDUniforms->IDATEY, float(t->tm_hour));
+	mVDUniforms->setUniformValue(mVDUniforms->IDATEZ, float(t->tm_sec));
+	mVDUniforms->setUniformValue(mVDUniforms->IDATEW, float(t->tm_hour * 3600 + t->tm_min * 60 + t->tm_sec));
+	//CI_LOG_E("sec:" + toString(t->tm_sec) + ", IDATEY:" + toString(mVDUniforms->getUniformValue(mVDUniforms->IDATEY)) + ", IDATEZ:" + toString(mVDUniforms->getUniformValue(mVDUniforms->IDATEZ)) + ", IDATEW:" + toString(mVDUniforms->getUniformValue(mVDUniforms->IDATEW)));
+
 
 #pragma region animation
 

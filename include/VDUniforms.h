@@ -119,6 +119,10 @@ namespace videodromm
 
 			IVAMOUNT = 62,
 
+			IDATEX = 63,
+			IDATEY = 64,
+			IDATEZ = 65,
+			IDATEW = 66,
 
 			// booleans 80 to 110
 			IGLITCH = 81,	// A4
