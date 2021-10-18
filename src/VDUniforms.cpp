@@ -46,7 +46,7 @@ VDUniforms::VDUniforms() {
 	// gstnsmk
 	createFloatUniform("iSobel", ISOBEL, 0.02f, 0.02f, 1.0f); // 8
 	// RotationSpeed
-	createFloatUniform("iRotationSpeed", IROTATIONSPEED, 0.02f, -0.1f, 0.1f); // 9
+	createFloatUniform("iRotationSpeed", IROTATIONSPEED, 0.02f, -0.1f, 1.0f); // 9
 	// vignette
 	createFloatUniform("iVignette", IVIGNETTE, 0.0f); // 10
 	// background red
@@ -172,7 +172,7 @@ VDUniforms::VDUniforms() {
 	createVec3Uniform("iColor", ICOLOR, vec3(0.45, 0.0, 1.0)); // 301
 
 
-	createVec4Uniform("iDate", IDATE, vec4(2021.0f, 12.0f, 1.0f, 5.0f));// 152
+	createVec4Uniform("iDate", IDATE, vec4(2021.0f, 12.0f, 1.0f, 5.0f));// 363
 
 	// boolean
 	// invert
@@ -389,6 +389,12 @@ bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 			if ((aValue >= shaderUniforms[aIndex].minValue && aValue <= shaderUniforms[aIndex].maxValue) || shaderUniforms[aIndex].anim > 0) {
 				shaderUniforms[aIndex].floatValue = aValue;
 				rtn = true;
+			}
+			else {
+				// TODO 20211011 bug max = 0.0
+				if (shaderUniforms[aIndex].maxValue == 0.0f) {
+					shaderUniforms[aIndex].maxValue == 1.0f;
+				}
 			}
 		}
 		// not all controls are from 0.0 to 1.0

@@ -157,7 +157,6 @@ namespace videodromm
 			// vec2
 			RESOLUTION = 150, // vec2 for hydra
 			RENDERSIZE = 151, // vec2 for ISF
-			IDATE = 152,
 			// srcarea
 			SRCXLEFT = 160,
 			SRCXRIGHT = 161,
@@ -166,6 +165,7 @@ namespace videodromm
 			ICOLOR = 301,
 			IBACKGROUNDCOLOR = 311,
 			IMOUSE = 342,
+			IDATE = 363,
 			IRESOLUTION = 421,
 		};
 		bool							isExistingUniform(const std::string& aName);
