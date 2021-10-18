@@ -75,7 +75,7 @@ VDUniforms::VDUniforms() {
 	// iBpm 
 	createFloatUniform("iBpm", IBPM, 165.0f, 0.000000001f, 400.0f); // 21
 	// Speed 
-	createFloatUniform("speed", ISPEED, 0.01f, 0.01f, 12.0f); // 22
+	createFloatUniform("iSpeed", ISPEED, 1.0f, 0.01f, 12.0f); // 22
 	// slitscan / matrix (or other) Param1 
 	createFloatUniform("iPixelX", IPIXELX, 0.01f, -1.5f, 1.5f); // 23
 	// slitscan / matrix(or other) Param2 
@@ -577,7 +577,7 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	// IMouse vec4
 	else if (key == "iMouse") {
 		rtn = IMOUSE;
-	}// 41
+	}// 342
 	// iMouseX  
 	else if (key == "iMouseX") {
 		rtn = IMOUSEX;

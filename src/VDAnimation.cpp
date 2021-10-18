@@ -144,7 +144,8 @@ bool VDAnimation::handleKeyUp(KeyEvent &event)
 	return event.isHandled();
 }
 ci::gl::TextureRef VDAnimation::getAudioTexture() {
-
+	bool audioDeviceFound = false;
+	std::string preferredAudioDevice = "{0.0.1.00000000}.{ce7ada21-940a-41d8-ae9e-41efbe6112d1}";
 	mAudioFormat = gl::Texture2d::Format().swizzleMask(GL_RED, GL_RED, GL_RED, GL_ONE).internalFormat(GL_RED);
 	auto ctx = audio::Context::master();
 	if (!mLineInInitialized) {
@@ -161,6 +162,10 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 				JsonTree audioinputs = JsonTree::makeArray("audioinputs");
 				for (ci::audio::DeviceRef in : inputDevices) {
 					audioinputs.addChild(ci::JsonTree(in->getKey(), in->getName()));
+					if (in->getKey() == preferredAudioDevice) {
+
+						audioDeviceFound = true;
+					}
 					mVDSettings->mMsg += in->getName() + "\n";
 				}
 				doc.pushBack(audioinputs);
@@ -172,9 +177,15 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 				}
 				doc.pushBack(audiooutputs);
 				doc.write(writeFile(getAssetPath("") / "audio.json"), JsonTree::WriteOptions());
-				auto device = ci::audio::Device::findDeviceByKey("{0.0.1.00000000}.{550b0d08-c4c6-4b80-bf32-61f20f743e0d}");
-				CI_LOG_W("trying to open mic/line in, if no line follows in the log, the app crashed so put UseLineIn to false in the VDSettings.xml file");
-				mLineIn = ctx->createInputDeviceNode(device); //crashes if linein is present but disabled, doesn't go to catch block
+				if (audioDeviceFound) {
+					auto device = ci::audio::Device::findDeviceByKey(preferredAudioDevice);
+					CI_LOG_W("trying to open mic/line in, if no line follows in the log, the app crashed so put UseLineIn to false in the VDSettings.xml file");
+					mLineIn = ctx->createInputDeviceNode(device); //crashes if linein is present but disabled, doesn't go to catch block
+				}
+				else {
+					mLineIn = ctx->createInputDeviceNode();
+				}
+
 				CI_LOG_V("mic/line in opened");
 				saveLineIn();
 				mAudioName = mLineIn->getDevice()->getName();
@@ -187,7 +198,7 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 			catch (const std::exception& ex)
 			{
 				CI_LOG_V("mic/line in crashed");
-				mVDSettings->mMsg = "mic/line in crashed";
+				//mVDSettings->mMsg = "mic/line in crashed";
 				mVDSettings->mErrorMsg = ex.what();
 			}
 		}
@@ -325,7 +336,9 @@ void VDAnimation::update() {
 	{
 		// Ableton Link from openframeworks SocketIO
 		mVDUniforms->setUniformValue(mVDUniforms->ITIME,
-			mVDUniforms->getUniformValue(mVDUniforms->ITIME) * mVDSettings->iSpeedMultiplier * mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
+			mVDUniforms->getUniformValue(mVDUniforms->ITIME) * mVDUniforms->getUniformValue(mVDUniforms->ISPEED) * mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
+		//mVDUniforms->setUniformValue(mVDUniforms->ITIME,
+		//	mVDUniforms->getUniformValue(mVDUniforms->ITIME) * mVDSettings->iSpeedMultiplier * mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
 		//shaderUniforms["iElapsed"].floatValue = shaderUniforms["iPhase"].floatValue * mVDSettings->iSpeedMultiplier * shaderUniforms["iTimeFactor"].floatValue;
 		// sos
 		// IBARBEAT = IBAR * 4 + IBEAT
@@ -342,10 +355,12 @@ void VDAnimation::update() {
 	else
 	{
 		mVDUniforms->setUniformValue(mVDUniforms->ITIME,
-			(float)getElapsedSeconds() * mVDSettings->iSpeedMultiplier * mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
+			(float)getElapsedSeconds() * mVDUniforms->getUniformValue(mVDUniforms->ISPEED) * mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
+		//mVDUniforms->setUniformValue(mVDUniforms->ITIME,
+					//(float)getElapsedSeconds() * mVDSettings->iSpeedMultiplier * mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
 
-		//shaderUniforms[mVDUniforms->ITIME].floatValue = getElapsedSeconds() * mVDSettings->iSpeedMultiplier * shaderUniforms[mVDUniforms->ITIMEFACTOR].floatValue;//mVDSettings->iTimeFactor;
-		//shaderUniforms["iElapsed"].floatValue = getElapsedSeconds() * mVDSettings->iSpeedMultiplier * shaderUniforms["iTimeFactor"].floatValue;//mVDSettings->iTimeFactor;
+				//shaderUniforms[mVDUniforms->ITIME].floatValue = getElapsedSeconds() * mVDSettings->iSpeedMultiplier * shaderUniforms[mVDUniforms->ITIMEFACTOR].floatValue;//mVDSettings->iTimeFactor;
+				//shaderUniforms["iElapsed"].floatValue = getElapsedSeconds() * mVDSettings->iSpeedMultiplier * shaderUniforms["iTimeFactor"].floatValue;//mVDSettings->iTimeFactor;
 	}
 	// iResolution
 	mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->IRESOLUTION, vec3(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY), 1.0));

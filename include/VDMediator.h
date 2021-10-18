@@ -134,6 +134,7 @@ namespace videodromm {
 		const std::string					mWSJsonFileName = "wsclient.json";
 		void								loadWSFromJsonFile(const fs::path& jsonFile);
 		JsonTree							saveWSToJson() const;
+		bool								mWSInstanced = false;
 		//std::string							mShaderLeft;
 		//std::string							mShaderRight;
 		//void								setFragmentShaderString(unsigned int aFboShaderIndex, const std::string& aFragmentShaderString, const std::string& aName);

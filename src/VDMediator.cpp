@@ -59,6 +59,7 @@ std::string VDMediatorObservable::getMidiMsg() {
 VDMediatorObservableRef VDMediatorObservable::setupWSClient() {
 	// WS Receiver
 	mVDWebsocket = VDWebsocket::create();
+	mWSInstanced = true; 
 	mWSHost = WS_DEFAULT_HOST;
 	mWSPort = WS_DEFAULT_PORT;
 	fs::path jsonFile = getAssetPath("") / mWSJsonFileName;
@@ -208,7 +209,9 @@ VDMediatorObservableRef VDMediatorObservable::setUniformValue(int aIndex, float 
 			observer->setUniformValue(aIndex, aValue);
 		}
 		// couldn't make an observer because it's both sender and receiver
-		mVDWebsocket->wsWrite("{\"params\" :[{ \"name\":" + toString(aIndex) + ",\"value\":" + toString(aValue) + "}]}");
+		if (mWSInstanced) {
+			mVDWebsocket->wsWrite("{\"params\" :[{ \"name\":" + toString(aIndex) + ",\"value\":" + toString(aValue) + "}]}");
+		}
 	}
 	return shared_from_this();
 };

@@ -344,9 +344,7 @@ void VDWebsocket::wsClientDisconnect()
 }
 void VDWebsocket::wsWrite(const std::string& msg)
 {
-
 	if (clientConnected) mClient.write(msg);
-
 }
 
 void VDWebsocket::sendJSON(const std::string& params) {
