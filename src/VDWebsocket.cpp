@@ -337,6 +337,7 @@ void VDWebsocket::wsClientDisconnect()
 
 	if (clientConnected)
 	{
+		clientConnected = false;
 		mClient.disconnect();
 	}
 

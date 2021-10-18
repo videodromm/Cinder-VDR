@@ -207,6 +207,8 @@ VDMediatorObservableRef VDMediatorObservable::setUniformValue(int aIndex, float 
 		for (auto observer : mObservers) {
 			observer->setUniformValue(aIndex, aValue);
 		}
+		// couldn't make an observer because it's both sender and receiver
+		mVDWebsocket->wsWrite("{\"params\" :[{ \"name\":" + toString(aIndex) + ",\"value\":" + toString(aValue) + "}]}");
 	}
 	return shared_from_this();
 };
