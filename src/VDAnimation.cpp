@@ -157,19 +157,22 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 			{
 				inputDevices = ci::audio::Device::getInputDevices();
 				outputDevices = ci::audio::Device::getOutputDevices();
-				mVDSettings->mMsg = "inputs\n";
+				mVDSettings->mMsg = "Inputs\n";
 				JsonTree doc;
 				JsonTree audioinputs = JsonTree::makeArray("audioinputs");
 				for (ci::audio::DeviceRef in : inputDevices) {
 					audioinputs.addChild(ci::JsonTree(in->getKey(), in->getName()));
 					if (in->getKey() == preferredAudioDevice) {
-
 						audioDeviceFound = true;
+						std::string preferredAudioDeviceName = in->getName();
+						mVDSettings->mMsg += "Preferred: " + preferredAudioDeviceName + "\n";
 					}
-					mVDSettings->mMsg += in->getName() + "\n";
+					else {
+						mVDSettings->mMsg += in->getName() + "\n";
+					}
 				}
 				doc.pushBack(audioinputs);
-				mVDSettings->mMsg += "outputs\n";
+				mVDSettings->mMsg += "Outputs\n";
 				JsonTree audiooutputs = JsonTree::makeArray("audiooutputs");
 				for (ci::audio::DeviceRef out : outputDevices) {
 					audiooutputs.addChild(ci::JsonTree(out->getKey(), out->getName()));

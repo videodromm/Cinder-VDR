@@ -69,6 +69,10 @@ VDSessionFacadeRef VDSessionFacade::toggleValue(unsigned int aCtrl) {
 	mVDSession->toggleValue(aCtrl);
 	return shared_from_this();
 }
+VDSessionFacadeRef VDSessionFacade::toggleUseLineIn() { 
+	mVDSession->toggleUseLineIn(); 
+	return shared_from_this();
+};
 VDSessionFacadeRef VDSessionFacade::tapTempo() {
 	mVDSession->tapTempo();
 	return shared_from_this();

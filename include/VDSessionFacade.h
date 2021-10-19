@@ -44,6 +44,7 @@ namespace videodromm
 		VDSessionFacadeRef		addSocketIOObserver(const std::string& host, unsigned int port);
 		VDSessionFacadeRef		setAnim(unsigned int aCtrl, unsigned int aAnim);
 		VDSessionFacadeRef		toggleValue(unsigned int aCtrl);
+		VDSessionFacadeRef		toggleUseLineIn();
 		VDSessionFacadeRef		tapTempo();
 		VDSessionFacadeRef		toggleUseTimeWithTempo();
 		VDSessionFacadeRef		useTimeWithTempo();
@@ -129,7 +130,6 @@ namespace videodromm
 		bool					getUseAudio() { return mVDSession->getUseAudio(); };
 		bool					getUseLineIn() { return mVDSession->getUseLineIn(); };
 		void					setUseLineIn(bool useLineIn) { mVDSession->setUseLineIn(useLineIn); };
-		void					toggleUseLineIn() { mVDSession->toggleUseLineIn(); };
 		bool					isAudioBuffered() { return mVDSession->isAudioBuffered(); };
 		void					toggleAudioBuffered() { mVDSession->toggleAudioBuffered(); };
 		bool					getUseWaveMonitor() { return mVDSession->getUseWaveMonitor(); };
