@@ -83,6 +83,68 @@ void VDSession::loadFromJsonFile(const fs::path& jsonFile) {
 		fboFromJson(json);
 	}
 }
+void VDSession::setupHttpClient() {
+	
+}
+void VDSession::loadShaderFromHttp(const std::string& url, unsigned int aFboIndex) {
+	/*if (fs::exists(jsonFile)) {
+		JsonTree json(loadFile(jsonFile));
+		fboFromJson(json);
+	}*/
+	httpsUrl = std::make_shared<http::Url>(url);
+	makeRequest(httpsUrl, aFboIndex);
+}
+void VDSession::makeRequest(http::UrlRef url, unsigned int aFboIndex)
+{
+	auto request = std::make_shared<http::Request>(http::RequestMethod::GET, url);
+	request->appendHeader(http::Connection(http::Connection::Type::CLOSE));
+	request->appendHeader(http::Accept());
+
+	auto onComplete = [&](asio::error_code ec, http::ResponseRef response) {
+		//texture = ci::gl::Texture::create(loadImage(ci::DataSourceBuffer::create(response->getContent()),
+		//	ImageSource::Options(), ".jpg"));
+		app::console() << response->getHeaders() << endl;
+		app::console() << "Content: " << std::endl;
+		auto content = response->getContent();
+		std::string jsonStr(static_cast<const char*>(content->getData()), content->getSize());
+		Json::Features features;
+		features.allowComments_ = true;
+		features.strictRoot_ = true;
+		Json::Reader reader(features);
+		Json::Value value;
+		reader.parse(jsonStr, value, false);
+		CI_LOG_I(value.toStyledString());
+		auto types = value.getMemberNames();
+		
+		for (auto &typeName : types) {
+			auto &typeObj = value[typeName];
+			if (typeName == "content") {
+				CI_LOG_I("content:");
+				CI_LOG_I(typeObj.asString());
+				mVDMix->setFragmentShaderString(typeObj.asString());
+				
+				break;
+			}
+		}
+	};
+	auto onError = [](asio::error_code ec, const http::UrlRef &url, http::ResponseRef response) {
+		CI_LOG_E(ec.message() << " val: " << ec.value() << " Url: " << url->to_string());
+		if (response) {
+			app::console() << "Headers: " << std::endl;
+			app::console() << response->getHeaders() << endl;
+		}
+	};
+
+	if (url->port() == 80) {
+		session = std::make_shared<http::Session>(request, onComplete, onError);
+		session->start();
+	}
+	else if (url->port() == 443) {
+		sslSession = std::make_shared<http::SslSession>(request, onComplete, onError);
+		sslSession->start();
+	}
+}
+
 void VDSession::loadFbos() {
 
 	int f = 0;

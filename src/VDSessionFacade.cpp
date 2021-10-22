@@ -46,6 +46,14 @@ VDSessionFacadeRef VDSessionFacade::setupWSClient() {
 	}
 	return shared_from_this();
 }
+VDSessionFacadeRef VDSessionFacade::setupHttpClient() {
+	mVDSession->setupHttpClient();
+	return shared_from_this();
+}
+VDSessionFacadeRef VDSessionFacade::loadShaderFromHttp(const std::string& url, unsigned int aFboIndex) {
+	mVDSession->loadShaderFromHttp(url, aFboIndex);
+	return shared_from_this();
+}
 VDSessionFacadeRef VDSessionFacade::setupKeyboard() {
 	mVDMediator->setupKeyboard();
 	return shared_from_this();

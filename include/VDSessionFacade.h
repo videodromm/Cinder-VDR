@@ -39,6 +39,8 @@ namespace videodromm
 		VDSessionFacadeRef		setupOSCReceiver();
 		VDSessionFacadeRef		setupMidiReceiver();
 		VDSessionFacadeRef		setupWSClient();
+		VDSessionFacadeRef		setupHttpClient();
+		VDSessionFacadeRef		loadShaderFromHttp(const std::string& url, unsigned int aFboIndex);
 		VDSessionFacadeRef		setupKeyboard();
 		VDSessionFacadeRef		addOSCObserver(const std::string& host, unsigned int port);
 		VDSessionFacadeRef		addSocketIOObserver(const std::string& host, unsigned int port);

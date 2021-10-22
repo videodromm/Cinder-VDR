@@ -8,9 +8,6 @@
 #include "cinder/app/App.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/GlslProg.h"
-// json
-#include "cinder/Json.h"
-
 // Settings
 #include "VDSettings.h"
 // Params
@@ -23,6 +20,11 @@
 #include "VDMix.h"
 // Warping
 #include "Warp.h"
+// json
+#include "cinder/Json.h"
+#include "jsoncpp/json.h"
+// http
+#include "cinder/http/http.hpp"
 
 using namespace ci;
 using namespace ci::app;
@@ -50,6 +52,8 @@ namespace videodromm {
 		void							update(unsigned int aClassIndex = 0);
 
 		void							loadFromJsonFile(const fs::path& jsonFile);
+		void							setupHttpClient();
+		void							loadShaderFromHttp(const std::string& url, unsigned int aFboIndex);
 		unsigned int					fboFromJson(const JsonTree& json, unsigned int aFboIndex = 0) {
 			return mVDMix->createFboShaderTexture(json, aFboIndex);
 		};
@@ -363,7 +367,14 @@ namespace videodromm {
 		void							loadFbos();
 
 		bool							odd = false;
+		// http
+		void									makeRequest(http::UrlRef url, unsigned int aFboIndex);
 
+		std::shared_ptr<ci::http::Session>		session;
+		std::shared_ptr<ci::http::SslSession>	sslSession;
+		ci::gl::TextureRef texture;
+		http::UrlRef							httpUrl, httpsUrl;
+		//bool useHttp = false;
 	};
 
 }
