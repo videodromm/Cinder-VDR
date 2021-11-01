@@ -332,6 +332,7 @@ namespace videodromm {
 		// Mix
 		VDMixRef						mVDMix;
 		const std::string				sessionFileName = "session.json";
+		std::string						apiurl = "https://api.sophiaantipolis.xyz/articles/";
 		fs::path						sessionPath;
 		// tempo
 		float							mFpb;

@@ -44,7 +44,7 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 		mWarpList.push_back(WarpPerspectiveBilinear::create());
 	}
 	loadFbos();
-	
+
 	// Modes
 	mModesList[0] = "Fbo0";
 	mModesList[1] = "Fbo1";
@@ -84,14 +84,10 @@ void VDSession::loadFromJsonFile(const fs::path& jsonFile) {
 	}
 }
 void VDSession::setupHttpClient() {
-	
+
 }
 void VDSession::loadShaderFromHttp(const std::string& url, unsigned int aFboIndex) {
-	/*if (fs::exists(jsonFile)) {
-		JsonTree json(loadFile(jsonFile));
-		fboFromJson(json);
-	}*/
-	httpsUrl = std::make_shared<http::Url>(url);
+	httpsUrl = std::make_shared<http::Url>(apiurl + url);
 	makeRequest(httpsUrl, aFboIndex);
 }
 void VDSession::makeRequest(http::UrlRef url, unsigned int aFboIndex)
@@ -114,17 +110,21 @@ void VDSession::makeRequest(http::UrlRef url, unsigned int aFboIndex)
 		Json::Value value;
 		reader.parse(jsonStr, value, false);
 		CI_LOG_I(value.toStyledString());
+		int found = 0;
 		auto types = value.getMemberNames();
-		
 		for (auto &typeName : types) {
 			auto &typeObj = value[typeName];
-			if (typeName == "content") {
-				CI_LOG_I("content:");
-				CI_LOG_I(typeObj.asString());
-				mVDMix->setFragmentShaderString(typeObj.asString());
-				
-				break;
+			if (typeName == "title") {
+				found++;
 			}
+			if (typeName == "content") {
+				found++;
+			}
+		}
+		if (found == 2) {
+			auto &titleObj = value["title"];
+			auto &contentObj = value["content"];
+			mVDMix->setFragmentShaderString(contentObj.asString(), titleObj.asString());
 		}
 	};
 	auto onError = [](asio::error_code ec, const http::UrlRef &url, http::ResponseRef response) {
@@ -176,10 +176,10 @@ void VDSession::loadFbos() {
 }
 
 void VDSession::toggleUI() {
-	mShowUI = !mShowUI; 
+	mShowUI = !mShowUI;
 };
-bool VDSession::showUI() { 
-	return mShowUI; 
+bool VDSession::showUI() {
+	return mShowUI;
 };
 std::string VDSession::getModeName(unsigned int aMode) {
 	if (aMode > mModesList.size() - 1) aMode = mModesList.size() - 1;
@@ -230,7 +230,7 @@ void VDSession::renderPostToFbo()
 		mGlslPost->uniform("iFlipH", mVDUniforms->getUniformValue(mVDUniforms->IFLIPPOSTH));
 		mGlslPost->uniform("iInvert", mVDUniforms->getUniformValue(mVDUniforms->IINVERT));
 		mGlslPost->uniform("iToggle", mVDUniforms->getUniformValue(mVDUniforms->ITOGGLE));
-		mGlslPost->uniform("iGreyScale", mVDUniforms->getUniformValue(mVDUniforms->IGREYSCALE));		
+		mGlslPost->uniform("iGreyScale", mVDUniforms->getUniformValue(mVDUniforms->IGREYSCALE));
 		mGlslPost->uniform("iVignette", mVDUniforms->getUniformValue(mVDUniforms->IVIGNETTE));
 		mGlslPost->uniform("iRedMultiplier", mVDUniforms->getUniformValue(mVDUniforms->IFRX));
 		mGlslPost->uniform("iGreenMultiplier", mVDUniforms->getUniformValue(mVDUniforms->IFGX));
@@ -341,6 +341,8 @@ void VDSession::restore()
 			//CI_LOG_W("getBpm" + toString(mVDAnimation->getBpm()) + " mTargetFps " + toString(mTargetFps));
 			mTargetFps = mVDUniforms->getUniformValue(mVDUniforms->IBPM) / 60.0f * mFpb;
 			//CI_LOG_W("getBpm" + toString(mVDAnimation->getBpm()) + " mTargetFps " + toString(mTargetFps));
+			if (settings.hasChild("apiurl")) apiurl = settings.getValueForKey<std::string>("apiurl");
+
 		}
 
 		/*if (doc.hasChild("assets")) {
@@ -384,7 +386,7 @@ void VDSession::fileDrop(FileDropEvent event) {
 	std::string ext = "";
 	//string fileName = "";
 
-	unsigned int index = (unsigned int)( (event.getX() - mVDParams->getUILargeW() ) / ( mVDParams->getUILargePreviewW() + mVDParams->getUIMargin() ) );
+	unsigned int index = (unsigned int)((event.getX() - mVDParams->getUILargeW()) / (mVDParams->getUILargePreviewW() + mVDParams->getUIMargin()));
 	//int y = (int)(event.getY());
 	//if (index < 2 || y < mVDSettings->uiYPosRow3 || y > mVDSettings->uiYPosRow3 + mVDSettings->uiPreviewH) index = 0;
 	ci::fs::path mPath = event.getFile(event.getNumFiles() - 1);
@@ -400,7 +402,7 @@ void VDSession::fileDrop(FileDropEvent event) {
 			JsonTree json(loadFile(absolutePath));
 			fboFromJson(json);
 		}
-		
+
 		else if (ext == "glsl" || ext == "frag" || ext == "fs") {
 			loadFragmentShader(absolutePath, index);
 		}
@@ -563,7 +565,7 @@ bool VDSession::handleKeyUp(KeyEvent& event) {
 		if (!mVDAnimation->handleKeyUp(event)) {
 			// Animation did not handle the key, so handle it here
 			switch (event.getCode()) {
-			
+
 			default:
 				CI_LOG_V("session keyup: " + toString(event.getCode()));
 				handled = false;
