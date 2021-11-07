@@ -109,8 +109,22 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	int dotIndex = texFileOrPath.filename().string().find_last_of(".");
 	if (dotIndex != std::string::npos)  mExt = texFileOrPath.filename().string().substr(dotIndex + 1);
 	if (mExt == "jpg" || mExt == "png") {
-		mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
-		mTypestr = "image";
+		// 20211107
+		bool fileExists = fs::exists(texFileOrPath);
+		if (!fileExists) {
+			mError = texFileOrPath.string() + " does not exist, trying with parent folder";
+			CI_LOG_V(mError);
+			texFileOrPath = getAssetPath("") / mTextureName;
+			fileExists = fs::exists(texFileOrPath);
+			if (!fileExists) {
+				mError = texFileOrPath.string() + " does not exist in parent folder";
+				CI_LOG_V(mError);
+			}
+		}
+		if (fileExists) {
+			mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+			mTypestr = "image";
+		}
 		//mInputTextureList.push_back(mInputTextureRef);
 	}
 	rtn = mInputTextureList.size() - 1;

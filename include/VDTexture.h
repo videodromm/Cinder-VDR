@@ -266,8 +266,9 @@ namespace videodromm
 		virtual ci::gl::Texture2dRef	getTexture() override;
 		virtual ci::gl::Texture2dRef	getCachedTexture(const std::string& aFilename) override;
 	private:
-		void printDevices();
-		std::string				mFirstCameraDeviceName;
+		void getCaptureDevices();
+		//std::string				mFirstCameraDeviceName;
+		Capture::DeviceRef		mCaptureDevice;
 		CaptureRef				mCapture;
 	};
 #endif

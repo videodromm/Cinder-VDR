@@ -57,38 +57,6 @@ namespace videodromm {
 
 		mGlslMixette = gl::GlslProg::create(mVDParams->getDefaultVertexString(), loadString(loadFile(mMixetteFilePath)));
 
-		// init with shader, colors inverted
-		JsonTree jsonInverted;
-		JsonTree shaderInverted = ci::JsonTree::makeArray("shader");
-		shaderInverted.addChild(ci::JsonTree("shadername", "inverted"));
-		shaderInverted.pushBack(ci::JsonTree("shadertype", "fs"));
-		shaderInverted.pushBack(ci::JsonTree("shadertext", mVDParams->getInvertedDefaultShaderFragmentString()));
-		jsonInverted.addChild(shaderInverted);
-		JsonTree textureInverted = ci::JsonTree::makeArray("texture");
-		textureInverted.addChild(ci::JsonTree("texturename", "audio"));
-		textureInverted.pushBack(ci::JsonTree("texturetype", "audio"));
-		textureInverted.pushBack(ci::JsonTree("texturemode", 0));
-		jsonInverted.addChild(textureInverted);
-		mMixFboShader = VDFboShader::create(mVDUniforms, mVDAnimation, jsonInverted, 0, mAssetsPath);
-		mFboShaderList.push_back(mMixFboShader);
-		setFboInputTexture(0, 1);
-
-		// init shader
-		JsonTree json;
-		JsonTree shader = ci::JsonTree::makeArray("shader");
-		shader.addChild(ci::JsonTree("shadername", "mix"));
-		shader.pushBack(ci::JsonTree("shadertype", "fs"));
-		shader.pushBack(ci::JsonTree("shadertext", mVDParams->getDefaultShaderFragmentString()));
-		json.addChild(shader);
-		JsonTree texture = ci::JsonTree::makeArray("texture");
-		texture.addChild(ci::JsonTree("texturename", "audio"));
-		texture.pushBack(ci::JsonTree("texturetype", "audio"));
-		texture.pushBack(ci::JsonTree("texturemode", 0));
-		json.addChild(texture);		
-		mFboShader = VDFboShader::create(mVDUniforms, mVDAnimation, json, 0, mAssetsPath);
-		mFboShaderList.push_back(mFboShader);
-		setFboInputTexture(1, 0);
-
 		loadFbos();
 	} // constructor
 
@@ -121,9 +89,24 @@ namespace videodromm {
 			}
 			if (doc.hasChild("camera")) {
 				JsonTree settings(doc.getChild("camera"));
-				if (settings.hasChild("name")) {
+				if (settings.hasChild("texturename")) {
 					TextureCameraRef tc(TextureCamera::create());
 					mTextureList.push_back(tc);
+					// init with shader, colors inverted
+					JsonTree jsonInverted;
+					JsonTree shaderInverted = ci::JsonTree::makeArray("shader");
+					shaderInverted.addChild(ci::JsonTree("shadername", "inverted"));
+					shaderInverted.pushBack(ci::JsonTree("shadertype", "fs"));
+					shaderInverted.pushBack(ci::JsonTree("shadertext", mVDParams->getInvertedDefaultShaderFragmentString()));
+					jsonInverted.addChild(shaderInverted);
+					JsonTree textureInverted = ci::JsonTree::makeArray("texture");
+					textureInverted.addChild(ci::JsonTree("texturename", "audio"));
+					textureInverted.pushBack(ci::JsonTree("texturetype", "audio"));
+					textureInverted.pushBack(ci::JsonTree("texturemode", 0));
+					jsonInverted.addChild(textureInverted);
+					mMixFboShader = VDFboShader::create(mVDUniforms, mVDAnimation, jsonInverted, 0, mAssetsPath);
+					mFboShaderList.push_back(mMixFboShader);
+					setFboInputTexture(getFboShaderListSize() - 1, 1);
 				}
 			}
 			if (doc.hasChild("shared")) {
@@ -146,22 +129,21 @@ namespace videodromm {
 	}	
 	void VDMix::loadFbos() {
 /* done better in Session
-		int f = 0;
-		bool found = true;
-		string shaderFileName;
-		string textureFileName;
-		while (found) {
-			string jsonFileName = "fbo" + toString(f) + ".json";
-			fs::path jsonFile = getAssetPath("") / mAssetsPath / jsonFileName;
-			if (fs::exists(jsonFile)) {
-				JsonTree json(loadFile(jsonFile));
-				createFboShaderTexture(json, f);
-				f++;
-			}
-			else {
-				found = false;
-			}
-		} //while
+		// 20211107 TODO add default fboshader if mFboShaderList empty? init shader
+		JsonTree json;
+		JsonTree shader = ci::JsonTree::makeArray("shader");
+		shader.addChild(ci::JsonTree("shadername", "mix"));
+		shader.pushBack(ci::JsonTree("shadertype", "fs"));
+		shader.pushBack(ci::JsonTree("shadertext", mVDParams->getDefaultShaderFragmentString()));
+		json.addChild(shader);
+		JsonTree texture = ci::JsonTree::makeArray("texture");
+		texture.addChild(ci::JsonTree("texturename", "audio"));
+		texture.pushBack(ci::JsonTree("texturetype", "audio"));
+		texture.pushBack(ci::JsonTree("texturemode", 0));
+		json.addChild(texture);		
+		mFboShader = VDFboShader::create(mVDUniforms, mVDAnimation, json, 0, mAssetsPath);
+		mFboShaderList.push_back(mFboShader);
+		setFboInputTexture(getFboShaderListSize() - 1, 0);
 */
 	}
 	/*unsigned int VDMix::fboFromJson(const JsonTree& json, unsigned int aFboIndex) {

@@ -563,23 +563,24 @@ namespace videodromm {
 #if (defined(  CINDER_MSW) ) || (defined( CINDER_MAC ))
 	TextureCamera::TextureCamera() {
 		mType = CAMERA;
-		mFirstCameraDeviceName = "";
-		printDevices();
+		mPath = mName = "HD User Facing";// 20211107 TODO load from json file
+		getCaptureDevices();
 
-		try {
-			mCapture = Capture::create(1280, 720);
+		/*try {
+			mCapture = Capture::create(1280, 720, );
 			mCapture->start();
 		}
 		catch (ci::Exception &exc) {
 			CI_LOG_EXCEPTION("Failed to init capture ", exc);
-		}
+		}*/
 	}
 	bool TextureCamera::fromJson(const JsonTree& json) {
+		// not called
 		// init		
 		mTexture = ci::gl::Texture::create(mWidth, mHeight, ci::gl::Texture::Format().loadTopDown(false));
 		// retrieve attributes specific to this type of texture
-		mPath = (json.hasChild("texturename")) ? json.getValueForKey<string>("texturename") : "cam";
-		mName = "camera";
+		mPath = (json.hasChild("texturename")) ? json.getValueForKey<string>("texturename") : "HD User Facing";
+		mName = "HD User Facing";
 		return true;
 	}
 
@@ -598,15 +599,36 @@ namespace videodromm {
 	ci::gl::Texture2dRef TextureCamera::getCachedTexture(const std::string& aFilename) {
 		return TextureCamera::getTexture();
 	}
-	void TextureCamera::printDevices() {
+	void TextureCamera::getCaptureDevices() {
+		bool captureDeviceFound = false;
+		JsonTree doc;
+		JsonTree cameras = JsonTree::makeArray("cameras");
+		
 		for (const auto &device : Capture::getDevices()) {
 			console() << "Device: " << device->getName() << " "
 #if defined( CINDER_COCOA_TOUCH )
 				<< (device->isFrontFacing() ? "Front" : "Rear") << "-facing"
 #endif
 				<< endl;
-			mFirstCameraDeviceName = device->getName();
-		}
+			//mFirstCameraDeviceName = device->getName();
+			cameras.addChild(ci::JsonTree(toString(device->getUniqueId()), device->getName()));
+			if (device->getName() == mPath) {
+				captureDeviceFound = true;
+				mCaptureDevice = device;
+				try {
+					mCapture = Capture::create(1280, 720, mCaptureDevice);
+					mCapture->start();
+				}
+				catch (ci::Exception &exc) {
+					CI_LOG_EXCEPTION("Failed to init capture ", exc);
+				}
+			}
+			else {
+				
+			}
+		}		
+		doc.pushBack(cameras);
+		doc.write(writeFile(getAssetPath("") / "capture.json"), JsonTree::WriteOptions());
 	}
 	TextureCamera::~TextureCamera(void) {
 
