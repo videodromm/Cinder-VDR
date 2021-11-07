@@ -114,7 +114,15 @@ namespace videodromm
 		std::map<unsigned int, gl::TextureRef>		mInputTextureList;
 		gl::TextureRef					mInputTextureRef;
 		unsigned int					mInputTextureIndex;
-		//unsigned int					createInputTexture(const JsonTree &json);
+		unsigned int					createInputTexture(const JsonTree &json);
+		// 20211107
+		string							mTextureName = "";
+		string							mStatus = "";
+		//TextureType						mType = UNKNOWN;
+		string							mTypestr = "";
+		string							mExt = "jpg";
+		int								mMode = 0;
+		// 20211107
 		bool							mIsHydraTex = false;
 		//! shader
 		gl::GlslProgRef					mShader;
