@@ -420,11 +420,19 @@ void VDSession::fileDrop(FileDropEvent event) {
 		}
 		*/
 		else if (ext == "") {
+			// 20211108 never called?
 			// try loading image sequence from dir
 			if (!loadImageSequence(absolutePath, index)) {
 				// try to load a folder of shaders
 				//loadShaderFolder(absolutePath);
 			}
+		}
+	}
+	else {
+		// try loading image sequence from dir
+		if (!loadImageSequence(absolutePath, index)) {
+			// try to load a folder of shaders
+			//loadShaderFolder(absolutePath);
 		}
 	}
 }

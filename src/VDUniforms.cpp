@@ -85,7 +85,7 @@ VDUniforms::VDUniforms() {
 	// Steps
 	createFloatUniform("iSteps", ISTEPS, 16.0f, 1.0f, 128.0f); // 26
 	// ratio
-	createFloatUniform("iRatio", IRATIO, 20.0f, 0.00000000001f, 20.0f); // 27
+	createFloatUniform("iRatio", IRATIO, 36.0f, 0.00000000001f, 40.0f); // 27
 	// zoom
 	createFloatUniform("iZoom", IZOOM, 1.0f, 0.95f, 1.1f); // 28
 	// Max Volume
@@ -94,9 +94,9 @@ VDUniforms::VDUniforms() {
 	// contour
 	createFloatUniform("iContour", ICONTOUR, 0.0f, 0.0f, 0.5f); // 30
 	// weight mix fbo texture 0
-	createFloatUniform("iWeight0", IWEIGHT0, 0.1f); // 31
+	createFloatUniform("iWeight0", IWEIGHT0, 0.0f); // 31
 	// weight texture 1
-	createFloatUniform("iWeight1", IWEIGHT1, 0.5f); // 32
+	createFloatUniform("iWeight1", IWEIGHT1, 1.0f); // 32
 	// weight texture 2
 	createFloatUniform("iWeight2", IWEIGHT2, 0.0f); // 33
 	// weight texture 3
