@@ -77,15 +77,19 @@ VDUniforms::VDUniforms() {
 	// Speed 
 	createFloatUniform("iSpeed", ISPEED, 1.0f, 0.01f, 12.0f); // 22
 	// slitscan / matrix (or other) Param1 
-	createFloatUniform("iPixelX", IPIXELX, 0.01f, -1.5f, 1.5f); // 23
+	//createFloatUniform("iPixelX", IPIXELX, 0.01f, -1.5f, 1.5f); // 23
 	// slitscan / matrix(or other) Param2 
-	createFloatUniform("iPixelY", IPIXELY, 0.01f, -1.5f, 1.5f); // 24
+	//createFloatUniform("iPixelY", IPIXELY, 0.01f, -1.5f, 1.5f); // 24
+	// slitscan / matrix (or other) Param1 
+	createFloatUniform("iPixelX", IPIXELX, 40.0f, 0.00000000001f, 40.0f); // 23
+	// slitscan / matrix(or other) Param2 
+	createFloatUniform("iPixelY", IPIXELY, 36.0f, 0.00000000001f, 40.0f); // 24
 	// delta time in seconds
 	createFloatUniform("iDeltaTime", IDELTATIME, 60.0f / 160.0f); // 25
 	// Steps
 	createFloatUniform("iSteps", ISTEPS, 16.0f, 1.0f, 128.0f); // 26
 	// ratio
-	createFloatUniform("iRatio", IRATIO, 36.0f, 0.00000000001f, 40.0f); // 27
+	createFloatUniform("iRatio", IRATIO, 20.0f, 0.00000000001f, 40.0f); // 27
 	// zoom
 	createFloatUniform("iZoom", IZOOM, 1.0f, 0.95f, 1.1f); // 28
 	// Max Volume
