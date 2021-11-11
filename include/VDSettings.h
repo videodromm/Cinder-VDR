@@ -125,7 +125,7 @@ namespace videodromm {
 		float						iChannelTime[4];
 		bool						iFade;
 		bool						iRepeat;
-		int							iBlendmode;
+		//int							iBlendmode;
 		ci::Anim<float> 			iAlpha;
 		bool						iShowFps;
 		unsigned int				shaderEditIndex;

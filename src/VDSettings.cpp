@@ -489,7 +489,7 @@ void VDSettings::reset()
 	mSocketIORoom = "roomtest"; 
 	mSocketIONickname = "bruce";
 	// Blendmode 
-	iBlendmode = 0;
+	//iBlendmode = 0;
 
 	resetSomeParams();
 }

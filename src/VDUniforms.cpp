@@ -139,7 +139,7 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iTimeFactor", ITIMEFACTOR, 1.0f); // 49
 	// int
 	// blend mode 
-	createFloatUniform("iBlendmode", IBLENDMODE, 0); // 50
+	createFloatUniform("iBlendmode", IBLENDMODE, 0.0f, 0.0f, 20.0f); // 50
 	// beat 
 	createFloatUniform("iBeat", IBEAT, 0.0f, 0.0f, 300.0f); // 51
 	// bar 
