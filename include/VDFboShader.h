@@ -117,7 +117,6 @@ namespace videodromm
 		unsigned int					createInputTexture(const JsonTree &json);
 		// 20211115
 		int								mCurrentImageSequenceIndex = 1;
-		bool							mUseShader = false;
 		// 20211107
 		string							mTextureName = "";
 		string							mStatus = "";

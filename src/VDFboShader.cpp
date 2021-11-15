@@ -261,6 +261,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 
 	if (mValid) {
 		if (mMode == 2) {
+			// 20211115 OK for SOS a (n).jpg
 			if (mCurrentImageSequenceIndex != (int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)) {
 				mCurrentImageSequenceIndex = (int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT);
 				string currentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").jpg";
@@ -270,9 +271,6 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 					mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 				}
 			}
-		}
-		if (mTextureName == "a" && mUseShader) {
-			return mInputTextureRef;
 		}
 		// removed 20211107 only if no texture
 		/*if (mInputTextureIndex == 0) {
