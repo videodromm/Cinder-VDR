@@ -115,10 +115,12 @@ namespace videodromm
 		gl::TextureRef					mInputTextureRef;
 		unsigned int					mInputTextureIndex;
 		unsigned int					createInputTexture(const JsonTree &json);
+		// 20211115
+		int								mCurrentImageSequenceIndex = 1;
+		bool							mUseShader = false;
 		// 20211107
 		string							mTextureName = "";
 		string							mStatus = "";
-		//TextureType						mType = UNKNOWN;
 		string							mTypestr = "";
 		string							mExt = "jpg";
 		int								mMode = 0;

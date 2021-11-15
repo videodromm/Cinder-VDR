@@ -124,17 +124,17 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 			renderToFbo();
 		}
 	}*/
-		string currentFilename = mTextureName + " (1).jpg";
+		// init with number 1 then getFboTexture will load next images
+		
+		string currentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").jpg";
 		fs::path texFileOrPath = getAssetPath("") / mAssetsPath / currentFilename;
 		bool fileExists = fs::exists(texFileOrPath);
 		if (fileExists) {
 			mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
-
 		}
 	}
 	else {
-
-
+		// image
 		fs::path texFileOrPath = getAssetPath("") / mAssetsPath / mTextureName;
 		mExt = "";
 		int dotIndex = texFileOrPath.filename().string().find_last_of(".");
@@ -260,6 +260,20 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 
 	if (mValid) {
+		if (mMode == 2) {
+			if (mCurrentImageSequenceIndex != (int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)) {
+				mCurrentImageSequenceIndex = (int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT);
+				string currentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").jpg";
+				fs::path texFileOrPath = getAssetPath("") / mAssetsPath / currentFilename;
+				bool fileExists = fs::exists(texFileOrPath);
+				if (fileExists) {
+					mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+				}
+			}
+		}
+		if (mTextureName == "a" && mUseShader) {
+			return mInputTextureRef;
+		}
 		// removed 20211107 only if no texture
 		/*if (mInputTextureIndex == 0) {
 			mInputTextureRef = mVDAnimation->getAudioTexture();
