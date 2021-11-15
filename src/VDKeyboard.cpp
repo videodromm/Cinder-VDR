@@ -36,7 +36,15 @@ bool VDKeyboard::handleKeyDown(KeyEvent& event) {
 	// pass this key event to the warp editor first
 
 	switch (event.getCode()) {
-
+	case KeyEvent::KEY_m:
+		// blendmodes
+		if (isShiftDown) {
+			mVDMediator->setUniformValue(mVDUniforms->IBLENDMODE, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IBLENDMODE) + 1.0f, 0.0f));
+		}
+		else if (isModDown) {
+			mVDMediator->setUniformValue(mVDUniforms->IBLENDMODE, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IBLENDMODE) - 1.0f, 0.0f));
+		}
+		break;
 	case KeyEvent::KEY_x:
 		// trixels
 		mVDMediator->setUniformValue(mVDUniforms->ITRIXELS, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->ITRIXELS) + delta, 0.0f));
@@ -155,7 +163,7 @@ bool VDKeyboard::handleKeyDown(KeyEvent& event) {
 	case KeyEvent::KEY_F9:
 		mVDMediator->setMode(8);
 		break;
-	case KeyEvent::KEY_F10:
+	case KeyEvent::KEY_F10: // pauses app in debug mode
 		mVDMediator->setMode(9);
 		break;
 	default:

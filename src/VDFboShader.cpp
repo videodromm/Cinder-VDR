@@ -104,29 +104,62 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	mTextureName = (json.hasChild("texturename")) ? json.getValueForKey<string>("texturename") : "0.jpg";
 	mTypestr = (json.hasChild("texturetype")) ? json.getValueForKey<string>("texturetype") : "UNKNOWN";
 	mMode = (json.hasChild("texturemode")) ? json.getValueForKey<int>("texturemode") : 0;
-	fs::path texFileOrPath = getAssetPath("") / mAssetsPath / mTextureName;
-	mExt = ""; 
-	int dotIndex = texFileOrPath.filename().string().find_last_of(".");
-	if (dotIndex != std::string::npos)  mExt = texFileOrPath.filename().string().substr(dotIndex + 1);
-	if (mExt == "jpg" || mExt == "png") {
-		// 20211107
-		bool fileExists = fs::exists(texFileOrPath);
-		if (!fileExists) {
-			mError = texFileOrPath.string() + " does not exist, trying with parent folder";
-			CI_LOG_V(mError);
-			texFileOrPath = getAssetPath("") / mTextureName;
-			fileExists = fs::exists(texFileOrPath);
-			if (!fileExists) {
-				mError = texFileOrPath.string() + " does not exist in parent folder";
-				CI_LOG_V(mError);
-			}
+	if (mMode == 2) {
+		/*if (mExt = "rien") {
+		if (current == 426 || current == 428 || current == 442) mLastBar = 0; //38 to set iStart
+		if (mLastBar != mVDSessionFacade->getUniformValue(mVDUniforms->IBAR)) {
+			mLastBar = mVDSessionFacade->getUniformValue(mVDUniforms->IBAR);
+			//if (mLastBar != 5 && mLastBar != 9 && mLastBar < 113) mVDSettings->iStart = mVDSession->getFloatUniformValueByIndex(mVDSettings->ITIME);
+			// TODO CHECK
+			//if (mLastBar != 107 && mLastBar != 111 && mLastBar < 205) mVDSettings->iStart = mVDSession->getFloatUniformValueByIndex(mVDSettings->ITIME);
+			if (mLastBar < 419 && mLastBar > 424) mVDSettings->iStart = mVDSessionFacade->getUniformValue(mVDUniforms->ITIME);
 		}
+		//mImage = mVDSession->getInputTexture(mSeqIndex);
+		 TODO 20211115 mImage = mVDSession->getCachedTexture(mSeqIndex, "a (" + toString(current) + ").jpg");
+		if (!mImage) {
+			CI_LOG_E("image not loaded");
+			mImage = gl::Texture::create(loadImage(loadAsset("0.jpg")), gl::Texture2d::Format().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+		}
+		if (mUseShader) {
+			renderToFbo();
+		}
+	}*/
+		string currentFilename = mTextureName + " (1).jpg";
+		fs::path texFileOrPath = getAssetPath("") / mAssetsPath / currentFilename;
+		bool fileExists = fs::exists(texFileOrPath);
 		if (fileExists) {
 			mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
-			mTypestr = "image";
+
 		}
-		//mInputTextureList.push_back(mInputTextureRef);
 	}
+	else {
+
+
+		fs::path texFileOrPath = getAssetPath("") / mAssetsPath / mTextureName;
+		mExt = "";
+		int dotIndex = texFileOrPath.filename().string().find_last_of(".");
+		if (dotIndex != std::string::npos)  mExt = texFileOrPath.filename().string().substr(dotIndex + 1);
+		if (mExt == "jpg" || mExt == "png") {
+			// 20211107
+			bool fileExists = fs::exists(texFileOrPath);
+			if (!fileExists) {
+				mError = texFileOrPath.string() + " does not exist, trying with parent folder";
+				CI_LOG_V(mError);
+				texFileOrPath = getAssetPath("") / mTextureName;
+				fileExists = fs::exists(texFileOrPath);
+				if (!fileExists) {
+					mError = texFileOrPath.string() + " does not exist in parent folder";
+					CI_LOG_V(mError);
+				}
+			}
+			if (fileExists) {
+				mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+				mTypestr = "image";
+			}
+			//mInputTextureList.push_back(mInputTextureRef);
+		}
+	}
+	
 	rtn = mInputTextureList.size() - 1;
 	return rtn;
 
@@ -278,7 +311,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 						mShader->uniform(name, mVDUniforms->getUniformValueByName(name));
 					}
 					else {
-						int l = uniform.getLocation();						
+						int l = uniform.getLocation();
 						mShader->uniform(name, mUniformValueByLocation[l]);
 					}
 				}
