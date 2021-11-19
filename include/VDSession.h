@@ -272,7 +272,8 @@ namespace videodromm {
 		void							loadImageFile(const std::string& aFile, unsigned int aTextureIndex) {
 			mVDMix->loadImageFile(aFile, aTextureIndex);
 		};
-		bool							loadImageSequence(const string& aFolder, unsigned int aTextureIndex);
+		//bool							loadImageSequence(const string& aFolder, unsigned int aTextureIndex);
+		bool							loadFolder(const string& aFolder, unsigned int aFboIndex);
 		void							loadAudioFile(const string& aFile);
 
 		

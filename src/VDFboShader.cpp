@@ -127,7 +127,8 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		// init with number 1 then getFboTexture will load next images
 		
 		string currentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").jpg";
-		fs::path texFileOrPath = getAssetPath("") / mAssetsPath / currentFilename;
+		//fs::path texFileOrPath = getAssetPath("") / mAssetsPath / currentFilename;
+		fs::path texFileOrPath = getAssetPath("") / mTextureName / currentFilename;
 		bool fileExists = fs::exists(texFileOrPath);
 		if (fileExists) {
 			mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
@@ -265,7 +266,9 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			if (mCurrentImageSequenceIndex != (int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)) {
 				mCurrentImageSequenceIndex = (int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT);
 				string currentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").jpg";
-				fs::path texFileOrPath = getAssetPath("") / mAssetsPath / currentFilename;
+				//fs::path texFileOrPath = getAssetPath("") / mAssetsPath / currentFilename;
+				fs::path texFileOrPath = getAssetPath("") / mTextureName / currentFilename;
+				
 				bool fileExists = fs::exists(texFileOrPath);
 				if (fileExists) {
 					mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));

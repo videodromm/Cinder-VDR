@@ -147,10 +147,10 @@ void VDSession::makeRequest(http::UrlRef url, unsigned int aFboIndex)
 
 void VDSession::loadFbos() {
 
-	int f = 0;
+	unsigned int f = 0;
 	bool found = true;
-	std::string shaderFileName;
-	std::string textureFileName;
+	//std::string shaderFileName;
+	//std::string textureFileName;
 	while (found) {
 		std::string jsonFileName = "fbo" + toString(f) + ".json";
 
@@ -418,27 +418,49 @@ void VDSession::fileDrop(FileDropEvent event) {
 		else if (ext == "mov") {
 			loadMovie(absolutePath, index);
 		}
-		*/
+		
 		else if (ext == "") {
 			// 20211108 never called?
 			// try loading image sequence from dir
-			if (!loadImageSequence(absolutePath, index)) {
+			//if (!loadImageSequence(absolutePath, index)) {
 				// try to load a folder of shaders
 				//loadShaderFolder(absolutePath);
-			}
-		}
+			//}
+		}*/
 	}
 	else {
+		// folder was dropped
+		std::string folderName = absolutePath.substr(slashIndex + 1);
+		loadFolder(folderName, index);
 		// try loading image sequence from dir
-		if (!loadImageSequence(absolutePath, index)) {
+		// if (!loadImageSequence(absolutePath, index)) {
 			// try to load a folder of shaders
 			//loadShaderFolder(absolutePath);
-		}
+		//}
 	}
 }
-bool VDSession::loadImageSequence(const string& aFolder, unsigned int aTextureIndex) {
-	return mVDMix->loadImageSequence(aFolder, aTextureIndex);
+bool VDSession::loadFolder(const string& aFolder, unsigned int aFboIndex) {
+	// find fbo...json
+	unsigned int f = 0;
+	bool found = true;
+	while (found) {
+		std::string jsonFileName = "fbo" + toString(f) + ".json";
+
+		fs::path jsonFile = getAssetPath("") / aFolder / jsonFileName;
+		if (fs::exists(jsonFile)) {
+			JsonTree json(loadFile(jsonFile));
+			fboFromJson(json, f);
+			f++;
+		}
+		else {
+			found = false;
+		}
+	} //while
+	return !found;
 }
+/*bool VDSession::loadImageSequence(const string& aFolder, unsigned int aTextureIndex) {
+	return mVDMix->loadImageSequence(aFolder, aTextureIndex);
+}*/
 void VDSession::loadAudioFile(const string& aFile) {
 	//mTextureList[0]->loadFromFullPath(aFile);
 }

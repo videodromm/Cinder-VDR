@@ -98,6 +98,9 @@ namespace videodromm
 		bool									isHydraTex() {
 			return mIsHydraTex;
 		}
+		ci::gl::Texture2dRef					getInputTexture() {
+			return mInputTextureRef;
+		};
 		
 	private:
 		// Params
