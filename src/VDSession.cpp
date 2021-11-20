@@ -449,7 +449,7 @@ bool VDSession::loadFolder(const string& aFolder, unsigned int aFboIndex) {
 		fs::path jsonFile = getAssetPath("") / aFolder / jsonFileName;
 		if (fs::exists(jsonFile)) {
 			JsonTree json(loadFile(jsonFile));
-			fboFromJson(json, f);
+			fboFromJson(json, f, aFolder);
 			f++;
 		}
 		else {

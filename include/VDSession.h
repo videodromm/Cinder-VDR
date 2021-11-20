@@ -54,8 +54,8 @@ namespace videodromm {
 		void							loadFromJsonFile(const fs::path& jsonFile);
 		void							setupHttpClient();
 		void							loadShaderFromHttp(const std::string& url, unsigned int aFboIndex);
-		unsigned int					fboFromJson(const JsonTree& json, unsigned int aFboIndex = 0) {
-			return mVDMix->createFboShaderTexture(json, aFboIndex);
+		unsigned int					fboFromJson(const JsonTree& json, unsigned int aFboIndex = 0, const std::string& aFolder = "") {
+			return mVDMix->createFboShaderTexture(json, aFboIndex, aFolder);
 		};
 
 		//! Mix

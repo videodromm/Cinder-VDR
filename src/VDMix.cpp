@@ -152,17 +152,30 @@ namespace videodromm {
 		rtn = createFboShaderTexture(json, aFboIndex);
 		return rtn;
 	}*/
-	unsigned int VDMix::createFboShaderTexture(const JsonTree &json, unsigned int aFboIndex) {
+	unsigned int VDMix::createFboShaderTexture(const JsonTree &json, unsigned int aFboIndex, const std::string& aFolder) {
 		unsigned int rtn = 0;
+		if (aFolder != "") mAssetsPath = aFolder;
 		VDFboShaderRef fboShader = VDFboShader::create(mVDUniforms, mVDAnimation, json, aFboIndex, mAssetsPath);
-		if (aFboIndex == 0) {
+		if (mFboShaderList.size() == 0) {
+			mFboShaderList.push_back(fboShader);
+			rtn = (unsigned int)mFboShaderList.size() - 1;
+		}
+		else if (aFboIndex < mFboShaderList.size() - 1) {
+			rtn = aFboIndex;
+			mFboShaderList[rtn] = fboShader;
+		}
+		else {
+			mFboShaderList.push_back(fboShader);
+			rtn = (unsigned int)mFboShaderList.size() - 1;
+		}
+		/*if (aFboIndex < 6) {// 20211120 == 0) {
 			mFboShaderList.push_back(fboShader);
 			rtn = (unsigned int)mFboShaderList.size() - 1;
 		}
 		else {
 			rtn = getValidFboIndex(aFboIndex);
 			mFboShaderList[rtn] = fboShader;
-		}
+		}*/
 
 		return rtn;
 	}
