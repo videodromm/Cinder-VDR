@@ -119,6 +119,8 @@ VDUniforms::VDUniforms() {
 	//createFloatUniform("iElapsed", IELAPSED, 0.0f); // 39
 	// Audio multfactor 
 	createFloatUniform("iAudioX", IAUDIOX, 1.0f, 0.01f, 30.0f); // 40
+	// ISTART
+	createFloatUniform("iStart", ISTART, 0.0f, 1.0f, 4200.0f); // 41		
 
 	// iMouseX  
 	createFloatUniform("iMouseX", IMOUSEX, 0.27710f, 0.0f, 1280.0f); // 42
@@ -377,8 +379,10 @@ void VDUniforms::boolFromJson(const ci::JsonTree& json) {
 		jValue = (u.hasChild("value")) ? u.getValueForKey<bool>("value") : false;
 		createBoolUniform(jName, jCtrlIndex, jValue);
 	}
-}*/
-
+}
+void VDUniforms::setUniformValueByName(const std::string& aName, float aValue) {
+	shaderUniforms[stringToIndex(aName)].floatValue = aValue;
+};*/
 bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 	bool rtn = false;
 
@@ -578,6 +582,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iAudioX") {
 		rtn = IAUDIOX;
 	} // 40
+	// iStart 
+	else if (key == "iStart") {
+		rtn = ISTART;
+	} // 41		
 	// IMouse vec4
 	else if (key == "iMouse") {
 		rtn = IMOUSE;
@@ -623,7 +631,7 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	// bar 
 	else if (key == "iBar") {
 		rtn = IBAR;
-	} // 52
+	} // 52	
 	// bar 
 	else if (key == "iBarBeat") {
 		rtn = IBARBEAT;

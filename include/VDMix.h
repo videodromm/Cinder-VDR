@@ -167,6 +167,7 @@ namespace videodromm
 		ci::gl::TextureRef				getRenderedMixetteTexture(unsigned int aFboIndex) { return mMixetteTexture; };
 		//unsigned int					fboFromJson(const JsonTree& json, unsigned int aFboIndex = 0);
 		void							selectSenderPanel();
+		void							restore(const fs::path& aFilePath);
 	private:
 		// Params
 		VDParamsRef						mVDParams;
@@ -185,7 +186,6 @@ namespace videodromm
 		// list of textures
 		VDTextureList					mTextureList;
 		bool							save();
-		void							restore();
 		void							loadFbos();
 		gl::Texture::Format				fmt;
 		gl::Fbo::Format					fboFmt;
@@ -197,7 +197,7 @@ namespace videodromm
 		std::string						mError;
 		const unsigned int				MAXSHADERS = 7;
 		std::string						mAssetsPath = "";
-		const string					mixFileName = "mix.json";
+		//const string					mixFileName = "mix.json";
 		fs::path						mixPath;
 		unsigned int					mCurrentSecond = 0;
 		unsigned int					mCurrentIndex = 0;

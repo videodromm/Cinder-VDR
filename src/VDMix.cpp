@@ -24,10 +24,10 @@ namespace videodromm {
 		TextureAudioRef t(TextureAudio::create(mVDAnimation));
 		mTextureList.push_back(t);
 
-		mixPath = getAssetPath("") / mixFileName;
+		mixPath = getAssetPath("") / "mix.json";
 		if (fs::exists(mixPath))
 		{
-			restore();
+			restore(mixPath);
 		}
 		else
 		{
@@ -75,17 +75,27 @@ namespace videodromm {
 			ts->getMaxFrame(); // TODO 20210130 rename or create new fct
 		}
 	}
-	void VDMix::restore()
+
+	void VDMix::restore(const fs::path& aFilePath)
 	{
 		// check to see if json file exists
-		if (!fs::exists(mixPath)) {
+		if (!fs::exists(aFilePath)) {
 			return;
 		}
 		try {
-			JsonTree doc(loadFile(mixPath));
+			JsonTree doc(loadFile(aFilePath));
 			if (doc.hasChild("settings")) {
 				JsonTree settings(doc.getChild("settings"));
 				if (settings.hasChild("assetspath")) mAssetsPath = settings.getValueForKey<string>("assetspath");
+			}
+			if (doc.hasChild("uniforms")) {
+				JsonTree uniforms(doc.getChild("uniforms"));
+				for (unsigned int i = 0; i < 100; i++)
+				{
+					if (uniforms.hasChild(mVDUniforms->getUniformName(i))) {
+						mVDUniforms->setUniformValue(i, uniforms.getValueForKey<float>(mVDUniforms->getUniformName(i)));
+					}
+				}
 			}
 			if (doc.hasChild("camera")) {
 				JsonTree settings(doc.getChild("camera"));
@@ -112,7 +122,7 @@ namespace videodromm {
 			if (doc.hasChild("shared")) {
 				JsonTree settings(doc.getChild("shared"));
 				if (settings.hasChild("name")) {
-					ts = TextureShared::create();					
+					ts = TextureShared::create();
 					mTextureList.push_back(ts);
 				}
 			}
@@ -126,25 +136,25 @@ namespace videodromm {
 	}
 	unsigned int VDMix::getValidTexIndex(unsigned int aTexIndex) {
 		return math<int>::min(aTexIndex, (unsigned int)mTextureList.size() - 1);
-	}	
+	}
 	void VDMix::loadFbos() {
-/* done better in Session
-		// 20211107 TODO add default fboshader if mFboShaderList empty? init shader
-		JsonTree json;
-		JsonTree shader = ci::JsonTree::makeArray("shader");
-		shader.addChild(ci::JsonTree("shadername", "mix"));
-		shader.pushBack(ci::JsonTree("shadertype", "fs"));
-		shader.pushBack(ci::JsonTree("shadertext", mVDParams->getDefaultShaderFragmentString()));
-		json.addChild(shader);
-		JsonTree texture = ci::JsonTree::makeArray("texture");
-		texture.addChild(ci::JsonTree("texturename", "audio"));
-		texture.pushBack(ci::JsonTree("texturetype", "audio"));
-		texture.pushBack(ci::JsonTree("texturemode", 0));
-		json.addChild(texture);		
-		mFboShader = VDFboShader::create(mVDUniforms, mVDAnimation, json, 0, mAssetsPath);
-		mFboShaderList.push_back(mFboShader);
-		setFboInputTexture(getFboShaderListSize() - 1, 0);
-*/
+		/* done better in Session
+				// 20211107 TODO add default fboshader if mFboShaderList empty? init shader
+				JsonTree json;
+				JsonTree shader = ci::JsonTree::makeArray("shader");
+				shader.addChild(ci::JsonTree("shadername", "mix"));
+				shader.pushBack(ci::JsonTree("shadertype", "fs"));
+				shader.pushBack(ci::JsonTree("shadertext", mVDParams->getDefaultShaderFragmentString()));
+				json.addChild(shader);
+				JsonTree texture = ci::JsonTree::makeArray("texture");
+				texture.addChild(ci::JsonTree("texturename", "audio"));
+				texture.pushBack(ci::JsonTree("texturetype", "audio"));
+				texture.pushBack(ci::JsonTree("texturemode", 0));
+				json.addChild(texture);
+				mFboShader = VDFboShader::create(mVDUniforms, mVDAnimation, json, 0, mAssetsPath);
+				mFboShaderList.push_back(mFboShader);
+				setFboInputTexture(getFboShaderListSize() - 1, 0);
+		*/
 	}
 	/*unsigned int VDMix::fboFromJson(const JsonTree& json, unsigned int aFboIndex) {
 		unsigned int rtn = 0;
@@ -368,9 +378,9 @@ namespace videodromm {
 		}*/
 		return false;
 	}
-	
+
 #pragma endregion textures
 
 
-	
+
 } // namespace videodromm

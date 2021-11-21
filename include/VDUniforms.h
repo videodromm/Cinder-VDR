@@ -96,7 +96,7 @@ namespace videodromm
 			IWEIGHT7 = 38,
 			IWEIGHT8 = 39,
 			IAUDIOX = 40,
-
+			ISTART = 41,
 			IMOUSEX = 42,
 			IMOUSEY = 43,
 			IMOUSEZ = 44,
@@ -189,6 +189,7 @@ namespace videodromm
 			shaderUniforms[aCtrl].anim = aAnim;
 		}
 		bool setUniformValue(unsigned int aIndex, float aValue);
+		//void setUniformValueByName(const std::string& aName, float aValue);
 		int								getUniformIndexForName(const std::string& aName) {
 			return shaderUniforms[stringToIndex(aName)].index;
 		};

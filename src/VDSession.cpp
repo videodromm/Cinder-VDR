@@ -165,7 +165,7 @@ void VDSession::loadFbos() {
 				//		->addToFboList();
 						// ancien
 			JsonTree json(loadFile(jsonFile));
-			fboFromJson(json);
+			fboFromJson(json, f);
 			f++;
 		}
 		else {
@@ -440,6 +440,13 @@ void VDSession::fileDrop(FileDropEvent event) {
 	}
 }
 bool VDSession::loadFolder(const string& aFolder, unsigned int aFboIndex) {
+	// find mix.json
+	std::string mixFileName = "mix.json";
+	fs::path mixFile = getAssetPath("") / aFolder / mixFileName;
+	if (fs::exists(mixFile)) {
+		JsonTree mix(loadFile(mixFile));
+		mVDMix->restore(mixFile);
+	}
 	// find fbo...json
 	unsigned int f = 0;
 	bool found = true;
