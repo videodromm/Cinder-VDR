@@ -104,9 +104,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	mCurrentFilename = mTextureName = (json.hasChild("texturename")) ? json.getValueForKey<string>("texturename") : "0.jpg";
 	mTypestr = (json.hasChild("texturetype")) ? json.getValueForKey<string>("texturetype") : "UNKNOWN";
 	mMode = (json.hasChild("texturemode")) ? json.getValueForKey<int>("texturemode") : 0;
-	// TODO put elsewhere
-	fs::path texFileOrPath;
-	bool fileExists;
+
 
 	switch (mMode)
 	{
@@ -141,6 +139,18 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		}
 		break;
 	case 8: // img parts
+		for (size_t i{ 0 }; i < 4; i++)
+		{
+			mCurrentFilename = mTextureName + " (" + toString(i) + ").png";
+			//fs::path texFileOrPath = getAssetPath("") / mAssetsPath / currentFilename;
+			texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
+			fileExists = fs::exists(texFileOrPath);
+			if (fileExists) {
+				//mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+
+				mInputTextureList[i] = ci::gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+			}
+		}
 		break;
 	default:
 		// image
@@ -304,7 +314,11 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			{
 				mInputTextureList[i]->bind(254 + i);
 			}
-
+		}else {
+			for (size_t i{ 0 }; i < 4; i++)
+			{
+				mInputTextureList[i]->bind( i);
+			}
 		}
 		std::string name;
 
@@ -374,7 +388,8 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 						}
 					}
 				}
-				/*for (size_t i{ 1 }; i < 14; i++)
+				/* TODO CHECK if needed 20111121
+				for (size_t i{ 1 }; i < 14; i++)
 				{
 					mShader->uniform(name, (uint32_t)(253 + i));
 				}*/

@@ -130,6 +130,9 @@ namespace videodromm
 		int								mMode = 0;
 		// 20211107
 		bool							mIsHydraTex = false;
+		// 20211121
+		fs::path texFileOrPath;
+		bool fileExists;
 		//! shader
 		gl::GlslProgRef					mShader;
 		std::vector<ci::gl::GlslProg::Uniform> mUniforms;
