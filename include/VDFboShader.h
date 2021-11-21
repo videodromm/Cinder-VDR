@@ -76,9 +76,10 @@ namespace videodromm
 				return "fbotex" + mInputTextureIndex;
 			}
 			else {
-				return mInputTextureName;
+				return mCurrentFilename;
 			}
 		};
+		
 		/*unsigned int							getInputTexturesCount() {
 			return 1;// mInputTextureList.size();
 		}*/
@@ -114,6 +115,7 @@ namespace videodromm
 
 		//! Input textures
 		std::string						mInputTextureName;
+		std::string						mCurrentFilename;
 		std::map<unsigned int, gl::TextureRef>		mInputTextureList;
 		gl::TextureRef					mInputTextureRef;
 		unsigned int					mInputTextureIndex;

@@ -31,7 +31,7 @@ namespace videodromm {
 		static VDSettingsRef create(const std::string& filename);
 
 		
-		enum VDTextureType { UNKNOWN, IMAGE, SEQUENCE, MOVIE, CAMERA, SHARED, AUDIO, STREAM };
+		enum VDTextureType { UNKNOWN, IMAGE, SEQUENCE, MOVIE, CAMERA, SHARED, AUDIO, STREAM, PARTS };
 		enum VDTextureModes {
 			// texture modes
 			TEXTUREMODEMIX = 0,				// mix two shaders

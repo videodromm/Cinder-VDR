@@ -130,7 +130,8 @@ namespace videodromm
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getShaderName();
 		};
 		std::string						getFboTextureName(unsigned int aFboIndex) {
-			return mTextureList[getValidTexIndex(aFboIndex)]->getName();
+			//return mTextureList[getValidTexIndex(aFboIndex)]->getName();
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->getTextureName();
 			//mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getTextureName();
 		};
 		bool							loadImageSequence(const string& aFolder, unsigned int aTextureIndex);

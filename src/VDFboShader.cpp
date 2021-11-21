@@ -101,10 +101,16 @@ VDFboShader::~VDFboShader(void) {
 unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	// 20211107
 	unsigned int rtn = 0;
-	mTextureName = (json.hasChild("texturename")) ? json.getValueForKey<string>("texturename") : "0.jpg";
+	mCurrentFilename = mTextureName = (json.hasChild("texturename")) ? json.getValueForKey<string>("texturename") : "0.jpg";
 	mTypestr = (json.hasChild("texturetype")) ? json.getValueForKey<string>("texturetype") : "UNKNOWN";
 	mMode = (json.hasChild("texturemode")) ? json.getValueForKey<int>("texturemode") : 0;
-	if (mMode == 2) {
+	// TODO put elsewhere
+	fs::path texFileOrPath;
+	bool fileExists;
+
+	switch (mMode)
+	{
+	case 2: // img seq loaded when ableton runs
 		/*if (mExt = "rien") {
 		if (current == 426 || current == 428 || current == 442) mLastBar = 0; //38 to set iStart
 		if (mLastBar != mVDSessionFacade->getUniformValue(mVDUniforms->IBAR)) {
@@ -124,17 +130,19 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 			renderToFbo();
 		}
 	}*/
-		// init with number 1 then getFboTexture will load next images
-		
-		string currentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").jpg";
+	// init with number 1 then getFboTexture will load next images
+
+		mCurrentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").jpg";
 		//fs::path texFileOrPath = getAssetPath("") / mAssetsPath / currentFilename;
-		fs::path texFileOrPath = getAssetPath("") / mTextureName / currentFilename;
-		bool fileExists = fs::exists(texFileOrPath);
+		texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
+		fileExists = fs::exists(texFileOrPath);
 		if (fileExists) {
 			mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 		}
-	}
-	else {
+		break;
+	case 8: // img parts
+		break;
+	default:
 		// image
 		fs::path texFileOrPath = getAssetPath("") / mAssetsPath / mTextureName;
 		mExt = "";
@@ -159,8 +167,9 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 			}
 			//mInputTextureList.push_back(mInputTextureRef);
 		}
+		break;
 	}
-	
+
 	rtn = mInputTextureList.size() - 1;
 	return rtn;
 
@@ -265,10 +274,10 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			// 20211115 OK for SOS a (n).jpg
 			if (mCurrentImageSequenceIndex != (int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)) {
 				mCurrentImageSequenceIndex = (int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT);
-				string currentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").jpg";
+				mCurrentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").jpg";
 				//fs::path texFileOrPath = getAssetPath("") / mAssetsPath / currentFilename;
-				fs::path texFileOrPath = getAssetPath("") / mTextureName / currentFilename;
-				
+				fs::path texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
+
 				bool fileExists = fs::exists(texFileOrPath);
 				if (fileExists) {
 					mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
