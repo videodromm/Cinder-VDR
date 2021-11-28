@@ -148,9 +148,10 @@ void VDSession::makeRequest(http::UrlRef url, unsigned int aFboIndex)
 bool VDSession::loadFolder(const string& aFolder) {
 	unsigned int f = 0;
 	bool found = true;
+
+	mVDMix->clearFboShaderList();
+
 	if (aFolder != mVDMix->getAssetsPath()) {
-
-
 		// find mix.json
 		std::string mixFileName = "mix.json";
 		fs::path mixFile = getAssetPath("") / aFolder / mixFileName;
@@ -159,19 +160,14 @@ bool VDSession::loadFolder(const string& aFolder) {
 			mVDMix->restore(mixFile);
 		}
 	}
+
 	// find fbo...json
 	while (found) {
 		std::string jsonFileName = "fbo" + toString(f) + ".json";
 
 		fs::path jsonFile = getAssetPath("") / aFolder / jsonFileName;
 		if (fs::exists(jsonFile)) {
-			// new
-			//loadFromJsonFile(jsonFile)
-			//		->createShader()
-			//		->createUniforms()
-			//		->compile()
-			//		->createFboWhenSuccess()
-			//		->addToFboList();
+			//loadFromJsonFile(jsonFile)->createShader()->createUniforms()->compile()->createFboWhenSuccess()->addToFboList();
 			JsonTree json(loadFile(jsonFile));
 			fboFromJson(json, f, aFolder);
 			f++;

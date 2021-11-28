@@ -142,6 +142,9 @@ namespace videodromm
 		void							setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue);
 
 		unsigned int					createFboShaderTexture(const JsonTree &json, unsigned int aFboIndex = 0, const std::string& aFolder = "");
+		void							clearFboShaderList() {
+			mFboShaderList.clear();
+		}
 		ci::gl::TextureRef				getFboRenderedTexture(unsigned int aFboIndex) {
 			if (mFboShaderList.size() == 0) return mTextureList[0]->getTexture();
 			if (aFboIndex > mFboShaderList.size() - 1) aFboIndex = 0;
