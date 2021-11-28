@@ -137,31 +137,31 @@ bool VDKeyboard::handleKeyDown(KeyEvent& event) {
 		//if (isModDown) fboFlipV(0);// TODO other indexes mVDSettings->mFlipV = !mVDSettings->mFlipV; useless?
 		break;
 	case KeyEvent::KEY_F1:
-		mVDMediator->setMode(0);
-		break;
-	case KeyEvent::KEY_F2:
-		mVDMediator->setMode(1);
-		break;
-	case KeyEvent::KEY_F3:
-		mVDMediator->setMode(2);
-		break;
-	case KeyEvent::KEY_F4:
-		mVDMediator->setMode(3);
-		break;
-	case KeyEvent::KEY_F5:
-		mVDMediator->setMode(4);
-		break;
-	case KeyEvent::KEY_F6:
-		mVDMediator->setMode(5);
-		break;
-	case KeyEvent::KEY_F7:
-		mVDMediator->setMode(6);
-		break;
-	case KeyEvent::KEY_F8:
 		mVDMediator->setMode(7);
 		break;
-	case KeyEvent::KEY_F9:
+	case KeyEvent::KEY_F2:
 		mVDMediator->setMode(8);
+		break;
+	case KeyEvent::KEY_F3:
+		mVDMediator->setMode(0);
+		break;
+	case KeyEvent::KEY_F4:
+		mVDMediator->setMode(1);
+		break;
+	case KeyEvent::KEY_F5:
+		mVDMediator->setMode(2);
+		break;
+	case KeyEvent::KEY_F6:
+		mVDMediator->setMode(3);
+		break;
+	case KeyEvent::KEY_F7:
+		mVDMediator->setMode(4);
+		break;
+	case KeyEvent::KEY_F8:
+		mVDMediator->setMode(5);
+		break;
+	case KeyEvent::KEY_F9:
+		mVDMediator->setMode(6);
 		break;
 	case KeyEvent::KEY_F10: // pauses app in debug mode
 		mVDMediator->setMode(9);
