@@ -52,7 +52,7 @@ void VDMediatorObservable::openMidiOutPort(int i) { mVDMidi->openMidiOutPort(i);
 void VDMediatorObservable::closeMidiOutPort(int i) { mVDMidi->closeMidiOutPort(i); };
 
 std::string VDMediatorObservable::getMidiMsg() {
-	return mVDMidi->getMidiMsg();
+	return mVDMidi ? mVDMidi->getMidiMsg() : "Disabled";
 };
 
 

@@ -474,7 +474,6 @@ void VDSettings::reset()
 	mMsg = "";
 	mErrorMsg = "";
 	mSocketIOMsg = "";
-	mMidiMsg = "";
 	//mShaderMsg = "";
 	mIsOSCSender = false;
 	/*xFade = 1.0f;
@@ -488,8 +487,6 @@ void VDSettings::reset()
 	mSocketIOPort = 8088;
 	mSocketIORoom = "roomtest"; 
 	mSocketIONickname = "bruce";
-	// Blendmode 
-	//iBlendmode = 0;
 
 	resetSomeParams();
 }

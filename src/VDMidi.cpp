@@ -7,8 +7,8 @@ VDMidiRef VDMidi::create(VDUniformsRef aVDUniforms)
 	return std::shared_ptr<VDMidi>(new VDMidi(aVDUniforms));
 }
 
-VDMidi::VDMidi( VDUniformsRef aVDUniforms) {
-	
+VDMidi::VDMidi(VDUniformsRef aVDUniforms) {
+
 	mVDUniforms = aVDUniforms;
 	CI_LOG_V("VDMidi constructor");
 	mMidiMsg = "";
@@ -31,7 +31,7 @@ std::string VDMidi::getMidiMsg() {
 	return mMidiMsg;
 }
 void VDMidi::setupMidi(VDMediatorObservableRef aVDMediator) {
-	mVDMediator = aVDMediator;	
+	mVDMediator = aVDMediator;
 	midiSetup();
 }
 
@@ -77,8 +77,8 @@ void VDMidi::midiSetup() {
 					ss << "Opening MIDI in port " << i << " " << mMidiInputs[i].portName;
 				}
 				else {*/
-					mMidiInputs[i].isConnected = false;
-					ss << "Available MIDI in port " << i << " " << mMidiIn0.getPortName(i);
+				mMidiInputs[i].isConnected = false;
+				ss << "Available MIDI in port " << i << " " << mMidiIn0.getPortName(i);
 				//}
 			}
 		}
@@ -140,7 +140,7 @@ void VDMidi::openMidiInPort(unsigned int i) {
 	mMidiInputs[i].isConnected = true;
 	ss << "Opening MIDI in port " << i << " " << mMidiInputs[i].portName << std::endl;
 
-	mMidiMsg = ss.str() + "\n" ;
+	mMidiMsg = ss.str() + "\n";
 
 	CI_LOG_V(ss.str());
 }
@@ -214,7 +214,7 @@ void VDMidi::openMidiOutPort(int i) {
 		}
 	}
 	ss << std::endl;
-	mMidiMsg = ss.str() + "\n" ;
+	mMidiMsg = ss.str() + "\n";
 	CI_LOG_V(ss.str());
 }
 void VDMidi::closeMidiOutPort(int i) {
@@ -253,7 +253,31 @@ void VDMidi::midiListener(midi::Message msg) {
 				midiControl += 30;
 			}
 		}
-		
+		if (midiNormalizedValue > 0.1) {
+			if (midiControl == 60) {
+				// set (reset blendmode)
+				mVDMediator->setUniformValue(mVDUniforms->IBLENDMODE, 0.0f);
+			}
+			if (midiControl == 61) {
+				// right arrow
+				if (mVDUniforms->getUniformValue(mVDUniforms->IBLENDMODE) == 0) {
+					mVDMediator->setUniformValue(mVDUniforms->IBLENDMODE, mVDUniforms->getMaxUniformValue(mVDUniforms->IBLENDMODE));
+				}
+				else {
+					mVDMediator->setUniformValue(mVDUniforms->IBLENDMODE, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IBLENDMODE) - 1.0f, 0.0f));
+				}
+			}
+			if (midiControl == 62) {
+				// left arrow
+				if (mVDUniforms->getMaxUniformValue(mVDUniforms->IBLENDMODE) == mVDUniforms->getUniformValue(mVDUniforms->IBLENDMODE)) {
+					mVDMediator->setUniformValue(mVDUniforms->IBLENDMODE, 0.0f);
+				}
+				else {
+					mVDMediator->setUniformValue(mVDUniforms->IBLENDMODE, math<float>::max(mVDUniforms->getUniformValue(mVDUniforms->IBLENDMODE) + 1.0f, 0.0f));
+				}
+
+			}
+		}
 		//if (midiControl > 20 && midiControl < 49) {
 			/*if (midiControl > 20 && midiControl < 29) {
 				mSelectedWarp = midiControl - 21;
@@ -264,16 +288,16 @@ void VDMidi::midiListener(midi::Message msg) {
 			}
 			*/
 			//if (midiControl > 30 && midiControl < 39) {
-			mVDMediator->setUniformValue(midiControl, midiNormalizedValue);
-			//mSelectedFboA = midiControl - 31;
-			//mVDAnimation->setIntUniformValueByIndex(mVDSettings->IFBOA, mSelectedFboA);
-		//}
+		mVDMediator->setUniformValue(midiControl, midiNormalizedValue);
+		//mSelectedFboA = midiControl - 31;
+		//mVDAnimation->setIntUniformValueByIndex(mVDSettings->IFBOA, mSelectedFboA);
+	//}
 
-		//}
-		//else {
-			//updateParams(midiControl, midiNormalizedValue);
-		//}
-		//mWebSockets->write("{\"params\" :[{" + controlType);
+	//}
+	//else {
+		//updateParams(midiControl, midiNormalizedValue);
+	//}
+	//mWebSockets->write("{\"params\" :[{" + controlType);
 		break;
 	case MIDI_NOTE_ON:
 		/*
@@ -308,7 +332,7 @@ void VDMidi::midiListener(midi::Message msg) {
 		if (midiPitch == 8) {
 			midiWeights = true;
 		}
-		
+
 		if (midiPitch < 7) {
 			mVDUniforms->setUniformValue(mVDUniforms->IWEIGHT0 + midiPitch, 1.0);
 			//mVDMediator->setMode(midiPitch);			
@@ -331,7 +355,7 @@ void VDMidi::midiListener(midi::Message msg) {
 		if (midiPitch == 8) {
 			midiWeights = false;
 		}
-		
+
 		if (midiPitch < 7) {
 			//mVDMediator->setMode(7);
 			mVDUniforms->setUniformValue(mVDUniforms->IWEIGHT0 + midiPitch, 0.0);

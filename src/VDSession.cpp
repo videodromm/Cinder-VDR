@@ -149,13 +149,12 @@ bool VDSession::loadFolder(const string& aFolder) {
 	unsigned int f = 0;
 	bool found = true;
 
-	mVDMix->clearFboShaderList();
-
 	if (aFolder != mVDMix->getAssetsPath()) {
 		// find mix.json
 		std::string mixFileName = "mix.json";
 		fs::path mixFile = getAssetPath("") / aFolder / mixFileName;
 		if (fs::exists(mixFile)) {
+			mVDMix->clearFboShaderList();
 			JsonTree mix(loadFile(mixFile));
 			mVDMix->restore(mixFile);
 		}

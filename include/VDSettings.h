@@ -125,7 +125,6 @@ namespace videodromm {
 		float						iChannelTime[4];
 		bool						iFade;
 		bool						iRepeat;
-		//int							iBlendmode;
 		ci::Anim<float> 			iAlpha;
 		bool						iShowFps;
 		unsigned int				shaderEditIndex;
@@ -205,9 +204,7 @@ namespace videodromm {
 		std::string					mSocketIONickname;
 		uint16_t					mSocketIOPort;
 		std::string					mSocketIOMsg;
-		// midi
-		std::string					mMidiMsg;
-
+		
 		// info to backup in XML
 		std::string					mInfo;
 		// ableton liveOSC

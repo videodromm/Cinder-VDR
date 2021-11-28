@@ -213,8 +213,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 					float previousBar = mVDUniforms->getUniformValue(mVDUniforms->IBAR); // 20210101 was int
 					
 					float newBar = (float)msg[0].int32();
-					mVDSettings->mErrorMsg = "0bar: " + toString(msg[0].int32() - 1) + " - " + toString(newBar);
-					mVDSettings->mMidiMsg = "1bar: " + toString(previousBar) + " - " + toString(mVDUniforms->getUniformValue(mVDUniforms->IBAR));
+					mVDSettings->mErrorMsg = "0bar: " + toString(msg[0].int32() - 1) + " - " + toString(newBar) + " 1bar: " + toString(previousBar) + " - " + toString(mVDUniforms->getUniformValue(mVDUniforms->IBAR));
 					// TODO test if useless:
 					if (previousBar != newBar) {
 						mVDSettings->iBarDuration = mVDUniforms->getUniformValue(mVDUniforms->ITIME) - mBarStart;

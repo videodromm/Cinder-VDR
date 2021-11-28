@@ -339,7 +339,9 @@ void VDAnimation::update() {
 	{
 		// Ableton Link from openframeworks SocketIO
 		mVDUniforms->setUniformValue(mVDUniforms->ITIME,
-			mVDUniforms->getUniformValue(mVDUniforms->ITIME) * mVDUniforms->getUniformValue(mVDUniforms->ISPEED) * mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
+			mVDUniforms->getUniformValue(mVDUniforms->ITIME)  *
+			mVDUniforms->getUniformValue(mVDUniforms->ISPEED) * 
+			mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
 		//mVDUniforms->setUniformValue(mVDUniforms->ITIME,
 		//	mVDUniforms->getUniformValue(mVDUniforms->ITIME) * mVDSettings->iSpeedMultiplier * mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
 		//shaderUniforms["iElapsed"].floatValue = shaderUniforms["iPhase"].floatValue * mVDSettings->iSpeedMultiplier * shaderUniforms["iTimeFactor"].floatValue;
@@ -358,12 +360,13 @@ void VDAnimation::update() {
 	else
 	{
 		mVDUniforms->setUniformValue(mVDUniforms->ITIME,
-			(float)getElapsedSeconds() * mVDUniforms->getUniformValue(mVDUniforms->ISPEED) * mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
+			((float)getElapsedSeconds() - mVDUniforms->getUniformValue(mVDUniforms->ISTART)) *
+			mVDUniforms->getUniformValue(mVDUniforms->ISPEED) * 
+			mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
 		//mVDUniforms->setUniformValue(mVDUniforms->ITIME,
-					//(float)getElapsedSeconds() * mVDSettings->iSpeedMultiplier * mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
-
-				//shaderUniforms[mVDUniforms->ITIME].floatValue = getElapsedSeconds() * mVDSettings->iSpeedMultiplier * shaderUniforms[mVDUniforms->ITIMEFACTOR].floatValue;//mVDSettings->iTimeFactor;
-				//shaderUniforms["iElapsed"].floatValue = getElapsedSeconds() * mVDSettings->iSpeedMultiplier * shaderUniforms["iTimeFactor"].floatValue;//mVDSettings->iTimeFactor;
+		//(float)getElapsedSeconds() * mVDSettings->iSpeedMultiplier * mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
+		//shaderUniforms[mVDUniforms->ITIME].floatValue = getElapsedSeconds() * mVDSettings->iSpeedMultiplier * shaderUniforms[mVDUniforms->ITIMEFACTOR].floatValue;//mVDSettings->iTimeFactor;
+		//shaderUniforms["iElapsed"].floatValue = getElapsedSeconds() * mVDSettings->iSpeedMultiplier * shaderUniforms["iTimeFactor"].floatValue;//mVDSettings->iTimeFactor;
 	}
 	// iResolution
 	mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->IRESOLUTION, vec3(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY), 1.0));
