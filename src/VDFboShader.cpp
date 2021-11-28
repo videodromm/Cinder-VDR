@@ -120,13 +120,6 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		}
 		//mImage = mVDSession->getInputTexture(mSeqIndex);
 		 TODO 20211115 mImage = mVDSession->getCachedTexture(mSeqIndex, "a (" + toString(current) + ").jpg");
-		if (!mImage) {
-			CI_LOG_E("image not loaded");
-			mImage = gl::Texture::create(loadImage(loadAsset("0.jpg")), gl::Texture2d::Format().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
-		}
-		if (mUseShader) {
-			renderToFbo();
-		}
 	}*/
 	// init with number 1 then getFboTexture will load next images
 
@@ -315,10 +308,10 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				mInputTextureList[i]->bind(254 + i);
 			}
 		}else {
-			for (size_t i{ 0 }; i < 4; i++)
+			/* onezero ko for (size_t i{ 0 }; i < 4; i++)
 			{
 				mInputTextureList[i]->bind( i);
-			}
+			}*/
 		}
 		std::string name;
 
@@ -388,10 +381,11 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 						}
 					}
 				}
-				/* TODO CHECK if needed 20111121
+				/* TODO CHECK if needed 20111121, apparently not helping onezero ko 
 				for (size_t i{ 1 }; i < 14; i++)
 				{
-					mShader->uniform(name, (uint32_t)(253 + i));
+					//mShader->uniform(name, (uint32_t)(253 + i));
+					mShader->uniform(name, (uint32_t)(i));
 				}*/
 				break;
 			case GL_FLOAT_VEC2:// vec2 35664 0x8B50

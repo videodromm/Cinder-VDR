@@ -431,7 +431,7 @@ void VDSession::fileDrop(FileDropEvent event) {
 	else {
 		// folder was dropped
 		std::string folderName = absolutePath.substr(slashIndex + 1);
-		loadFolder(folderName, index);
+		loadFolder(folderName);
 		// try loading image sequence from dir
 		// if (!loadImageSequence(absolutePath, index)) {
 			// try to load a folder of shaders
@@ -439,7 +439,7 @@ void VDSession::fileDrop(FileDropEvent event) {
 		//}
 	}
 }
-bool VDSession::loadFolder(const string& aFolder, unsigned int aFboIndex) {
+bool VDSession::loadFolder(const string& aFolder) {
 	// find mix.json
 	std::string mixFileName = "mix.json";
 	fs::path mixFile = getAssetPath("") / aFolder / mixFileName;
