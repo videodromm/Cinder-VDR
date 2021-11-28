@@ -43,7 +43,7 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 		// otherwise create a warp from scratch
 		mWarpList.push_back(WarpPerspectiveBilinear::create());
 	}
-	loadFbos();
+	loadFolder(mVDMix->getAssetsPath());
 
 	// Modes
 	mModesList[0] = "Fbo0";
@@ -145,27 +145,35 @@ void VDSession::makeRequest(http::UrlRef url, unsigned int aFboIndex)
 	}
 }
 
-void VDSession::loadFbos() {
-
+bool VDSession::loadFolder(const string& aFolder) {
 	unsigned int f = 0;
 	bool found = true;
-	//std::string shaderFileName;
-	//std::string textureFileName;
+	if (aFolder != mVDMix->getAssetsPath()) {
+
+
+		// find mix.json
+		std::string mixFileName = "mix.json";
+		fs::path mixFile = getAssetPath("") / aFolder / mixFileName;
+		if (fs::exists(mixFile)) {
+			JsonTree mix(loadFile(mixFile));
+			mVDMix->restore(mixFile);
+		}
+	}
+	// find fbo...json
 	while (found) {
 		std::string jsonFileName = "fbo" + toString(f) + ".json";
 
-		fs::path jsonFile = getAssetPath("") / mVDMix->getAssetsPath() / jsonFileName;
+		fs::path jsonFile = getAssetPath("") / aFolder / jsonFileName;
 		if (fs::exists(jsonFile)) {
 			// new
-				//loadFromJsonFile(jsonFile)
-				//		->createShader()
-				//		->createUniforms()
-				//		->compile()
-				//		->createFboWhenSuccess()
-				//		->addToFboList();
-						// ancien
+			//loadFromJsonFile(jsonFile)
+			//		->createShader()
+			//		->createUniforms()
+			//		->compile()
+			//		->createFboWhenSuccess()
+			//		->addToFboList();
 			JsonTree json(loadFile(jsonFile));
-			fboFromJson(json, f);
+			fboFromJson(json, f, aFolder);
 			f++;
 		}
 		else {
@@ -173,8 +181,8 @@ void VDSession::loadFbos() {
 		}
 	} //while
 
+	return !found;
 }
-
 void VDSession::toggleUI() {
 	mShowUI = !mShowUI;
 };
@@ -418,7 +426,7 @@ void VDSession::fileDrop(FileDropEvent event) {
 		else if (ext == "mov") {
 			loadMovie(absolutePath, index);
 		}
-		
+
 		else if (ext == "") {
 			// 20211108 never called?
 			// try loading image sequence from dir
@@ -439,32 +447,7 @@ void VDSession::fileDrop(FileDropEvent event) {
 		//}
 	}
 }
-bool VDSession::loadFolder(const string& aFolder) {
-	// find mix.json
-	std::string mixFileName = "mix.json";
-	fs::path mixFile = getAssetPath("") / aFolder / mixFileName;
-	if (fs::exists(mixFile)) {
-		JsonTree mix(loadFile(mixFile));
-		mVDMix->restore(mixFile);
-	}
-	// find fbo...json
-	unsigned int f = 0;
-	bool found = true;
-	while (found) {
-		std::string jsonFileName = "fbo" + toString(f) + ".json";
 
-		fs::path jsonFile = getAssetPath("") / aFolder / jsonFileName;
-		if (fs::exists(jsonFile)) {
-			JsonTree json(loadFile(jsonFile));
-			fboFromJson(json, f, aFolder);
-			f++;
-		}
-		else {
-			found = false;
-		}
-	} //while
-	return !found;
-}
 /*bool VDSession::loadImageSequence(const string& aFolder, unsigned int aTextureIndex) {
 	return mVDMix->loadImageSequence(aFolder, aTextureIndex);
 }*/

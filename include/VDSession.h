@@ -365,8 +365,6 @@ namespace videodromm {
 
 		WarpList						mWarpList;
 		fs::path						mSettings;
-		
-		void							loadFbos();
 
 		bool							odd = false;
 		// http
