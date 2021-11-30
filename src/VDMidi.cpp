@@ -71,15 +71,15 @@ void VDMidi::midiSetup() {
 				midiInput mIn;
 				mIn.portName = mMidiIn0.getPortName(i);
 				mMidiInputs.push_back(mIn);
-				/*if (mVDSettings->mMIDIOpenAllInputPorts) {
+				if (mMidiInputs[i].portName == "nanoKONTROL2 2") {
 					openMidiInPort(i);
 					mMidiInputs[i].isConnected = true;
 					ss << "Opening MIDI in port " << i << " " << mMidiInputs[i].portName;
 				}
-				else {*/
-				mMidiInputs[i].isConnected = false;
-				ss << "Available MIDI in port " << i << " " << mMidiIn0.getPortName(i);
-				//}
+				else {
+					mMidiInputs[i].isConnected = false;
+					ss << "Available MIDI in port " << i << " " << mMidiIn0.getPortName(i);
+				}
 			}
 		}
 	}
