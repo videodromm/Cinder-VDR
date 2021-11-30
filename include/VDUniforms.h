@@ -116,6 +116,7 @@ namespace videodromm
 			IOUTH = 57,
 			IBEATSPERBAR = 59,
 			IPHASE = 60,
+			ITRACK = 61,
 
 			IVAMOUNT = 62,
 

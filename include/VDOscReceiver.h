@@ -62,6 +62,8 @@ namespace videodromm
 		std::shared_ptr<osc::ReceiverUdp>	mOscReceiver;
 
 		std::string							mOSCMsg;
+		int									mVelocity = 0;
+		int									mTrack = 0;
 
 	};
 }

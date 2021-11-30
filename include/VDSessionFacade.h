@@ -179,7 +179,9 @@ namespace videodromm
 
 		// end events
 		VDSessionRef			getInstance() const;
-
+		bool					loadFolder(const string& aFolder) {
+			return mVDSession->loadFolder(aFolder);
+		}
 
 	private:
 		VDSessionFacade(VDSessionRef session, VDMediatorObservableRef mediator) : mVDSession(session), mVDMediator(mediator), mOscSenderConnected(false), mIsMidiSetup(false), mOscReceiverConnected(false), mWSClientConnected(false) { }

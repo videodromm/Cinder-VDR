@@ -160,6 +160,8 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iBeatsPerBar", IBEATSPERBAR, 4); // 59
 	// iPhase 
 	createFloatUniform("iPhase", IPHASE, 1.0f); // 60
+	// iTrack 
+	createFloatUniform("iTrack", ITRACK, 0.0f, 0.0f, 90000.0f); // 61
 	// vignette amount
 	createFloatUniform("iVAmount", IVAMOUNT, 0.91f, 0.0f, 1.0f); // 62
 	//createVec3Uniform("iChannelResolution[0]", 63, vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
@@ -393,15 +395,17 @@ bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 				setUniformValue(IDELTATIME, 60 / aValue);
 			}
 		}
-		if (shaderUniforms[aIndex].floatValue != aValue) {
-			if ((aValue >= shaderUniforms[aIndex].minValue && aValue <= shaderUniforms[aIndex].maxValue) || shaderUniforms[aIndex].anim > 0) {
-				shaderUniforms[aIndex].floatValue = aValue;
-				rtn = true;
-			}
-			else {
-				// TODO 20211011 bug max = 0.0
-				if (shaderUniforms[aIndex].maxValue == 0.0f) {
-					shaderUniforms[aIndex].maxValue == 1.0f;
+		else {
+			if (shaderUniforms[aIndex].floatValue != aValue) {
+				if ((aValue >= shaderUniforms[aIndex].minValue && aValue <= shaderUniforms[aIndex].maxValue) || shaderUniforms[aIndex].anim > 0) {
+					shaderUniforms[aIndex].floatValue = aValue;
+					rtn = true;
+				}
+				else {
+					// TODO 20211011 bug max = 0.0
+					if (shaderUniforms[aIndex].maxValue == 0.0f) {
+						shaderUniforms[aIndex].maxValue == 1.0f;
+					}
 				}
 			}
 		}
@@ -654,10 +658,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	} // 57
 	// beats per bar 
 	else if (key == "iBeatsPerBar") {
-	rtn = IBEATSPERBAR;
+		rtn = IBEATSPERBAR;
 	} // 59
 	else if (key == "iVAmount") {
-	rtn = IVAMOUNT;
+		rtn = IVAMOUNT;
 	} // 62
 	// vec3
 	else if (key == "iResolution") {
@@ -672,17 +676,21 @@ int VDUniforms::stringToIndex(const std::string& key) {
 		rtn = IRESOLUTIONY;
 	} // 122
 
-
 	// IPHASE 
 	else if (key == "iPhase") {
 		rtn = IPHASE;
 	} // 60
+
+	// ITRACK 
+	else if (key == "iTrack") {
+		rtn = ITRACK;
+	} // 61
 	else if (key == "iColor") {
 		rtn = ICOLOR;
 	} // 301
 
 	// vec4
-	
+
 	else if (key == "iDate") {
 		rtn = IDATE;
 	}//71
