@@ -221,6 +221,7 @@ int VDMediatorObservable::getMode() {
 void VDMediatorObservable::setMode(unsigned int aIndex) { 
 	mMode = aIndex; 
 };
+
 /*
 VDMediatorObservableRef VDMediatorObservable::updateShaderText(int aIndex, float aValue) {
 	for (auto observer : mObservers) {

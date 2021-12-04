@@ -306,7 +306,9 @@ namespace videodromm
 			shaderUniforms[aCtrlIndex].uniformType = GL_SAMPLER_2D;
 			//shaderUniforms[aCtrlIndex].isValid = true;
 		}
-
+		int getErrorCode() {
+			return mErrorCode;
+		}
 	private:
 
 		std::map<int, VDUniformStruct>		shaderUniforms;
@@ -369,5 +371,6 @@ namespace videodromm
 			//shaderUniforms[aCtrlIndex].isValid = true;
 		}*/
 		int stringToIndex(const std::string& key);
+		int mErrorCode = 0;
 	};
 };

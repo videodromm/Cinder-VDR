@@ -391,7 +391,6 @@ void VDSettings::reset()
 	//mOutputVideoResolution = 1024;
 	mInfo = "";
 	mTrackName = "";
-	iTrack = 0;
 	mMainWindowX = mRenderX = 0;
 	mMainWindowY = mRenderY = 0;
 	mxLeft = 0;

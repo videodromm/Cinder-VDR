@@ -52,7 +52,7 @@ namespace videodromm {
 		if (!fs::exists(mMixetteFilePath)) {
 			mError = mMixetteFilePath.string() + " does not exist";
 			CI_LOG_V(mError);
-			mVDSettings->mErrorMsg = mError + "\n" + mVDSettings->mErrorMsg.substr(0, mVDSettings->mMsgLength);
+			mVDSettings->setErrorMsg(mError);
 		}
 
 		mGlslMixette = gl::GlslProg::create(mVDParams->getDefaultVertexString(), loadString(loadFile(mMixetteFilePath)));
@@ -286,7 +286,7 @@ namespace videodromm {
 		int rtn = findAvailableIndex(aFboShaderIndex, json);
 
 		mFboShaderList[rtn]->loadFragmentShaderFromFile(aFilePath);
-		mVDSettings->mMsg = "loaded " + mFboShaderList[rtn]->getShaderName() + "\n try at " + toString(aFboShaderIndex) + " valid at " + toString(rtn) + "\n" + mVDSettings->mMsg.substr(0, mVDSettings->mMsgLength);
+		mVDSettings->setMsg("loaded " + mFboShaderList[rtn]->getShaderName() + "\n try at " + toString(aFboShaderIndex) + " valid at " + toString(rtn));
 		return rtn;
 	}
 	ci::gl::TextureRef VDMix::getMixetteTexture(unsigned int aFboIndex) {

@@ -157,7 +157,7 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 			{
 				inputDevices = ci::audio::Device::getInputDevices();
 				outputDevices = ci::audio::Device::getOutputDevices();
-				mVDSettings->mMsg = "Inputs\n";
+				
 				JsonTree doc;
 				JsonTree audioinputs = JsonTree::makeArray("audioinputs");
 				for (ci::audio::DeviceRef in : inputDevices) {
@@ -165,18 +165,17 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 					if (in->getKey() == preferredAudioDevice) {
 						audioDeviceFound = true;
 						std::string preferredAudioDeviceName = in->getName();
-						mVDSettings->mMsg += "Preferred: " + preferredAudioDeviceName + "\n";
+						mVDSettings->setMsg("Inputs\nPreferred: " + preferredAudioDeviceName + "\n");
 					}
 					else {
-						mVDSettings->mMsg += in->getName() + "\n";
+						mVDSettings->setMsg("Inputs\nPreferred: " + in->getName() + "\n");
 					}
 				}
 				doc.pushBack(audioinputs);
-				mVDSettings->mMsg += "Outputs\n";
 				JsonTree audiooutputs = JsonTree::makeArray("audiooutputs");
 				for (ci::audio::DeviceRef out : outputDevices) {
 					audiooutputs.addChild(ci::JsonTree(out->getKey(), out->getName()));
-					mVDSettings->mMsg += out->getName() + "\n";
+					mVDSettings->setErrorMsg("Outputs\n" + out->getName() + "\n");
 				}
 				doc.pushBack(audiooutputs);
 				doc.write(writeFile(getAssetPath("") / "audio.json"), JsonTree::WriteOptions());
@@ -202,7 +201,7 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 			{
 				CI_LOG_V("mic/line in crashed");
 				//mVDSettings->mMsg = "mic/line in crashed";
-				mVDSettings->mErrorMsg = ex.what();
+				mVDSettings->setErrorMsg(ex.what());
 			}
 		}
 	}
@@ -224,8 +223,8 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 			catch (const std::exception& ex)
 			{
 				CI_LOG_V("wave monitor crashed");
-				mVDSettings->mMsg = "wave monitor crashed";
-				mVDSettings->mErrorMsg = ex.what();
+				mVDSettings->setMsg("wave monitor crashed");
+				mVDSettings->setErrorMsg(ex.what());
 			}
 		}
 	}

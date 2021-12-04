@@ -74,8 +74,6 @@ namespace videodromm {
 		// json
 		ci::JsonTree				toJson(bool save = false) const;
 		// params
-
-
 		int							mMainWindowX, mMainWindowY, mMarginSmall, mMainWindowWidth, mMainWindowHeight;
 		float						mCodeEditorWidth, mCodeEditorHeight;
 		// MIDI
@@ -87,12 +85,9 @@ namespace videodromm {
 		std::string					mOSCDestinationHost2;
 		uint16_t					mOSCDestinationPort2;
 
-
-		std::string					mMsg;
-		std::string					mErrorMsg;
 		//std::string					mShaderMsg;
 		bool						mIsOSCSender;
-		static const int			mMsgLength = 150;
+		//static const int			mMsgLength = 150;
 
 		// render windows
 		int							mRenderWidth;
@@ -188,8 +183,7 @@ namespace videodromm {
 		bool						mSplitWarpV;
 		int							mUIZoom;
 		int							mCurrentPreviewFboIndex;
-		int							iTrack;
-
+		
 		// camera
 		CameraPersp					mCamera;
 		vec2						mCamEyePointXY;
@@ -209,9 +203,15 @@ namespace videodromm {
 		std::string					mInfo;
 		// ableton liveOSC
 		std::string					mTrackName;
-
+		// messages for UI
+		std::string					getMsg() { return mMsg; }
+		void						setMsg(const std::string& aMsg) { mMsg = aMsg; }
+		std::string					getErrorMsg() { return mErrorMsg; };
+		void						setErrorMsg(const std::string& aMsg) { mErrorMsg = aMsg; }
 	private:
 		std::string					settingsFileName;
+		std::string					mMsg;
+		std::string					mErrorMsg;
 	};
 
 }

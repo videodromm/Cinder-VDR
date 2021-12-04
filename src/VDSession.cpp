@@ -148,7 +148,7 @@ void VDSession::makeRequest(http::UrlRef url, unsigned int aFboIndex)
 bool VDSession::loadFolder(const string& aFolder) {
 	unsigned int f = 0;
 	bool found = true;
-
+	mVDSettings->setMsg(aFolder);
 	if (aFolder != mVDMix->getAssetsPath()) {
 		// find mix.json
 		std::string mixFileName = "mix.json";

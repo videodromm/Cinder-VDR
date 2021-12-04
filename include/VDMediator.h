@@ -25,7 +25,7 @@
 #include <memory>
 #include <vector>
 
-#define OSC_DEFAULT_PORT 10001
+#define OSC_DEFAULT_PORT 2346
 #define WS_DEFAULT_HOST "127.0.0.1"
 #define WS_DEFAULT_PORT 8088
 
@@ -104,7 +104,7 @@ namespace videodromm {
 		// Render Modes
 		int									getMode();
 		void								setMode(unsigned int aIndex);
-
+		int									getErrorCode() { return mVDUniforms->getErrorCode(); }
 		bool								setFragmentShaderString(const std::string& aFragmentShaderString, const std::string& aName = "");
 	private:
 		std::vector<VDUniformObserverRef>	mObservers;
@@ -143,6 +143,8 @@ namespace videodromm {
 		//VDMediatorObservable() {}
 		VDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms, VDMixRef aVDMix);
 		int									mMode = 7;
+		
+
 	};
 
 }

@@ -155,6 +155,8 @@ namespace videodromm
 
 		bool					showUI();
 		VDSessionFacadeRef		toggleUI();
+		int						getErrorCode() { return mVDMediator->getErrorCode(); }
+
 		std::vector<ci::gl::GlslProg::Uniform> getUniforms(unsigned int aFboIndex = 0);
 		ci::gl::Texture2dRef	buildFboInputTexture(unsigned int aFboIndex = 0);
 		ci::gl::Texture2dRef	getFboInputTextureListItem(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0);
