@@ -71,30 +71,23 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 			if (index != std::string::npos)
 			{
 				found = true;
-				mTrack = msg[0].int32();
+				mNote = msg[0].int32();
 				// set iStart
 				if (mVelocity > 0) {
-					
-					mVDMediator->setUniformValue(mVDUniforms->ITIME, (float)getElapsedSeconds());
-					mVDMediator->setUniformValue(mVDUniforms->ISTART, mVDUniforms->getUniformValue(mVDUniforms->ITIME));
-					/*mVDMediator->setUniformValue(mVDUniforms->IBEAT, msg[0].int32() - 1);
-					mVDMediator->setUniformValue(
-						mVDUniforms->IBARBEAT,
-						mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));*/
-						// load folder 
-					switch (mTrack)
-					{
-					case 48:
-						// 48 SOS
-						break;
-					case 49:
-						// 49 HumanET
-						// 20211130 todo
-						mVDMediator->setUniformValue(mVDUniforms->ITRACK, (float)mTrack);
-						
-						break;
-					default:
-						break;
+					// note range 0 to 127 tracks from 110 = midi note D7
+					if (mNote > 109) {
+						mVDMediator->setUniformValue(mVDUniforms->ITIME, (float)getElapsedSeconds());
+						mVDMediator->setUniformValue(mVDUniforms->ISTART, mVDUniforms->getUniformValue(mVDUniforms->ITIME));
+						/*mVDMediator->setUniformValue(mVDUniforms->IBEAT, msg[0].int32() - 1);
+						mVDMediator->setUniformValue(
+							mVDUniforms->IBARBEAT,
+							mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));*/
+						// load folder in main app
+						mVDMediator->setUniformValue(mVDUniforms->ITRACK, (float)mNote);
+					}
+					else {
+						// sorry it doesn't send cc...
+						mVDMediator->setUniformValue(mNote, (float)mVelocity / 64.0f);
 					}
 				}
 			}
@@ -207,10 +200,10 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				// get the argument type
 				if (msg.getArgType(0) == ArgType::INTEGER_32) {
 					int i = msg[0].int32();
+					// TODO 20211204 check bounds from /Note1
 					if (i > 80 && i < 109) {
 						// 20210101 was bool mVDUniforms->setBoolUniformValueByIndex(i, !mVDUniforms->getBoolUniformValueByIndex(i));
 						mVDMediator->setUniformValue(i, !mVDUniforms->getUniformValue(i));
-
 					}
 					// sos specific
 					if (i == 119) { // B7 end
@@ -260,7 +253,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				float previousBar = mVDUniforms->getUniformValue(mVDUniforms->IBAR); // 20210101 was int
 
 				float newBar = (float)msg[0].int32();
-				mVDSettings->mErrorMsg = "0bar: " + toString(msg[0].int32() - 1) + " - " + toString(newBar) + " 1bar: " + toString(previousBar) + " - " + toString(mVDUniforms->getUniformValue(mVDUniforms->IBAR));
+				mVDSettings->setErrorMsg("0bar: " + toString(msg[0].int32() - 1) + " - " + toString(newBar) + " 1bar: " + toString(previousBar) + " - " + toString(mVDUniforms->getUniformValue(mVDUniforms->IBAR)));
 				// TODO test if useless:
 				if (previousBar != newBar) {
 					mVDSettings->iBarDuration = mVDUniforms->getUniformValue(mVDUniforms->ITIME) - mBarStart;
@@ -433,17 +426,17 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 			}
 			catch (const std::exception& e) {
 				ss << addr << " not integer";
-				mVDSettings->mErrorMsg += "\n" + ss.str();
+				mVDSettings->setErrorMsg(ss.str());
 				CI_LOG_E("not integer: " << addr);
 			}
 		}
 		if (!found) {
 			CI_LOG_E("not handled: " << msg.getNumArgs() << " addr: " << addr);
 			//mVDSettings->mOSCMsg += "\nnot handled: " + addr;
-			mVDSettings->mErrorMsg = "osc not handled: " + addr + "\n" + mVDSettings->mErrorMsg.substr(0, mVDSettings->mMsgLength);
+			mVDSettings->setMsg("osc not handled: " + addr);
 		}
 		if (addr != "/play") {
-			ss << " f:" << f << " i:" << i;
+			ss << " f:" << f << " i:" << i << " note:" << mNote << " velocity:" << mVelocity;
 			mOSCMsg = ss.str();
 		}
 

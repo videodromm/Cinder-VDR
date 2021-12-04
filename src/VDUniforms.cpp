@@ -91,7 +91,7 @@ VDUniforms::VDUniforms() {
 	// ratio
 	createFloatUniform("iRatio", IRATIO, 20.0f, 0.00000000001f, 40.0f); // 27
 	// zoom
-	createFloatUniform("iZoom", IZOOM, 1.0f, 0.95f, 1.1f); // 28
+	createFloatUniform("iZoom", IZOOM, 1.0f, 0.95f, 2.0f); // 28
 	// Max Volume
 	createFloatUniform("volume0", IMAXVOLUME, 0.0f, 0.0f, 255.0f); // 29
 
@@ -133,7 +133,7 @@ VDUniforms::VDUniforms() {
 	// vignette falloff
 	createFloatUniform("iVFallOff", IVFALLOFF, 0.31f, 0.0f, 1.0f); // 46
 	// hydra time
-	//createFloatUniform("time", TIME, 0.0f); // 47
+	// TODO 20211204 check createFloatUniform("time", TIME, 0.0f); // 47
 
 	// bad tv
 	createFloatUniform("iBadTv", IBADTV, 0.0f, 0.0f, 5.0f); // 48
@@ -165,21 +165,18 @@ VDUniforms::VDUniforms() {
 	// vignette amount
 	createFloatUniform("iVAmount", IVAMOUNT, 0.91f, 0.0f, 1.0f); // 62
 	//createVec3Uniform("iChannelResolution[0]", 63, vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
-	createFloatUniform("iDateX", IDATEX, 0.91f, 0.0f, 90000.0f); // 25 hours
-	createFloatUniform("iDateY", IDATEY, 0.91f, 0.0f, 90000.0f); // 25 hours
-	createFloatUniform("iDateZ", IDATEZ, 0.91f, 0.0f, 90000.0f); // 25 hours
-	createFloatUniform("iDateW", IDATEW, 0.91f, 0.0f, 90000.0f); // 25 hours
+	createFloatUniform("iDateX", IDATEX, 0.91f, 0.0f, 90000.0f); // 63 25 hours
+	createFloatUniform("iDateY", IDATEY, 0.91f, 0.0f, 90000.0f); // 64 25 hours
+	createFloatUniform("iDateZ", IDATEZ, 0.91f, 0.0f, 90000.0f); // 65 25 hours
+	createFloatUniform("iDateW", IDATEW, 0.91f, 0.0f, 90000.0f); // 66 25 hours
 	// vec3
 	// iResolutionX (should be fbowidth?) 
 	createFloatUniform("iResolutionX", IRESOLUTIONX, mRenderWidth, 320.01f, 4280.0f); // 121
 	// iResolutionY (should be fboheight?)  
 	createFloatUniform("iResolutionY", IRESOLUTIONY, mRenderHeight, 240.01f, 2160.0f); // 122
-	createVec3Uniform("iResolution", IRESOLUTION, vec3(getUniformValue(IRESOLUTIONX), getUniformValue(IRESOLUTIONY), 1.0)); // 421
-
-
+	// -300 rule
+	createVec3Uniform("iResolution", IRESOLUTION, vec3(getUniformValue(IRESOLUTIONX), getUniformValue(IRESOLUTIONY), 1.0)); // 421 
 	createVec3Uniform("iColor", ICOLOR, vec3(0.45, 0.0, 1.0)); // 301
-
-
 	createVec4Uniform("iDate", IDATE, vec4(2021.0f, 12.0f, 1.0f, 5.0f));// 363
 
 	// boolean
@@ -402,21 +399,22 @@ bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 					rtn = true;
 				}
 				else {
-					// TODO 20211011 bug max = 0.0
+					mErrorCode = aIndex;
+					if ((aValue < shaderUniforms[aIndex].minValue && aValue > shaderUniforms[aIndex].maxValue)) {
+						mErrorCode = 2;
+					}
+					// TODO 20211011 find bug max = 0.0
 					if (shaderUniforms[aIndex].maxValue == 0.0f) {
-						shaderUniforms[aIndex].maxValue == 1.0f;
+						mErrorCode = 1;
+						shaderUniforms[aIndex].maxValue == 1.0f; // put breakpoint here
 					}
 				}
 			}
 		}
-		// not all controls are from 0.0 to 1.0
-		/* not working float lerpValue = lerp<float, float>(shaderUniforms[getUniformNameForIndex(aIndex)].minValue, shaderUniforms[getUniformNameForIndex(aIndex)].maxValue, aValue);
-		if (shaderUniforms[getUniformNameForIndex(aIndex)].floatValue != lerpValue) {
-			shaderUniforms[getUniformNameForIndex(aIndex)].floatValue = lerpValue;
-			rtn = true;
-		}*/
+		
 	}
 	else {
+		
 		// no max 
 		shaderUniforms[aIndex].floatValue = aValue;
 	}
