@@ -107,25 +107,24 @@ namespace videodromm
 			TIME = 47,
 			IBADTV = 48,
 			ITIMEFACTOR = 49,
+			ISMOOTH = 50,
 			// int
-			IBLENDMODE = 50,
-			IBEAT = 51,
-			IBAR = 52,
-			IBARBEAT = 53,
-			IFBOA = 54,
-			IFBOB = 55,
-			IOUTW = 56,
-			IOUTH = 57,
-			IBEATSPERBAR = 59,
-			IPHASE = 60,
-			ITRACK = 61,
-
-			IVAMOUNT = 62,
-
-			IDATEX = 63,
-			IDATEY = 64,
-			IDATEZ = 65,
-			IDATEW = 66,
+			IBLENDMODE = 60,
+			IBEAT = 61,
+			IBAR = 62,
+			IBARBEAT = 63,
+			IFBOA = 64,
+			IFBOB = 65,
+			IOUTW = 66,
+			IOUTH = 67,
+			IBEATSPERBAR = 69,
+			IPHASE = 70,
+			ITRACK = 71,
+			IVAMOUNT = 72,
+			IDATEX = 73,
+			IDATEY = 74,
+			IDATEZ = 75,
+			IDATEW = 76,
 
 			// booleans 80 to 110
 			IGLITCH = 81,	// A4
@@ -168,7 +167,7 @@ namespace videodromm
 			ICOLOR = 301,
 			IBACKGROUNDCOLOR = 311,
 			IMOUSE = 342,
-			IDATE = 363,
+			IDATE = 373,
 			IRESOLUTION = 421,
 		};
 		bool							isExistingUniform(const std::string& aName);

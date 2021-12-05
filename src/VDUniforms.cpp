@@ -134,41 +134,42 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iVFallOff", IVFALLOFF, 0.31f, 0.0f, 1.0f); // 46
 	// hydra time
 	// TODO 20211204 check createFloatUniform("time", TIME, 0.0f); // 47
-
 	// bad tv
 	createFloatUniform("iBadTv", IBADTV, 0.0f, 0.0f, 5.0f); // 48
 	// iTimeFactor
 	createFloatUniform("iTimeFactor", ITIMEFACTOR, 1.0f); // 49
+	// smooth animation
+	createFloatUniform("iSmooth", ISMOOTH, 0.005f); // 50
 	// int
 	// blend mode 
-	createFloatUniform("iBlendmode", IBLENDMODE, 0.0f, 0.0f, 25.0f); // 50
+	createFloatUniform("iBlendmode", IBLENDMODE, 0.0f, 0.0f, 25.0f); // 60
 	// beat 
-	createFloatUniform("iBeat", IBEAT, 0.0f, 0.0f, 300.0f); // 51
+	createFloatUniform("iBeat", IBEAT, 0.0f, 0.0f, 300.0f); // 61
 	// bar 
-	createFloatUniform("iBar", IBAR, 0.0f, 0.0f, 3008.0f); // 52
+	createFloatUniform("iBar", IBAR, 0.0f, 0.0f, 3008.0f); // 62
 	// bar 
-	createFloatUniform("iBarBeat", IBARBEAT, 1.0f, 1.0f, 1200.0f); // 53		
+	createFloatUniform("iBarBeat", IBARBEAT, 1.0f, 1.0f, 1200.0f); // 63		
 	// fbo A
-	createFloatUniform("iFboA", IFBOA, 0); // 54
+	createFloatUniform("iFboA", IFBOA, 0); // 64
 	// fbo B
-	createFloatUniform("iFboB", IFBOB, 1); // 55
+	createFloatUniform("iFboB", IFBOB, 1); // 65
 	// iOutW
-	createFloatUniform("iOutW", IOUTW, mRenderWidth); // 56
+	createFloatUniform("iOutW", IOUTW, mRenderWidth); // 66
 	// iOutH  
-	createFloatUniform("iOutH", IOUTH, mRenderHeight); // 57
+	createFloatUniform("iOutH", IOUTH, mRenderHeight); // 67
 	// beats per bar 
-	createFloatUniform("iBeatsPerBar", IBEATSPERBAR, 4); // 59
+	createFloatUniform("iBeatsPerBar", IBEATSPERBAR, 4); // 69
 	// iPhase 
-	createFloatUniform("iPhase", IPHASE, 1.0f); // 60
+	createFloatUniform("iPhase", IPHASE, 1.0f); // 70
 	// iTrack 
-	createFloatUniform("iTrack", ITRACK, 0.0f, 0.0f, 90000.0f); // 61
+	createFloatUniform("iTrack", ITRACK, 0.0f, 0.0f, 90000.0f); // 71
 	// vignette amount
-	createFloatUniform("iVAmount", IVAMOUNT, 0.91f, 0.0f, 1.0f); // 62
+	createFloatUniform("iVAmount", IVAMOUNT, 0.91f, 0.0f, 1.0f); // 72
 	//createVec3Uniform("iChannelResolution[0]", 63, vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
-	createFloatUniform("iDateX", IDATEX, 0.91f, 0.0f, 90000.0f); // 63 25 hours
-	createFloatUniform("iDateY", IDATEY, 0.91f, 0.0f, 90000.0f); // 64 25 hours
-	createFloatUniform("iDateZ", IDATEZ, 0.91f, 0.0f, 90000.0f); // 65 25 hours
-	createFloatUniform("iDateW", IDATEW, 0.91f, 0.0f, 90000.0f); // 66 25 hours
+	createFloatUniform("iDateX", IDATEX, 0.91f, 0.0f, 90000.0f); // 73 25 hours
+	createFloatUniform("iDateY", IDATEY, 0.91f, 0.0f, 90000.0f); // 74 25 hours
+	createFloatUniform("iDateZ", IDATEZ, 0.91f, 0.0f, 90000.0f); // 75 25 hours
+	createFloatUniform("iDateW", IDATEW, 0.91f, 0.0f, 90000.0f); // 76 25 hours
 	// vec3
 	// iResolutionX (should be fbowidth?) 
 	createFloatUniform("iResolutionX", IRESOLUTIONX, mRenderWidth, 320.01f, 4280.0f); // 121
@@ -621,51 +622,54 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iBadTv") {
 		rtn = IBADTV;
 	} // 48
-
 	// iTimeFactor
 	else if (key == "iTimeFactor") {
 		rtn = ITIMEFACTOR;// 49
 	}
+	// smooth animation
+	else if (key == "iSmooth") {
+		rtn = ISMOOTH;
+	} // 50
 	// int
 	// blend mode 
 	else if (key == "iBlendmode") {
 		rtn = IBLENDMODE;
-	} // 50
+	} // 60
 	// beat 
 	else if (key == "iBeat") {
 		rtn = IBEAT;
-	} // 51
+	} // 61
 	// bar 
 	else if (key == "iBar") {
 		rtn = IBAR;
-	} // 52	
+	} // 62	
 	// bar 
 	else if (key == "iBarBeat") {
 		rtn = IBARBEAT;
-	} // 53		
+	} // 63		
 	// fbo A
 	else if (key == "iFboA") {
 		rtn = IFBOA;
-	} // 54
+	} // 64
 	// fbo B
 	else if (key == "iFboB") {
 		rtn = IFBOB;
-	} // 55
+	} // 65
 	// iOutW
 	else if (key == "iOutW") {
 		rtn = IOUTW;
-	} // 56
+	} // 66
 	// iOutH  
 	else if (key == "iOutH") {
 		rtn = IOUTH;
-	} // 57
+	} // 67
 	// beats per bar 
 	else if (key == "iBeatsPerBar") {
 		rtn = IBEATSPERBAR;
-	} // 59
+	} // 69
 	else if (key == "iVAmount") {
 		rtn = IVAMOUNT;
-	} // 62
+	} // 72
 	// vec3
 	else if (key == "iResolution") {
 		rtn = IRESOLUTION;
@@ -682,12 +686,12 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	// IPHASE 
 	else if (key == "iPhase") {
 		rtn = IPHASE;
-	} // 60
+	} // 70
 
 	// ITRACK 
 	else if (key == "iTrack") {
 		rtn = ITRACK;
-	} // 61
+	} // 71
 	else if (key == "iColor") {
 		rtn = ICOLOR;
 	} // 301

@@ -341,7 +341,7 @@ void VDAnimation::update() {
 	mVDSettings->iChannelTime[1] = (float)(getElapsedSeconds() - 1.0);
 	mVDSettings->iChannelTime[2] = (float)(getElapsedSeconds() - 2.0);
 	mVDSettings->iChannelTime[3] = (float)(getElapsedSeconds() - 3.0);
-	// TIME
+	// ITIME
 	if (mUseTimeWithTempo)
 	{
 		// Ableton Link from openframeworks SocketIO
@@ -446,14 +446,22 @@ void VDAnimation::update() {
 				break;
 			case 5: // ANIM_SMOOTH
 				targetValue = mVDUniforms->getTargetUniformValue(anim);
-				if (mVDUniforms->getUniformValue(anim) > targetValue) {
-					mVDUniforms->setUniformValue(anim, (mVDUniforms->getUniformValue(anim) - 0.005));
-				}
-				else if (mVDUniforms->getUniformValue(anim) < targetValue) {
-					mVDUniforms->setUniformValue(anim, (mVDUniforms->getUniformValue(anim) + 0.005));
+				if (abs(targetValue - mVDUniforms->getUniformValue(anim)) <= mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH)) {
+					targetValue = mVDUniforms->getDefaultUniformValue(anim);
+					mVDUniforms->setAnim(anim, mVDSettings->ANIM_NONE);
 				}
 				else {
+
+				if (mVDUniforms->getUniformValue(anim) > targetValue) {
+					mVDUniforms->setUniformValue(anim, (mVDUniforms->getUniformValue(anim) - mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH)));
+				}
+				else if (mVDUniforms->getUniformValue(anim) < targetValue) {
+					mVDUniforms->setUniformValue(anim, (mVDUniforms->getUniformValue(anim) + mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH)));
+				}
+
+				else {
 					mVDUniforms->setAnim(anim, mVDSettings->ANIM_NONE);
+				}
 				}
 				// ANIM_TREBLE mVDUniforms->setUniformValue(anim, (mVDUniforms->getDefaultUniformValue(anim) + 0.01f) * mVDUniforms->getUniformValue(mVDUniforms->IFREQ2) / 2.0f);
 				break;
