@@ -394,27 +394,32 @@ bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 		}
 		else {
 			if (shaderUniforms[aIndex].floatValue != aValue) {
-				if ((aValue >= shaderUniforms[aIndex].minValue && aValue <= shaderUniforms[aIndex].maxValue) || shaderUniforms[aIndex].anim > 0) {
+				if (shaderUniforms[aIndex].overrideValue) {
 					shaderUniforms[aIndex].floatValue = aValue;
-					rtn = true;
 				}
 				else {
-					mErrorCode = aIndex;
-					if ((aValue < shaderUniforms[aIndex].minValue && aValue > shaderUniforms[aIndex].maxValue)) {
-						mErrorCode = 2;
+					if ((aValue >= shaderUniforms[aIndex].minValue && aValue <= shaderUniforms[aIndex].maxValue) || shaderUniforms[aIndex].anim > 0) {
+						shaderUniforms[aIndex].floatValue = aValue;
+						rtn = true;
 					}
-					// TODO 20211011 find bug max = 0.0
-					if (shaderUniforms[aIndex].maxValue == 0.0f) {
-						mErrorCode = 1;
-						shaderUniforms[aIndex].maxValue == 1.0f; // put breakpoint here
+					else {
+						mErrorCode = aIndex;
+						if ((aValue < shaderUniforms[aIndex].minValue && aValue > shaderUniforms[aIndex].maxValue)) {
+							mErrorCode = 2;
+						}
+						// TODO 20211011 find bug max = 0.0
+						if (shaderUniforms[aIndex].maxValue == 0.0f) {
+							mErrorCode = 1;
+							shaderUniforms[aIndex].maxValue == 1.0f; // put breakpoint here
+						}
 					}
 				}
 			}
 		}
-		
+
 	}
 	else {
-		
+
 		// no max 
 		shaderUniforms[aIndex].floatValue = aValue;
 	}

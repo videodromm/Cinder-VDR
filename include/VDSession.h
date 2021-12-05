@@ -319,7 +319,9 @@ namespace videodromm {
 		void							toggleUI();
 		bool							showUI();
 		std::string						getModeName(unsigned int aMode);
-
+		void resetAnim() {
+			mVDAnimation->resetAnim();
+		}
 
 	private:
 		VDParamsRef						mVDParams;

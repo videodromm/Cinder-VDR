@@ -45,7 +45,7 @@ namespace videodromm
 			return std::shared_ptr<VDAnimation>(new VDAnimation(aVDSettings, aVDUniforms));
 		}
 		void							update();
-	
+		void							resetAnim();
 		const int						mBlendModes = 28;
 		void							blendRenderEnable(bool render) { mBlendRender = render; };
 		// tap tempo

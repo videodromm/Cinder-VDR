@@ -318,6 +318,14 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 
 	return mAudioTexture;
 };
+void VDAnimation::resetAnim() {
+	for (unsigned int anim{ 1 }; anim < 29; anim++)
+	{
+		mVDUniforms->setAnim(anim, mVDSettings->ANIM_NONE);
+		mVDUniforms->setUniformValue(anim, mVDUniforms->getDefaultUniformValue(anim));
+	}
+}
+
 void VDAnimation::update() {
 
 	if (mBadTV[getElapsedFrames()] == 0) {
@@ -421,9 +429,7 @@ void VDAnimation::update() {
 		// TODO (modulo < 0.1) ? tempoMvg->setNameColor(ColorA::white()) : tempoMvg->setNameColor(UIController::DEFAULT_NAME_COLOR);
 		float targetValue = 1.0f;
 		for (unsigned int anim{ 1 }; anim < 29; anim++)
-		{
-			
-			//unsigned int animType = mVDUniforms->getUniformAnim(anim)
+		{			
 			switch (mVDUniforms->getUniformAnim(anim)) {
 			case 1: // ANIM_TIME
 				mVDUniforms->setUniformValue(anim, (modulo < 0.1f) ? mVDUniforms->getMaxUniformValue(anim) : mVDUniforms->getMinUniformValue(anim));

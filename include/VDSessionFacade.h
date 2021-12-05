@@ -161,7 +161,9 @@ namespace videodromm
 		ci::gl::Texture2dRef	buildFboInputTexture(unsigned int aFboIndex = 0);
 		ci::gl::Texture2dRef	getFboInputTextureListItem(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0);
 		ci::gl::Texture2dRef	getInputTexture(unsigned int aTexIndex);
-
+		void resetAnim() {
+			mVDSession->resetAnim();
+		}
 		int						getMode();
 		std::string				getModeName(unsigned int aMode);
 		int						getUniformIndexForName(const std::string& aName);
