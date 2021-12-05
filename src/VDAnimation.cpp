@@ -157,7 +157,7 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 			{
 				inputDevices = ci::audio::Device::getInputDevices();
 				outputDevices = ci::audio::Device::getOutputDevices();
-				
+
 				JsonTree doc;
 				JsonTree audioinputs = JsonTree::makeArray("audioinputs");
 				for (ci::audio::DeviceRef in : inputDevices) {
@@ -339,7 +339,7 @@ void VDAnimation::update() {
 		// Ableton Link from openframeworks SocketIO
 		mVDUniforms->setUniformValue(mVDUniforms->ITIME,
 			mVDUniforms->getUniformValue(mVDUniforms->ITIME)  *
-			mVDUniforms->getUniformValue(mVDUniforms->ISPEED) * 
+			mVDUniforms->getUniformValue(mVDUniforms->ISPEED) *
 			mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
 		//mVDUniforms->setUniformValue(mVDUniforms->ITIME,
 		//	mVDUniforms->getUniformValue(mVDUniforms->ITIME) * mVDSettings->iSpeedMultiplier * mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
@@ -360,7 +360,7 @@ void VDAnimation::update() {
 	{
 		mVDUniforms->setUniformValue(mVDUniforms->ITIME,
 			((float)getElapsedSeconds() - mVDUniforms->getUniformValue(mVDUniforms->ISTART)) *
-			mVDUniforms->getUniformValue(mVDUniforms->ISPEED) * 
+			mVDUniforms->getUniformValue(mVDUniforms->ISPEED) *
 			mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
 		//mVDUniforms->setUniformValue(mVDUniforms->ITIME,
 		//(float)getElapsedSeconds() * mVDSettings->iSpeedMultiplier * mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
@@ -418,14 +418,15 @@ void VDAnimation::update() {
 			//if (mAutoBeatAnimation) mVDSettings->iPhase++;
 		}*/
 		previousTime = mVDUniforms->getUniformValue(mVDUniforms->ITEMPOTIME);
-
 		// TODO (modulo < 0.1) ? tempoMvg->setNameColor(ColorA::white()) : tempoMvg->setNameColor(UIController::DEFAULT_NAME_COLOR);
+		float targetValue = 1.0f;
 		for (unsigned int anim{ 1 }; anim < 29; anim++)
 		{
+			
 			//unsigned int animType = mVDUniforms->getUniformAnim(anim)
 			switch (mVDUniforms->getUniformAnim(anim)) {
 			case 1: // ANIM_TIME
-				mVDUniforms->setUniformValue(anim, (modulo < 0.1) ? mVDUniforms->getMaxUniformValue(anim) : mVDUniforms->getMinUniformValue(anim));
+				mVDUniforms->setUniformValue(anim, (modulo < 0.1f) ? mVDUniforms->getMaxUniformValue(anim) : mVDUniforms->getMinUniformValue(anim));
 				break;
 			case 2: // ANIM_AUTO
 				mVDUniforms->setUniformValue(anim, lmap<float>(mVDUniforms->getUniformValue(mVDUniforms->ITEMPOTIME), 0.00001f,
@@ -437,8 +438,18 @@ void VDAnimation::update() {
 			case 4: // ANIM_MID
 				mVDUniforms->setUniformValue(anim, (mVDUniforms->getDefaultUniformValue(anim) + 0.01f) * mVDUniforms->getUniformValue(mVDUniforms->IFREQ1) / 5.0f);
 				break;
-			case 5: // ANIM_TREBLE
-				mVDUniforms->setUniformValue(anim, (mVDUniforms->getDefaultUniformValue(anim) + 0.01f) * mVDUniforms->getUniformValue(mVDUniforms->IFREQ2) / 2.0f);
+			case 5: // ANIM_SMOOTH
+				targetValue = mVDUniforms->getTargetUniformValue(anim);
+				if (mVDUniforms->getUniformValue(anim) > targetValue) {
+					mVDUniforms->setUniformValue(anim, (mVDUniforms->getUniformValue(anim) - 0.005));
+				}
+				else if (mVDUniforms->getUniformValue(anim) < targetValue) {
+					mVDUniforms->setUniformValue(anim, (mVDUniforms->getUniformValue(anim) + 0.005));
+				}
+				else {
+					mVDUniforms->setAnim(anim, mVDSettings->ANIM_NONE);
+				}
+				// ANIM_TREBLE mVDUniforms->setUniformValue(anim, (mVDUniforms->getDefaultUniformValue(anim) + 0.01f) * mVDUniforms->getUniformValue(mVDUniforms->IFREQ2) / 2.0f);
 				break;
 			default:
 				// no animation

@@ -21,9 +21,11 @@ namespace videodromm
 		int								uniformType;
 		int								index;
 		float							defaultValue;
+		float							targetValue;
 		float							floatValue;
 		float							minValue;
 		float							maxValue;
+		bool							overrideValue;
 		int								anim;
 		/*bool							autotime;
 		bool							automatic;
@@ -182,7 +184,12 @@ namespace videodromm
 		float							getDefaultUniformValue(unsigned int aIndex) {
 			return shaderUniforms[aIndex].defaultValue;
 		}
-
+		float							getTargetUniformValue(unsigned int aIndex) {
+			return shaderUniforms[aIndex].targetValue;
+		}
+		void							setTargetUniformValue(unsigned int aIndex, float aValue) {
+			shaderUniforms[aIndex].targetValue = aValue;
+		}
 		int								getUniformTextureIndex(unsigned int aIndex) {
 			return shaderUniforms[aIndex].textureIndex;
 		}
@@ -286,12 +293,14 @@ namespace videodromm
 			}
 		}
 		// public for hydra
-		void createFloatUniform(const std::string& aName, int aCtrlIndex, float aValue = 1.0f, float aMin = 0.0f, float aMax = 1.0f) {
+		void createFloatUniform(const std::string& aName, int aCtrlIndex, float aValue = 1.0f, float aMin = 0.0f, float aMax = 1.0f, bool overrideValue = false) {
 			if (aName != "") {
 				shaderUniforms[aCtrlIndex].name = aName;
 				shaderUniforms[aCtrlIndex].minValue = aMin;
 				shaderUniforms[aCtrlIndex].maxValue = aMax;
 				shaderUniforms[aCtrlIndex].defaultValue = aValue;
+				shaderUniforms[aCtrlIndex].targetValue = aValue;
+				shaderUniforms[aCtrlIndex].overrideValue = overrideValue;
 				shaderUniforms[aCtrlIndex].anim = 0;
 				shaderUniforms[aCtrlIndex].index = aCtrlIndex;
 				shaderUniforms[aCtrlIndex].floatValue = aValue;

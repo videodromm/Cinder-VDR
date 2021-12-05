@@ -87,7 +87,9 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 					}
 					else {
 						// sorry it doesn't send cc...
-						mVDMediator->setUniformValue(mNote, (float)mVelocity / 64.0f);
+						mVDUniforms->setAnim(mNote, mVDSettings->ANIM_SMOOTH);
+						mVDUniforms->setTargetUniformValue(mNote, (float)mVelocity / 64.0f);
+						//mVDMediator->setUniformValue(mNote, (float)mVelocity / 64.0f);
 					}
 				}
 			}

@@ -91,7 +91,7 @@ VDUniforms::VDUniforms() {
 	// ratio
 	createFloatUniform("iRatio", IRATIO, 20.0f, 0.00000000001f, 40.0f); // 27
 	// zoom
-	createFloatUniform("iZoom", IZOOM, 1.0f, 0.95f, 2.0f); // 28
+	createFloatUniform("iZoom", IZOOM, 1.0f, 0.95f, 1.05f, true); // 28
 	// Max Volume
 	createFloatUniform("volume0", IMAXVOLUME, 0.0f, 0.0f, 255.0f); // 29
 

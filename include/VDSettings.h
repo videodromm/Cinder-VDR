@@ -64,7 +64,7 @@ namespace videodromm {
 			ANIM_AUTO = 2,
 			ANIM_BASS = 3,
 			ANIM_MID = 4,
-			ANIM_TREBLE = 5
+			ANIM_SMOOTH = 5
 		};
 		//const int MAX = 14;//todo remove as it is in VDUniforms.h
 		bool						save();
