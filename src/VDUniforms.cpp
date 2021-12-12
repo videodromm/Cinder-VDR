@@ -170,6 +170,9 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iDateY", IDATEY, 0.91f, 0.0f, 90000.0f); // 74 25 hours
 	createFloatUniform("iDateZ", IDATEZ, 0.91f, 0.0f, 90000.0f); // 75 25 hours
 	createFloatUniform("iDateW", IDATEW, 0.91f, 0.0f, 90000.0f); // 76 25 hours
+	// start bar
+	createFloatUniform("iBarStart", IBARSTART, 0.0f, 0.0f, 1200.0f); // 77		
+
 	// vec3
 	// iResolutionX (should be fbowidth?) 
 	createFloatUniform("iResolutionX", IRESOLUTIONX, mRenderWidth, 320.01f, 4280.0f); // 121
@@ -431,303 +434,314 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	if (key == "iTime" || key == "uTime" || key == "time" || key == "TIME") {
 		rtn = ITIME;
 	}
+	// 1
 	else if (key == "iColorX") {
 		rtn = ICOLORX;
-	} // 1
-	// green
+	}
+	// green 2
 	else if (key == "iColorY") {
 		rtn = ICOLORY;
-	} // 2
-	// blue
+	}
+	// blue 3
 	else if (key == "iColorZ") {
 		rtn = ICOLORZ;
-	} // 3
-	// Alpha 
+	}
+	// Alpha 4 
 	else if (key == "iAlpha") {
 		rtn = IALPHA;
-	} // 4
-	// red multiplier 
+	}
+	// red multiplier 5 
 	else if (key == "iRedMultiplier") {
 		rtn = IFRX;
-	} // 5
-	// green multiplier 
+	}
+	// green multiplier 6 
 	else if (key == "iGreenMultiplier") {
 		rtn = IFGX;
-	} // 6
-	// blue multiplier 
+	}
+	// blue multiplier 7 
 	else if (key == "iBlueMultiplier") {
 		rtn = IFBX;
-	} // 7
-	// gstnsmk
+	}
+	// 8
 	else if (key == "iSobel") {
 		rtn = ISOBEL;
-	} // 8
-	// RotationSpeed
+	}
+	// RotationSpeed 9
 	else if (key == "iRotationSpeed") {
 		rtn = IROTATIONSPEED;
-	} // 9
-	// background 
+	}
+	// background 10
 	else if (key == "iBackgroundColor") {
 		rtn = IBACKGROUNDCOLOR;
-	} // 10
+	}
+	// 11
 	else if (key == "iBackgroundColorX") {
 		rtn = IBACKGROUNDCOLORX;
-	} // 11
+	}
+	// 12
 	else if (key == "iBackgroundColorY") {
 		rtn = IBACKGROUNDCOLORY;
-	} // 12
+	}
+	// 13
 	else if (key == "iBackgroundColorZ") {
 		rtn = IBACKGROUNDCOLORZ;
-	} // 13
+	}
 
 	// rotary
-	// exposure
+	// exposure 14
 	else if (key == "iExposure") {
 		rtn = IEXPOSURE;
-	} // 14
-	// Pixelate
+	}
+	// Pixelate 15
 	else if (key == "iPixelate") {
 		rtn = IPIXELATE;
-	} // 15
-	// Trixels
+	}
+	// Trixels 16
 	else if (key == "iTrixels") {
 		rtn = ITRIXELS;
-	} // 16
-	// iChromatic
+	}
+	// iChromatic 17
 	else if (key == "iChromatic") {
 		rtn = ICHROMATIC;
-	} // 17
-	// iCrossfade
+	}
+	// iCrossfade 18
 	else if (key == "iCrossfade") {
 		rtn = IXFADE;
-	} // 18
-	// tempo time
+	}
+	// tempo time 19
 	else if (key == "iTempoTime") {
 		rtn = ITEMPOTIME;
-	} // 19
-	// fps
+	}
+	// fps 20
 	else if (key == "iFps") {
 		rtn = IFPS;
-	} // 20	
-	// iBpm 
+	}
+	// iBpm 21
 	else if (key == "iBpm") {
 		rtn = IBPM;
-	} // 21
-	// Speed 
+	}
+	// Speed  22
 	else if (key == "speed") {
 		rtn = ISPEED;
-	} // 22
-	// slitscan / matrix (or other) Param1 
+	}
+	// slitscan / matrix (or other) Param1 23 
 	else if (key == "iPixelX") {
 		rtn = IPIXELX;
-	} // 23
-	// slitscan / matrix(or other) Param2 
+	}
+	// slitscan / matrix(or other) Param2 24 
 	else if (key == "iPixelY") {
 		rtn = IPIXELY;
-	} // 24
-	// delta time in seconds
+	}
+	// delta time in seconds 25
 	else if (key == "iDeltaTime") {
 		rtn = IDELTATIME;
-	} // 25
-	// Steps
+	}
+	// Steps 26
 	else if (key == "iSteps") {
 		rtn = ISTEPS;
-	} // 26
-	// ratio
+	}
+	// ratio 27
 	else if (key == "iRatio") {
 		rtn = IRATIO;
-	} // 27
-	// zoom
+	}
+	// zoom 28
 	else if (key == "iZoom") {
 		rtn = IZOOM;
-	} // 28
-	// volume0 from hydra 
+	}
+	// volume0 from hydra 29 
 	else if (key == "volume0") {
 		rtn = IMAXVOLUME;
-	} // 29
-	// contour
+	}
+	// contour 30
 	else if (key == "iContour") {
 		rtn = ICONTOUR;
-	} // 30
+	}
 
-	// weight mix fbo texture 0
+	// weight mix fbo texture 0 31
 	else if (key == "iWeight0") {
 		rtn = IWEIGHT0;
-	} // 31
-	// weight texture 1
+	}
+	// weight texture 1 32
 	else if (key == "iWeight1") {
 		rtn = IWEIGHT1;
-	} // 32
-	// weight texture 2
+	}
+	// weight texture 2 33
 	else if (key == "iWeight2") {
 		rtn = IWEIGHT2;
-	} // 33
-	// weight texture 3
+	}
+	// weight texture 3 34
 	else if (key == "iWeight3") {
 		rtn = IWEIGHT3;
-	} // 34
-	// weight texture 4
+	}
+	// weight texture 4 35
 	else if (key == "iWeight4") {
 		rtn = IWEIGHT4;
-	} // 35
-	// weight texture 5
+	}
+	// weight texture 5 36
 	else if (key == "iWeight5") {
 		rtn = IWEIGHT5;
-	} // 36
-	// weight texture 6
+	}
+	// weight texture 6 37
 	else if (key == "iWeight6") {
 		rtn = IWEIGHT6;
-	} // 37
-	// weight texture 7
+	}
+	// weight texture 7 38
 	else if (key == "iWeight7") {
 		rtn = IWEIGHT7;
-	} // 38
-	// weight texture 8 
+	}
+	// weight texture 8  39
 	else if (key == "iWeight8") {
 		rtn = IWEIGHT8;
-	} // 39
-	// Audio multfactor 
+	}
+	// Audio multfactor 40 
 	else if (key == "iAudioX") {
 		rtn = IAUDIOX;
-	} // 40
-	// iStart 
+	}
+	// iStart 41 
 	else if (key == "iStart") {
 		rtn = ISTART;
-	} // 41		
-	// IMouse vec4
+	}
+	// IMouse vec4 342
 	else if (key == "iMouse") {
 		rtn = IMOUSE;
-	}// 342
-	// iMouseX  
+	}
+	// iMouseX 42  
 	else if (key == "iMouseX") {
 		rtn = IMOUSEX;
-	} // 42
-	// iMouseY  
+	}
+	// iMouseY 43  
 	else if (key == "iMouseY") {
 		rtn = IMOUSEY;
-	} // 43
-	// iMouseZ  
+	}
+	// iMouseZ 44  
 	else if (key == "iMouseZ") {
 		rtn = IMOUSEZ;
-	} // 44
-	// iMouseW
+	}
+	// iMouseW 45
 	else if (key == "iMouseW") {
 		rtn = IMOUSEW;
-	} // 45
-	// vignette falloff
+	}
+	// vignette falloff 46
 	else if (key == "iVFallOff") {
 		rtn = IVFALLOFF;
-	} // 46
-	// bad tv
+	}
+	// bad tv 48
 	else if (key == "iBadTv") {
 		rtn = IBADTV;
-	} // 48
-	// iTimeFactor
-	else if (key == "iTimeFactor") {
-		rtn = ITIMEFACTOR;// 49
 	}
-	// smooth animation
+	// iTimeFactor 49
+	else if (key == "iTimeFactor") {
+		rtn = ITIMEFACTOR;
+	}
+	// smooth animation 50
 	else if (key == "iSmooth") {
 		rtn = ISMOOTH;
-	} // 50
+	}
 	// int
-	// blend mode 
+	// blend mode 60 
 	else if (key == "iBlendmode") {
 		rtn = IBLENDMODE;
-	} // 60
-	// beat 
+	}
+	// beat 61 
 	else if (key == "iBeat") {
 		rtn = IBEAT;
-	} // 61
-	// bar 
+	}
+	// bar 62
 	else if (key == "iBar") {
 		rtn = IBAR;
-	} // 62	
-	// bar 
+	}
+	// bar 63
 	else if (key == "iBarBeat") {
 		rtn = IBARBEAT;
-	} // 63		
-	// fbo A
+	}
+	// fbo A 64
 	else if (key == "iFboA") {
 		rtn = IFBOA;
-	} // 64
-	// fbo B
+	}
+	// fbo B 65
 	else if (key == "iFboB") {
 		rtn = IFBOB;
-	} // 65
-	// iOutW
+	}
+	// iOutW 66
 	else if (key == "iOutW") {
 		rtn = IOUTW;
-	} // 66
-	// iOutH  
+	}
+	// iOutH 67  
 	else if (key == "iOutH") {
 		rtn = IOUTH;
-	} // 67
-	// beats per bar 
+	}
+	// beats per bar 69 
 	else if (key == "iBeatsPerBar") {
 		rtn = IBEATSPERBAR;
-	} // 69
+	}
+	// start bar 77 
+	else if (key == "IBarStart") {
+		rtn = IBARSTART;
+	}
+	// 72
 	else if (key == "iVAmount") {
 		rtn = IVAMOUNT;
-	} // 72
+	}
 	// vec3
+	// 120
 	else if (key == "iResolution") {
 		rtn = IRESOLUTION;
-	} // 120
-	// iResolutionX (should be fbowidth?) 
+	}
+	// iResolutionX (should be fbowidth?) 121 
 	else if (key == "iResolutionX") {
 		rtn = IRESOLUTIONX;
-	} // 121
-	// iResolutionY (should be fboheight?)  
+	}
+	// iResolutionY (should be fboheight?) 122  
 	else if (key == "iResolutionY") {
 		rtn = IRESOLUTIONY;
-	} // 122
+	}
 
-	// IPHASE 
+	// IPHASE 70 
 	else if (key == "iPhase") {
 		rtn = IPHASE;
-	} // 70
+	}
 
-	// ITRACK 
+	// ITRACK 71 
 	else if (key == "iTrack") {
 		rtn = ITRACK;
-	} // 71
+	}
+	// 301
 	else if (key == "iColor") {
 		rtn = ICOLOR;
-	} // 301
+	}
 
 	// vec4
-
+//71
 	else if (key == "iDate") {
 		rtn = IDATE;
-	}//71
+	}
 
 	// boolean
 	// invert
-	// glitch
+	// glitch 81
 	else if (key == "iGlitch") {
 		rtn = IGLITCH;
-	} // 81
+	}
 	// vignette 10
 	else if (key == "iVignette") {
 		rtn = IVIGNETTE;
-	} // 10
-	// toggle
+	}
+	// toggle 83
 	else if (key == "iToggle") {
 		rtn = ITOGGLE;
-	} // 83
-	// invert
+	}
+	// invert 86
 	else if (key == "iInvert") {
 		rtn = IINVERT;
-	} // 86
-	// greyscale 
+	}
+	// greyscale 87
 	else if (key == "iGreyScale") {
 		rtn = IGREYSCALE;
-	} //87
-
+	}
+	// 88
 	else if (key == "iClear") {
 		rtn = ICLEAR;
-	} // 88
+	}
 	else if (key == "iDebug") {
 		rtn = IDEBUG;
 	} // 129

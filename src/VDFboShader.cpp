@@ -124,15 +124,8 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		//mImage = mVDSession->getInputTexture(mSeqIndex);
 		 TODO 20211115 mImage = mVDSession->getCachedTexture(mSeqIndex, "a (" + toString(current) + ").jpg");
 	}*/
-	// init with number 1 then getFboTexture will load next images
-
-		mCurrentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").jpg";
-		//fs::path texFileOrPath = getAssetPath("") / mAssetsPath / currentFilename;
-		texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
-		fileExists = fs::exists(texFileOrPath);
-		if (fileExists) {
-			mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
-		}
+		// init with number 1 then getFboTexture will load next images
+		loadNextTexture(1);
 		break;
 	case 8: // img parts
 		for (size_t i{ 0 }; i < 4; i++)
@@ -291,23 +284,32 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 	}
 	return mValid;
 }
+void VDFboShader::loadNextTexture(int aCurrentIndex) {
+	if (mCurrentImageSequenceIndex != aCurrentIndex) {
+		mCurrentImageSequenceIndex = aCurrentIndex;
+		mCurrentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").jpg";
+		//fs::path texFileOrPath = getAssetPath("") / mAssetsPath / currentFilename;
+		fs::path texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
 
+		bool fileExists = fs::exists(texFileOrPath);
+		if (fileExists) {
+			// start profiling
+			auto start = Clock::now();
+
+			mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+			auto end = Clock::now();
+			auto msdur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+			int ms = msdur.count();
+			mStatus = mCurrentFilename + " " + toString(ms) + "ms";
+		}
+	}
+}
 ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 
 	if (mValid) {
 		if (mMode == 2) {
 			// 20211115 OK for SOS a (n).jpg
-			if (mCurrentImageSequenceIndex != (int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)) {
-				mCurrentImageSequenceIndex = (int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT);
-				mCurrentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").jpg";
-				//fs::path texFileOrPath = getAssetPath("") / mAssetsPath / currentFilename;
-				fs::path texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
-
-				bool fileExists = fs::exists(texFileOrPath);
-				if (fileExists) {
-					mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
-				}
-			}
+			loadNextTexture((int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT));			
 		}
 		// removed 20211107 only if no texture
 		/*if (mInputTextureIndex == 0) {

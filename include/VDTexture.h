@@ -473,10 +473,7 @@ namespace videodromm
 		//virtual XmlTree					toJson() const;
 		//! read a xml file and pass back a vector of VDTextures
 		//static VDTextureList			readSettings(VDAnimationRef aVDAnimation, const ci::DataSourceRef &source);
-		//! write a xml file
-		//static void						writeSettings(const VDTextureList &vdtexturelist, const ci::DataTargetRef &target);
-		virtual bool					loadFromFullPath(const std::string& aPath);
-		std::string						getStatus() { return mStatus; };
+	
 		//! area to display
 		void							lockBounds(bool lock, unsigned int aWidth, unsigned int aHeight);
 		void							setXLeft(int aXleft);

@@ -82,6 +82,11 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 						mVDMediator->setUniformValue(
 							mVDUniforms->IBARBEAT,
 							mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));*/
+						mVDMediator->setUniformValue(mVDUniforms->IBARSTART, mVDUniforms->getUniformValue(mVDUniforms->IBAR));
+						mVDMediator->setUniformValue(
+							mVDUniforms->IBARBEAT,
+							mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT) - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART));
+
 						// load folder in main app
 						mVDMediator->setUniformValue(mVDUniforms->ITRACK, (float)mNote);
 					}
@@ -241,7 +246,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				mVDMediator->setUniformValue(mVDUniforms->IBEAT, msg[0].int32() - 1);
 				mVDMediator->setUniformValue(
 					mVDUniforms->IBARBEAT,
-					mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
+					mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT) - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART));
 			}
 		}
 		if (!found)
@@ -265,7 +270,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				mVDMediator->setUniformValue(mVDUniforms->IBAR, newBar);
 				mVDMediator->setUniformValue(
 					mVDUniforms->IBARBEAT,
-					mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
+					mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT) - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART));
 
 			}
 		}

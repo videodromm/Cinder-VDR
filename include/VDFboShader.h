@@ -80,7 +80,7 @@ namespace videodromm
 				return "fbotex" + mInputTextureIndex;
 			}
 			else {
-				return mCurrentFilename;
+				return mStatus;// 20211212 was mCurrentFilename;
 			}
 		};
 		
@@ -125,7 +125,7 @@ namespace videodromm
 		unsigned int					mInputTextureIndex;
 		unsigned int					createInputTexture(const JsonTree &json);
 		// 20211115
-		int								mCurrentImageSequenceIndex = 1;
+		int								mCurrentImageSequenceIndex = 0;
 		// 20211107
 		string							mTextureName = "";
 		string							mStatus = "";
@@ -163,6 +163,7 @@ namespace videodromm
 		bool							isReady;
 		ci::gl::Texture2dRef			mRenderedTexture;
 		ci::gl::Texture2dRef			getFboTexture();
+		void							loadNextTexture(int aCurrentIndex);
 		// messages
 		static const int				mMsgLength = 150;
 		std::string						mMsg;
