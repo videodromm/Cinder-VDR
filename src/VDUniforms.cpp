@@ -66,14 +66,15 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iTrixels", ITRIXELS, 0.0f); // 16
 	// iChromatic
 	createFloatUniform("iChromatic", ICHROMATIC, 0.0f, 0.000000001f); // 17
-	// iCrossfade
-	createFloatUniform("iCrossfade", IXFADE, 1.0f); // 18
-	// tempo time
-	createFloatUniform("iTempoTime", ITEMPOTIME, 0.1f); // 19
-	// fps
-	createFloatUniform("iFps", IFPS, 60.0f, 0.0f, 500.0f); // 20	
-	// iBpm 
-	createFloatUniform("iBpm", IBPM, 165.0f, 0.000000001f, 400.0f); // 21
+		// iMouseX  
+	createFloatUniform("iMouseX", IMOUSEX, 0.27710f, 0.0f, 1280.0f); //18
+	// iMouseY  
+	createFloatUniform("iMouseY", IMOUSEY, 0.5648f, 0.0f, 800.0f); //19
+	// iMouseZ  
+	createFloatUniform("iMouseZ", IMOUSEZ, 0.0f, 0.0f, 1.0f); //20
+	// vignette amount
+	createFloatUniform("iMouseW", IMOUSEW, 0.91f, 0.0f, 1.0f); //21
+	
 	// Speed 
 	createFloatUniform("iSpeed", ISPEED, 1.0f, 0.01f, 12.0f); // 22
 	// slitscan / matrix (or other) Param1 
@@ -122,14 +123,14 @@ VDUniforms::VDUniforms() {
 	// ISTART
 	createFloatUniform("iStart", ISTART, 0.0f, 1.0f, 4200.0f); // 41		
 
-	// iMouseX  
-	createFloatUniform("iMouseX", IMOUSEX, 0.27710f, 0.0f, 1280.0f); // 42
-	// iMouseY  
-	createFloatUniform("iMouseY", IMOUSEY, 0.5648f, 0.0f, 800.0f); // 43
-	// iMouseZ  
-	createFloatUniform("iMouseZ", IMOUSEZ, 0.0f, 0.0f, 1.0f); // 44
-	// vignette amount
-	createFloatUniform("iMouseW", IMOUSEW, 0.91f, 0.0f, 1.0f); // 45
+	// iCrossfade
+	createFloatUniform("iCrossfade", IXFADE, 1.0f); //42
+	// tempo time
+	createFloatUniform("iTempoTime", ITEMPOTIME, 0.1f); //43
+	// fps
+	createFloatUniform("iFps", IFPS, 60.0f, 0.0f, 100.0f); //44	
+	// iBpm 
+	createFloatUniform("iBpm", IBPM, 165.0f, 0.000000001f, 400.0f); //45
 	// vignette falloff
 	createFloatUniform("iVFallOff", IVFALLOFF, 0.31f, 0.0f, 1.0f); // 46
 	// hydra time
@@ -222,7 +223,7 @@ VDUniforms::VDUniforms() {
 	createVec2Uniform("resolution", RESOLUTION, vec2(1280.0f, 720.0f)); // hydra 150
 	createVec2Uniform("RENDERSIZE", RENDERSIZE, vec2(getUniformValue(IRESOLUTIONX), getUniformValue(IRESOLUTIONY))); // isf 151
 		// vec4
-	createVec4Uniform("iMouse", IMOUSE, vec4(0.27710f, 0.5648f, 0.0f, 0.0f)); // 342
+	createVec4Uniform("iMouse", IMOUSE, vec4(0.27710f, 0.5648f, 0.0f, 0.0f)); // 318
 	// vec4 kinect2
 	createVec4Uniform("iSpineBase", 200, vec4(320.0f, 240.0f, 0.0f, 0.0f));
 	createVec4Uniform("SpineMid", 201, vec4(320.0f, 240.0f, 0.0f, 0.0f));
@@ -504,19 +505,19 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iChromatic") {
 		rtn = ICHROMATIC;
 	}
-	// iCrossfade 18
+	// iCrossfade 42
 	else if (key == "iCrossfade") {
 		rtn = IXFADE;
 	}
-	// tempo time 19
+	// tempo time 43
 	else if (key == "iTempoTime") {
 		rtn = ITEMPOTIME;
 	}
-	// fps 20
+	// fps 44
 	else if (key == "iFps") {
 		rtn = IFPS;
 	}
-	// iBpm 21
+	// iBpm 45
 	else if (key == "iBpm") {
 		rtn = IBPM;
 	}
@@ -601,23 +602,23 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iStart") {
 		rtn = ISTART;
 	}
-	// IMouse vec4 342
+	// IMouse vec4 318
 	else if (key == "iMouse") {
 		rtn = IMOUSE;
 	}
-	// iMouseX 42  
+	// iMouseX 18  
 	else if (key == "iMouseX") {
 		rtn = IMOUSEX;
 	}
-	// iMouseY 43  
+	// iMouseY 19  
 	else if (key == "iMouseY") {
 		rtn = IMOUSEY;
 	}
-	// iMouseZ 44  
+	// iMouseZ 20  
 	else if (key == "iMouseZ") {
 		rtn = IMOUSEZ;
 	}
-	// iMouseW 45
+	// iMouseW 21
 	else if (key == "iMouseW") {
 		rtn = IMOUSEW;
 	}

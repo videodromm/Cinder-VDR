@@ -478,7 +478,7 @@ void VDAnimation::update() {
 		mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->IBACKGROUNDCOLOR, vec3(mVDUniforms->getUniformValue(mVDUniforms->IBACKGROUNDCOLORX), mVDUniforms->getUniformValue(mVDUniforms->IBACKGROUNDCOLORY), mVDUniforms->getUniformValue(mVDUniforms->IBACKGROUNDCOLORZ)));
 
 		// mouse vec4 update
-		mVDUniforms->setVec4UniformValueByIndex(mVDUniforms->IMOUSE, vec4(mVDUniforms->getUniformValue(mVDUniforms->IMOUSEX), mVDUniforms->getUniformValue(mVDUniforms->IMOUSEY), mVDUniforms->getUniformValue(mVDUniforms->IMOUSEZ), 0.0f));
+		mVDUniforms->setVec4UniformValueByIndex(mVDUniforms->IMOUSE, vec4(mVDUniforms->getUniformValue(mVDUniforms->IMOUSEX), mVDUniforms->getUniformValue(mVDUniforms->IMOUSEY), mVDUniforms->getUniformValue(mVDUniforms->IMOUSEZ), mVDUniforms->getUniformValue(mVDUniforms->IMOUSEW)));
 
 		// TODO migrate:
 		if (mVDSettings->autoInvert)
