@@ -113,14 +113,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		break;
 	case 2: // img seq loaded when ableton runs
 		/*if (mExt = "rien") {
-		if (current == 426 || current == 428 || current == 442) mLastBar = 0; //38 to set iStart
-		if (mLastBar != mVDSessionFacade->getUniformValue(mVDUniforms->IBAR)) {
-			mLastBar = mVDSessionFacade->getUniformValue(mVDUniforms->IBAR);
-			//if (mLastBar != 5 && mLastBar != 9 && mLastBar < 113) mVDSettings->iStart = mVDSession->getFloatUniformValueByIndex(mVDSettings->ITIME);
-			// TODO CHECK
-			//if (mLastBar != 107 && mLastBar != 111 && mLastBar < 205) mVDSettings->iStart = mVDSession->getFloatUniformValueByIndex(mVDSettings->ITIME);
-			if (mLastBar < 419 && mLastBar > 424) mVDSettings->iStart = mVDSessionFacade->getUniformValue(mVDUniforms->ITIME);
-		}
+		
 		//mImage = mVDSession->getInputTexture(mSeqIndex);
 		 TODO 20211115 mImage = mVDSession->getCachedTexture(mSeqIndex, "a (" + toString(current) + ").jpg");
 	}*/
@@ -162,8 +155,8 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 				}
 			}
 			if (fileExists) {
-				// TODO check topdown mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
-				mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+				mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+				// TODO check topdown mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 				mTypestr = "image";
 				mCurrentFilename = mTextureName;
 				mMode = 1;

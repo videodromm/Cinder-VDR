@@ -78,14 +78,10 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 					if (mNote > 109) {
 						mVDMediator->setUniformValue(mVDUniforms->ITIME, (float)getElapsedSeconds());
 						mVDMediator->setUniformValue(mVDUniforms->ISTART, mVDUniforms->getUniformValue(mVDUniforms->ITIME));
-						/*mVDMediator->setUniformValue(mVDUniforms->IBEAT, msg[0].int32() - 1);
-						mVDMediator->setUniformValue(
-							mVDUniforms->IBARBEAT,
-							mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));*/
 						mVDMediator->setUniformValue(mVDUniforms->IBARSTART, mVDUniforms->getUniformValue(mVDUniforms->IBAR));
 						mVDMediator->setUniformValue(
 							mVDUniforms->IBARBEAT,
-							mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT) - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART));
+							mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));// - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART)
 
 						// load folder in main app
 						mVDMediator->setUniformValue(mVDUniforms->ITRACK, (float)mNote);
@@ -246,7 +242,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				mVDMediator->setUniformValue(mVDUniforms->IBEAT, msg[0].int32() - 1);
 				mVDMediator->setUniformValue(
 					mVDUniforms->IBARBEAT,
-					mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT) - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART));
+					mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
 			}
 		}
 		if (!found)
@@ -267,10 +263,10 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 					mBarStart = mVDUniforms->getUniformValue(mVDUniforms->ITIME);
 				}
 				// TODO END
-				mVDMediator->setUniformValue(mVDUniforms->IBAR, newBar);
+				mVDMediator->setUniformValue(mVDUniforms->IBAR, newBar - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART));
 				mVDMediator->setUniformValue(
 					mVDUniforms->IBARBEAT,
-					mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT) - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART));
+					mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT) );//- mVDUniforms->getUniformValue(mVDUniforms->IBARSTART)
 
 			}
 		}
