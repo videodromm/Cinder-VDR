@@ -68,6 +68,10 @@ namespace videodromm
 		void									setInputTextureRefByIndex(unsigned int aTexIndex, ci::gl::Texture2dRef aTextureRef) {
 			mInputTextureList[aTexIndex] = aTextureRef;
 		};
+		void									setFboTextureMode(unsigned int aFboTextureMode) {
+			mCurrentFilename = mTextureName = "audio";
+			mMode = 6;
+		}
 		ci::gl::Texture2dRef					getFboInputTextureListItem(unsigned int aTexIndex) {
 			return mInputTextureList[aTexIndex];
 		};
@@ -89,7 +93,7 @@ namespace videodromm
 		std::string								getError() {
 			return mError;
 		};
-		bool									loadFragmentShaderFromFile(const string& aFileOrPath);
+		bool									loadFragmentShaderFromFile(const string& aFileOrPath, bool isAudio = false);
 		void									setInputTextureIndex(unsigned int aTexIndex = 0) { 
 			mInputTextureIndex = aTexIndex; 
 		};

@@ -108,6 +108,9 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 
 	switch (mMode)
 	{
+	case 6: // audio
+		mCurrentFilename = mTextureName = "audio";
+		break;
 	case 2: // img seq loaded when ableton runs
 		/*if (mExt = "rien") {
 		if (current == 426 || current == 428 || current == 442) mLastBar = 0; //38 to set iStart
@@ -146,6 +149,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		}
 		break;
 	default:
+
 		// image
 		fs::path texFileOrPath = getAssetPath("") / mAssetsPath / mTextureName;
 		mExt = "";
@@ -165,11 +169,25 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 				}
 			}
 			if (fileExists) {
-				mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+				// TODO check topdown mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+				mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 				mTypestr = "image";
+				mCurrentFilename = mTextureName;
+				mMode = 1;
+			}
+			else {
+				// default to audio
+				mCurrentFilename = mTextureName = "audio";
+				mMode = 6;
 			}
 			//mInputTextureList.push_back(mInputTextureRef);
 		}
+		else {
+			// default to audio
+			mCurrentFilename = mTextureName = "audio";
+			mMode = 6;
+		}
+
 		break;
 	}
 
@@ -177,7 +195,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	return rtn;
 
 }
-bool VDFboShader::loadFragmentShaderFromFile(const string& aFileOrPath) {
+bool VDFboShader::loadFragmentShaderFromFile(const string& aFileOrPath, bool isAudio) {
 	mValid = false;
 	bool fileExists = true;
 	if (aFileOrPath.length() > 0) {
@@ -202,6 +220,10 @@ bool VDFboShader::loadFragmentShaderFromFile(const string& aFileOrPath) {
 	if (fileExists) {
 		// file exists
 		mValid = loadFragmentStringFromFile();
+	}
+	if (isAudio && mValid) {
+		mInputTextureRef = mVDAnimation->getAudioTexture();
+		mCurrentFilename = "audio";
 	}
 	return mValid;
 }
@@ -292,9 +314,10 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			mInputTextureRef = mVDAnimation->getAudioTexture();
 		}
 		else {
+			*/
+		if (mMode == 6) {
 			mInputTextureRef = mVDAnimation->getAudioTexture();
-		}*/
-
+		}
 		gl::ScopedFramebuffer fbScp(mFbo);
 		if (mVDUniforms->getUniformValue(mVDUniforms->ICLEAR)) {
 			gl::clear(Color::black());
@@ -307,7 +330,8 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			{
 				mInputTextureList[i]->bind(254 + i);
 			}
-		}else {
+		}
+		else {
 			/* onezero ko for (size_t i{ 0 }; i < 4; i++)
 			{
 				mInputTextureList[i]->bind( i);
@@ -381,7 +405,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 						}
 					}
 				}
-				/* TODO CHECK if needed 20111121, apparently not helping onezero ko 
+				/* TODO CHECK if needed 20111121, apparently not helping onezero ko
 				for (size_t i{ 1 }; i < 14; i++)
 				{
 					//mShader->uniform(name, (uint32_t)(253 + i));

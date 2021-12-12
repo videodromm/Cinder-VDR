@@ -145,7 +145,7 @@ bool VDAnimation::handleKeyUp(KeyEvent &event)
 }
 ci::gl::TextureRef VDAnimation::getAudioTexture() {
 	bool audioDeviceFound = false;
-	std::string preferredAudioDevice = "{0.0.1.00000000}.{ce7ada21-940a-41d8-ae9e-41efbe6112d1}";
+	std::string preferredAudioDevice = "{0.0.1.00000000}.{9a00fc87-a5d4-475f-bccd-8919f5c8fb61}";
 	mAudioFormat = gl::Texture2d::Format().swizzleMask(GL_RED, GL_RED, GL_RED, GL_ONE).internalFormat(GL_RED);
 	auto ctx = audio::Context::master();
 	if (!mLineInInitialized) {

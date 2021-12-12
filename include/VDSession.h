@@ -246,6 +246,9 @@ namespace videodromm {
 		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aFboIndex = 0) {
 			return mVDMix->getFboInputTexture(aFboIndex);
 		}
+		void							setFboTextureMode(unsigned int aFboIndex, unsigned int aFboTextureMode){
+			return mVDMix->setFboTextureMode(aFboIndex, aFboTextureMode);
+		};
 		ci::gl::Texture2dRef			getFboInputTextureListItem(unsigned int aFboIndex, unsigned int aTexIndex) {
 			return mVDMix->getFboInputTextureListItem(aFboIndex, aTexIndex);
 		}

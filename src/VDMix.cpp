@@ -285,7 +285,7 @@ namespace videodromm {
 		// if aFboShaderIndex is out of bounds try to find invalid fbo index or create a new fbo until MAX
 		int rtn = findAvailableIndex(aFboShaderIndex, json);
 
-		mFboShaderList[rtn]->loadFragmentShaderFromFile(aFilePath);
+		mFboShaderList[rtn]->loadFragmentShaderFromFile(aFilePath, true);//isAudio=true for dnd glsl files
 		mVDSettings->setMsg("loaded " + mFboShaderList[rtn]->getShaderName() + "\n try at " + toString(aFboShaderIndex) + " valid at " + toString(rtn));
 		return rtn;
 	}
