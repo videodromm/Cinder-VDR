@@ -78,7 +78,8 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 					if (mNote > 109) {
 						mVDMediator->setUniformValue(mVDUniforms->ITIME, (float)getElapsedSeconds());
 						mVDMediator->setUniformValue(mVDUniforms->ISTART, mVDUniforms->getUniformValue(mVDUniforms->ITIME));
-						mVDMediator->setUniformValue(mVDUniforms->IBARSTART, mVDUniforms->getUniformValue(mVDUniforms->IBAR));
+						mVDMediator->setUniformValue(mVDUniforms->IBAR, mSavedBar - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART));
+						mVDMediator->setUniformValue(mVDUniforms->IBARSTART, mSavedBar);
 						mVDMediator->setUniformValue(
 							mVDUniforms->IBARBEAT,
 							mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));// - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART)
@@ -192,6 +193,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				}
 			}
 		}
+		/* obsolete 
 		if (!found)
 		{
 			// from Midithor (i=0 on noteoff) Midi1 to Midi8
@@ -229,7 +231,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 					}
 				}
 			}
-		}
+		}*/
 
 		if (!found)
 		{
@@ -255,15 +257,15 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				found = true;
 				float previousBar = mVDUniforms->getUniformValue(mVDUniforms->IBAR); // 20210101 was int
 
-				float newBar = (float)msg[0].int32();
-				mVDSettings->setErrorMsg("0bar: " + toString(msg[0].int32() - 1) + " - " + toString(newBar) + " 1bar: " + toString(previousBar) + " - " + toString(mVDUniforms->getUniformValue(mVDUniforms->IBAR)));
+				mSavedBar = (float)msg[0].int32();
+				mVDSettings->setErrorMsg("0bar: " + toString(msg[0].int32() - 1) + " - " + toString(mSavedBar) + " 1bar: " + toString(previousBar) + " - " + toString(mVDUniforms->getUniformValue(mVDUniforms->IBAR)));
 				// TODO test if useless:
-				if (previousBar != newBar) {
+				if (previousBar != mSavedBar) {
 					mVDSettings->iBarDuration = mVDUniforms->getUniformValue(mVDUniforms->ITIME) - mBarStart;
 					mBarStart = mVDUniforms->getUniformValue(mVDUniforms->ITIME);
 				}
 				// TODO END
-				mVDMediator->setUniformValue(mVDUniforms->IBAR, newBar - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART));
+				mVDMediator->setUniformValue(mVDUniforms->IBAR, mSavedBar - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART));
 				mVDMediator->setUniformValue(
 					mVDUniforms->IBARBEAT,
 					mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT) );//- mVDUniforms->getUniformValue(mVDUniforms->IBARSTART)

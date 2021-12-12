@@ -37,7 +37,7 @@ namespace videodromm {
 			return obs;
 		}
 		VDUniformObserverRef setUniformValue(int aIndex, float aValue) {
-			if (aIndex != 20) { // mVDUniforms->IFPS
+			if (aIndex != 44) { // mVDUniforms->IFPS
 				osc::Message msg("/params");
 				msg.append(aIndex);
 				msg.append(aValue);

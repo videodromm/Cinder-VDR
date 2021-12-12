@@ -355,7 +355,9 @@ void VDAnimation::update() {
 		// sos
 		// IBARBEAT = IBAR * 4 + IBEAT
 		float current = mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT); // 20210101 was int
-		if (current == 426.0f || current == 428.0f || current == 442.0f) { mLastBar = 0.0f; } //38 to set iStart
+		if (current == 426.0f || current == 428.0f || current == 442.0f) {
+			mLastBar = 0.0f; 
+		} //38 to set iStart
 		if (mLastBar != mVDUniforms->getUniformValue(mVDUniforms->IBAR)) {
 			mLastBar = mVDUniforms->getUniformValue(mVDUniforms->IBAR);
 			//if (mLastBar != 5 && mLastBar != 9 && mLastBar < 113) mVDSettings->iStart = mVDSession->getUniformValue(mVDUniforms->ITIME);

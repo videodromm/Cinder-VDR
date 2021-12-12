@@ -64,7 +64,7 @@ namespace videodromm
 		std::string							mOSCMsg;
 		int									mVelocity = 0;
 		int									mNote = 0;
-
+		float								mSavedBar = 0.0f;
 	};
 }
 

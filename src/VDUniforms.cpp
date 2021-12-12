@@ -394,6 +394,7 @@ bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 	if (aIndex > 0) {
 		if (aIndex == IBPM) {
 			if (aValue > 0.0f) {
+				shaderUniforms[aIndex].floatValue = aValue;
 				setUniformValue(IDELTATIME, 60 / aValue);
 			}
 		}
