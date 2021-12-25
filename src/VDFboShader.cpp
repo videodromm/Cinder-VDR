@@ -134,82 +134,13 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 			}
 		}
 		break;
-	case 3:
-		// video
-		texFileOrPath = getAssetPath("") / mAssetsPath / mTextureName;
-		mExt = "";
-		dotIndex = texFileOrPath.filename().string().find_last_of(".");
-		if (dotIndex != std::string::npos)  mExt = texFileOrPath.filename().string().substr(dotIndex + 1);
-		if (mExt == "mp4") {
-			bool fileExists = fs::exists(texFileOrPath);
-			if (!fileExists) {
-				mError = texFileOrPath.string() + " video does not exist, trying with parent folder";
-				CI_LOG_V(mError);
-				texFileOrPath = getAssetPath("") / mTextureName;
-				fileExists = fs::exists(texFileOrPath);
-				if (!fileExists) {
-					mError = texFileOrPath.string() + " video does not exist in parent folder";
-					CI_LOG_V(mError);
-				}
-			}
-			if (fileExists) {
-				try {
-					mGlslVideoTexture = gl::GlslProg::create(gl::GlslProg::Format()
-						.vertex(loadAsset("video_texture.vs.glsl"))
-						.fragment(loadAsset("video_texture.fs.glsl")));
-				}
-				catch (gl::GlslProgCompileExc ex) {
-					CI_LOG_E("<< GlslProg Compile Error >>\n" << ex.what());
-				}
-				catch (gl::GlslProgLinkExc ex) {
-					CI_LOG_E("<< GlslProg Link Error >>\n" << ex.what());
-				}
-				catch (gl::GlslProgExc ex) {
-					CI_LOG_E("<< GlslProg Error >> " << ex.what());
-				}
-				catch (AssetLoadExc ex) {
-					CI_LOG_E("<< Asset Load Error >> " << ex.what());
-				}
-				mBatchPlaneVideo = gl::Batch::create(geom::Plane().normal(vec3(0, 0, 1)), mGlslVideoTexture);
 
-				if (mBatchPlaneVideo) {
-					mBatchPlaneVideo->replaceGlslProg(mGlslVideoTexture);
-				}
-
-
-				if (!mVideo.isStopped()) {
-					mVideo.stop();
-				}
-				mIsVideoLoaded = mVideo.loadMovie(texFileOrPath);
-				mVideoDuration = mVideo.getDuration();
-				mVideoPos = mVideo.getPosition();
-				mVideo.play();
-
-				//mInputTextureRef = gl::Texture::create(, gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
-				mTypestr = "video";
-				mCurrentFilename = mTextureName;
-				mMode = 3;
-			}
-			else {
-				// default to audio
-				mCurrentFilename = mTextureName = "audio";
-				mMode = 6;
-			}
-			//mInputTextureList.push_back(mInputTextureRef);
-		}
-		else {
-			// default to audio
-			mCurrentFilename = mTextureName = "audio";
-			mMode = 6;
-		}
-		break;
 	default:
-
-		// image
 		texFileOrPath = getAssetPath("") / mAssetsPath / mTextureName;
 		mExt = "";
 		dotIndex = texFileOrPath.filename().string().find_last_of(".");
 		if (dotIndex != std::string::npos)  mExt = texFileOrPath.filename().string().substr(dotIndex + 1);
+		// image
 		if (mExt == "jpg" || mExt == "png") {
 			// 20211107
 			bool fileExists = fs::exists(texFileOrPath);
@@ -238,9 +169,72 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 			//mInputTextureList.push_back(mInputTextureRef);
 		}
 		else {
-			// default to audio
-			mCurrentFilename = mTextureName = "audio";
-			mMode = 6;
+			// video
+			if (mExt == "mp4") {
+				bool fileExists = fs::exists(texFileOrPath);
+				if (!fileExists) {
+					mError = texFileOrPath.string() + " video does not exist, trying with parent folder";
+					CI_LOG_V(mError);
+					texFileOrPath = getAssetPath("") / mTextureName;
+					fileExists = fs::exists(texFileOrPath);
+					if (!fileExists) {
+						mError = texFileOrPath.string() + " video does not exist in parent folder";
+						CI_LOG_V(mError);
+					}
+				}
+				if (fileExists) {
+					try {
+						mGlslVideoTexture = gl::GlslProg::create(gl::GlslProg::Format()
+							.vertex(loadAsset("video_texture.vs.glsl"))
+							.fragment(loadAsset("video_texture.fs.glsl")));
+					}
+					catch (gl::GlslProgCompileExc ex) {
+						CI_LOG_E("<< GlslProg Compile Error >>\n" << ex.what());
+					}
+					catch (gl::GlslProgLinkExc ex) {
+						CI_LOG_E("<< GlslProg Link Error >>\n" << ex.what());
+					}
+					catch (gl::GlslProgExc ex) {
+						CI_LOG_E("<< GlslProg Error >> " << ex.what());
+					}
+					catch (AssetLoadExc ex) {
+						CI_LOG_E("<< Asset Load Error >> " << ex.what());
+					}
+					mBatchPlaneVideo = gl::Batch::create(geom::Plane().normal(vec3(0, 0, 1)), mGlslVideoTexture);
+					if (mBatchPlaneVideo) {
+						mBatchPlaneVideo->replaceGlslProg(mGlslVideoTexture);
+					}
+					if (!mVideo.isStopped()) {
+						mVideo.stop();
+					}
+					mIsVideoLoaded = mVideo.loadMovie(texFileOrPath);
+					mVideoDuration = mVideo.getDuration();
+					mVideoPos = mVideo.getPosition();
+					//mVideo.play();
+					mCam.setPerspective(60.0f, getWindowAspectRatio(), 0.01f, 10000.0f);
+					mCam.lookAt(vec3(0, 0, 500), vec3(), vec3(0, 1, 0));
+					mCam.setAspectRatio(getWindowAspectRatio());
+					mCamUi.setCamera(&mCam);
+					mCamUi.setMouseWheelMultiplier(-mCamUi.getMouseWheelMultiplier());
+
+					//mInputTextureRef = gl::Texture::create(, gl::Texture2d::Format().loadTopDown().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+					mTypestr = "video";
+					mCurrentFilename = mTextureName;
+					mMode = 3;
+				}
+				else {
+					// default to audio
+					mCurrentFilename = mTextureName = "audio";
+					mMode = 6;
+				}
+				//mInputTextureList.push_back(mInputTextureRef);
+			}
+			else {
+				// default to audio
+				mCurrentFilename = mTextureName = "audio";
+				mMode = 6;
+			}
+			
 		}
 
 		break;
@@ -389,6 +383,14 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		}
 		if (mMode == 3) {
 			// video
+
+
+			gl::pushMatrices();
+			//gl::setMatricesWindow(mWidth, mHeight)
+			
+			gl::setMatrices(mCam);
+			gl::ScopedViewport scopedViewport(getWindowSize());
+			//gl::ScopedDepth scopedDepth(true);
 			if (mIsVideoLoaded) {
 				mVideo.update();
 				mVideoPos = mVideo.getPosition();
@@ -398,19 +400,20 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				}
 				vec2 videoSize = vec2(mVideo.getWidth(), mVideo.getHeight());
 				mGlslVideoTexture->uniform("uVideoSize", videoSize);
-				//videoSize *= 0.25f;
-				//videoSize *= 0.5f;
-				videoSize *= 0.95f;
+				videoSize *= 0.5f;
 				{
 					gl::ScopedColor scopedColor(Colorf::white());
 					gl::ScopedModelMatrix scopedModelMatrix;
 
 					ciWMFVideoPlayer::ScopedVideoTextureBind scopedVideoTex(mVideo, 0);
+					gl::translate(vec3(mVDUniforms->getUniformValue(mVDUniforms->IMOUSEX)*100.0f, mVDUniforms->getUniformValue(mVDUniforms->IMOUSEY)*100.0f, mVDUniforms->getUniformValue(mVDUniforms->IMOUSEZ)*100.0f));
 
 					gl::scale(vec3(videoSize, 1.0f));
 					mBatchPlaneVideo->draw();
 				}
 			}
+			// restore matrices
+			gl::popMatrices();
 		}
 		else {
 			// not a video

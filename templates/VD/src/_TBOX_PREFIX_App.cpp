@@ -50,11 +50,6 @@ private:
 	VDUniformRef					mVDUniform;
 	// Params
 	VDParamsRef						mVDParams;
-	// video
-	/*ciWMFVideoPlayer				mVideo;
-	float							mVideoPos;
-	float							mVideoDuration;
-	bool							mIsVideoLoaded;*/
 
 	bool							mFadeInDelay = true;
 	void							toggleCursorVisibility(bool visible);
@@ -91,25 +86,6 @@ _TBOX_PREFIX_App::_TBOX_PREFIX_App() : mSpoutOut("VDR", app::getWindowSize())
 
 	// sos only mVDSessionFacade->setUniformValue(mVDSettings->IEXPOSURE, 1.93f);
 	mFadeInDelay = true;
-	
-	/*fs::path texFileOrPath = getAssetPath("") / mVDSettings->mAssetsPath / "accueil.mp4";
-	if (fs::exists(texFileOrPath)) {
-		string ext = "";
-		int dotIndex = texFileOrPath.filename().string().find_last_of(".");
-		if (dotIndex != std::string::npos) ext = texFileOrPath.filename().string().substr(dotIndex + 1);
-		if (ext == "mp4" || ext == "wmv" || ext == "avi" || ext == "mov") {
-			if (!mVideo.isStopped()) {
-				mVideo.stop();
-			}
-
-			mIsVideoLoaded = mVideo.loadMovie(texFileOrPath);
-
-			mVideoDuration = mVideo.getDuration();
-			mVideoPos = mVideo.getPosition();
-			mVideo.play();
-
-		}
-	}*/
 }
 
 void _TBOX_PREFIX_App::toggleCursorVisibility(bool visible)
@@ -247,32 +223,32 @@ void _TBOX_PREFIX_App::draw()
 			mVDSessionFacade->getInputTexture(t);
 		}
 		int m = mVDSessionFacade->getMode();
-		if (m < mVDSessionFacade->getFboShaderListSize()) {
-			gl::draw(mVDSessionFacade->getFboShaderTexture(m));
-			mSpoutOut.sendTexture(mVDSessionFacade->getFboShaderTexture(m));
+		int m = mVDSessionFacade->getMode();
+		if (m == 8) {
+			gl::draw(mVDSessionFacade->buildRenderedMixetteTexture(0));
+			mSpoutOut.sendTexture(mVDSessionFacade->buildRenderedMixetteTexture(0));
+		}
+		else if (m == 7) {
+			gl::draw(mVDSessionFacade->buildPostFboTexture());
+			mSpoutOut.sendTexture(mVDSessionFacade->buildPostFboTexture());
+		}
+		else if (m == 6) {
+			gl::draw(mVDSessionFacade->buildFxFboTexture());
+			mSpoutOut.sendTexture(mVDSessionFacade->buildFxFboTexture());
 		}
 		else {
-			gl::draw(mVDSessionFacade->buildRenderedMixetteTexture(0), Area(50, 50, mVDParams->getFboWidth(), mVDParams->getFboHeight()));
-			//gl::draw(mVDSessionFacade->getPostFboTexture(), Area(0, 0, mVDSettings->mFboWidth, mVDSettings->mFboHeight));
+			if (m < mVDSessionFacade->getFboShaderListSize()) {
+				gl::draw(mVDSessionFacade->getFboShaderTexture(m));
+				mSpoutOut.sendTexture(mVDSessionFacade->getFboShaderTexture(m));
+			}
+			else {
+				gl::draw(mVDSessionFacade->buildRenderedMixetteTexture(0), Area(50, 50, mVDParams->getFboWidth() / 2, mVDParams->getFboHeight() / 2));
+				gl::draw(mVDSessionFacade->buildPostFboTexture(), Area(mVDParams->getFboWidth() / 2, mVDParams->getFboHeight() / 2, mVDParams->getFboWidth(), mVDParams->getFboHeight()));
+			}
 			//gl::draw(mVDSession->getRenderedMixetteTexture(0), Area(0, 0, mVDSettings->mFboWidth, mVDSettings->mFboHeight));
 			// ok gl::draw(mVDSession->getWarpFboTexture(), Area(0, 0, mVDSettings->mFboWidth, mVDSettings->mFboHeight));//getWindowBounds()
-			//mSpoutOut.sendTexture(mVDSession->getRenderedMixetteTexture(0));
 		}
-		/*vec2 videoSize = vec2(mVideo.getWidth(), mVideo.getHeight());
-		mGlslVideoTexture->uniform("uVideoSize", videoSize);
-		videoSize *= 0.25f;
-		videoSize *= 0.5f;
-		ciWMFVideoPlayer::ScopedVideoTextureBind scopedVideoTex(mVideo, 0);
-		gl::scale(vec3(videoSize, 1.0f));*/
-
-		//gl::draw(mPostFbo->getColorTexture());
-		//gl::draw(mVDSessionFacade->getFboRenderedTexture(0));
 	}
-	// Spout Send
-	// KO mSpoutOut.sendViewport();
-	// OK
-	 mSpoutOut.sendTexture(mVDSessionFacade->buildRenderedMixetteTexture(0));
-
 	getWindow()->setTitle(toString((int)getAverageFps()) + " fps");
 }
 void prepareSettings(App::Settings *settings)

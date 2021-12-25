@@ -170,6 +170,22 @@ namespace videodromm
 			return mFboShaderList[aFboIndex]->getTexture();
 
 		}
+		bool handleMouseDown(MouseEvent event)
+		{
+			for (unsigned int i = 0; i < mFboShaderList.size() - 1; i++)
+			{
+				mFboShaderList[i]->handleMouseDown(event);
+			}
+			return true;
+		}
+		bool handleMouseDrag(MouseEvent event)
+		{
+			for (unsigned int i = 0; i < mFboShaderList.size() - 1; i++)
+			{
+				mFboShaderList[i]->handleMouseDrag(event);
+			}
+			return true;
+		}
 		ci::gl::TextureRef				getMixetteTexture(unsigned int aFboIndex);
 		ci::gl::TextureRef				getRenderedMixetteTexture(unsigned int aFboIndex) { return mMixetteTexture; };
 		//unsigned int					fboFromJson(const JsonTree& json, unsigned int aFboIndex = 0);

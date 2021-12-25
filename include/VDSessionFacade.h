@@ -105,6 +105,7 @@ namespace videodromm
 		float					getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex);
 		void					setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue);
 		ci::gl::TextureRef		buildPostFboTexture();
+		ci::gl::TextureRef		buildFxFboTexture();
 		ci::gl::TextureRef		buildWarpFboTexture();
 		ci::gl::TextureRef		buildRenderedWarpFboTexture();
 		unsigned int			getWarpAFboIndex(unsigned int aWarpIndex);

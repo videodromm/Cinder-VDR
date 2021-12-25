@@ -26,6 +26,7 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 	fboFmt.setColorTextureFormat(fmt);
 	mWarpsFbo = gl::Fbo::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), format.depthTexture());
 	mPostFbo = gl::Fbo::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), format.depthTexture());
+	mFxFbo = gl::Fbo::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), format.depthTexture());
 	// 20210103 mGlslPost = gl::GlslProg::create(gl::GlslProg::Format().vertex(loadAsset("passthrough.vs")).fragment(loadAsset("post.glsl")));
 	mGlslPost = gl::GlslProg::create(gl::GlslProg::Format().vertex(mVDParams->getDefaultVertexString()).fragment(loadAsset("post.glsl")));
 	mWarpTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
@@ -52,7 +53,7 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 	mModesList[3] = "Fbo3";
 	mModesList[4] = "Fbo4";
 	mModesList[5] = "Fbo5";
-	mModesList[6] = "Fbo6";
+	mModesList[6] = "Height";
 	mModesList[7] = "Post";
 	mModesList[8] = "Mixette";
 	mModesList[9] = "Warp"; // not used
@@ -195,8 +196,9 @@ void VDSession::update(unsigned int aClassIndex) {
 	mVDAnimation->update();
 
 	mVDMix->getMixetteTexture(0);
-	renderWarpsToFbo();
+	renderWarpsToFbo();	
 	renderPostToFbo();
+	renderFxToFbo();
 }
 void VDSession::renderPostToFbo()
 {
@@ -205,6 +207,49 @@ void VDSession::renderPostToFbo()
 		// clear out the FBO with black
 		gl::clear(Color::black());
 		//gl::clear(ColorA(0.4f, 0.8f, 0.0f, 0.3f));
+
+		// setup the viewport to match the dimensions of the FBO
+		gl::ScopedViewport scpVp(ivec2(0), mPostFbo->getSize());
+
+		// texture binding must be before ScopedGlslProg
+		//mWarpsFbo->getColorTexture()
+		mWarpTexture->bind(40);
+		gl::ScopedGlslProg prog(mGlslPost);
+
+		// not used yet mGlslPost->uniform("TIME", getUniformValue(mVDUniforms->ITIME) - mVDSettings->iStart);;
+		mGlslPost->uniform("iResolution", vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
+		mGlslPost->uniform("iChannel0", 40); // texture 0
+		// tmp 20210102
+		float iz = mVDUniforms->getUniformValue(mVDUniforms->IZOOM);
+		mGlslPost->uniform("iTime", mVDUniforms->getUniformValue(mVDUniforms->ITIME));
+		mGlslPost->uniform("iTempoTime", mVDUniforms->getUniformValue(mVDUniforms->ITEMPOTIME));
+		mGlslPost->uniform("iRatio", mVDUniforms->getUniformValue(mVDUniforms->IRATIO));
+		mGlslPost->uniform("iSobel", mVDUniforms->getUniformValue(mVDUniforms->ISOBEL));
+		mGlslPost->uniform("iExposure", mVDUniforms->getUniformValue(mVDUniforms->IEXPOSURE));
+		mGlslPost->uniform("iTrixels", mVDUniforms->getUniformValue(mVDUniforms->ITRIXELS)); // trixels if > 0.
+		mGlslPost->uniform("iPixelate", mVDUniforms->getUniformValue(mVDUniforms->IPIXELATE)); // pixelate if < 1.
+		mGlslPost->uniform("iZoom", mVDUniforms->getUniformValue(mVDUniforms->IZOOM));
+		mGlslPost->uniform("iGlitch", mVDUniforms->getUniformValue(mVDUniforms->IGLITCH));
+		mGlslPost->uniform("iChromatic", mVDUniforms->getUniformValue(mVDUniforms->ICHROMATIC));
+		mGlslPost->uniform("iFlipV", mVDUniforms->getUniformValue(mVDUniforms->IFLIPPOSTV));
+		mGlslPost->uniform("iFlipH", mVDUniforms->getUniformValue(mVDUniforms->IFLIPPOSTH));
+		mGlslPost->uniform("iInvert", mVDUniforms->getUniformValue(mVDUniforms->IINVERT));
+		mGlslPost->uniform("iToggle", mVDUniforms->getUniformValue(mVDUniforms->ITOGGLE));
+		mGlslPost->uniform("iGreyScale", mVDUniforms->getUniformValue(mVDUniforms->IGREYSCALE));
+		mGlslPost->uniform("iVignette", mVDUniforms->getUniformValue(mVDUniforms->IVIGNETTE));
+		mGlslPost->uniform("iRedMultiplier", mVDUniforms->getUniformValue(mVDUniforms->IFRX));
+		mGlslPost->uniform("iGreenMultiplier", mVDUniforms->getUniformValue(mVDUniforms->IFGX));
+		mGlslPost->uniform("iBlueMultiplier", mVDUniforms->getUniformValue(mVDUniforms->IFBX));
+		gl::drawSolidRect(Rectf(0, 0, mVDParams->getFboWidth(), mVDParams->getFboHeight()));
+	}
+}
+void VDSession::renderFxToFbo()
+{
+	{
+		gl::ScopedFramebuffer fbScp(mPostFbo);
+		// clear out the FBO with black
+		//gl::clear(Color::black());
+		gl::clear(ColorA(0.4f, 0.8f, 0.0f, 0.3f));
 
 		// setup the viewport to match the dimensions of the FBO
 		gl::ScopedViewport scpVp(ivec2(0), mPostFbo->getSize());
@@ -469,6 +514,7 @@ bool VDSession::handleMouseDown(MouseEvent& event)
 	if (!Warp::handleMouseDown(mWarpList, event)) {
 		// let your application perform its mouseMove handling here
 		handled = false;
+		mVDMix->handleMouseDown(event);
 	}
 	event.setHandled(handled);
 	return event.isHandled();
@@ -482,6 +528,7 @@ bool VDSession::handleMouseDrag(MouseEvent& event)
 	if (!Warp::handleMouseDrag(mWarpList, event)) {
 		// let your application perform its mouseMove handling here
 		handled = false;
+		mVDMix->handleMouseDrag(event);
 	}
 	event.setHandled(handled);
 	return event.isHandled();
@@ -629,6 +676,9 @@ ci::gl::TextureRef VDSession::getRenderedMixetteTexture(unsigned int aFboIndex) 
 }
 ci::gl::TextureRef VDSession::getPostFboTexture() {
 	return mPostFbo->getColorTexture();
+};
+ci::gl::TextureRef VDSession::getFxFboTexture() {
+	return mFxFbo->getColorTexture();
 };
 ci::gl::TextureRef VDSession::getWarpFboTexture() {
 	return mWarpsFbo->getColorTexture();

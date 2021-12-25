@@ -15,6 +15,7 @@
 #include "cinder/Log.h"
 #include "cinder/Timeline.h"
 #include "cinder/ImageIo.h"
+#include "cinder/CameraUi.h"
 
 // textures
 #include "VDTexture.h"
@@ -108,7 +109,16 @@ namespace videodromm
 		ci::gl::Texture2dRef					getInputTexture() {
 			return mInputTextureRef;
 		};
-		
+		bool handleMouseDown(MouseEvent event)
+		{
+			mCamUi.mouseDown(event);
+			return true;
+		}
+		bool handleMouseDrag(MouseEvent event)
+		{
+			mCamUi.mouseDrag(event);
+			return true;
+		}
 	private:
 		// Params
 		VDParamsRef						mVDParams;
@@ -174,10 +184,12 @@ namespace videodromm
 		unsigned int					mFboIndex = 0;
 		// video
 		ciWMFVideoPlayer				mVideo;
-		float							mVideoPos;
-		float							mVideoDuration;
+		float							mVideoPos = 0.0f;
+		float							mVideoDuration = 0.0f;
 		bool							mIsVideoLoaded = false;
 		ci::gl::BatchRef				mBatchPlaneVideo;
 		ci::gl::GlslProgRef				mGlslVideoTexture;
+		ci::CameraPersp					mCam;
+		ci::CameraUi					mCamUi;
 	};
 }

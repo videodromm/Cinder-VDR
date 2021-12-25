@@ -196,6 +196,9 @@ ci::gl::TextureRef VDSessionFacade::buildFboRenderedTexture(unsigned int aFboInd
 ci::gl::TextureRef VDSessionFacade::buildPostFboTexture() {
 	return mVDSession->getPostFboTexture();
 }
+ci::gl::TextureRef VDSessionFacade::buildFxFboTexture() {
+	return mVDSession->getFxFboTexture();
+}
 ci::gl::TextureRef VDSessionFacade::buildWarpFboTexture() {
 	return mVDSession->getWarpFboTexture();
 }
