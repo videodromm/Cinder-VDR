@@ -136,6 +136,7 @@ namespace videodromm
 		gl::TextureRef					mInputTextureRef;
 		unsigned int					mInputTextureIndex;
 		unsigned int					createInputTexture(const JsonTree &json);
+		bool							mLoadTopDown = false;
 		// 20211115
 		int								mCurrentImageSequenceIndex = 0;
 		// 20211107

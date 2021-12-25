@@ -365,6 +365,7 @@ namespace videodromm {
 		gl::FboRef						mFxFbo;
 		//! shaders
 		gl::GlslProgRef					mGlslPost;
+		gl::GlslProgRef					mGlslFx;
 		void							renderPostToFbo();
 		void							renderFxToFbo();
 		void							renderWarpsToFbo();
