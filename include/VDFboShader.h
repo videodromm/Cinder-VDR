@@ -24,6 +24,8 @@
 #include "VDAnimation.h"
 // Params
 #include "VDParams.h"
+// video
+#include "ciWMFVideoPlayer.h"
 
 #include <atomic>
 #include <vector>
@@ -132,6 +134,7 @@ namespace videodromm
 		string							mTypestr = "";
 		string							mExt = "jpg";
 		int								mMode = 0;
+		int								dotIndex = std::string::npos;
 		// 20211107
 		bool							mIsHydraTex = false;
 		// 20211121
@@ -169,5 +172,12 @@ namespace videodromm
 		std::string						mMsg;
 		std::string						mAssetsPath = "";
 		unsigned int					mFboIndex = 0;
+		// video
+		ciWMFVideoPlayer				mVideo;
+		float							mVideoPos;
+		float							mVideoDuration;
+		bool							mIsVideoLoaded = false;
+		ci::gl::BatchRef				mBatchPlaneVideo;
+		ci::gl::GlslProgRef				mGlslVideoTexture;
 	};
 }
