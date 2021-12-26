@@ -61,14 +61,12 @@ namespace videodromm
 			IFGX = 6,
 			IFBX = 7,
 			ISOBEL = 8,
-			IROTATIONSPEED = 9,
-
+			// 9 avail
 			IVIGNETTE = 10,		// was 82 A#4
+			IROTATIONSPEED = 11,
+			IAUDIOX = 12,
 
-			IBACKGROUNDCOLORX = 11,
-			IBACKGROUNDCOLORY = 12,
-			IBACKGROUNDCOLORZ = 13,
-
+			IZOOM = 13,
 			IEXPOSURE = 14,
 			IPIXELATE = 15,
 			ITRIXELS = 16,
@@ -79,15 +77,15 @@ namespace videodromm
 			IMOUSEZ = 20,
 			IMOUSEW = 21,
 
-
 			ISPEED = 22,
 			IPIXELX = 23,
 			IPIXELY = 24,
-			IDELTATIME = 25,
+			// 25 check maybe used by fps
 			ISTEPS = 26,
 			IRATIO = 27,
-			IZOOM = 28,
-			IMAXVOLUME = 29,
+			//28 should be more useful
+			IMAXVOLUME = 28,
+			IDELTATIME = 29,
 			ICONTOUR = 30,
 
 			IWEIGHT0 = 31,
@@ -99,7 +97,7 @@ namespace videodromm
 			IWEIGHT6 = 37,
 			IWEIGHT7 = 38,
 			IWEIGHT8 = 39,
-			IAUDIOX = 40,
+			// 40 avail
 			ISTART = 41,
 			IXFADE = 42,
 			ITEMPOTIME = 43,
@@ -135,6 +133,9 @@ namespace videodromm
 			IGREYSCALE = 87,
 			ICLEAR = 88,	// 
 
+			IBACKGROUNDCOLORX = 101,
+			IBACKGROUNDCOLORY = 102,
+			IBACKGROUNDCOLORZ = 103,
 
 			IRESOLUTIONX = 121,
 			IRESOLUTIONY = 122,
@@ -167,9 +168,9 @@ namespace videodromm
 			SRCYLEFT = 162,
 			SRCYRIGHT = 163,
 			ICOLOR = 301,
-			IBACKGROUNDCOLOR = 311,
 			IMOUSE = 318,
 			IDATE = 373,
+			IBACKGROUNDCOLOR = 401,
 			IRESOLUTION = 421,
 		};
 		bool							isExistingUniform(const std::string& aName);

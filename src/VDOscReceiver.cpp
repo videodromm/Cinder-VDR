@@ -440,11 +440,14 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 			//mVDSettings->mOSCMsg += "\nnot handled: " + addr;
 			mVDSettings->setMsg("osc not handled: " + addr);
 		}
-		if (addr != "/play") {
-			ss << " f:" << f << " i:" << i << " note:" << mNote << " velocity:" << mVelocity;
+		if (addr != "/play" && addr != "/Spectrum" && addr != "/bar" && addr != "/beat"  && addr != "/tempo"  && addr != "/ticks") {
+			ss << " f:" << f << " i:" << i << " note:" << mNote << " U::" << mVDUniforms->getUniformName(mNote)  << " velocity:" << mVelocity;
 			mOSCMsg = ss.str();
 		}
-
+		else {
+			mVDSettings->setMsg(ss.str());
+		}
+		
 	});
 
 	try {

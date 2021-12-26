@@ -45,19 +45,17 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iBlueMultiplier", IFBX, 1.0f, 0.0f, 3.0f); // 7
 	// gstnsmk
 	createFloatUniform("iSobel", ISOBEL, 0.02f, 0.02f, 1.0f); // 8
-	// RotationSpeed
-	createFloatUniform("iRotationSpeed", IROTATIONSPEED, 0.02f, -0.1f, 1.0f); // 9
 	// vignette
 	createFloatUniform("iVignette", IVIGNETTE, 0.0f); // 10
-	// background red
-	createFloatUniform("iBackgroundColorX", IBACKGROUNDCOLORX, 0.56f); // 11
-	// background green
-	createFloatUniform("iBackgroundColorY", IBACKGROUNDCOLORY, 0.0f); // 12
-	// background blue
-	createFloatUniform("iBackgroundColorZ", IBACKGROUNDCOLORZ, 1.0f); // 13
-	createVec3Uniform("iBackgroundColor", IBACKGROUNDCOLOR, vec3(getUniformValue(IBACKGROUNDCOLORX), getUniformValue(IBACKGROUNDCOLORY), getUniformValue(IBACKGROUNDCOLORZ))); // 311
 
 	// rotary
+	// RotationSpeed
+	createFloatUniform("iRotationSpeed", IROTATIONSPEED, 0.02f, -0.1f, 1.0f); // 11
+	// Audio multfactor 
+	createFloatUniform("iAudioX", IAUDIOX, 1.0f, 0.01f, 30.0f); // 12
+	// zoom
+	createFloatUniform("iZoom", IZOOM, 1.0f, 0.95f, 1.05f, true); // 13
+
 	// exposure
 	createFloatUniform("iExposure", IEXPOSURE, 1.0f, 0.0f, 3.0f); // 14
 	// Pixelate
@@ -91,8 +89,6 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iSteps", ISTEPS, 16.0f, 1.0f, 128.0f); // 26
 	// ratio
 	createFloatUniform("iRatio", IRATIO, 20.0f, 0.00000000001f, 40.0f); // 27
-	// zoom
-	createFloatUniform("iZoom", IZOOM, 1.0f, 0.95f, 1.05f, true); // 28
 	// Max Volume
 	createFloatUniform("volume0", IMAXVOLUME, 0.0f, 0.0f, 255.0f); // 29
 
@@ -118,8 +114,7 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iWeight8", IWEIGHT8, 0.0f); // 39
 	// elapsed in bar 
 	//createFloatUniform("iElapsed", IELAPSED, 0.0f); // 39
-	// Audio multfactor 
-	createFloatUniform("iAudioX", IAUDIOX, 1.0f, 0.01f, 30.0f); // 40
+
 	// ISTART
 	createFloatUniform("iStart", ISTART, 0.0f, 1.0f, 4200.0f); // 41		
 
@@ -173,6 +168,13 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iDateW", IDATEW, 0.91f, 0.0f, 90000.0f); // 76 25 hours
 	// start bar
 	createFloatUniform("iBarStart", IBARSTART, 0.0f, 0.0f, 1200.0f); // 77		
+	// background red
+	createFloatUniform("iBackgroundColorX", IBACKGROUNDCOLORX, 0.56f); // 101
+	// background green
+	createFloatUniform("iBackgroundColorY", IBACKGROUNDCOLORY, 0.0f); // 102
+	// background blue
+	createFloatUniform("iBackgroundColorZ", IBACKGROUNDCOLORZ, 1.0f); // 103
+	createVec3Uniform("iBackgroundColor", IBACKGROUNDCOLOR, vec3(getUniformValue(IBACKGROUNDCOLORX), getUniformValue(IBACKGROUNDCOLORY), getUniformValue(IBACKGROUNDCOLORZ))); // 401
 
 	// vec3
 	// iResolutionX (should be fbowidth?) 

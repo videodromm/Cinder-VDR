@@ -246,7 +246,7 @@ void VDMidi::midiListener(midi::Message msg) {
 		midiControl = msg.control;
 		midiValue = msg.value;
 		midiNormalizedValue = lmap<float>(midiValue, 0.0, 127.0, 0.0, 1.0);
-		ss << " cc Chn:" << midiChannel << " CC:" << midiControl << " Val:" << midiValue << " NVal:" << midiNormalizedValue;
+		ss << " U:" << mVDUniforms->getUniformName(midiControl) << " cc Chn:" << midiChannel << " CC:" << midiControl << " Val:" << midiValue << " NVal:" << midiNormalizedValue;
 		CI_LOG_V("Midi: " + ss.str());
 		if (midiWeights) {
 			if (midiControl > 0 && midiControl < 9) {
