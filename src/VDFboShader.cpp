@@ -216,7 +216,9 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 					mCam.setAspectRatio(getWindowAspectRatio());
 					mCamUi.setCamera(&mCam);
 					mCamUi.setMouseWheelMultiplier(-mCamUi.getMouseWheelMultiplier());
-
+					mVDUniforms->setUniformValue(mVDUniforms->IMOUSEX, 0.0f);
+					mVDUniforms->setUniformValue(mVDUniforms->IMOUSEY, 0.0f);
+					mVDUniforms->setUniformValue(mVDUniforms->IMOUSEZ, 0.0f);
 					//mInputTextureRef = gl::Texture::create(, gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 					mTypestr = "video";
 					mCurrentFilename = mTextureName;

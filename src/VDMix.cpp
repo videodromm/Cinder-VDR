@@ -40,7 +40,7 @@ namespace videodromm {
 		//mDefaultTexture = ci::gl::Texture::create(loadImage(loadAsset("0.jpg")));
 		//loadImageFile("0.jpg", 0);
 
-		mMixetteTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
+		mMixetteTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown(false));
 		// init fbo format
 		fmt.setWrap(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 		fmt.setBorderColor(Color::black());
