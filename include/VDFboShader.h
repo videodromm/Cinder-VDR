@@ -18,7 +18,7 @@
 #include "cinder/CameraUi.h"
 
 // textures
-#include "VDTexture.h"
+//#include "VDTexture.h"
 //! Uniforms
 #include "VDUniforms.h"
 //! Animation
@@ -87,9 +87,9 @@ namespace videodromm
 			}
 		};
 		
-		/*unsigned int							getInputTexturesCount() {
-			return 1;// mInputTextureList.size();
-		}*/
+		unsigned int							getInputTexturesCount() {
+			return mInputTextureList.size();
+		}
 		std::string								getMsg() {
 			return mMsg;
 		};
@@ -106,8 +106,8 @@ namespace videodromm
 		bool									isHydraTex() {
 			return mIsHydraTex;
 		}
-		ci::gl::Texture2dRef					getInputTexture() {
-			return (mMode == 8) ? mInputTextureList[1] : mInputTextureRef;
+		ci::gl::Texture2dRef					getInputTexture(unsigned int aTexIndex = 0) {
+			return (mMode == 8 && aTexIndex < getInputTexturesCount()) ? mInputTextureList[aTexIndex] : mInputTextureRef;
 		};
 		bool handleMouseDown(MouseEvent event)
 		{

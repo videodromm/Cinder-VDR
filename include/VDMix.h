@@ -95,9 +95,9 @@ namespace videodromm
 				mFboShaderList[fboIndex]->setInputTextureRef(mTextureList[texIndex]->getTexture());
 			}
 		}
-		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aFboIndex = 0) {
+		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0) {
 			// Before 20111115 return mTextureList[mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureIndex()]->getTexture();
-			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTexture();
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTexture(aTexIndex);
 		}
 		void							setFboTextureMode(unsigned int aFboIndex, unsigned int aFboTextureMode) {
 			mFboShaderList[getValidFboIndex(aFboIndex)]->setFboTextureMode(aFboTextureMode);
@@ -111,8 +111,10 @@ namespace videodromm
 		ci::gl::Texture2dRef			getInputTexture(unsigned int aTexIndex) {
 			return mTextureList[getValidTexIndex(aTexIndex)]->getTexture();
 		}
-		unsigned int					getInputTexturesCount() {
-			return (unsigned int)mTextureList.size();
+		// TODO 20211227
+		unsigned int					getInputTexturesCount(unsigned int aFboIndex = 0) {
+			//return (unsigned int)mTextureList.size();
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTexturesCount();
 		}
 		std::string						getInputTextureName(unsigned int aFboIndex) {
 			// Before 20111115 return mTextureList[aTexIndex]->getName();
@@ -159,6 +161,9 @@ namespace videodromm
 				{
 					mFboShaderList[aFboIndex]->setInputTextureRefByIndex(i, mFboShaderList[getValidFboIndex(aFboIndex)]->getTexture());
 				}
+			}
+			else {
+				// 20211227 useless? mFboShaderList[aFboIndex]->setInputTextureRef(mFboShaderList[aFboIndex]->getTexture());
 			}
 
 			return mFboShaderList[aFboIndex]->getRenderedTexture();
@@ -207,7 +212,7 @@ namespace videodromm
 		// maintain a list of fbos specific to this mix
 		VDFboShaderList					mFboShaderList;
 		// list of textures
-		VDTextureList					mTextureList;
+		//VDTextureList					mTextureList;
 		bool							save();
 		void							loadFbos();
 		gl::Texture::Format				fmt;

@@ -230,8 +230,8 @@ int VDSessionFacade::getFboTextureHeight(unsigned int aFboIndex) {
 std::string VDSessionFacade::getFboInputTextureName(unsigned int aFboIndex) {
 	return mVDSession->getFboInputTextureName(aFboIndex);
 }
-ci::gl::Texture2dRef VDSessionFacade::getFboInputTexture(unsigned int aFboIndex) {
-	return mVDSession->getFboInputTexture(aFboIndex);
+ci::gl::Texture2dRef VDSessionFacade::getFboInputTexture(unsigned int aFboIndex, unsigned int aTexIndex) {
+	return mVDSession->getFboInputTexture(aFboIndex, aTexIndex);
 }
 void VDSessionFacade::setFboTextureMode(unsigned int aFboIndex, unsigned int aFboTextureMode) {
 	return mVDSession->setFboTextureMode(aFboIndex, aFboTextureMode);

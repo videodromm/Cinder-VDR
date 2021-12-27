@@ -128,8 +128,20 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 			texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
 			fileExists = fs::exists(texFileOrPath);
 			if (fileExists) {
+				//mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 				mInputTextureList[i] = ci::gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 				//mInputTextureList[i] = ci::gl::Texture::create(loadImage(texFileOrPath));
+			}
+			else {
+				mCurrentFilename = mTextureName + " (" + toString(i) + ").png";
+				
+				texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
+				fileExists = fs::exists(texFileOrPath);
+				if (fileExists) {
+					//mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+					mInputTextureList[i] = ci::gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+					//mInputTextureList[i] = ci::gl::Texture::create(loadImage(texFileOrPath));
+				}
 			}
 		}
 		break;

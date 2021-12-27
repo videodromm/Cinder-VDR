@@ -124,7 +124,7 @@ namespace videodromm
 		int						getWarpWidth(unsigned int aWarpIndex);
 		int						getWarpHeight(unsigned int aWarpIndex);
 		std::string				getFboInputTextureName(unsigned int aFboIndex = 0);
-		ci::gl::Texture2dRef	getFboInputTexture(unsigned int aFboIndex = 0);
+		ci::gl::Texture2dRef	getFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0);
 		void					setFboTextureMode(unsigned int aFboIndex, unsigned int aFboTextureMode);
 		unsigned int			getFboInputTextureIndex(unsigned int aFboIndex = 0);
 
