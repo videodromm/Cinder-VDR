@@ -107,7 +107,7 @@ namespace videodromm
 			return mIsHydraTex;
 		}
 		ci::gl::Texture2dRef					getInputTexture() {
-			return mInputTextureRef;
+			return (mMode == 8) ? mInputTextureList[1] : mInputTextureRef;
 		};
 		bool handleMouseDown(MouseEvent event)
 		{

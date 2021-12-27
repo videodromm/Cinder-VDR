@@ -123,14 +123,13 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	case 8: // img parts
 		for (size_t i{ 0 }; i < 4; i++)
 		{
-			mCurrentFilename = mTextureName + " (" + toString(i) + ").png";
+			mCurrentFilename = mTextureName + " (" + toString(i) + ").jpg";
 			//fs::path texFileOrPath = getAssetPath("") / mAssetsPath / currentFilename;
 			texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
 			fileExists = fs::exists(texFileOrPath);
 			if (fileExists) {
-				//mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
-
 				mInputTextureList[i] = ci::gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+				//mInputTextureList[i] = ci::gl::Texture::create(loadImage(texFileOrPath));
 			}
 		}
 		break;
@@ -236,7 +235,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 				mCurrentFilename = mTextureName = "audio";
 				mMode = 6;
 			}
-			
+
 		}
 
 		break;
@@ -385,11 +384,9 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		}
 		if (mMode == 3) {
 			// video
-
-
 			gl::pushMatrices();
 			//gl::setMatricesWindow(mWidth, mHeight)
-			
+
 			gl::setMatrices(mCam);
 			gl::ScopedViewport scopedViewport(getWindowSize());
 			//gl::ScopedDepth scopedDepth(true);
@@ -419,11 +416,19 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		}
 		else {
 			// not a video
-			mInputTextureRef->bind(0);
-			mInputTextureRef->bind(253);
-
+			if (mMode == 8) {
+				// imgseq
+				for (size_t i{ 0 }; i < 4; i++)
+				{
+					mInputTextureList[i]->bind(253 + i);
+				}
+			}
+			else {
+				mInputTextureRef->bind(0);
+			}
 
 			if (mIsHydraTex) {
+				mInputTextureRef->bind(253);
 				for (size_t i{ 0 }; i < 4; i++)
 				{
 					mInputTextureList[i]->bind(254 + i);
@@ -475,7 +480,8 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 					texNameEndIndex = name.find("iChannel");
 					if (texNameEndIndex != std::string::npos && texNameEndIndex != -1) {
 						mInputTextureName = name.substr(0, texNameEndIndex + 8);
-						mShader->uniform(mInputTextureName + toString(channelIndex), (uint32_t)(253 + channelIndex));
+						mShader->uniform(name, (uint32_t)(253 + channelIndex));
+						mInputTextureList[channelIndex]->bind(253 + channelIndex);
 						channelIndex++;
 					}
 					else {
@@ -501,7 +507,9 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 								channelIndex++;
 							}
 							else {
+								// onezero check
 								mShader->uniform(name, (uint32_t)(0));
+
 							}
 						}
 					}
