@@ -244,11 +244,11 @@ namespace videodromm {
 		std::string						getFboInputTextureName(unsigned int aFboIndex = 0) {
 			return mVDMix->getFboTextureName(aFboIndex);
 		}
-		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0) {
-			return mVDMix->getFboInputTexture(aFboIndex, aTexIndex);
+		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aTexIndex = 0) {
+			return mVDMix->getFboInputTexture(aTexIndex);
 		}
-		void							setFboTextureMode(unsigned int aFboIndex, unsigned int aFboTextureMode){
-			return mVDMix->setFboTextureMode(aFboIndex, aFboTextureMode);
+		void							setFboTextureAudioMode(unsigned int aFboIndex){
+			return mVDMix->setFboTextureAudioMode(aFboIndex);
 		};
 		void							setSelectedFbo(unsigned int aFboIndex) {
 			return mVDMix->setSelectedFbo(aFboIndex);
@@ -262,9 +262,9 @@ namespace videodromm {
 		unsigned int			getFboInputTextureIndex(unsigned int aFboIndex = 0) {
 			return mVDMix->getFboInputTextureIndex(aFboIndex);
 		}
-		ci::gl::Texture2dRef			getInputTexture(unsigned int aTexIndex) {
+		/*ci::gl::Texture2dRef			getInputTexture(unsigned int aTexIndex) {
 			return mVDMix->getInputTexture(aTexIndex);
-		}
+		}*/
 		unsigned int					getInputTexturesCount(unsigned int aFboIndex = 0) {
 			return mVDMix->getInputTexturesCount(aFboIndex);
 		}

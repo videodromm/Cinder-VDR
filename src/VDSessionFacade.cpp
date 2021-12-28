@@ -230,11 +230,11 @@ int VDSessionFacade::getFboTextureHeight(unsigned int aFboIndex) {
 std::string VDSessionFacade::getFboInputTextureName(unsigned int aFboIndex) {
 	return mVDSession->getFboInputTextureName(aFboIndex);
 }
-ci::gl::Texture2dRef VDSessionFacade::getFboInputTexture(unsigned int aFboIndex, unsigned int aTexIndex) {
-	return mVDSession->getFboInputTexture(aFboIndex, aTexIndex);
+ci::gl::Texture2dRef VDSessionFacade::getFboInputTexture(unsigned int aTexIndex) {
+	return mVDSession->getFboInputTexture(aTexIndex);
 }
-void VDSessionFacade::setFboTextureMode(unsigned int aFboIndex, unsigned int aFboTextureMode) {
-	return mVDSession->setFboTextureMode(aFboIndex, aFboTextureMode);
+void VDSessionFacade::setFboTextureAudioMode(unsigned int aFboIndex) {
+	return mVDSession->setFboTextureAudioMode(aFboIndex);
 }
 void VDSessionFacade::setSelectedFbo(unsigned int aFboIndex) {
 	mVDSession->setSelectedFbo(aFboIndex);
@@ -257,9 +257,9 @@ ci::gl::Texture2dRef VDSessionFacade::buildFboInputTexture(unsigned int aFboInde
 ci::gl::Texture2dRef VDSessionFacade::getFboInputTextureListItem(unsigned int aFboIndex, unsigned int aTexIndex) {
 	return mVDSession->getFboInputTextureListItem(aFboIndex, aTexIndex);
 }
-ci::gl::Texture2dRef VDSessionFacade::getInputTexture(unsigned int aTexIndex) {
+/*ci::gl::Texture2dRef VDSessionFacade::getInputTexture(unsigned int aTexIndex) {
 	return mVDSession->getInputTexture(aTexIndex);
-}
+}*/
 
 void VDSessionFacade::createWarp() {
 	mVDSession->createWarp();

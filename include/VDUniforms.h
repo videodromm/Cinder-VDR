@@ -12,7 +12,7 @@ using namespace ci;
 
 namespace videodromm
 {
-
+	enum VDTextureMode { UNKNOWN, IMAGE, SEQUENCE, MOVIE, CAMERA, SHARED, AUDIO, STREAM, PARTS };
 	//enum class UniformTypes { FLOAT, SAMPLER2D, VEC2, VEC3, VEC4, INT, BOOL };
 	// cinder::gl::GlslProg::Uniform
 	struct VDUniformStruct
@@ -108,6 +108,7 @@ namespace videodromm
 			IBADTV = 48,
 			ITIMEFACTOR = 49,
 			ISMOOTH = 50,
+
 			// int
 			IBLENDMODE = 60,
 			IBEAT = 61,
@@ -363,24 +364,7 @@ namespace videodromm
 			shaderUniforms[aCtrlIndex].floatValue = aValue.x;
 			//shaderUniforms[aCtrlIndex].vec4Value = aValue;
 		}
-		/*void createIntUniform(const std::string& aName, int aCtrlIndex, int aValue = 1) {
-			shaderUniforms[aCtrlIndex].name = aName;
-			shaderUniforms[aCtrlIndex].index = aCtrlIndex;
-			shaderUniforms[aCtrlIndex].uniformType = GL_INT;
-			//shaderUniforms[aCtrlIndex].isValid = true;
-			shaderUniforms[aCtrlIndex].floatValue = aValue;
-		}
-		void createBoolUniform(const std::string& aName, int aCtrlIndex, bool aValue = false) {
-			shaderUniforms[aCtrlIndex].name = aName;
-			shaderUniforms[aCtrlIndex].minValue = 0;
-			shaderUniforms[aCtrlIndex].maxValue = 1;
-			shaderUniforms[aCtrlIndex].defaultValue = aValue;
-			shaderUniforms[aCtrlIndex].anim = 0;
-			shaderUniforms[aCtrlIndex].index = aCtrlIndex;
-			shaderUniforms[aCtrlIndex].floatValue = aValue;
-			shaderUniforms[aCtrlIndex].uniformType = GL_BOOL;
-			//shaderUniforms[aCtrlIndex].isValid = true;
-		}*/
+		
 		int stringToIndex(const std::string& key);
 		int mErrorCode = 0;
 	};

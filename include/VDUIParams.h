@@ -16,7 +16,7 @@ namespace videodromm {
 		const unsigned	fboHeight{ 720 };//(unsigned)(mFboWidth * mAspectRatio)
 
 		// imgui positions and sizes
-		const unsigned	uiYPosRow1{ 18 }; 
+		const unsigned	uiYPosRow1{ 4 }; 
 		unsigned	uiLargeW = (previewFboWidth + uiMargin) * 3;
 		unsigned	uiLargeH = (previewFboHeight + uiMargin) * 5;
 		unsigned	uiLargePreviewW = (unsigned)(previewFboWidth * 1.7);

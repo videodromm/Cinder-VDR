@@ -124,8 +124,8 @@ namespace videodromm
 		int						getWarpWidth(unsigned int aWarpIndex);
 		int						getWarpHeight(unsigned int aWarpIndex);
 		std::string				getFboInputTextureName(unsigned int aFboIndex = 0);
-		ci::gl::Texture2dRef	getFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0);
-		void					setFboTextureMode(unsigned int aFboIndex, unsigned int aFboTextureMode);
+		ci::gl::Texture2dRef	getFboInputTexture(unsigned int aTexIndex = 0);
+		void					setFboTextureAudioMode(unsigned int aFboIndex);
 		void					setSelectedFbo(unsigned int aFboIndex = 0);
 		unsigned int			getSelectedFbo();
 		unsigned int			getFboInputTextureIndex(unsigned int aFboIndex = 0);
@@ -164,7 +164,7 @@ namespace videodromm
 		std::vector<ci::gl::GlslProg::Uniform> getUniforms(unsigned int aFboIndex = 0);
 		ci::gl::Texture2dRef	buildFboInputTexture(unsigned int aFboIndex = 0);
 		ci::gl::Texture2dRef	getFboInputTextureListItem(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0);
-		ci::gl::Texture2dRef	getInputTexture(unsigned int aTexIndex);
+		//ci::gl::Texture2dRef	getInputTexture(unsigned int aTexIndex);
 		void resetAnim() {
 			mVDSession->resetAnim();
 		}

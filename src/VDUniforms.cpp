@@ -136,6 +136,8 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iTimeFactor", ITIMEFACTOR, 1.0f); // 49
 	// smooth animation
 	createFloatUniform("iSmooth", ISMOOTH, 0.005f); // 50
+	// 
+	//createFloatUniform("", , 0.005f); // 51
 	// int
 	// blend mode 
 	createFloatUniform("iBlendmode", IBLENDMODE, 0.0f, 0.0f, 25.0f); // 60
@@ -361,34 +363,7 @@ void VDUniforms::vec4FromJson(const ci::JsonTree& json) {
 		createVec4Uniform(jName, jCtrlIndex);
 	}
 }
-/*
-void VDUniforms::intFromJson(const ci::JsonTree& json) {
-	std::string jName;
-	int jCtrlIndex, jValue;
-	if (json.hasChild("uniform")) {
-		JsonTree u(json.getChild("uniform"));
-		jName = (u.hasChild("name")) ? u.getValueForKey<std::string>("name") : "unknown";
-		jCtrlIndex = (u.hasChild("index")) ? u.getValueForKey<int>("index") : 254;
-		jValue = (u.hasChild("value")) ? u.getValueForKey<int>("value") : 1;
-		createIntUniform(jName, jCtrlIndex, jValue);
-	}
 
-}
-void VDUniforms::boolFromJson(const ci::JsonTree& json) {
-	std::string jName;
-	int jCtrlIndex;
-	bool jValue;
-	if (json.hasChild("uniform")) {
-		JsonTree u(json.getChild("uniform"));
-		jName = (u.hasChild("name")) ? u.getValueForKey<std::string>("name") : "unknown";
-		jCtrlIndex = (u.hasChild("index")) ? u.getValueForKey<int>("index") : 255;
-		jValue = (u.hasChild("value")) ? u.getValueForKey<bool>("value") : false;
-		createBoolUniform(jName, jCtrlIndex, jValue);
-	}
-}
-void VDUniforms::setUniformValueByName(const std::string& aName, float aValue) {
-	shaderUniforms[stringToIndex(aName)].floatValue = aValue;
-};*/
 bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 	bool rtn = false;
 
@@ -470,26 +445,11 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iSobel") {
 		rtn = ISOBEL;
 	}
-	// RotationSpeed 9
+	// RotationSpeed 11
 	else if (key == "iRotationSpeed") {
 		rtn = IROTATIONSPEED;
 	}
-	// background 10
-	else if (key == "iBackgroundColor") {
-		rtn = IBACKGROUNDCOLOR;
-	}
-	// 11
-	else if (key == "iBackgroundColorX") {
-		rtn = IBACKGROUNDCOLORX;
-	}
-	// 12
-	else if (key == "iBackgroundColorY") {
-		rtn = IBACKGROUNDCOLORY;
-	}
-	// 13
-	else if (key == "iBackgroundColorZ") {
-		rtn = IBACKGROUNDCOLORZ;
-	}
+
 
 	// rotary
 	// exposure 14
@@ -548,7 +508,7 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iRatio") {
 		rtn = IRATIO;
 	}
-	// zoom 28
+	// zoom 13
 	else if (key == "iZoom") {
 		rtn = IZOOM;
 	}
@@ -687,7 +647,23 @@ int VDUniforms::stringToIndex(const std::string& key) {
 		rtn = IVAMOUNT;
 	}
 	// vec3
-	// 120
+	// background 401
+	else if (key == "iBackgroundColor") {
+	rtn = IBACKGROUNDCOLOR;
+	}
+	// 101 
+	else if (key == "iBackgroundColorX") {
+	rtn = IBACKGROUNDCOLORX;
+	}
+	// 102
+	else if (key == "iBackgroundColorY") {
+	rtn = IBACKGROUNDCOLORY;
+	}
+	// 103
+	else if (key == "iBackgroundColorZ") {
+	rtn = IBACKGROUNDCOLORZ;
+	}
+	// 421
 	else if (key == "iResolution") {
 		rtn = IRESOLUTION;
 	}

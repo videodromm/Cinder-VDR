@@ -105,15 +105,15 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	unsigned int rtn = 0;
 	mCurrentFilename = mTextureName = (json.hasChild("texturename")) ? json.getValueForKey<string>("texturename") : "0.jpg";
 	mTypestr = (json.hasChild("texturetype")) ? json.getValueForKey<string>("texturetype") : "UNKNOWN";
-	mMode = (json.hasChild("texturemode")) ? json.getValueForKey<int>("texturemode") : 0;
+	mTextureMode = (json.hasChild("texturemode")) ? json.getValueForKey<int>("texturemode") : VDTextureMode::UNKNOWN;
 
 
-	switch (mMode)
+	switch (mTextureMode)
 	{
-	case 6: // audio
+	case VDTextureMode::AUDIO: // audio
 		mCurrentFilename = mTextureName = "audio";
 		break;
-	case 2: // img seq loaded when ableton runs
+	case VDTextureMode::SEQUENCE: // img seq loaded when ableton runs
 		/*if (mExt = "rien") {
 
 		//mImage = mVDSession->getInputTexture(mSeqIndex);
@@ -122,7 +122,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	// init with number 1 then getFboTexture will load next images
 		loadNextTexture(1);
 		break;
-	case 8: // img parts
+	case VDTextureMode::PARTS: // img parts
 		for (size_t i{ 0 }; i < 4; i++)
 		{
 			mCurrentFilename = mTextureName + " (" + toString(i) + ").jpg";
@@ -177,13 +177,12 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 				mTypestr = "image";
 				mStatus = mCurrentFilename = mTextureName;
 				
-				mMode = 1;
+				mTextureMode = VDTextureMode::IMAGE;
 			}
 			else {
 				// default to audio
 				mStatus = "audio, jpg or png does not exist: " + mTextureName;
-				mCurrentFilename = mTextureName = "audio";
-				mMode = 6;
+				setFboTextureAudioMode();
 			}
 			//mInputTextureList.push_back(mInputTextureRef);
 		}
@@ -241,21 +240,19 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 					//mInputTextureRef = gl::Texture::create(, gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 					mTypestr = "video";
 					mStatus = mCurrentFilename = mTextureName;
-					mMode = 3;
+					mTextureMode = VDTextureMode::MOVIE;
 				}
 				else {
 					// default to audio
 					mStatus = "audio, video does not exist: " + mTextureName;
-					mCurrentFilename = mTextureName = "audio";
-					mMode = 6;
+					setFboTextureAudioMode();
 				}
 				//mInputTextureList.push_back(mInputTextureRef);
 			}
 			else {
 				// default to audio
 				mStatus = "audio, not image or video: " + mTextureName;
-				mStatus = mCurrentFilename = mTextureName = "audio";
-				mMode = 6;
+				setFboTextureAudioMode();
 			}
 		}
 		break;
@@ -402,7 +399,7 @@ void VDFboShader::loadNextTexture(int aCurrentIndex) {
 ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 
 	if (mValid) {
-		if (mMode == 2) {
+		if (mTextureMode == VDTextureMode::SEQUENCE) {
 			// 20211115 OK for SOS a (n).jpg
 			loadNextTexture((int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT));
 		}
@@ -413,7 +410,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		}
 		else {
 			*/
-		if (mMode == 6) {
+		if (mTextureMode == VDTextureMode::AUDIO) {
 			//mInputTextureRef = mVDAnimation->getAudioTexture();
 			mInputTextureList[0] = mVDAnimation->getAudioTexture();
 			mStatus = "audio";
@@ -422,7 +419,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		if (mVDUniforms->getUniformValue(mVDUniforms->ICLEAR)) {
 			gl::clear(Color::black());
 		}
-		if (mMode == 3) {
+		if (mTextureMode == VDTextureMode::MOVIE) {
 			// video
 			mStatus = "video";
 			gl::pushMatrices();
@@ -457,7 +454,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		}
 		else {
 			// not a video
-			if (mMode == 8) {
+			if (mTextureMode == VDTextureMode::PARTS) {
 				// imgseq
 				for (size_t i{ 0 }; i < 4; i++)
 				{

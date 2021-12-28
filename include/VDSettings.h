@@ -30,34 +30,6 @@ namespace videodromm {
 		VDSettings(const std::string& filename);
 		static VDSettingsRef create(const std::string& filename);
 
-		
-		enum VDTextureType { UNKNOWN, IMAGE, SEQUENCE, MOVIE, CAMERA, SHARED, AUDIO, STREAM, PARTS };
-		enum VDTextureModes {
-			// texture modes
-			TEXTUREMODEMIX = 0,				// mix two shaders
-			TEXTUREMODEAUDIO = 1,			// audio spectrum
-			TEXTUREMODELEFT = 2,			// left
-			TEXTUREMODERIGHT = 3,			// right
-			TEXTUREMODEINPUT = 4,			// spout
-			TEXTUREMODESHADER = 5,			// shader
-			TEXTUREMODEIMAGE = 6,			// image
-			TEXTUREMODEIMAGESEQUENCE = 7,	// image sequence
-			TEXTUREMODETHUMB = 8,			// thumb
-			TEXTUREMODEFBO = 9,				// fbo
-			TEXTUREMODETEXT = 10,			// text
-			TEXTUREMODEMOVIE = 11			// movie
-		};
-
-		enum VDModes {
-			// modes, should be the same in App
-			MODE_MIX = 0,
-			MODE_IMAGE = 1,
-			MODE_SHARED = 2,
-			MODE_STREAM = 3,
-			MODE_SHADER = 4,
-			MODE_HYDRA = 5
-		};
-
 		enum VDAnims {
 			ANIM_NONE = 0,
 			ANIM_TIME = 1,
@@ -183,7 +155,7 @@ namespace videodromm {
 		bool						mSplitWarpV;
 		int							mUIZoom;
 		int							mCurrentPreviewFboIndex;
-		
+
 		// camera
 		CameraPersp					mCamera;
 		vec2						mCamEyePointXY;
@@ -198,7 +170,7 @@ namespace videodromm {
 		std::string					mSocketIONickname;
 		uint16_t					mSocketIOPort;
 		std::string					mSocketIOMsg;
-		
+
 		// info to backup in XML
 		std::string					mInfo;
 		// ableton liveOSC

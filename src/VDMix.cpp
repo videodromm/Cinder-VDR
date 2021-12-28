@@ -264,7 +264,7 @@ namespace videodromm {
 		JsonTree texture = ci::JsonTree::makeArray("texture");
 		texture.addChild(ci::JsonTree("texturename", "audio"));
 		texture.pushBack(ci::JsonTree("texturetype", "audio"));
-		texture.pushBack(ci::JsonTree("texturemode", 0));
+		texture.pushBack(ci::JsonTree("texturemode", VDTextureMode::AUDIO));
 		json.addChild(texture);
 		int rtn = findAvailableIndex(0, json);
 		mFboShaderList[rtn]->setFragmentShaderString(aFragmentShaderString, aName + toString(rtn));
@@ -280,7 +280,7 @@ namespace videodromm {
 		JsonTree texture = ci::JsonTree::makeArray("texture");
 		texture.addChild(ci::JsonTree("texturename", "audio"));
 		texture.pushBack(ci::JsonTree("texturetype", "audio"));
-		texture.pushBack(ci::JsonTree("texturemode", 0));
+		texture.pushBack(ci::JsonTree("texturemode", VDTextureMode::AUDIO));
 		json.addChild(texture);
 
 		// if aFboShaderIndex is out of bounds try to find invalid fbo index or create a new fbo until MAX

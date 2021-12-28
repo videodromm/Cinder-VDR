@@ -101,21 +101,22 @@ namespace videodromm
 				// TODO 20211227 check if useless now mFboShaderList[getValidFboIndex(aFboIndex)]->setInputTextureRef(mTextureList[texIndex]->getTexture());
 			}
 		}
-		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0) {
+		/*ci::gl::Texture2dRef			getInputTexture(unsigned int aTexIndex) {
+			return mFboShaderList[getValidFboIndex(mSelectedFbo)]->getInputTexture(aTexIndex);
+		}*/
+		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aTexIndex = 0) {
 			// Before 20111115 return mTextureList[mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureIndex()]->getTexture();
-			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTexture(aTexIndex);
+			// Before 20211227 return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTexture(aTexIndex);
+			return mFboShaderList[getValidFboIndex(mSelectedFbo)]->getInputTexture(aTexIndex);
 		}
-		void							setFboTextureMode(unsigned int aFboIndex, unsigned int aFboTextureMode) {
-			mFboShaderList[getValidFboIndex(aFboIndex)]->setFboTextureMode(aFboTextureMode);
+		void							setFboTextureAudioMode(unsigned int aFboIndex) {
+			mFboShaderList[getValidFboIndex(aFboIndex)]->setFboTextureAudioMode();
 		}
 		ci::gl::Texture2dRef			getFboInputTextureListItem(unsigned int aFboIndex, unsigned int aTexIndex) {
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getFboInputTextureListItem(aTexIndex);
 		}
 		unsigned int					getFboInputTextureIndex(unsigned int aFboIndex) {
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureIndex();
-		}
-		ci::gl::Texture2dRef			getInputTexture(unsigned int aTexIndex) {
-			return mFboShaderList[getValidFboIndex(mSelectedFbo)]->getInputTexture(aTexIndex);
 		}
 		// TODO 20211227
 		unsigned int					getInputTexturesCount(unsigned int aFboIndex = 0) {

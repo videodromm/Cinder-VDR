@@ -70,9 +70,9 @@ namespace videodromm
 		void									setInputTextureRefByIndex(unsigned int aTexIndex, ci::gl::Texture2dRef aTextureRef) {
 			mInputTextureList[aTexIndex] = aTextureRef;
 		};
-		void									setFboTextureMode(unsigned int aFboTextureMode) {
+		void									setFboTextureAudioMode() {
 			mCurrentFilename = mTextureName = "audio";
-			mMode = 6;
+			mTextureMode = VDTextureMode::AUDIO;
 		}
 		ci::gl::Texture2dRef					getFboInputTextureListItem(unsigned int aTexIndex) {
 			return mInputTextureList[aTexIndex];
@@ -151,7 +151,7 @@ namespace videodromm
 		string							mStatus = "";
 		string							mTypestr = "";
 		string							mExt = "jpg";
-		int								mMode = 0;
+		int								mTextureMode = VDTextureMode::UNKNOWN;
 		int								dotIndex = std::string::npos;
 		// 20211107
 		bool							mIsHydraTex = false;
