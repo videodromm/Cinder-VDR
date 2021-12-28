@@ -41,7 +41,7 @@ namespace videodromm {
 		STATE_FAILED_COMPILE = 3,
 		STATE_SUCCESS_COMPILE = 4
 	};
-
+	
 	class VDSession {
 	public:
 		STATE state;
@@ -49,7 +49,7 @@ namespace videodromm {
 
 		bool							handleKeyDown(KeyEvent& event);
 		bool							handleKeyUp(KeyEvent& event);
-		void							update(unsigned int aClassIndex = 0);
+		void							update();
 
 		void							loadFromJsonFile(const fs::path& jsonFile);
 		void							setupHttpClient();
@@ -135,7 +135,7 @@ namespace videodromm {
 
 		bool							getUseWaveMonitor() { return mVDAnimation->getUseWaveMonitor(); };
 		void							toggleUseWaveMonitor() { mVDAnimation->toggleUseWaveMonitor(); };
-		
+
 		bool							getUseRandom() { return mVDAnimation->getUseRandom(); };
 		void							toggleUseRandom() { mVDAnimation->toggleUseRandom(); };
 
@@ -146,7 +146,7 @@ namespace videodromm {
 		int								loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex = 0) {
 			return mVDMix->loadFragmentShader(aFilePath, aFboShaderIndex);
 		};
-		
+
 		int								getFboTextureWidth(unsigned int aFboIndex) {
 			return mVDMix->getFboInputTextureWidth(aFboIndex);
 		};
@@ -158,7 +158,7 @@ namespace videodromm {
 		float							getTargetFps() { return mTargetFps; };
 		void							blendRenderEnable(bool render);
 		void							fileDrop(FileDropEvent event);
-		
+
 		// utils
 		int								getWindowsResolution() {
 			mVDSettings->mDisplayCount = 0;
@@ -233,7 +233,7 @@ namespace videodromm {
 		std::string								getError(unsigned int aFboIndex) {
 			return mVDMix->getError(aFboIndex);
 		};
-		
+
 		std::vector<ci::gl::GlslProg::Uniform>			getUniforms(unsigned int aFboIndex = 0) {
 			return mVDMix->getUniforms(aFboIndex);
 		}
@@ -247,7 +247,7 @@ namespace videodromm {
 		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aTexIndex = 0) {
 			return mVDMix->getFboInputTexture(aTexIndex);
 		}
-		void							setFboTextureAudioMode(unsigned int aFboIndex){
+		void							setFboTextureAudioMode(unsigned int aFboIndex) {
 			return mVDMix->setFboTextureAudioMode(aFboIndex);
 		};
 		void							setSelectedFbo(unsigned int aFboIndex) {
@@ -286,7 +286,7 @@ namespace videodromm {
 		bool							loadFolder(const string& aFolder);
 		void							loadAudioFile(const string& aFile);
 
-		
+
 		/*float							getSpeed(unsigned int aTextureIndex) {
 			return mTextureList[math<int>::min(aTextureIndex, mTextureList.size() - 1)]->getSpeed();
 		};
@@ -329,10 +329,16 @@ namespace videodromm {
 		void							toggleUI();
 		bool							showUI();
 		std::string						getModeName(unsigned int aMode);
+		unsigned int					getModesCount();
 		void resetAnim() {
 			mVDAnimation->resetAnim();
 		}
-
+		void							setDisplayMode(unsigned int aMode) {	
+			mVDUniforms->setDisplayMode(aMode);
+		}
+		unsigned int								getDisplayMode() {
+			return mVDUniforms->getDisplayMode();
+		}
 	private:
 		VDParamsRef						mVDParams;
 		// Settings
@@ -356,13 +362,15 @@ namespace videodromm {
 		//! window management
 		int								cmd = -1;
 		bool							mShowUI = false;
-	
+
 		//! Modes
 		std::map<int, std::string>		mModesList;
+
+
 		// blendmodes fbos
 		std::map<int, ci::gl::FboRef>	mBlendFbos;
 		int								mCurrentBlend;
-		
+
 		//! fbos
 		gl::Texture::Format				fmt;
 		gl::Fbo::Format					fboFmt;

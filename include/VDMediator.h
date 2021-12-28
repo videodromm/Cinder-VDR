@@ -33,6 +33,7 @@ using namespace ci;
 using namespace ci::app;
 
 namespace videodromm {
+	
 	class VDOscReceiver;
 	typedef std::shared_ptr<VDOscReceiver> VDOscReceiverRef;
 	
@@ -101,9 +102,7 @@ namespace videodromm {
 		void								setAnim(int aIndex, float aValue);
 		bool								handleKeyDown(KeyEvent& event);
 		bool								handleKeyUp(KeyEvent& event);
-		// Render Modes
-		int									getMode();
-		void								setMode(unsigned int aIndex);
+
 		int									getErrorCode() { return mVDUniforms->getErrorCode(); }
 		bool								setFragmentShaderString(const std::string& aFragmentShaderString, const std::string& aName = "");
 	private:
@@ -142,7 +141,6 @@ namespace videodromm {
 		VDKeyboardRef						mVDKeyboard;
 		//VDMediatorObservable() {}
 		VDMediatorObservable(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms, VDMixRef aVDMix);
-		int									mMode = 7;
 		
 
 	};

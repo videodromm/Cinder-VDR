@@ -107,7 +107,7 @@ namespace videodromm
 			return mIsHydraTex;
 		}
 		ci::gl::Texture2dRef					getInputTexture(unsigned int aTexIndex = 0) {
-			//return (mMode == 8 && aTexIndex < getInputTexturesCount()) ? mInputTextureList[aTexIndex] : mInputTextureRef;
+			//return (mtexMode == 8 && aTexIndex < getInputTexturesCount()) ? mInputTextureList[aTexIndex] : mInputTextureRef;
 			return mInputTextureList[getValidTexIndex(aTexIndex)];
 		};
 		int										getInputTextureWidth() {

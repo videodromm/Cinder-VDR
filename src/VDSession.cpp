@@ -48,16 +48,16 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 	loadFolder(mVDMix->getAssetsPath());
 
 	// Modes
-	mModesList[0] = "Fbo0";
-	mModesList[1] = "Fbo1";
-	mModesList[2] = "Fbo2";
-	mModesList[3] = "Fbo3";
-	mModesList[4] = "Fbo4";
-	mModesList[5] = "Fbo5";
-	mModesList[6] = "Height";
-	mModesList[7] = "Post";
-	mModesList[8] = "Mixette";
-	mModesList[9] = "Warp"; // not used
+	mModesList[VDDisplayMode::FBO0] = "Fbo0";
+	mModesList[VDDisplayMode::FBO1] = "Fbo1";
+	mModesList[VDDisplayMode::FBO2] = "Fbo2";
+	mModesList[VDDisplayMode::FBO3] = "Fbo3";
+	mModesList[VDDisplayMode::FBO4] = "Fbo4";
+	mModesList[VDDisplayMode::FBO5] = "Fbo5";
+	mModesList[VDDisplayMode::FX] = "Fx";
+	mModesList[VDDisplayMode::POST] = "Post";
+	mModesList[VDDisplayMode::MIXETTE] = "Mixette";
+	mModesList[VDDisplayMode::WARP] = "Warp"; // not used
 
 	// reset no matter what, so we don't miss anything
 	cmd = -1;
@@ -186,20 +186,24 @@ void VDSession::toggleUI() {
 bool VDSession::showUI() {
 	return mShowUI;
 };
+
 std::string VDSession::getModeName(unsigned int aMode) {
 	if (aMode > mModesList.size() - 1) aMode = mModesList.size() - 1;
 	return mModesList[aMode];
 }
-
-void VDSession::update(unsigned int aClassIndex) {
+unsigned int VDSession::getModesCount() {
+	return mModesList.size();
+};
+void VDSession::update() {
 
 	// fps calculated in main app
 	mVDAnimation->update();
 
 	mVDMix->getMixetteTexture(0);
-	renderWarpsToFbo();	
+	//if (mVDUniforms->getDisplayMode() == VDDisplayMode::WARP) 
+	renderWarpsToFbo();
 	renderPostToFbo();
-	renderFxToFbo();
+	if (mVDUniforms->getDisplayMode() == VDDisplayMode::FX || getElapsedFrames() % 100 == 0) renderFxToFbo();
 }
 void VDSession::renderPostToFbo()
 {
@@ -265,8 +269,8 @@ void VDSession::renderFxToFbo()
 		mGlslFx->uniform("iTime", mVDUniforms->getUniformValue(mVDUniforms->ITIME));
 		mGlslFx->uniform("iFreq0", mVDUniforms->getUniformValue(mVDUniforms->IFREQ0));
 		mGlslFx->uniform("iMouse", mVDUniforms->getVec4UniformValueByName("iMouse"));
-		
-		
+
+
 		gl::drawSolidRect(Rectf(0, 0, mVDParams->getFboWidth(), mVDParams->getFboHeight()));
 	}
 }
@@ -275,29 +279,19 @@ void VDSession::renderWarpsToFbo()
 	{
 		gl::ScopedFramebuffer fbScp(mWarpsFbo);
 		// clear out the FBO with black
-		//gl::clear(Color::black());
-		gl::clear(ColorA(0.4f, 0.0f, 0.8f, 0.3f));
-
+		gl::clear(Color::black());
 		// setup the viewport to match the dimensions of the FBO
 		gl::ScopedViewport scpVp(ivec2(0), mWarpsFbo->getSize());
 		// iterate over the warps and draw their content
 		int i = 0;
 		int a = 0;
-		int s = 0;
+
 		for (auto& warp : mWarpList) {
 			a = warp->getAFboIndex();
 			if (a < 0) a = 0; // TODO 20200228 a could be negative if warps3.xml > warps01.json
 			i = math<int>::min(a, getFboShaderListSize() - 1);
-			s = getFboShaderListSize(); // TMP
-			//if (isFboValid(i)) {
-				//ko  warp->draw(getFboRenderedTexture(0));
-				//ko warp->draw(getFboTexture(0)); bind to 0 broken
 			warp->draw(mVDMix->getRenderedMixetteTexture(0));
-			//}
-
 		}
-		//gl::color(0.5, 0.0, 1.0, 0.4f);
-		//gl::drawSolidRect(Rectf(0, 0, mVDParams->getFboWidth()/2, mVDParams->getFboHeight()/2));
 		mWarpTexture = mWarpsFbo->getColorTexture();
 	}
 }
@@ -548,10 +542,10 @@ bool VDSession::handleKeyDown(KeyEvent& event)
 	if (!Warp::handleKeyDown(mWarpList, event)) {
 
 		switch (event.getCode()) {
-		//case KeyEvent::KEY_s:
-		//	// Spout UI
-		//	mVDMix->selectSenderPanel();
-		//	break;
+			//case KeyEvent::KEY_s:
+			//	// Spout UI
+			//	mVDMix->selectSenderPanel();
+			//	break;
 		case KeyEvent::KEY_w:
 			CI_LOG_V("oscConnect");
 			if (isModDown) {

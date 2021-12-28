@@ -51,7 +51,7 @@ namespace videodromm
 		VDSessionFacadeRef		toggleUseTimeWithTempo();
 		VDSessionFacadeRef		useTimeWithTempo();
 		VDSessionFacadeRef		loadFromJsonFile(const fs::path& jsonFile);
-		VDSessionFacadeRef		setMode(int aMode);
+		VDSessionFacadeRef		setDisplayMode(int aMode);
 		VDSessionFacadeRef		update();
 		// begin terminal operations
 		bool					getUseTimeWithTempo();
@@ -168,8 +168,9 @@ namespace videodromm
 		void resetAnim() {
 			mVDSession->resetAnim();
 		}
-		int						getMode();
+		unsigned int			getDisplayMode();
 		std::string				getModeName(unsigned int aMode);
+		unsigned int			getModesCount();
 		int						getUniformIndexForName(const std::string& aName);
 		float					getUniformValue(unsigned int aCtrl);
 		std::string				getUniformName(unsigned int aIndex);

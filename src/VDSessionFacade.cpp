@@ -94,12 +94,12 @@ VDSessionFacadeRef VDSessionFacade::useTimeWithTempo() {
 	return shared_from_this();
 };
 
-VDSessionFacadeRef VDSessionFacade::setMode(int aMode) {
-	mVDMediator->setMode(aMode);
+VDSessionFacadeRef VDSessionFacade::setDisplayMode(int aMode) {
+	mVDSession->setDisplayMode(aMode);
 	return shared_from_this();
 }
-int VDSessionFacade::getMode() {
-	return mVDMediator->getMode();
+unsigned int VDSessionFacade::getDisplayMode() {
+	return mVDSession->getDisplayMode();
 }
 VDSessionFacadeRef VDSessionFacade::update() {
 	mVDSession->update();
@@ -296,6 +296,9 @@ VDSessionFacadeRef VDSessionFacade::toggleUI() {
 std::string VDSessionFacade::getModeName(unsigned int aMode) {
 	return mVDSession->getModeName(aMode);
 }
+unsigned int VDSessionFacade::getModesCount() {
+	return mVDSession->getModesCount();
+};
 int VDSessionFacade::getUniformIndexForName(const std::string& aName) {
 	return mVDSession->getUniformIndexForName(aName);
 };

@@ -215,12 +215,6 @@ VDMediatorObservableRef VDMediatorObservable::setUniformValue(int aIndex, float 
 	}
 	return shared_from_this();
 };
-int VDMediatorObservable::getMode() {
-	return mMode;
-};
-void VDMediatorObservable::setMode(unsigned int aIndex) { 
-	mMode = aIndex; 
-};
 
 /*
 VDMediatorObservableRef VDMediatorObservable::updateShaderText(int aIndex, float aValue) {

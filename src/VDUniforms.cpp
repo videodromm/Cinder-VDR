@@ -796,3 +796,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 bool VDUniforms::isExistingUniform(const std::string& aName) {
 	return stringToIndex(aName) != -1;
 };
+
+unsigned int VDUniforms::getDisplayMode() {
+	return mDisplayMode;
+};
+void VDUniforms::setDisplayMode(unsigned int aIndex) {
+	mDisplayMode = aIndex;
+};

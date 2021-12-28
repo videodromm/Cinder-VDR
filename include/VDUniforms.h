@@ -13,6 +13,18 @@ using namespace ci;
 namespace videodromm
 {
 	enum VDTextureMode { UNKNOWN, IMAGE, SEQUENCE, MOVIE, CAMERA, SHARED, AUDIO, STREAM, PARTS };
+	enum VDDisplayMode {
+		FBO0,
+		FBO1,
+		FBO2,
+		FBO3,
+		FBO4,
+		FBO5,
+		FX,
+		POST,
+		MIXETTE,
+		WARP
+	}; 
 	//enum class UniformTypes { FLOAT, SAMPLER2D, VEC2, VEC3, VEC4, INT, BOOL };
 	// cinder::gl::GlslProg::Uniform
 	struct VDUniformStruct
@@ -321,6 +333,8 @@ namespace videodromm
 		int getErrorCode() {
 			return mErrorCode;
 		}
+		unsigned int getDisplayMode();
+		void setDisplayMode(unsigned int aIndex);
 	private:
 
 		std::map<int, VDUniformStruct>		shaderUniforms;
@@ -339,6 +353,7 @@ namespace videodromm
 		// render windows
 		int								mRenderWidth;
 		int								mRenderHeight;
+		unsigned int					mDisplayMode = VDDisplayMode::POST;
 
 		void createVec2Uniform(const std::string& aName, int aCtrlIndex, vec2 aValue = vec2(0.0)) {
 			shaderUniforms[aCtrlIndex].name = aName;
