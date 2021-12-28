@@ -126,6 +126,8 @@ namespace videodromm
 		std::string				getFboInputTextureName(unsigned int aFboIndex = 0);
 		ci::gl::Texture2dRef	getFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0);
 		void					setFboTextureMode(unsigned int aFboIndex, unsigned int aFboTextureMode);
+		void					setSelectedFbo(unsigned int aFboIndex = 0);
+		unsigned int			getSelectedFbo();
 		unsigned int			getFboInputTextureIndex(unsigned int aFboIndex = 0);
 
 		std::string				getFboName(unsigned int aFboIndex);
@@ -143,8 +145,8 @@ namespace videodromm
 		void					setFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0) {
 			mVDSession->setFboInputTexture(aFboIndex, aTexIndex);
 		}
-		unsigned int			getInputTexturesCount() {
-			return mVDSession->getInputTexturesCount();
+		unsigned int			getInputTexturesCount(unsigned int aFboIndex = 0) {
+			return mVDSession->getInputTexturesCount(aFboIndex);
 		}
 		std::string				getInputTextureName(unsigned int aTexIndex) {
 			return mVDSession->getInputTextureName(aTexIndex);

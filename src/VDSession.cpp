@@ -101,7 +101,7 @@ void VDSession::makeRequest(http::UrlRef url, unsigned int aFboIndex)
 	auto onComplete = [&](asio::error_code ec, http::ResponseRef response) {
 		//texture = ci::gl::Texture::create(loadImage(ci::DataSourceBuffer::create(response->getContent()),
 		//	ImageSource::Options(), ".jpg"));
-		app::console() << response->getHeaders() << endl;
+		app::console() << response->getHeaders() << std::endl;
 		app::console() << "Content: " << std::endl;
 		auto content = response->getContent();
 		std::string jsonStr(static_cast<const char*>(content->getData()), content->getSize());
@@ -133,7 +133,7 @@ void VDSession::makeRequest(http::UrlRef url, unsigned int aFboIndex)
 		CI_LOG_E(ec.message() << " val: " << ec.value() << " Url: " << url->to_string());
 		if (response) {
 			app::console() << "Headers: " << std::endl;
-			app::console() << response->getHeaders() << endl;
+			app::console() << response->getHeaders() << std::endl;
 		}
 	};
 
@@ -440,7 +440,7 @@ void VDSession::fileDrop(FileDropEvent event) {
 		}
 		else if (ext == "png" || ext == "jpg") {
 			if (index < 1) index = 1;
-			if (index > 3) index = 3;
+			// 20211227 useless? if (index > 3) index = 3;
 			loadImageFile(absolutePath, index);
 		}
 		else if (ext == "wav" || ext == "mp3") {
@@ -548,10 +548,10 @@ bool VDSession::handleKeyDown(KeyEvent& event)
 	if (!Warp::handleKeyDown(mWarpList, event)) {
 
 		switch (event.getCode()) {
-		case KeyEvent::KEY_s:
-			// Spout UI
-			mVDMix->selectSenderPanel();
-			break;
+		//case KeyEvent::KEY_s:
+		//	// Spout UI
+		//	mVDMix->selectSenderPanel();
+		//	break;
 		case KeyEvent::KEY_w:
 			CI_LOG_V("oscConnect");
 			if (isModDown) {

@@ -21,8 +21,9 @@ namespace videodromm {
 		// TODO TMP mDefaultTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
 		// check to see if mix.json file exists and restore if it does
 		// must have one texture initialized
-		TextureAudioRef t(TextureAudio::create(mVDAnimation));
-		mTextureList.push_back(t);
+		//TextureAudioRef t(TextureAudio::create(mVDAnimation));
+		//mTextureList.push_back(t);
+		mDefaultTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown(false));
 
 		mixPath = getAssetPath("") / "mix.json";
 		if (fs::exists(mixPath))
@@ -70,11 +71,11 @@ namespace videodromm {
 		doc.write(writeFile(mixPath), JsonTree::WriteOptions());
 		return true;
 	}
-	void VDMix::selectSenderPanel() {
+	/*void VDMix::selectSenderPanel() {
 		if (ts) {
 			ts->getMaxFrame(); // TODO 20210130 rename or create new fct
 		}
-	}
+	}*/
 
 	void VDMix::restore(const fs::path& aFilePath)
 	{
@@ -97,7 +98,7 @@ namespace videodromm {
 					}
 				}
 			}
-			if (doc.hasChild("camera")) {
+			/* 20211227 mTextureList moved to fboshader if (doc.hasChild("camera")) {
 				JsonTree settings(doc.getChild("camera"));
 				if (settings.hasChild("texturename")) {
 					TextureCameraRef tc(TextureCamera::create());
@@ -125,7 +126,7 @@ namespace videodromm {
 					ts = TextureShared::create();
 					mTextureList.push_back(ts);
 				}
-			}
+			}*/
 		}
 		catch (const JsonTree::ExcJsonParserError& exc) {
 			CI_LOG_W(exc.what());
@@ -134,9 +135,9 @@ namespace videodromm {
 	unsigned int VDMix::getValidFboIndex(unsigned int aFboIndex) {
 		return math<int>::min(aFboIndex, (unsigned int)mFboShaderList.size() - 1);
 	}
-	unsigned int VDMix::getValidTexIndex(unsigned int aTexIndex) {
+	/*unsigned int VDMix::getValidTexIndex(unsigned int aTexIndex) {
 		return math<int>::min(aTexIndex, (unsigned int)mTextureList.size() - 1);
-	}
+	}*/
 	void VDMix::loadFbos() {
 		/* done better in Session
 				// 20211107 TODO add default fboshader if mFboShaderList empty? init shader
@@ -327,8 +328,8 @@ namespace videodromm {
 
 #pragma region textures
 
-	void VDMix::loadImageFile(const std::string& aFile, unsigned int aTextureIndex) {
-		int rtn = math<int>::min(aTextureIndex, mFboShaderList.size() - 1);
+	void VDMix::loadImageFile(const std::string& aFile, unsigned int aFboIndex) {
+		int rtn = math<int>::min(aFboIndex, mFboShaderList.size() - 1);
 		fs::path texFileOrPath = aFile;
 		if (fs::exists(texFileOrPath)) {
 
@@ -336,17 +337,17 @@ namespace videodromm {
 			int dotIndex = texFileOrPath.filename().string().find_last_of(".");
 			if (dotIndex != std::string::npos)  ext = texFileOrPath.filename().string().substr(dotIndex + 1);
 			if (ext == "jpg" || ext == "png") {
-				JsonTree		json;
-				JsonTree texture = ci::JsonTree::makeArray("texture");
-				texture.addChild(ci::JsonTree("texturename", aFile));
-				texture.pushBack(ci::JsonTree("texturetype", "image"));
-				json.addChild(texture);
-				TextureImageRef t(TextureImage::create());
+				/* 20211227 TextureImageRef t(TextureImage::create());
 				t->fromJson(texture);
-				mTextureList.push_back(t);
+				mTextureList.push_back(t);*/
 
 				if (mFboShaderList.size() < 1) {
 					// no fbos, create one
+					JsonTree		json;
+					JsonTree texture = ci::JsonTree::makeArray("texture");
+					texture.addChild(ci::JsonTree("texturename", aFile));
+					texture.pushBack(ci::JsonTree("texturetype", "image"));
+					json.addChild(texture);
 					JsonTree shader = ci::JsonTree::makeArray("shader");
 					shader.addChild(ci::JsonTree("shadername", "inputImage.fs"));
 					shader.pushBack(ci::JsonTree("shadertype", "fs"));
@@ -354,7 +355,8 @@ namespace videodromm {
 					createFboShaderTexture(json);
 				}
 				else {
-					mFboShaderList[rtn]->setInputTextureRef(mTextureList[mTextureList.size() - 1]->getTexture());
+					mFboShaderList[rtn]->loadImageFile(aFile);
+					// 20211227 was setInputTextureRef(mTextureList[mTextureList.size() - 1]->getTexture());
 				}
 			}
 		}

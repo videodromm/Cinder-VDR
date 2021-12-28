@@ -52,22 +52,21 @@ namespace videodromm
 
 		ci::gl::Texture2dRef					getTexture(); //TODO 20200610; = 0
 		ci::gl::Texture2dRef					getRenderedTexture();
-		//ci::gl::Texture2dRef					getInputTexture();
 		bool									isValid();
 		std::string								getShaderName();
 		std::vector<ci::gl::GlslProg::Uniform>	getUniforms();
 		//new 
 		bool									setFragmentShaderString(const std::string& aFragmentShaderString, const std::string& aName = "");
 		float									getUniformValueByLocation(unsigned int aLocationIndex) {
-			return mUniformValueByLocation[aLocationIndex]; 
+			return mUniformValueByLocation[aLocationIndex];
 		};
-		void									setUniformValueByLocation(unsigned int aLocationIndex, float aValue) { 
+		void									setUniformValueByLocation(unsigned int aLocationIndex, float aValue) {
 			mUniformValueByLocation[aLocationIndex] = aValue;
 		};
 		//void									setImageInputTexture(ci::gl::Texture2dRef aTextureRef, const std::string& aTextureFilename);
-		void									setInputTextureRef(ci::gl::Texture2dRef aTextureRef) { 
-			mInputTextureRef = aTextureRef; 
-		};
+		/*void									setInputTextureRef(ci::gl::Texture2dRef aTextureRef) {
+			mInputTextureRef = aTextureRef;
+		};*/
 		void									setInputTextureRefByIndex(unsigned int aTexIndex, ci::gl::Texture2dRef aTextureRef) {
 			mInputTextureList[aTexIndex] = aTextureRef;
 		};
@@ -86,7 +85,8 @@ namespace videodromm
 				return mStatus;// 20211212 was mCurrentFilename;
 			}
 		};
-		
+		// full path (dnd)
+		void									loadImageFile(const std::string& aFile, unsigned int aTexIndex = 0);
 		unsigned int							getInputTexturesCount() {
 			return mInputTextureList.size();
 		}
@@ -97,8 +97,8 @@ namespace videodromm
 			return mError;
 		};
 		bool									loadFragmentShaderFromFile(const string& aFileOrPath, bool isAudio = false);
-		void									setInputTextureIndex(unsigned int aTexIndex = 0) { 
-			mInputTextureIndex = aTexIndex; 
+		void									setInputTextureIndex(unsigned int aTexIndex = 0) {
+			mInputTextureIndex = getValidTexIndex(aTexIndex);
 		};
 		unsigned int							getInputTextureIndex() {
 			return mInputTextureIndex;
@@ -107,7 +107,14 @@ namespace videodromm
 			return mIsHydraTex;
 		}
 		ci::gl::Texture2dRef					getInputTexture(unsigned int aTexIndex = 0) {
-			return (mMode == 8 && aTexIndex < getInputTexturesCount()) ? mInputTextureList[aTexIndex] : mInputTextureRef;
+			//return (mMode == 8 && aTexIndex < getInputTexturesCount()) ? mInputTextureList[aTexIndex] : mInputTextureRef;
+			return mInputTextureList[getValidTexIndex(aTexIndex)];
+		};
+		int										getInputTextureWidth() {
+			return mInputTextureList[0]->getWidth();
+		};
+		int										getInputTextureHeight() {
+			return mInputTextureList[0]->getHeight();
 		};
 		bool handleMouseDown(MouseEvent event)
 		{
@@ -133,7 +140,7 @@ namespace videodromm
 		std::string						mInputTextureName;
 		std::string						mCurrentFilename;
 		std::map<unsigned int, gl::TextureRef>		mInputTextureList;
-		gl::TextureRef					mInputTextureRef;
+		//gl::TextureRef					mInputTextureRef;
 		unsigned int					mInputTextureIndex;
 		unsigned int					createInputTexture(const JsonTree &json);
 		bool							mLoadTopDown = false;
@@ -192,5 +199,9 @@ namespace videodromm
 		ci::gl::GlslProgRef				mGlslVideoTexture;
 		ci::CameraPersp					mCam;
 		ci::CameraUi					mCamUi;
+		unsigned int					getValidTexIndex(unsigned int aTexIndex) {
+			return math<int>::min(aTexIndex, (unsigned int)mInputTextureList.size() - 1);
+		}
+		
 	};
 }

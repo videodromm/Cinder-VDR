@@ -87,12 +87,18 @@ namespace videodromm
 				//mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->setImageInputTexture(mVDAnimation->getAudioTexture(), "Audio");
 			}
 		}*/
+		void							setSelectedFbo(unsigned int aFboIndex = 0) {
+			mSelectedFbo = getValidFboIndex(aFboIndex);
+		}
+		unsigned int					getSelectedFbo() {
+			return mSelectedFbo;
+		};
 		void							setFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0) {
 			if (mFboShaderList.size() > 0) {
-				unsigned int fboIndex = getValidFboIndex(aFboIndex);
-				unsigned int texIndex = getValidTexIndex(aTexIndex);
-				mFboShaderList[fboIndex]->setInputTextureIndex(texIndex);
-				mFboShaderList[fboIndex]->setInputTextureRef(mTextureList[texIndex]->getTexture());
+				
+				//unsigned int texIndex = getValidTexIndex(aTexIndex);
+				mFboShaderList[getValidFboIndex(aFboIndex)]->setInputTextureIndex(aTexIndex);
+				// TODO 20211227 check if useless now mFboShaderList[getValidFboIndex(aFboIndex)]->setInputTextureRef(mTextureList[texIndex]->getTexture());
 			}
 		}
 		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0) {
@@ -109,7 +115,7 @@ namespace videodromm
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureIndex();
 		}
 		ci::gl::Texture2dRef			getInputTexture(unsigned int aTexIndex) {
-			return mTextureList[getValidTexIndex(aTexIndex)]->getTexture();
+			return mFboShaderList[getValidFboIndex(mSelectedFbo)]->getInputTexture(aTexIndex);
 		}
 		// TODO 20211227
 		unsigned int					getInputTexturesCount(unsigned int aFboIndex = 0) {
@@ -123,12 +129,14 @@ namespace videodromm
 		int								getFboInputTextureWidth(unsigned int aFboIndex) {
 			//return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTexture() ? mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTexture()->getWidth() : mVDParams->getFboWidth();
 			//return mVDParams->getFboWidth();
-			return mTextureList[mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureIndex()]->getTextureWidth();
+			//return mTextureList[mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureIndex()]->getTextureWidth();
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureWidth();
 		};
 		int								getFboInputTextureHeight(unsigned int aFboIndex) {
 			//return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTexture() ? mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTexture()->getHeight() : mVDParams->getFboHeight();
 			//return mVDParams->getFboHeight();
-			return mTextureList[mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureIndex()]->getTextureHeight();
+			//return mTextureList[mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureIndex()]->getTextureHeight();
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureHeight();
 		};
 
 		std::string						getFboShaderName(unsigned int aFboIndex) {
@@ -140,7 +148,7 @@ namespace videodromm
 			//mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getTextureName();
 		};
 		bool							loadImageSequence(const string& aFolder, unsigned int aTextureIndex);
-		void							loadImageFile(const std::string& aFile, unsigned int aTextureIndex);
+		void							loadImageFile(const std::string& aFile, unsigned int aFboIndex = 0);
 
 		std::vector<ci::gl::GlslProg::Uniform>	getFboShaderUniforms(unsigned int aFboShaderIndex);
 		float							getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex);
@@ -151,7 +159,7 @@ namespace videodromm
 			mFboShaderList.clear();
 		}
 		ci::gl::TextureRef				getFboRenderedTexture(unsigned int aFboIndex) {
-			if (mFboShaderList.size() == 0) return mTextureList[0]->getTexture();
+			if (mFboShaderList.size() == 0) return mDefaultTexture;// mTextureList[0]->getTexture();
 			if (aFboIndex > mFboShaderList.size() - 1) aFboIndex = 0;
 
 			if (mFboShaderList[aFboIndex]->isHydraTex()) {
@@ -170,7 +178,7 @@ namespace videodromm
 
 		}
 		ci::gl::TextureRef				getFboTexture(unsigned int aFboIndex) {
-			if (mFboShaderList.size() == 0) return mTextureList[0]->getTexture();
+			if (mFboShaderList.size() == 0) return mDefaultTexture;// mTextureList[0]->getTexture();
 			if (aFboIndex > mFboShaderList.size() - 1) aFboIndex = 0;
 			return mFboShaderList[aFboIndex]->getTexture();
 
@@ -194,7 +202,7 @@ namespace videodromm
 		ci::gl::TextureRef				getMixetteTexture(unsigned int aFboIndex);
 		ci::gl::TextureRef				getRenderedMixetteTexture(unsigned int aFboIndex) { return mMixetteTexture; };
 		//unsigned int					fboFromJson(const JsonTree& json, unsigned int aFboIndex = 0);
-		void							selectSenderPanel();
+		//void							selectSenderPanel();
 		void							restore(const fs::path& aFilePath);
 	private:
 		// Params
@@ -211,7 +219,8 @@ namespace videodromm
 		VDFboShaderRef					mFboShader;
 		// maintain a list of fbos specific to this mix
 		VDFboShaderList					mFboShaderList;
-		// list of textures
+		unsigned int					mSelectedFbo = 0;
+		// textures
 		//VDTextureList					mTextureList;
 		bool							save();
 		void							loadFbos();
@@ -230,7 +239,8 @@ namespace videodromm
 		unsigned int					mCurrentSecond = 0;
 		unsigned int					mCurrentIndex = 0;
 		unsigned int					getValidFboIndex(unsigned int aFboIndex);
-		unsigned int					getValidTexIndex(unsigned int aTexIndex);
-		TextureSharedRef				ts;
+		//unsigned int					getValidTexIndex(unsigned int aTexIndex);
+		//TextureSharedRef				ts;
+		ci::gl::Texture2dRef			mDefaultTexture; //in case no fbos
 	};
 }

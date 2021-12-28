@@ -15,10 +15,11 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation,
 	std::string shaderType = "fs";
 	// hydra
 	mIsHydraTex = false;
+	/* 20211227 check is hydra needs init: 
 	for (size_t i{ 0 }; i < 4; i++)
 	{
 		mInputTextureList[i] = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown(mLoadTopDown));
-	}
+	}*/
 	// load default fragment shader
 	mShaderName = mShaderFileName = "inputImage.fs";
 	mShaderFragmentString = mVDParams->getDefaultShaderFragmentString();
@@ -53,7 +54,8 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation,
 	mInputTextureName = "none";
 	//mInputTextureRef = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown(mLoadTopDown));
 	// 20211107 only if no texture ?
-	mInputTextureRef = mVDAnimation->getAudioTexture();
+	//mInputTextureRef = mVDAnimation->getAudioTexture();
+	mInputTextureList[0] = mVDAnimation->getAudioTexture();
 
 	if (json.hasChild("shader")) {
 		JsonTree shaderJsonTree(json.getChild("shader"));
@@ -130,6 +132,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 			if (fileExists) {
 				//mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 				mInputTextureList[i] = ci::gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+				mStatus = "part";
 				//mInputTextureList[i] = ci::gl::Texture::create(loadImage(texFileOrPath));
 			}
 			else {
@@ -140,6 +143,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 				if (fileExists) {
 					//mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 					mInputTextureList[i] = ci::gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+					mStatus = "part";
 					//mInputTextureList[i] = ci::gl::Texture::create(loadImage(texFileOrPath));
 				}
 			}
@@ -154,6 +158,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		// image
 		if (mExt == "jpg" || mExt == "png") {
 			// 20211107
+			mStatus = "jpg or png";
 			bool fileExists = fs::exists(texFileOrPath);
 			if (!fileExists) {
 				mError = texFileOrPath.string() + " does not exist, trying with parent folder";
@@ -166,14 +171,17 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 				}
 			}
 			if (fileExists) {
-				mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+				//mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+				mInputTextureList[0] = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 				// TODO check topdown mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 				mTypestr = "image";
-				mCurrentFilename = mTextureName;
+				mStatus = mCurrentFilename = mTextureName;
+				
 				mMode = 1;
 			}
 			else {
 				// default to audio
+				mStatus = "audio, jpg or png does not exist: " + mTextureName;
 				mCurrentFilename = mTextureName = "audio";
 				mMode = 6;
 			}
@@ -232,11 +240,12 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 					mVDUniforms->setUniformValue(mVDUniforms->IMOUSEZ, 0.0f);
 					//mInputTextureRef = gl::Texture::create(, gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 					mTypestr = "video";
-					mCurrentFilename = mTextureName;
+					mStatus = mCurrentFilename = mTextureName;
 					mMode = 3;
 				}
 				else {
 					// default to audio
+					mStatus = "audio, video does not exist: " + mTextureName;
 					mCurrentFilename = mTextureName = "audio";
 					mMode = 6;
 				}
@@ -244,12 +253,11 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 			}
 			else {
 				// default to audio
-				mCurrentFilename = mTextureName = "audio";
+				mStatus = "audio, not image or video: " + mTextureName;
+				mStatus = mCurrentFilename = mTextureName = "audio";
 				mMode = 6;
 			}
-
 		}
-
 		break;
 	}
 
@@ -284,8 +292,9 @@ bool VDFboShader::loadFragmentShaderFromFile(const string& aFileOrPath, bool isA
 		mValid = loadFragmentStringFromFile();
 	}
 	if (isAudio && mValid) {
-		mInputTextureRef = mVDAnimation->getAudioTexture();
-		mCurrentFilename = "audio";
+		//mInputTextureRef = mVDAnimation->getAudioTexture();
+		mInputTextureList[0] = mVDAnimation->getAudioTexture(); 
+		mStatus = mCurrentFilename = "audio";
 	}
 	return mValid;
 }
@@ -353,19 +362,36 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 	}
 	return mValid;
 }
+void VDFboShader::loadImageFile(const std::string& aFile, unsigned int aTexIndex) {
+	fs::path texFileOrPath = aFile;
+	bool fileExists = fs::exists(texFileOrPath);
+	if (fileExists) {
+		// start profiling
+		auto start = Clock::now();
+
+		mInputTextureList[0] = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+		//mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+		auto end = Clock::now();
+		auto msdur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+		int ms = msdur.count();
+		mStatus = mCurrentFilename = aFile + " " + toString(ms) + "ms";
+	}
+}
+// replace current(0) with next in sequence
 void VDFboShader::loadNextTexture(int aCurrentIndex) {
 	if (mCurrentImageSequenceIndex != aCurrentIndex) {
 		mCurrentImageSequenceIndex = aCurrentIndex;
 		mCurrentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").jpg";
 		//fs::path texFileOrPath = getAssetPath("") / mAssetsPath / currentFilename;
+		
 		fs::path texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
 
 		bool fileExists = fs::exists(texFileOrPath);
 		if (fileExists) {
 			// start profiling
 			auto start = Clock::now();
-
-			mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+			mInputTextureList[0] = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+			//mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 			auto end = Clock::now();
 			auto msdur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 			int ms = msdur.count();
@@ -388,7 +414,9 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		else {
 			*/
 		if (mMode == 6) {
-			mInputTextureRef = mVDAnimation->getAudioTexture();
+			//mInputTextureRef = mVDAnimation->getAudioTexture();
+			mInputTextureList[0] = mVDAnimation->getAudioTexture();
+			mStatus = "audio";
 		}
 		gl::ScopedFramebuffer fbScp(mFbo);
 		if (mVDUniforms->getUniformValue(mVDUniforms->ICLEAR)) {
@@ -396,6 +424,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		}
 		if (mMode == 3) {
 			// video
+			mStatus = "video";
 			gl::pushMatrices();
 			//gl::setMatricesWindow(mWidth, mHeight)
 
@@ -436,11 +465,11 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				}
 			}
 			else {
-				mInputTextureRef->bind(0);
+				mInputTextureList[0]->bind(0);
 			}
 
 			if (mIsHydraTex) {
-				mInputTextureRef->bind(253);
+				mInputTextureList[0]->bind(253);
 				for (size_t i{ 0 }; i < 4; i++)
 				{
 					mInputTextureList[i]->bind(254 + i);

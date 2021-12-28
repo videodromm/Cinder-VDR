@@ -236,6 +236,12 @@ ci::gl::Texture2dRef VDSessionFacade::getFboInputTexture(unsigned int aFboIndex,
 void VDSessionFacade::setFboTextureMode(unsigned int aFboIndex, unsigned int aFboTextureMode) {
 	return mVDSession->setFboTextureMode(aFboIndex, aFboTextureMode);
 }
+void VDSessionFacade::setSelectedFbo(unsigned int aFboIndex) {
+	mVDSession->setSelectedFbo(aFboIndex);
+}
+unsigned int VDSessionFacade::getSelectedFbo() { 
+	return mVDSession->getSelectedFbo();
+};
 unsigned int VDSessionFacade::getFboInputTextureIndex(unsigned int aFboIndex) {
 	return mVDSession->getFboInputTextureIndex(aFboIndex);
 }

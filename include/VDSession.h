@@ -250,6 +250,12 @@ namespace videodromm {
 		void							setFboTextureMode(unsigned int aFboIndex, unsigned int aFboTextureMode){
 			return mVDMix->setFboTextureMode(aFboIndex, aFboTextureMode);
 		};
+		void							setSelectedFbo(unsigned int aFboIndex) {
+			return mVDMix->setSelectedFbo(aFboIndex);
+		}
+		unsigned int					getSelectedFbo() {
+			return mVDMix->getSelectedFbo();
+		};
 		ci::gl::Texture2dRef			getFboInputTextureListItem(unsigned int aFboIndex, unsigned int aTexIndex) {
 			return mVDMix->getFboInputTextureListItem(aFboIndex, aTexIndex);
 		}
@@ -259,10 +265,10 @@ namespace videodromm {
 		ci::gl::Texture2dRef			getInputTexture(unsigned int aTexIndex) {
 			return mVDMix->getInputTexture(aTexIndex);
 		}
-		unsigned int					getInputTexturesCount() {
-			return mVDMix->getInputTexturesCount();
+		unsigned int					getInputTexturesCount(unsigned int aFboIndex = 0) {
+			return mVDMix->getInputTexturesCount(aFboIndex);
 		}
-		std::string				getInputTextureName(unsigned int aTexIndex) {
+		std::string						getInputTextureName(unsigned int aTexIndex) {
 			return mVDMix->getInputTextureName(aTexIndex);
 		}
 		/*
@@ -273,8 +279,8 @@ namespace videodromm {
 		bool							isAutoLayout() { return mVDSettings->mAutoLayout; };
 		void							toggleAutoLayout() { mVDSettings->mAutoLayout = !mVDSettings->mAutoLayout; }
 		// textures
-		void							loadImageFile(const std::string& aFile, unsigned int aTextureIndex) {
-			mVDMix->loadImageFile(aFile, aTextureIndex);
+		void							loadImageFile(const std::string& aFile, unsigned int aFboIndex = 0) {
+			mVDMix->loadImageFile(aFile, aFboIndex);
 		};
 		//bool							loadImageSequence(const string& aFolder, unsigned int aTextureIndex);
 		bool							loadFolder(const string& aFolder);
