@@ -96,8 +96,8 @@ namespace videodromm
 		std::string				getFboMsg(unsigned int aFboIndex) {
 			return mVDSession->getFboMsg(aFboIndex);
 		};
-		std::string				getError(unsigned int aFboIndex) {
-			return mVDSession->getError(aFboIndex);
+		std::string				getFboError(unsigned int aFboIndex) {
+			return mVDSession->getFboError(aFboIndex);
 		};
 		std::vector<ci::gl::GlslProg::Uniform> getFboShaderUniforms(unsigned int aFboShaderIndex);
 		//float					getFboShaderUniformValue();
@@ -130,6 +130,7 @@ namespace videodromm
 		unsigned int			getFboInputTextureIndex(unsigned int aFboIndex = 0);
 
 		std::string				getFboName(unsigned int aFboIndex);
+		std::string				getTrackName() { return mTrackName; };
 		// audio
 		ci::gl::TextureRef		getAudioTexture() { return mVDSession->getAudioTexture(); };
 		bool					getUseAudio() { return mVDSession->getUseAudio(); };
@@ -189,6 +190,7 @@ namespace videodromm
 		// end events
 		VDSessionRef			getInstance() const;
 		bool					loadFolder(const string& aFolder) {
+			mTrackName = aFolder;
 			return mVDSession->loadFolder(aFolder);
 		}
 
@@ -200,6 +202,7 @@ namespace videodromm
 		bool								mOscReceiverConnected = false;
 		bool								mWSClientConnected = false;
 		bool								mIsMidiSetup = false;
+		std::string							mTrackName = "";
 	};
 
 

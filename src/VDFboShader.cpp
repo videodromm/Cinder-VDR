@@ -83,7 +83,7 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation,
 	fboFmt.setColorTextureFormat(fmt);
 	mFbo = gl::Fbo::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), fboFmt);
 	mFboMsg = "";
-	mError = "";
+	mFboError = "";
 	mActive = true;
 	if (mShaderFragmentString.length() > 0) {
 		mValid = setFragmentShaderString(mShaderFragmentString, mShaderName);
@@ -96,7 +96,7 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation,
 		CI_LOG_V("VDFbo constructor success");
 	}
 	else {
-		mError = "VDFbo constructor failed";
+		mFboError = "VDFbo constructor failed";
 	}
 }
 VDFboShader::~VDFboShader(void) {
@@ -161,13 +161,13 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 			mFboMsg = "jpg or png";
 			bool fileExists = fs::exists(texFileOrPath);
 			if (!fileExists) {
-				mError = texFileOrPath.string() + " does not exist, trying with parent folder";
-				CI_LOG_V(mError);
+				mFboError = texFileOrPath.string() + " does not exist, trying with parent folder";
+				CI_LOG_V(mFboError);
 				texFileOrPath = getAssetPath("") / mTextureName;
 				fileExists = fs::exists(texFileOrPath);
 				if (!fileExists) {
-					mError = texFileOrPath.string() + " does not exist in parent folder";
-					CI_LOG_V(mError);
+					mFboError = texFileOrPath.string() + " does not exist in parent folder";
+					CI_LOG_V(mFboError);
 				}
 			}
 			if (fileExists) {
@@ -190,13 +190,13 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 			if (mExt == "mp4") {
 				bool fileExists = fs::exists(texFileOrPath);
 				if (!fileExists) {
-					mError = texFileOrPath.string() + " video does not exist, trying with parent folder";
-					CI_LOG_V(mError);
+					mFboError = texFileOrPath.string() + " video does not exist, trying with parent folder";
+					CI_LOG_V(mFboError);
 					texFileOrPath = getAssetPath("") / mTextureName;
 					fileExists = fs::exists(texFileOrPath);
 					if (!fileExists) {
-						mError = texFileOrPath.string() + " video does not exist in parent folder";
-						CI_LOG_V(mError);
+						mFboError = texFileOrPath.string() + " video does not exist in parent folder";
+						CI_LOG_V(mFboError);
 					}
 				}
 				if (fileExists) {
@@ -275,13 +275,13 @@ bool VDFboShader::loadFragmentShaderFromFile(const string& aFileOrPath, bool isA
 				mFragFilePath = getAssetPath("") / mAssetsPath / aFileOrPath;
 				if (!fs::exists(mFragFilePath)) {
 					fileExists = false;
-					mError = "VDFboShader file does not exist in assets root or current subfolder:" + aFileOrPath;
+					mFboError = "VDFboShader file does not exist in assets root or current subfolder:" + aFileOrPath;
 				}
 			}
 		}
 	}
 	else {
-		mError = "VDFboShader file empty";
+		mFboError = "VDFboShader file empty";
 	}
 	if (fileExists) {
 		// file exists
@@ -307,7 +307,7 @@ bool VDFboShader::loadFragmentStringFromFile() {
 bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderString, const std::string& aName) {
 	std::string mOriginalFragmentString = aFragmentShaderString;
 	std::string mOutputFragmentString = aFragmentShaderString;
-	mError = "";
+	mFboError = "";
 	mName = aName;
 	mIsHydraTex = false;
 	// we would like a name without extension
@@ -348,13 +348,13 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 	}
 	catch (gl::GlslProgCompileExc& exc)
 	{
-		mError = mName + std::string(exc.what());
-		CI_LOG_V("setFragmentShaderString, unable to compile live fragment shader:" + mError + " frag:" + mName);
+		mFboError = mName + std::string(exc.what());
+		CI_LOG_V("setFragmentShaderString, unable to compile live fragment shader:" + mFboError + " frag:" + mName);
 	}
 	catch (const std::exception& e)
 	{
-		mError = mName + std::string(e.what());
-		CI_LOG_V("setFragmentShaderString, error on live fragment shader:" + mError + " frag:" + mName);
+		mFboError = mName + std::string(e.what());
+		CI_LOG_V("setFragmentShaderString, error on live fragment shader:" + mFboError + " frag:" + mName);
 	}
 	return mValid;
 }

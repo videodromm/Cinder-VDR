@@ -68,8 +68,8 @@ namespace videodromm
 		std::string						getFboMsg(unsigned int aFboIndex) {
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getFboMsg();
 		};
-		std::string						getError(unsigned int aFboIndex) {
-			return mFboShaderList[getValidFboIndex(aFboIndex)]->getError();
+		std::string						getFboError(unsigned int aFboIndex) {
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->getFboError();
 		};
 		std::string						getAssetsPath() {
 			return mAssetsPath;

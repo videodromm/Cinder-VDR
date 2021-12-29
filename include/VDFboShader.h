@@ -80,7 +80,7 @@ namespace videodromm
 				return "fbotex" + mInputTextureIndex;
 			}
 			else {
-				return toString(aTexIndex) + ":" +  mInputTextureNames[0];// 20211212 was mCurrentFilename;
+				return toString(aTexIndex) + ":" +  mInputTextureNames[0];
 			}
 		};
 		// full path (dnd)
@@ -91,8 +91,8 @@ namespace videodromm
 		std::string								getFboMsg() {
 			return mFboMsg;
 		};
-		std::string								getError() {
-			return mError;
+		std::string								getFboError() {
+			return mFboError;
 		};
 		bool									loadFragmentShaderFromFile(const string& aFileOrPath, bool isAudio = false);
 		void									setInputTextureIndex(unsigned int aTexIndex = 0) {
@@ -174,7 +174,7 @@ namespace videodromm
 		int								mMicroSeconds;
 		// include shader lines
 		std::string						shaderInclude;
-		std::string						mError;
+		std::string						mFboError;
 		bool							mValid = false;
 		//! Fbo
 		gl::FboRef						mFbo;
