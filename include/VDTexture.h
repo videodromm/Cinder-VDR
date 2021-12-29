@@ -9,51 +9,25 @@
 #include "cinder/Log.h"
 #include "cinder/Timeline.h"
 
-#if defined( CINDER_MSW )
-// spout
-#include "CiSpoutIn.h"
-#endif
-
-#if defined( NDI_RECEIVER )
-// ndi
-#include "CinderNDIReceiver.h"
-#endif
-
-#if defined( CINDER_MAC )
-// syphon
-#include "cinderSyphon.h"
-#endif
-
+/*
 // Animation
 #include "VDAnimation.h"
 
-// audio
-#include "cinder/audio/Context.h"
-#include "cinder/audio/MonitorNode.h"
-#include "cinder/audio/Utilities.h"
-#include "cinder/audio/Source.h"
-#include "cinder/audio/Target.h"
-#include "cinder/audio/dsp/Converter.h"
-#include "cinder/audio/SamplePlayerNode.h"
-#include "cinder/audio/SampleRecorderNode.h"
-#include "cinder/audio/NodeEffects.h"
-#include "cinder/Rand.h"
-// base64 for stream
-#include "cinder/Base64.h"
-
+*/
 #include <atomic>
 #include <vector>
 
 using namespace ci;
 using namespace ci::app;
-//using namespace std;
-
-
 namespace videodromm
 {
-	/*
-	** ---- Texture parent class ------------------------------------------------
-	*/
+
+}
+/*
+namespace videodromm
+{
+	// ---- Texture parent class ------------------------------------------------
+	
 	// stores the pointer to the VDTexture instance
 	typedef std::shared_ptr<class VDTexture> 	VDTextureRef;
 	typedef std::vector<VDTextureRef>			VDTextureList;
@@ -149,9 +123,8 @@ namespace videodromm
 		float							mSpeed;
 	private:
 	};
-	/*
-	** ---- TextureImage ------------------------------------------------
-	*/
+	// ---- TextureImage ------------------------------------------------
+	
 	typedef std::shared_ptr<class TextureImage>	TextureImageRef;
 
 	class TextureImage
@@ -177,9 +150,8 @@ namespace videodromm
 		virtual ci::gl::Texture2dRef	getCachedTexture(const std::string& aFilename) override;
 	};
 
-	/*
-	** ---- TextureImageSequence ------------------------------------------------
-	*/
+	// ---- TextureImageSequence ------------------------------------------------
+	
 	typedef std::shared_ptr<class TextureImageSequence>	TextureImageSequenceRef;
 
 	class TextureImageSequence
@@ -239,9 +211,8 @@ namespace videodromm
 		map<string, ci::gl::TextureRef>	mCachedTextures;
 	};
 
-	/*
-	** ---- TextureCamera ------------------------------------------------
-	*/
+	// ---- TextureCamera ------------------------------------------------
+	
 #if (defined(  CINDER_MSW) ) || (defined( CINDER_MAC ))
 	typedef std::shared_ptr<class TextureCamera>	TextureCameraRef;
 
@@ -272,9 +243,8 @@ namespace videodromm
 		CaptureRef				mCapture;
 	};
 #endif
-	/*
-	** ---- TextureShared ------------------------------------------------
-	*/
+	// ---- TextureShared ------------------------------------------------
+	
 #if (defined(  CINDER_MSW) ) || (defined( CINDER_MAC ))
 	typedef std::shared_ptr<class TextureShared>	TextureSharedRef;
 
@@ -310,9 +280,8 @@ namespace videodromm
 		ci::gl::Texture2dRef			mTexture;
 	};
 #endif
-	/*
-	** ---- TextureAudio ------------------------------------------------
-	*/
+	// ---- TextureAudio ------------------------------------------------
+	
 	typedef std::shared_ptr<class TextureAudio>	TextureAudioRef;
 
 	class TextureAudio
@@ -367,9 +336,8 @@ namespace videodromm
 		//WaveformPlot					mWaveformPlot;
 	};
 
-	/*
-	** ---- TextureStream ------------------------------------------------
-	*/
+	// ---- TextureStream ------------------------------------------------
+	
 	typedef std::shared_ptr<class TextureStream>	TextureStreamRef;
 
 	class TextureStream
@@ -402,7 +370,7 @@ namespace videodromm
 
 	};
 }
-
+*/
 
 /*
 #include "cinder/app/App.h"

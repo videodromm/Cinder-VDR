@@ -6,6 +6,7 @@
 using namespace ci;
 using namespace ci::app;
 
+/*
 namespace videodromm {
 	VDTexture::VDTexture(TextureType aType)
 		: mPath("")
@@ -158,12 +159,9 @@ namespace videodromm {
 	ci::gl::Texture2dRef VDTexture::getCachedTexture(const std::string& aFilename) {
 		return mTexture;
 	}
-	/*
-	**   Child classes
-	*/
-	/*
-	**   TextureImage for jpg, png
-	*/
+	
+	//   TextureImage for jpg, png
+	
 	TextureImage::TextureImage() {
 		mType = IMAGE;
 	}
@@ -225,9 +223,8 @@ namespace videodromm {
 	TextureImage::~TextureImage(void) {
 	}
 
-	/*
-	** TextureImageSequence
-	*/
+	// TextureImageSequence
+	
 	TextureImageSequence::TextureImageSequence(VDAnimationRef aVDAnimation) {
 		// constructor
 		mVDAnimation = aVDAnimation;
@@ -390,17 +387,16 @@ namespace videodromm {
 					mCachedTextures[fileNameToLoad] = ci::gl::Texture::create(loadImage(fileToLoad), gl::Texture::Format().loadTopDown(false));
 				}
 
-				/*mTexture = ci::gl::Texture::create(loadImage(fileToLoad));
-				mXLeft = 0;
-				mYTop = 0;
-				mXRight = mOriginalWidth = mTexture->getWidth();
-				mYBottom = mOriginalHeight = mTexture->getHeight();
-				mInputSurface = Surface(loadImage(fileToLoad));
-				//mInputSurface = Surface(mWidth, mHeight, true);
-				Area area(mXLeft, mYTop, mXRight, mYBottom);
-				mProcessedSurface = mInputSurface.clone(area);
-				mTexture = gl::Texture2d::create(mProcessedSurface, ci::gl::Texture::Format().loadTopDown(mFlipV));
-				mSequenceTextures.push_back(mTexture); */
+				//mTexture = ci::gl::Texture::create(loadImage(fileToLoad));
+				//mXLeft = 0;
+				//mYTop = 0;
+				//mXRight = mOriginalWidth = mTexture->getWidth();
+				//mYBottom = mOriginalHeight = mTexture->getHeight();
+				//mInputSurface = Surface(loadImage(fileToLoad));
+				//Area area(mXLeft, mYTop, mXRight, mYBottom);
+				//mProcessedSurface = mInputSurface.clone(area);
+				//mTexture = gl::Texture2d::create(mProcessedSurface, ci::gl::Texture::Format().loadTopDown(mFlipV));
+				//mSequenceTextures.push_back(mTexture); 
 				mCurrentLoadedFrame = mFramesLoaded;
 				mFramesLoaded++;
 				auto end = Clock::now();
@@ -411,12 +407,12 @@ namespace videodromm {
 			}
 			else {
 				//mStatus = fileToLoad.string() + " does not exist";
-				/* 20191018
+				
 				if (mFramesLoaded > 0) {
 					// if frames have been loaded we hit the last file of the image sequence at this point
 					mStatus = "last image loaded";
 					mLoadingFilesComplete = true;
-				} */
+				} 
 			}
 			// increment counter for next filename
 			mNextIndexFrameToTry++;
@@ -428,9 +424,9 @@ namespace videodromm {
 				int milliGlobal = msdurGlobal.count();
 				mStatus = toString(milliGlobal) + "ms total";
 			}
-			/* 20191018 obsolete
-			if (mNextIndexFrameToTry > 9999 && mNumberOfDigits == 4) mLoadingFilesComplete = true;
-			if (mNextIndexFrameToTry > 999 && mNumberOfDigits == 3) mLoadingFilesComplete = true; */
+			// 20191018 obsolete
+			//if (mNextIndexFrameToTry > 9999 && mNumberOfDigits == 4) mLoadingFilesComplete = true;
+			//if (mNextIndexFrameToTry > 999 && mNumberOfDigits == 3) mLoadingFilesComplete = true;
 			CI_LOG_V(mStatus);
 		}
 		//}
@@ -514,18 +510,17 @@ namespace videodromm {
 		}
 		return mTexture;
 	}
-	/*ci::gl::Texture2dRef TextureImageSequence::getNextTexture() {
+	//ci::gl::Texture2dRef TextureImageSequence::getNextTexture() {
 
-		if (mSequenceTextures.size() > 1) {
-
-			if (mPosition+1 > mFramesLoaded) {
+	//	if (mSequenceTextures.size() > 1) {
+	//		if (mPosition+1 > mFramesLoaded) {
 				//error
-				mPosition = 0;
-			}
-			mTexture = mSequenceTextures[mPosition+1];
-		}
-		return mTexture;
-	}*/
+	//			mPosition = 0;
+	//		}
+	//		mTexture = mSequenceTextures[mPosition+1];
+	//	}
+	//	return mTexture;
+	//}
 	// Stops playback and resets the playhead to zero
 	void TextureImageSequence::stopSequence() {
 
@@ -557,22 +552,15 @@ namespace videodromm {
 	TextureImageSequence::~TextureImageSequence(void) {
 	}
 
-	/*
-	** ---- TextureCamera ------------------------------------------------
-	*/
+	// ---- TextureCamera ------------------------------------------------
+
 #if (defined(  CINDER_MSW) ) || (defined( CINDER_MAC ))
 	TextureCamera::TextureCamera() {
 		mType = CAMERA;
 		mPath = mName = "HD User Facing";// 20211107 TODO load from json file
 		getCaptureDevices();
 
-		/*try {
-			mCapture = Capture::create(1280, 720, );
-			mCapture->start();
-		}
-		catch (ci::Exception &exc) {
-			CI_LOG_EXCEPTION("Failed to init capture ", exc);
-		}*/
+		
 	}
 	bool TextureCamera::fromJson(const JsonTree& json) {
 		// not called
@@ -635,9 +623,8 @@ namespace videodromm {
 	}
 #endif
 
-	/*
-	** ---- TextureShared ------------------------------------------------
-	*/
+	// ---- TextureShared ------------------------------------------------
+
 #if (defined(  CINDER_MSW) ) || (defined( CINDER_MAC ))
 	TextureShared::TextureShared() {
 		mType = SHARED;
@@ -685,9 +672,8 @@ mSpoutIn.getSpoutReceiver().SelectSenderPanel();
 
 	}
 #endif
-	/*
-	** ---- TextureAudio ------------------------------------------------
-	*/
+	// ---- TextureAudio ------------------------------------------------
+
 	TextureAudio::TextureAudio(VDAnimationRef aVDAnimation) {
 		mVDAnimation = aVDAnimation;
 		mType = AUDIO;
@@ -764,9 +750,8 @@ mSpoutIn.getSpoutReceiver().SelectSenderPanel();
 	}
 	TextureAudio::~TextureAudio(void) {
 	}
-	/*
-	** ---- TextureStream ------------------------------------------------
-	*/
+	// ---- TextureStream ------------------------------------------------
+	
 	TextureStream::TextureStream(VDAnimationRef aVDAnimation) {
 		mVDAnimation = aVDAnimation;
 		mType = STREAM;
@@ -814,7 +799,7 @@ mSpoutIn.getSpoutReceiver().SelectSenderPanel();
 	TextureStream::~TextureStream(void) {
 	}
 } // namespace videodromm
-
+*/
 
 /*#include "VDTexture.h"
 
