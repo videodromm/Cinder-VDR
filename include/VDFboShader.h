@@ -80,7 +80,7 @@ namespace videodromm
 				return "fbotex" + mInputTextureIndex;
 			}
 			else {
-				return toString(aTexIndex) + ":" +  mInputTextureNames[0];
+				return toString(aTexIndex) + ":" +  mInputTextureNames[aTexIndex];
 			}
 		};
 		// full path (dnd)
@@ -131,15 +131,11 @@ namespace videodromm
 		const VDAnimationRef			mVDAnimation;
 		// uniforms
 		VDUniformsRef					mVDUniforms;
-		//! Input textures
-		//ci::gl::Texture2dRef			mTexture;
 
 		//! Input textures
-		//std::string						mInputTextureName;
 		std::string						mCurrentFilename;
 		std::map<unsigned int, gl::TextureRef>	mInputTextureList;
 		std::map<unsigned int, std::string>		mInputTextureNames;
-		//gl::TextureRef					mInputTextureRef;
 		unsigned int					mInputTextureIndex;
 		unsigned int					createInputTexture(const JsonTree &json);
 		bool							mLoadTopDown = false;
