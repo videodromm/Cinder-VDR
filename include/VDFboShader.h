@@ -135,7 +135,7 @@ namespace videodromm
 		//ci::gl::Texture2dRef			mTexture;
 
 		//! Input textures
-		std::string						mInputTextureName;
+		//std::string						mInputTextureName;
 		std::string						mCurrentFilename;
 		std::map<unsigned int, gl::TextureRef>	mInputTextureList;
 		std::map<unsigned int, std::string>		mInputTextureNames;

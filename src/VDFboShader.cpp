@@ -23,38 +23,12 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation,
 	// load default fragment shader
 	mShaderName = mShaderFileName = "inputImage.fs";
 	mShaderFragmentString = mVDParams->getDefaultShaderFragmentString();
-	/*fs::path mDefaultFragmentFilePath = getAssetPath("") / mShaderFileName;
-	if (!fs::exists(mDefaultFragmentFilePath)) {
-		mError = mDefaultFragmentFilePath.string() + " does not exist";
-		CI_LOG_V(mError);
-		mShaderFragmentString = "void main(void) { vec2 uv = gl_FragCoord.xy / RENDERSIZE.xy; vec3 rgb = IMG_NORM_PIXEL(inputImage, uv).xyz; fragColor=vec4(rgb, 1.0);}";
-	}
-	else {
-		mShaderFragmentString = loadString(loadFile(mDefaultFragmentFilePath));
-	}*/
-	// load default vertex shader
-	/*fs::path mDefaultVertexFilePath = getAssetPath("") / "defaultvertex.fs";
-	if (!fs::exists(mDefaultVertexFilePath)) {
-		mError = mDefaultVertexFilePath.string() + " does not exist";
-		CI_LOG_V(mError);
-		mDefaultVertexString = "#version 150\nuniform mat4 ciModelViewProjection; in vec4 ciPosition; in vec4 ciColor; in vec2 ciTexCoord0; out vec4 vertColor; out vec2 vertTexCoord0;"
-								"void main() { vertColor = ciColor; vertTexCoord0 = ciTexCoord0; gl_Position = ciModelViewProjection * ciPosition; }";
-	}
-	else {
-		mDefaultVertexString = loadString(loadFile(mDefaultVertexFilePath));
-	}*/
-	//string textureFileName = "0.jpg"; 
-	//mTextureName = mCurrentSeqFilename = mLastCachedFilename = textureFileName;
-	//mInputTextureIndex = 0;
-
-
 	shaderInclude = loadString(loadAsset("shadertoy.vd"));
 
 	mInputTextureIndex = 0;
-	mInputTextureName = "none";
+	//mInputTextureName = "none";
 	//mInputTextureRef = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown(mLoadTopDown));
 	// 20211107 only if no texture ?
-	//mInputTextureRef = mVDAnimation->getAudioTexture();
 	mInputTextureList[0] = mVDAnimation->getAudioTexture();
 	mInputTextureNames[0] = mVDAnimation->getAudioTextureName();
 
@@ -73,8 +47,6 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation,
 	}
 
 	// init texture
-	//mTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown(mLoadTopDown));
-	//mTexture = ci::gl::Texture::create(loadImage(loadAsset("0.jpg")), ci::gl::Texture::Format().loadTopDown(mLoadTopDown)); //TODO json
 	mRenderedTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown(mLoadTopDown));
 	isReady = false;
 
@@ -111,7 +83,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	switch (mTextureMode)
 	{
 	case VDTextureMode::AUDIO: // audio
-		setFboTextureAudioMode();// mCurrentFilename = mTextureName = "audio";
+		setFboTextureAudioMode();
 		break;
 	case VDTextureMode::SEQUENCE: // img seq loaded when ableton runs
 		/*if (mExt = "rien") {
@@ -123,7 +95,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		loadNextTexture(1);
 		break;
 	case VDTextureMode::PARTS: // img parts
-		for (size_t i{ 0 }; i < 4; i++)
+		for (size_t i{ 0 }; i < 7; i++)
 		{
 			mCurrentFilename = mTextureName + " (" + toString(i) + ").jpg";
 			//fs::path texFileOrPath = getAssetPath("") / mAssetsPath / currentFilename;
@@ -141,10 +113,8 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 				texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
 				fileExists = fs::exists(texFileOrPath);
 				if (fileExists) {
-					//mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 					mInputTextureList[i] = ci::gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 					mInputTextureNames[i] = mCurrentFilename;
-					//mInputTextureList[i] = ci::gl::Texture::create(loadImage(texFileOrPath));
 				}
 			}
 		}
@@ -157,7 +127,6 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		if (dotIndex != std::string::npos)  mExt = texFileOrPath.filename().string().substr(dotIndex + 1);
 		// image
 		if (mExt == "jpg" || mExt == "png") {
-			// 20211107
 			mFboMsg = "jpg or png";
 			bool fileExists = fs::exists(texFileOrPath);
 			if (!fileExists) {
@@ -406,12 +375,6 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			mLastBar = mVDUniforms->getUniformValue(mVDUniforms->IBAR);
 			//loadNextTexture();
 		}
-		// removed 20211107 only if no texture
-		/*if (mInputTextureIndex == 0) {
-			mInputTextureRef = mVDAnimation->getAudioTexture();
-		}
-		else {
-			*/
 		if (mTextureMode == VDTextureMode::AUDIO) {
 			mInputTextureList[0] = mVDAnimation->getAudioTexture();
 			mInputTextureNames[0] = mVDAnimation->getAudioTextureName();
@@ -425,8 +388,6 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			// video
 			mFboMsg = "video";
 			gl::pushMatrices();
-			//gl::setMatricesWindow(mWidth, mHeight)
-
 			gl::setMatrices(mCam);
 			gl::ScopedViewport scopedViewport(getWindowSize());
 			//gl::ScopedDepth scopedDepth(true);
@@ -456,42 +417,37 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		}
 		else {
 			// not a video
-			if (mTextureMode == VDTextureMode::PARTS) {
-				// imgseq
-				for (size_t i{ 0 }; i < 4; i++)
-				{
-					mInputTextureList[i]->bind(253 + i);
-				}
-			}
-			else {
-				mInputTextureList[0]->bind(0);
-			}
-
-			if (mIsHydraTex) {
+	
+			/* put back if (mIsHydraTex) {
 				mInputTextureList[0]->bind(253);
 				for (size_t i{ 0 }; i < 4; i++)
 				{
 					mInputTextureList[i]->bind(254 + i);
 				}
-			}
-			else {
-				/* onezero ko for (size_t i{ 0 }; i < 4; i++)
-				{
-					mInputTextureList[i]->bind( i);
-				}*/
-			}
-
+			}*/
+			
 			std::string name;
 
-			int texNameEndIndex = 0;
-			int channelIndex = 0;
 			/* hydra
 				uniform float time;
 				uniform vec2 resolution;
 				varying vec2 uv;
 				uniform sampler2D prevBuffer;
 			*/
-
+			if (mTextureMode == VDTextureMode::PARTS) {
+				// imgseq
+				for (size_t i{ 0 }; i < mInputTextureList.size(); i++)
+				{
+					mInputTextureList[i]->bind(i);
+				}
+			}
+			else {
+				mInputTextureList[0]->bind(0);
+			}
+			// before setting uniforms!
+			gl::ScopedGlslProg glslScope(mShader);
+			int texNameEndIndex = 0;
+			int channelIndex = 0;
 			mUniforms = mShader->getActiveUniforms();
 			for (const auto& uniform : mUniforms) {
 
@@ -519,21 +475,23 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				case GL_SAMPLER_2D: // sampler2D 35678 0x8B5E
 					texNameEndIndex = name.find("iChannel");
 					if (texNameEndIndex != std::string::npos && texNameEndIndex != -1) {
-						mInputTextureName = name.substr(0, texNameEndIndex + 8);
-						mShader->uniform(name, (uint32_t)(253 + channelIndex));
-						mInputTextureList[channelIndex]->bind(253 + channelIndex);
+						//mInputTextureName = name.substr(0, texNameEndIndex + 8);
+						//mShader->uniform(name, (uint32_t)(channelIndex));
+						CI_LOG_E((uint32_t)(channelIndex));
+						mShader->uniform(name, channelIndex);
+						//mInputTextureList[channelIndex]->bind(253 + channelIndex);
 						channelIndex++;
 					}
 					else {
 						if (name == "inputImage") {
-							mShader->uniform(name, (uint32_t)(0));
+							mShader->uniform(name, 0);
 						}
 						else {
 							texNameEndIndex = name.find("tex");
 							if (texNameEndIndex != std::string::npos && texNameEndIndex != -1) {
 								// hydra fbo
 								mIsHydraTex = true;
-								mInputTextureName = name.substr(0, texNameEndIndex + 3);
+								//mInputTextureName = name.substr(0, texNameEndIndex + 3);
 								// 20210116 TODO 
 								mShader->uniform(name, (uint32_t)(254 + channelIndex));
 								/*
@@ -548,17 +506,12 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 							}
 							else {
 								// onezero check
-								mShader->uniform(name, (uint32_t)(0));
+								mShader->uniform(name, 0);
 
 							}
 						}
 					}
-					/* TODO CHECK if needed 20111121, apparently not helping onezero ko
-					for (size_t i{ 1 }; i < 14; i++)
-					{
-						//mShader->uniform(name, (uint32_t)(253 + i));
-						mShader->uniform(name, (uint32_t)(i));
-					}*/
+					
 					break;
 				case GL_FLOAT_VEC2:// vec2 35664 0x8B50
 					if (name == "RENDERSIZE" || name == "resolution") {
@@ -598,10 +551,12 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				}
 			}
 
-			gl::ScopedGlslProg glslScope(mShader);
+			// sbefore setting uniforms! gl::ScopedGlslProg glslScope(mShader);
+			//mShader->uniform("iChannel0", 0);
+			//mShader->uniform("iChannel1", 1);
+			gl::drawSolidRect(Rectf(0, 0, mVDParams->getFboWidth(), mVDParams->getFboHeight()));
 			// TODO: test gl::ScopedViewport sVp(0, 0, mFbo->getWidth(), mFbo->getHeight());	
 
-			gl::drawSolidRect(Rectf(0, 0, mVDParams->getFboWidth(), mVDParams->getFboHeight()));
 		}
 		mRenderedTexture = mFbo->getColorTexture();
 		if (!isReady) {
@@ -633,9 +588,7 @@ ci::gl::Texture2dRef VDFboShader::getRenderedTexture() {
 
 	return mRenderedTexture;
 }
-/*ci::gl::Texture2dRef VDFboShader::getInputTexture() {
-	return mInputTextureList[mInputTextureIndex]->getTexture();
-}*/
+
 bool									VDFboShader::isValid() {
 	return mValid;
 };
@@ -643,11 +596,6 @@ bool									VDFboShader::isValid() {
 std::string								VDFboShader::getShaderName() {
 	return mShaderName;
 };
-
-
-/*void									VDFboShader::setImageInputTexture(ci::gl::Texture2dRef aTextureRef, const std::string& aTextureFilename) {
-	mTextureList[mInputTextureIndex]->setImageInputTexture(aTextureRef, aTextureFilename);
-};*/
 
 std::vector<ci::gl::GlslProg::Uniform>	VDFboShader::getUniforms() {
 	return mUniforms;
