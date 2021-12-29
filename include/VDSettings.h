@@ -174,7 +174,7 @@ namespace videodromm {
 		// info to backup in XML
 		std::string					mInfo;
 		// ableton liveOSC
-		std::string					mTrackName;
+		//std::string					mTrackName;
 		// messages for UI
 		std::string					getMsg() { return mMsg; }
 		void						setMsg(const std::string& aMsg) { mMsg = aMsg; }

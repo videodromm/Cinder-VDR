@@ -36,8 +36,9 @@ namespace videodromm
 		VDSessionFacadeRef		setUniformValue(unsigned int aCtrl, float aValue);
 		VDSessionFacadeRef		addUIObserver(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms);
 		VDSessionFacadeRef		getWindowsResolution();
+		VDSessionFacadeRef		setupSession();
 		VDSessionFacadeRef		setupOSCReceiver();
-		VDSessionFacadeRef		setupMidiReceiver();
+		VDSessionFacadeRef		setupMidi();
 		VDSessionFacadeRef		setupWSClient();
 		VDSessionFacadeRef		setupHttpClient();
 		VDSessionFacadeRef		loadShaderFromHttp(const std::string& url, unsigned int aFboIndex);
@@ -165,18 +166,12 @@ namespace videodromm
 		std::vector<ci::gl::GlslProg::Uniform> getUniforms(unsigned int aFboIndex = 0);
 		ci::gl::Texture2dRef	buildFboInputTexture(unsigned int aFboIndex = 0);
 		ci::gl::Texture2dRef	getFboInputTextureListItem(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0);
-		//ci::gl::Texture2dRef	getInputTexture(unsigned int aTexIndex);
-		void resetAnim() {
-			mVDSession->resetAnim();
-		}
-		unsigned int			getDisplayMode();
+		void					resetAnim() { mVDSession->resetAnim(); }
 		std::string				getModeName(unsigned int aMode);
 		unsigned int			getModesCount();
 		int						getUniformIndexForName(const std::string& aName);
 		float					getUniformValue(unsigned int aCtrl);
 		std::string				getUniformName(unsigned int aIndex);
-		//void					setIntUniformValueByIndex(unsigned int aCtrl, int aValue);
-		//void					setBoolUniformValueByIndex(unsigned int aCtrl, float aValue);
 		// end terminal operations 
 		// begin events
 		bool					handleMouseMove(MouseEvent event);
@@ -203,6 +198,11 @@ namespace videodromm
 		bool								mWSClientConnected = false;
 		bool								mIsMidiSetup = false;
 		std::string							mTrackName = "";
+		// session
+		fs::path							sessionPath;
+		const std::string					sessionFileName = "session.json";
+		void								save();
+		void								restore();
 	};
 
 

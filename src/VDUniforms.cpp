@@ -125,7 +125,7 @@ VDUniforms::VDUniforms() {
 	// fps
 	createFloatUniform("iFps", IFPS, 60.0f, 0.0f, 100.0f); //44	
 	// iBpm 
-	createFloatUniform("iBpm", IBPM, 165.0f, 0.000000001f, 400.0f); //45
+	createFloatUniform("iBpm", IBPM, 166.0f, 0.000000001f, 400.0f); //45
 	// vignette falloff
 	createFloatUniform("iVFallOff", IVFALLOFF, 0.31f, 0.0f, 1.0f); // 46
 	// hydra time

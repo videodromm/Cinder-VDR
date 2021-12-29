@@ -53,22 +53,16 @@ namespace videodromm
 		void							toggleUseTimeWithTempo() { mUseTimeWithTempo = !mUseTimeWithTempo; };
 		void							useTimeWithTempo() { mUseTimeWithTempo = true; };
 		bool							getUseTimeWithTempo() { return mUseTimeWithTempo; };
-		float							iTempoTimeBeatPerBar;
-		
+		float							iTempoTimeBeatPerBar;	
 		void							tapTempo();
-		int								getEndFrame() { return mEndFrame; };
-		void							setEndFrame(int frame) { mEndFrame = frame; };
-
 		// animation
 		int								currentScene;
-		//int							getBadTV(int frame);
 		// keyboard
 		bool							handleKeyDown(KeyEvent& event);
 		bool							handleKeyUp(KeyEvent& event);
 		// audio
 		ci::gl::TextureRef				getAudioTexture();
 		std::string						getAudioTextureName() { return mAudioName; };
-		//float							maxVolume;
 		bool							mLineInInitialized;
 		bool							mWaveInitialized;
 		audio::InputDeviceNodeRef		mLineIn;
@@ -105,8 +99,8 @@ namespace videodromm
 				initLineIn();
 			}
 		};
-		void							setPreferredDevice(const std::string& aPreferredDevice) {
-			mPreferredDevice = aPreferredDevice;
+		void							setPreferredAudioInputDevice(const std::string& aPreferredAudioInputDevice) {
+			mPreferredAudioInputDevice = aPreferredAudioInputDevice;
 		};
 		void							initLineIn();
 		void							setUseWaveMonitor(bool useWaveMonitor) {
@@ -146,7 +140,6 @@ namespace videodromm
 		bool							renderBlend() { return mBlendRender; };
 
 		// timed animation
-		int								mEndFrame;
 		unsigned int					getFreqIndexSize() { return (unsigned int)freqIndexes.size(); };
 		unsigned int					getFreqIndex(unsigned int aFreqIndex) { return (unsigned int)freqIndexes[aFreqIndex]; };
 		void							setFreqIndex(unsigned int aFreqIndex, unsigned int aFreq) { freqIndexes[aFreqIndex] = aFreq; };
@@ -160,7 +153,7 @@ namespace videodromm
 		ci::audio::Context				*ctx = audio::Context::master();
 		std::vector<ci::audio::DeviceRef> inputDevices;
 		std::vector<ci::audio::DeviceRef> outputDevices;
-		std::string						mPreferredDevice;
+		std::string						mPreferredAudioInputDevice;
 		bool							mUseAudio = true;
 		bool							mUseRandom = false;
 		bool							mUseLineIn = false;

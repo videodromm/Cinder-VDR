@@ -9,6 +9,7 @@ VDSessionFacadeRef VDSessionFacade::createVDSession(VDSettingsRef aVDSettings, V
 	// OK ->addObserver(VDSocketIOObserver::connect(aVDSettings->mSocketIOHost, aVDSettings->mSocketIOPort))
 	// OK ->addObserver(VDOscObserver::connect(aVDSettings->mOSCDestinationHost, aVDSettings->mOSCDestinationPort));
 	// OK ->addObserver(VDUIObserver::connect(aVDSettings, aVDAnimation));// ->addObserver(new UIDisplay());	
+		// check to see if session.json file exists and restore if it does	
 	mediator->setupKeyboard();
 	return VDSessionFacadeRef(new VDSessionFacade(VDSessionRef(new VDSession(aVDSettings, aVDAnimation, aVDUniforms, aVDMix)), mediator));
 }
@@ -32,10 +33,25 @@ VDSessionFacadeRef VDSessionFacade::setupOSCReceiver() {
 	}
 	return shared_from_this();
 }
-VDSessionFacadeRef VDSessionFacade::setupMidiReceiver() {
+VDSessionFacadeRef VDSessionFacade::setupMidi() {
 	if (!mIsMidiSetup) {
 		mIsMidiSetup = true;
-		mVDMediator->setupMidiReceiver();
+		mVDMediator->setupMidi();
+	}
+	return shared_from_this();
+}
+VDSessionFacadeRef VDSessionFacade::setupSession() {
+	sessionPath = getAssetPath("") / sessionFileName;
+	if (fs::exists(sessionPath))
+	{
+		restore();
+	}
+	else
+	{
+		// Create json file if it doesn't already exist.
+		std::ofstream oStream(sessionPath.string());
+		oStream.close();
+		save();
 	}
 	return shared_from_this();
 }
@@ -358,4 +374,37 @@ bool VDSessionFacade::handleKeyUp(KeyEvent& event) {
 // end events
 VDSessionRef VDSessionFacade::getInstance() const {
 	return mVDSession;
+}
+void VDSessionFacade::save()
+{
+	saveWarps();
+	// save in sessionPath
+	/* JsonTree doc;
+	JsonTree settings = JsonTree::makeArray("settings");
+	settings.addChild(ci::JsonTree("apiUrl", ""));
+	doc.pushBack(settings);
+	doc.write(writeFile(sessionPath), JsonTree::WriteOptions());*/
+}
+
+void VDSessionFacade::restore()
+{
+	// save load settings
+	if (!fs::exists(sessionPath)) {
+		// check to see if json file exists
+		return;
+	}
+
+	try {
+		JsonTree doc(loadFile(sessionPath));
+		if (doc.hasChild("settings")) {
+			JsonTree settings(doc.getChild("settings"));
+			if (settings.hasChild("apiUrl")) mVDSession->setApiUrl(settings.getValueForKey<std::string>("apiUrl"));
+			if (settings.hasChild("preferredAudioInput")) mVDSession->setPreferredAudioInputDevice(settings.getValueForKey<string>("preferredAudioInput"));
+			if (settings.hasChild("preferredMidiInput")) mVDMediator->setPreferredMidiInputDevice(settings.getValueForKey<string>("preferredMidiInput"));
+
+		}
+	}
+	catch (const JsonTree::ExcJsonParserError& exc) {
+		CI_LOG_W(exc.what());
+	}
 }

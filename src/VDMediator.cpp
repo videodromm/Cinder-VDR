@@ -32,7 +32,7 @@ VDMediatorObservableRef VDMediatorObservable::setupOSCReceiver() {
 	return shared_from_this();
 }
 // midi
-VDMediatorObservableRef VDMediatorObservable::setupMidiReceiver() {
+VDMediatorObservableRef VDMediatorObservable::setupMidi() {
 	// Midi in
 	mVDMidi = VDMidi::create(mVDUniforms);
 	mVDMidi->setupMidi(shared_from_this());
@@ -54,7 +54,12 @@ void VDMediatorObservable::closeMidiOutPort(int i) { mVDMidi->closeMidiOutPort(i
 std::string VDMediatorObservable::getMidiMsg() {
 	return mVDMidi ? mVDMidi->getMidiMsg() : "Disabled";
 };
-
+void VDMediatorObservable::setPreferredMidiInputDevice(const std::string& aPreferredMidiInputDevice) {
+	mPreferredMidiInputDevice = aPreferredMidiInputDevice;
+}
+std::string VDMediatorObservable::getPreferredMidiInputDevice() {
+	return mPreferredMidiInputDevice;
+}
 
 VDMediatorObservableRef VDMediatorObservable::setupWSClient() {
 	// WS Receiver
@@ -215,6 +220,7 @@ VDMediatorObservableRef VDMediatorObservable::setUniformValue(int aIndex, float 
 	}
 	return shared_from_this();
 };
+
 
 /*
 VDMediatorObservableRef VDMediatorObservable::updateShaderText(int aIndex, float aValue) {

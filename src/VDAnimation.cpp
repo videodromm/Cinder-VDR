@@ -162,7 +162,7 @@ void  VDAnimation::initLineIn() {
 					std::string currentInputName = in->getName();
 					audioinputs.addChild(ci::JsonTree(in->getKey(), currentInputName));
 
-					std::size_t nameIndex = currentInputName.find(mPreferredDevice);
+					std::size_t nameIndex = currentInputName.find(mPreferredAudioInputDevice);
 					if (nameIndex != std::string::npos) {
 						audioDeviceFound = true;
 						preferredAudioDeviceKey = in->getKey();
@@ -184,7 +184,7 @@ void  VDAnimation::initLineIn() {
 					auto device = ci::audio::Device::findDeviceByKey(preferredAudioDeviceKey);
 					CI_LOG_W("trying to open mic/line in, if no line follows in the log, the app crashed so put UseLineIn to false in the VDSettings.xml file");
 					mLineIn = ctx->createInputDeviceNode(device); //crashes if linein is present but disabled, doesn't go to catch block
-					mAudioName = mPreferredDevice;
+					mAudioName = mPreferredAudioInputDevice;
 				}
 				else {
 					mLineIn = ctx->createInputDeviceNode();

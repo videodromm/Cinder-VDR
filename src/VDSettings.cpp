@@ -390,7 +390,7 @@ void VDSettings::reset()
 	mRenderThumbs = mStandalone = mSplitWarpH = mSplitWarpV = false;
 	//mOutputVideoResolution = 1024;
 	mInfo = "";
-	mTrackName = "";
+	//mTrackName = "";
 	mMainWindowX = mRenderX = 0;
 	mMainWindowY = mRenderY = 0;
 	mxLeft = 0;

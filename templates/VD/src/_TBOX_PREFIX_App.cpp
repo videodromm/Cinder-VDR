@@ -72,8 +72,8 @@ _TBOX_PREFIX_App::_TBOX_PREFIX_App() : mSpoutOut("VDR", app::getWindowSize())
 	mVDMix = VDMix::create(mVDSettings, mVDAnimation, mVDUniforms);
 	// Session
 	mVDSessionFacade = VDSessionFacade::createVDSession(mVDSettings, mVDAnimation, mVDUniforms, mVDMix)
-		->setDisplayMode(VDDisplayMode::POST)
-		->setupWSClient()
+		->setUniformValue(mVDUniforms->IDISPLAYMODE, VDDisplayMode::POST)
+		->setupSession()
 		->wsConnect()
 		//->setupOSCReceiver()
 		//->addOSCObserver(mVDSettings->mOSCDestinationHost, mVDSettings->mOSCDestinationPort)
@@ -181,22 +181,17 @@ void _TBOX_PREFIX_App::cleanup()
 
 void _TBOX_PREFIX_App::update()
 {
-	switch (mVDSessionFacade->getCmd()) {
+	/*switch (mVDSessionFacade->getCmd()) {
 	case 0:
 		//createControlWindow();
 		break;
 	case 1:
 		//deleteControlWindows();
 		break;
-	}
+	}*/
 	mVDSessionFacade->setUniformValue(mVDUniform->IFPS, getAverageFps());
 	mVDSessionFacade->update();
-	/*mVideo.update();
-	mVideoPos = mVideo.getPosition();
-	if (mVideo.isStopped() || mVideo.isPaused()) {
-		mVideo.setPosition(0.0);
-		mVideo.play();
-	}*/
+
 }
 
 

@@ -39,12 +39,10 @@ namespace videodromm
 	public:
 		VDMidi(VDUniformsRef aVDUniforms);
 		static VDMidiRef			create(VDUniformsRef aVDUniforms);
-
 		void						setupMidi(VDMediatorObservableRef aVDMediator);
 		void						setMidiMsg(const std::string& aMsg);
 		std::string					getMidiMsg();
 		// MIDI
-		void						midiSetup();
 		void						saveMidiPorts();
 		int							getMidiInPortsCount() { return mMidiInputs.size(); };
 		std::string					getMidiInPortName(unsigned int i) { return (i < mMidiInputs.size()) ? mMidiInputs[i].portName : "No midi in ports"; };
@@ -65,16 +63,16 @@ namespace videodromm
 		//Mediator
 		VDMediatorObservableRef		mVDMediator;
 
-		std::string					mMidiMsg;
 		// MIDI
 		std::vector<midiInput>		mMidiInputs;
-
 		// midi inputs: couldn't make a vector
 		midi::Input					mMidiIn0;
 		midi::Input					mMidiIn1;
 		midi::Input					mMidiIn2;
 		midi::Input					mMidiIn3;
+		void						midiSetup();
 		void						midiListener(midi::Message msg);
+		std::string					mMidiMsg;
 		// midi output
 		midi::MidiOut				mMidiOut0;
 		midi::MidiOut				mMidiOut1;

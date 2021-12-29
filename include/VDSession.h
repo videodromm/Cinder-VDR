@@ -92,8 +92,6 @@ namespace videodromm {
 		bool							handleMouseDown(MouseEvent& event);
 		bool							handleMouseDrag(MouseEvent& event);
 		bool							handleMouseUp(MouseEvent& event);
-		bool							save();
-		void							restore();
 
 		void							setAnim(unsigned int aCtrl, unsigned int aAnim);
 		// control values
@@ -154,8 +152,6 @@ namespace videodromm {
 			return mVDMix->getFboInputTextureHeight(aFboIndex);
 		};
 		// utils
-
-		float							getTargetFps() { return mTargetFps; };
 		void							blendRenderEnable(bool render);
 		void							fileDrop(FileDropEvent event);
 
@@ -215,16 +211,22 @@ namespace videodromm {
 		void							saveFbos() {
 			mVDMix->saveFbos();
 		};*/
-		unsigned int					getFboShaderListSize() { return mVDMix->getFboShaderListSize(); };
-		ci::gl::TextureRef					getFboShaderTexture(unsigned int aFboShaderIndex);
+		void									setApiUrl(const std::string& apiUrl) {
+			mApiurl = apiUrl;
+		};
+		void									setPreferredAudioInputDevice(const std::string& aDevice) {
+			mVDAnimation->setPreferredAudioInputDevice(aDevice);
+		}
+		unsigned int							getFboShaderListSize() { return mVDMix->getFboShaderListSize(); };
+		ci::gl::TextureRef						getFboShaderTexture(unsigned int aFboShaderIndex);
 
 		std::vector<ci::gl::GlslProg::Uniform>	getFboShaderUniforms(unsigned int aFboShaderIndex);
 		float									getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex);
-		void								setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue);
-		unsigned int 					createFboShaderTexture(const JsonTree& json, unsigned int aFboIndex = 0) {
+		void									setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue);
+		unsigned int 							createFboShaderTexture(const JsonTree& json, unsigned int aFboIndex = 0) {
 			return mVDMix->createFboShaderTexture(json, aFboIndex);
 		};
-		bool							isFboValid(unsigned int aFboIndex) {
+		bool									isFboValid(unsigned int aFboIndex) {
 			return mVDMix->isFboValid(aFboIndex);
 		};
 		std::string								getFboMsg(unsigned int aFboIndex) {
@@ -321,6 +323,7 @@ namespace videodromm {
 		};*/
 
 		/*void							sendFragmentShader(unsigned int aShaderIndex);*/
+		
 		//! window management
 		void							createWindow() { cmd = 0; };
 		void							deleteWindow() { cmd = 1; };
@@ -330,7 +333,7 @@ namespace videodromm {
 		bool							showUI();
 		std::string						getModeName(unsigned int aMode);
 		unsigned int					getModesCount();
-		void resetAnim() {
+		void							resetAnim() {
 			mVDAnimation->resetAnim();
 		}
 		
@@ -345,13 +348,9 @@ namespace videodromm {
 
 		// Mix
 		VDMixRef						mVDMix;
-		const std::string				sessionFileName = "session.json";
-		std::string						apiurl = "https://api.sophiaantipolis.xyz/articles/";
-		fs::path						sessionPath;
-		// tempo
-		float							mFpb;
-		float							mOriginalBpm;
-		float							mTargetFps;
+		// apiurl
+		std::string						mApiurl = "http://localhost/";
+
 		// audio
 		bool							mFreqWSSend;
 		//! window management

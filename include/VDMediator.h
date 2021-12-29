@@ -69,12 +69,11 @@ namespace videodromm {
 		void								setOSCMsg(const std::string& aMsg);
 		std::string							getOSCMsg();
 		// midi
-		VDMediatorObservableRef				setupMidiReceiver();
+		VDMediatorObservableRef				setupMidi();
 		void								midiOutSendNoteOn(int i, int channel, int pitch, int velocity);
 		int									getMidiInPortsCount();
 		string								getMidiInPortName(int i);
 		bool								isMidiInConnected(int i);
-		//bool							isMidiSetup();
 		std::string							getMidiMsg();
 		void								openMidiInPort(int i);
 		void								closeMidiInPort(int i);
@@ -83,7 +82,8 @@ namespace videodromm {
 		bool								isMidiOutConnected(int i);
 		void								openMidiOutPort(int i);
 		void								closeMidiOutPort(int i);
-
+		void								setPreferredMidiInputDevice(const std::string& aDevice);
+		std::string							getPreferredMidiInputDevice();
 		// ws
 		VDMediatorObservableRef				setupWSClient();
 		int									getWSClientPort();
@@ -117,6 +117,7 @@ namespace videodromm {
 		VDOscReceiverRef					mVDOscReceiver;
 		// Midi
 		VDMidiRef							mVDMidi;
+		std::string							mPreferredMidiInputDevice = "none";
 		// Websockets
 		VDWebsocketRef						mVDWebsocket;
 		// Mix

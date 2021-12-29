@@ -30,10 +30,7 @@ void VDMidi::setMidiMsg(const std::string& aMsg) {
 std::string VDMidi::getMidiMsg() {
 	return mMidiMsg;
 }
-void VDMidi::setupMidi(VDMediatorObservableRef aVDMediator) {
-	mVDMediator = aVDMediator;
-	midiSetup();
-}
+
 
 void VDMidi::saveMidiPorts() {
 	JsonTree		json;
@@ -53,6 +50,10 @@ void VDMidi::saveMidiPorts() {
 	fs::path jsonFile = getAssetPath("") / jsonFileName;
 	json.write(jsonFile);
 }
+void VDMidi::setupMidi(VDMediatorObservableRef aVDMediator) {
+	mVDMediator = aVDMediator;
+	midiSetup();
+}
 void VDMidi::midiSetup() {
 	std::stringstream ss;
 	ss << "setupMidi ";
@@ -71,7 +72,8 @@ void VDMidi::midiSetup() {
 				midiInput mIn;
 				mIn.portName = mMidiIn0.getPortName(i);
 				mMidiInputs.push_back(mIn);
-				if (mMidiInputs[i].portName == "nanoKONTROL2 2") {
+				std::size_t nameIndex = mMidiInputs[i].portName.find(mVDMediator->getPreferredMidiInputDevice());
+				if (nameIndex != std::string::npos) {
 					openMidiInPort(i);
 					mMidiInputs[i].isConnected = true;
 					ss << "Opening MIDI in port " << i << " " << mMidiInputs[i].portName;
