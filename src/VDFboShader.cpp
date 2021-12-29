@@ -56,6 +56,7 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation,
 	// 20211107 only if no texture ?
 	//mInputTextureRef = mVDAnimation->getAudioTexture();
 	mInputTextureList[0] = mVDAnimation->getAudioTexture();
+	mInputTextureNames[0] = mVDAnimation->getAudioTextureName();
 
 	if (json.hasChild("shader")) {
 		JsonTree shaderJsonTree(json.getChild("shader"));
@@ -107,11 +108,10 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	mTypestr = (json.hasChild("texturetype")) ? json.getValueForKey<string>("texturetype") : "UNKNOWN";
 	mTextureMode = (json.hasChild("texturemode")) ? json.getValueForKey<int>("texturemode") : VDTextureMode::UNKNOWN;
 
-
 	switch (mTextureMode)
 	{
 	case VDTextureMode::AUDIO: // audio
-		mCurrentFilename = mTextureName = "audio";
+		setFboTextureAudioMode();// mCurrentFilename = mTextureName = "audio";
 		break;
 	case VDTextureMode::SEQUENCE: // img seq loaded when ableton runs
 		/*if (mExt = "rien") {
@@ -132,6 +132,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 			if (fileExists) {
 				//mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 				mInputTextureList[i] = ci::gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+				mInputTextureNames[i] = mCurrentFilename;
 				mStatus = "part";
 				//mInputTextureList[i] = ci::gl::Texture::create(loadImage(texFileOrPath));
 			}
@@ -143,6 +144,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 				if (fileExists) {
 					//mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 					mInputTextureList[i] = ci::gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+					mInputTextureNames[i] = mCurrentFilename;
 					mStatus = "part";
 					//mInputTextureList[i] = ci::gl::Texture::create(loadImage(texFileOrPath));
 				}
@@ -171,9 +173,8 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 				}
 			}
 			if (fileExists) {
-				//mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 				mInputTextureList[0] = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
-				// TODO check topdown mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+				mInputTextureNames[0] = mCurrentFilename;
 				mTypestr = "image";
 				mStatus = mCurrentFilename = mTextureName;
 				
@@ -289,9 +290,9 @@ bool VDFboShader::loadFragmentShaderFromFile(const string& aFileOrPath, bool isA
 		mValid = loadFragmentStringFromFile();
 	}
 	if (isAudio && mValid) {
-		//mInputTextureRef = mVDAnimation->getAudioTexture();
-		mInputTextureList[0] = mVDAnimation->getAudioTexture(); 
-		mStatus = mCurrentFilename = "audio";
+		// 20211228 useless? mInputTextureList[0] = mVDAnimation->getAudioTexture(); 
+		setFboTextureAudioMode();
+		
 	}
 	return mValid;
 }
@@ -367,7 +368,7 @@ void VDFboShader::loadImageFile(const std::string& aFile, unsigned int aTexIndex
 		auto start = Clock::now();
 
 		mInputTextureList[0] = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
-		//mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+		mInputTextureNames[0] = aFile;
 		auto end = Clock::now();
 		auto msdur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 		int ms = msdur.count();
@@ -388,7 +389,7 @@ void VDFboShader::loadNextTexture(int aCurrentIndex) {
 			// start profiling
 			auto start = Clock::now();
 			mInputTextureList[0] = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
-			//mInputTextureRef = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+			mInputTextureNames[0] = mCurrentFilename;
 			auto end = Clock::now();
 			auto msdur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 			int ms = msdur.count();
@@ -411,8 +412,8 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		else {
 			*/
 		if (mTextureMode == VDTextureMode::AUDIO) {
-			//mInputTextureRef = mVDAnimation->getAudioTexture();
 			mInputTextureList[0] = mVDAnimation->getAudioTexture();
+			mInputTextureNames[0] = mVDAnimation->getAudioTextureName();
 			mStatus = "audio";
 		}
 		gl::ScopedFramebuffer fbScp(mFbo);

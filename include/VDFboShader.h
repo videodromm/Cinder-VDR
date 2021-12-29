@@ -63,15 +63,13 @@ namespace videodromm
 		void									setUniformValueByLocation(unsigned int aLocationIndex, float aValue) {
 			mUniformValueByLocation[aLocationIndex] = aValue;
 		};
-		//void									setImageInputTexture(ci::gl::Texture2dRef aTextureRef, const std::string& aTextureFilename);
-		/*void									setInputTextureRef(ci::gl::Texture2dRef aTextureRef) {
-			mInputTextureRef = aTextureRef;
-		};*/
+		
 		void									setInputTextureRefByIndex(unsigned int aTexIndex, ci::gl::Texture2dRef aTextureRef) {
 			mInputTextureList[aTexIndex] = aTextureRef;
+			mInputTextureNames[aTexIndex] = "setInputTextureRefByIndex " + toString(aTexIndex);
 		};
 		void									setFboTextureAudioMode() {
-			mCurrentFilename = mTextureName = mVDAnimation->getAudioTextureName();// "audio";
+			mStatus = mCurrentFilename = mTextureName = mVDAnimation->getAudioTextureName();// "audio";
 			mTextureMode = VDTextureMode::AUDIO;
 		}
 		ci::gl::Texture2dRef					getFboInputTextureListItem(unsigned int aTexIndex) {
@@ -82,7 +80,7 @@ namespace videodromm
 				return "fbotex" + mInputTextureIndex;
 			}
 			else {
-				return mStatus + toString(aTexIndex);// 20211212 was mCurrentFilename;
+				return toString(aTexIndex) + " " + mStatus + ":" +  mInputTextureNames[0];// 20211212 was mCurrentFilename;
 			}
 		};
 		// full path (dnd)
@@ -139,7 +137,8 @@ namespace videodromm
 		//! Input textures
 		std::string						mInputTextureName;
 		std::string						mCurrentFilename;
-		std::map<unsigned int, gl::TextureRef>		mInputTextureList;
+		std::map<unsigned int, gl::TextureRef>	mInputTextureList;
+		std::map<unsigned int, std::string>		mInputTextureNames;
 		//gl::TextureRef					mInputTextureRef;
 		unsigned int					mInputTextureIndex;
 		unsigned int					createInputTexture(const JsonTree &json);

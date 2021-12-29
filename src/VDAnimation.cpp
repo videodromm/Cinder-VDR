@@ -146,6 +146,7 @@ bool VDAnimation::handleKeyUp(KeyEvent &event)
 void  VDAnimation::initLineIn() {
 #if (defined( CINDER_MSW ) || defined( CINDER_MAC ))
 	bool audioDeviceFound = false;
+	std::string mPreferredDevice = "Realtek";
 	if (!mLineInInitialized) {
 		if (getUseLineIn()) {
 			// linein
@@ -161,8 +162,7 @@ void  VDAnimation::initLineIn() {
 					std::string currentInputName = in->getName();
 					audioinputs.addChild(ci::JsonTree(in->getKey(), currentInputName));
 
-
-					std::size_t nameIndex = currentInputName.find("Realtek");
+					std::size_t nameIndex = currentInputName.find(mPreferredDevice);
 					if (nameIndex != std::string::npos) {
 						audioDeviceFound = true;
 						preferredAudioDeviceKey = in->getKey();
@@ -184,14 +184,16 @@ void  VDAnimation::initLineIn() {
 					auto device = ci::audio::Device::findDeviceByKey(preferredAudioDeviceKey);
 					CI_LOG_W("trying to open mic/line in, if no line follows in the log, the app crashed so put UseLineIn to false in the VDSettings.xml file");
 					mLineIn = ctx->createInputDeviceNode(device); //crashes if linein is present but disabled, doesn't go to catch block
+					mAudioName = mPreferredDevice;
 				}
 				else {
 					mLineIn = ctx->createInputDeviceNode();
+					mAudioName = mLineIn->getDevice()->getName();
 				}
 
 				CI_LOG_V("mic/line in opened");
 				saveLineIn();
-				mAudioName = mLineIn->getDevice()->getName();
+				
 				auto scopeLineInFmt = audio::MonitorSpectralNode::Format().fftSize(mFFTWindowSize * 2).windowSize(mFFTWindowSize);// CHECK is * 2 needed
 				mMonitorLineInSpectralNode = ctx->makeNode(new audio::MonitorSpectralNode(scopeLineInFmt));
 				mLineIn >> mMonitorLineInSpectralNode;
