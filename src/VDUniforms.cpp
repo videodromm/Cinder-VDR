@@ -192,13 +192,12 @@ VDUniforms::VDUniforms() {
 	// invert
 	// glitch
 	createFloatUniform("iGlitch", IGLITCH, 0.0f); // 81
-
+	// greyscale 
+	createFloatUniform("iGreyScale", IGREYSCALE, 0.0f); //82
 	// toggle
 	createFloatUniform("iToggle", ITOGGLE, 0.0f); // 83
 	// invert
 	createFloatUniform("iInvert", IINVERT, 0.0f); // 86
-	// greyscale 
-	createFloatUniform("iGreyScale", IGREYSCALE, 0.0f); //87
 	createFloatUniform("iClear", ICLEAR, 0.0f); // 88
 	createFloatUniform("iDebug", IDEBUG, 0.0f); // 129
 	createFloatUniform("iXorY", IXORY, 0.0f); // 130
@@ -444,6 +443,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	// 8
 	else if (key == "iSobel") {
 		rtn = ISOBEL;
+	}
+	// vignette 10
+	else if (key == "iVignette") {
+		rtn = IVIGNETTE;
 	}
 	// RotationSpeed 11
 	else if (key == "iRotationSpeed") {
@@ -706,9 +709,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iGlitch") {
 		rtn = IGLITCH;
 	}
-	// vignette 10
-	else if (key == "iVignette") {
-		rtn = IVIGNETTE;
+
+	// greyscale 82
+	else if (key == "iGreyScale") {
+		rtn = IGREYSCALE;
 	}
 	// toggle 83
 	else if (key == "iToggle") {
@@ -717,10 +721,6 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	// invert 86
 	else if (key == "iInvert") {
 		rtn = IINVERT;
-	}
-	// greyscale 87
-	else if (key == "iGreyScale") {
-		rtn = IGREYSCALE;
 	}
 	// 88
 	else if (key == "iClear") {

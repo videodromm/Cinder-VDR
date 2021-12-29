@@ -330,10 +330,7 @@ void VDMidi::midiListener(midi::Message msg) {
 		}*/
 		//mVDMediator->setUniformValue(midiPitch + 80, true);
 
-		// This does mVDSession->setFboFragmentShaderIndex(0, midiPitch);
-		if (midiPitch == 8) {
-			midiWeights = true;
-		}
+		
 
 		if (midiPitch < 7) {
 			mVDUniforms->setUniformValue(mVDUniforms->IWEIGHT0 + midiPitch, 1.0);
@@ -346,15 +343,25 @@ void VDMidi::midiListener(midi::Message msg) {
 			//mSelectedFboB = midiPitch - 8;
 			//mFBOBChanged = true;
 		}*/
-		if (midiPitch > 17 && midiPitch < 24) {
-			mVDMediator->setUniformValue(midiPitch + 80 - 17, true);
+		// R row 16 to 22
+		if (midiPitch > 15 && midiPitch < 23) {
+			mVDMediator->setUniformValue(midiPitch + 65, true);
+		}
+		// 23 for midiWeights
+		if (midiPitch == 23) {
+			midiWeights = true;
 		}
 		ss << " noteon Chn: " << midiChannel << " Pitch: " << midiPitch;
 		CI_LOG_V("Midi: " + ss.str());
 		break;
 	case MIDI_NOTE_OFF:
 		midiPitch = msg.pitch;
-		if (midiPitch == 8) {
+		// R row 16 to 22
+		if (midiPitch > 15 && midiPitch < 23) {
+			mVDMediator->setUniformValue(midiPitch + 65, false);
+		}
+		// 23 for midiWeights
+		if (midiPitch == 23) {
 			midiWeights = false;
 		}
 
@@ -363,9 +370,6 @@ void VDMidi::midiListener(midi::Message msg) {
 			mVDUniforms->setUniformValue(mVDUniforms->IWEIGHT0 + midiPitch, 0.0);
 			//mSelectedFboA = midiPitch;
 			//mFBOAChanged = true;
-		}
-		if (midiPitch > 17 && midiPitch < 24) {
-			mVDMediator->setUniformValue(midiPitch + 80 - 17, false);
 		}
 		// midimix solo mode
 		/*if (midiPitch == 27) {

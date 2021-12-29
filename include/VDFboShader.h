@@ -18,7 +18,7 @@
 #include "cinder/CameraUi.h"
 
 // textures
-//#include "VDTexture.h"
+#include "VDTexture.h"
 //! Uniforms
 #include "VDUniforms.h"
 //! Animation

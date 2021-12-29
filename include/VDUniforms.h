@@ -141,9 +141,9 @@ namespace videodromm
 			IBARSTART = 77,
 			// booleans 80 to 110
 			IGLITCH = 81,	// A4
+			IGREYSCALE = 82,
 			ITOGGLE = 83,	// B4 for sos
 			IINVERT = 86,	// D5
-			IGREYSCALE = 87,
 			ICLEAR = 88,	// 
 
 			IBACKGROUNDCOLORX = 101,

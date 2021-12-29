@@ -21,20 +21,20 @@ using namespace ci;
 using namespace ci::app;
 namespace videodromm
 {
+	// stores the pointer to the VDTexture instance
+	typedef std::shared_ptr<class VDTexture> 	VDTextureRef;
+	typedef std::vector<VDTextureRef>			VDTextureList;
+
+	// for profiling
+	typedef std::chrono::high_resolution_clock Clock;
 
 }
 /*
 namespace videodromm
 {
+	typedef map<string, ci::gl::TextureRef>		VDCachedTextures;
 	// ---- Texture parent class ------------------------------------------------
 	
-	// stores the pointer to the VDTexture instance
-	typedef std::shared_ptr<class VDTexture> 	VDTextureRef;
-	typedef std::vector<VDTextureRef>			VDTextureList;
-	//typedef map<string, ci::gl::TextureRef>		VDCachedTextures;
-
-	// for profiling
-	typedef std::chrono::high_resolution_clock Clock;
 
 	class VDTexture : public std::enable_shared_from_this < VDTexture > {
 	public:
