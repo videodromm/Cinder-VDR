@@ -98,6 +98,10 @@ namespace videodromm {
 					}
 				}
 			}
+			if (doc.hasChild("audio")) {
+				JsonTree audio(doc.getChild("audio"));
+				if (audio.hasChild("preferredInput")) mVDAnimation->setPreferredDevice(audio.getValueForKey<string>("preferredInput"));
+			}
 			/* 20211227 mTextureList moved to fboshader if (doc.hasChild("camera")) {
 				JsonTree settings(doc.getChild("camera"));
 				if (settings.hasChild("texturename")) {

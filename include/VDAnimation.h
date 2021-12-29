@@ -105,6 +105,9 @@ namespace videodromm
 				initLineIn();
 			}
 		};
+		void							setPreferredDevice(const std::string& aPreferredDevice) {
+			mPreferredDevice = aPreferredDevice;
+		};
 		void							initLineIn();
 		void							setUseWaveMonitor(bool useWaveMonitor) {
 			mUseAudio = useWaveMonitor;
@@ -157,6 +160,7 @@ namespace videodromm
 		ci::audio::Context				*ctx = audio::Context::master();
 		std::vector<ci::audio::DeviceRef> inputDevices;
 		std::vector<ci::audio::DeviceRef> outputDevices;
+		std::string						mPreferredDevice;
 		bool							mUseAudio = true;
 		bool							mUseRandom = false;
 		bool							mUseLineIn = false;
@@ -179,7 +183,6 @@ namespace videodromm
 		double							startTime;
 		float							previousTime;
 		float							previousTimeBeatPerBar;
-		JsonTree						mData;
 		float							mLastBar = 0.0f; // 20210101 was int
 		std::unordered_map<int, float>	mBadTV;
 		bool							mBlendRender;

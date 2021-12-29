@@ -81,12 +81,7 @@ namespace videodromm
 		std::vector<ci::gl::GlslProg::Uniform>			getUniforms(unsigned int aFboIndex = 0) {
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getUniforms();
 		}
-		/*void							setFboAudioInputTexture(unsigned int aFboIndex = 0) {
-			if (mFboShaderList.size() > 0) {
-				mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->setInputTextureIndex(0);
-				//mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->setImageInputTexture(mVDAnimation->getAudioTexture(), "Audio");
-			}
-		}*/
+		
 		void							setSelectedFbo(unsigned int aFboIndex = 0) {
 			mSelectedFbo = getValidFboIndex(aFboIndex);
 		}
@@ -145,12 +140,11 @@ namespace videodromm
 			mFboShaderList.clear();
 		}
 		ci::gl::TextureRef				getFboRenderedTexture(unsigned int aFboIndex) {
-			if (mFboShaderList.size() == 0) return mDefaultTexture;// mTextureList[0]->getTexture();
+			if (mFboShaderList.size() == 0) return mDefaultTexture;
 			if (aFboIndex > mFboShaderList.size() - 1) aFboIndex = 0;
 
 			if (mFboShaderList[aFboIndex]->isHydraTex()) {
 				// fbo as inputTexture
-				//mFboShaderList[aFboIndex]->setInputTextureRef(mFboShaderList[1]->getTexture());
 				for (unsigned int i = 0; i < 4; i++)
 				{
 					mFboShaderList[aFboIndex]->setInputTextureRefByIndex(i, mFboShaderList[getValidFboIndex(aFboIndex)]->getTexture());
@@ -164,7 +158,7 @@ namespace videodromm
 
 		}
 		ci::gl::TextureRef				getFboTexture(unsigned int aFboIndex) {
-			if (mFboShaderList.size() == 0) return mDefaultTexture;// mTextureList[0]->getTexture();
+			if (mFboShaderList.size() == 0) return mDefaultTexture;
 			if (aFboIndex > mFboShaderList.size() - 1) aFboIndex = 0;
 			return mFboShaderList[aFboIndex]->getTexture();
 
@@ -187,7 +181,6 @@ namespace videodromm
 		}
 		ci::gl::TextureRef				getMixetteTexture(unsigned int aFboIndex);
 		ci::gl::TextureRef				getRenderedMixetteTexture(unsigned int aFboIndex) { return mMixetteTexture; };
-		//unsigned int					fboFromJson(const JsonTree& json, unsigned int aFboIndex = 0);
 		//void							selectSenderPanel();
 		void							restore(const fs::path& aFilePath);
 	private:
@@ -207,12 +200,10 @@ namespace videodromm
 		VDFboShaderList					mFboShaderList;
 		unsigned int					mSelectedFbo = 0;
 		// textures
-		//VDTextureList					mTextureList;
 		bool							save();
 		void							loadFbos();
 		gl::Texture::Format				fmt;
 		gl::Fbo::Format					fboFmt;
-		//gl::TextureRef					mDefaultTexture;
 		//! mixette
 		gl::FboRef						mMixetteFbo;
 		gl::GlslProgRef					mGlslMixette;
@@ -220,12 +211,10 @@ namespace videodromm
 		std::string						mError;
 		const unsigned int				MAXSHADERS = 7;
 		std::string						mAssetsPath = "";
-		//const string					mixFileName = "mix.json";
 		fs::path						mixPath;
 		unsigned int					mCurrentSecond = 0;
 		unsigned int					mCurrentIndex = 0;
 		unsigned int					getValidFboIndex(unsigned int aFboIndex);
-		//unsigned int					getValidTexIndex(unsigned int aTexIndex);
 		//TextureSharedRef				ts;
 		ci::gl::Texture2dRef			mDefaultTexture; //in case no fbos
 	};

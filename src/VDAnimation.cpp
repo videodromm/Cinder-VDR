@@ -146,7 +146,7 @@ bool VDAnimation::handleKeyUp(KeyEvent &event)
 void  VDAnimation::initLineIn() {
 #if (defined( CINDER_MSW ) || defined( CINDER_MAC ))
 	bool audioDeviceFound = false;
-	std::string mPreferredDevice = "Realtek";
+
 	if (!mLineInInitialized) {
 		if (getUseLineIn()) {
 			// linein
