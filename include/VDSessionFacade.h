@@ -93,8 +93,8 @@ namespace videodromm
 		bool					isFboValid(unsigned int aFboIndex) {
 			return mVDSession->isFboValid(aFboIndex);
 		};
-		std::string				getMsg(unsigned int aFboIndex) {
-			return mVDSession->getMsg(aFboIndex);
+		std::string				getFboMsg(unsigned int aFboIndex) {
+			return mVDSession->getFboMsg(aFboIndex);
 		};
 		std::string				getError(unsigned int aFboIndex) {
 			return mVDSession->getError(aFboIndex);

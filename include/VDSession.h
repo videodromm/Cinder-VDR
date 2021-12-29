@@ -227,8 +227,8 @@ namespace videodromm {
 		bool							isFboValid(unsigned int aFboIndex) {
 			return mVDMix->isFboValid(aFboIndex);
 		};
-		std::string								getMsg(unsigned int aFboIndex) {
-			return mVDMix->getMsg(aFboIndex);
+		std::string								getFboMsg(unsigned int aFboIndex) {
+			return mVDMix->getFboMsg(aFboIndex);
 		};
 		std::string								getError(unsigned int aFboIndex) {
 			return mVDMix->getError(aFboIndex);

@@ -69,7 +69,7 @@ namespace videodromm
 			mInputTextureNames[aTexIndex] = "setInputTextureRefByIndex " + toString(aTexIndex);
 		};
 		void									setFboTextureAudioMode() {
-			mStatus = mCurrentFilename = mTextureName = mVDAnimation->getAudioTextureName();// "audio";
+			mCurrentFilename = mTextureName = mVDAnimation->getAudioTextureName();// "audio";
 			mTextureMode = VDTextureMode::AUDIO;
 		}
 		ci::gl::Texture2dRef					getFboInputTextureListItem(unsigned int aTexIndex) {
@@ -80,7 +80,7 @@ namespace videodromm
 				return "fbotex" + mInputTextureIndex;
 			}
 			else {
-				return toString(aTexIndex) + " " + mStatus + ":" +  mInputTextureNames[0];// 20211212 was mCurrentFilename;
+				return toString(aTexIndex) + ":" +  mInputTextureNames[0];// 20211212 was mCurrentFilename;
 			}
 		};
 		// full path (dnd)
@@ -88,8 +88,8 @@ namespace videodromm
 		unsigned int							getInputTexturesCount() {
 			return mInputTextureList.size();
 		}
-		std::string								getMsg() {
-			return mMsg;
+		std::string								getFboMsg() {
+			return mFboMsg;
 		};
 		std::string								getError() {
 			return mError;
@@ -147,10 +147,11 @@ namespace videodromm
 		int								mCurrentImageSequenceIndex = 0;
 		// 20211107
 		string							mTextureName = "";
-		string							mStatus = "";
+		//string							mStatus = "";
 		string							mTypestr = "";
 		string							mExt = "jpg";
 		int								mTextureMode = VDTextureMode::UNKNOWN;
+		float							mLastBar = 0.0f;
 		int								dotIndex = std::string::npos;
 		// 20211107
 		bool							mIsHydraTex = false;
@@ -185,8 +186,8 @@ namespace videodromm
 		ci::gl::Texture2dRef			getFboTexture();
 		void							loadNextTexture(int aCurrentIndex);
 		// messages
-		static const int				mMsgLength = 150;
-		std::string						mMsg;
+		static const int				mFboMsgLength = 150;
+		std::string						mFboMsg;
 		std::string						mAssetsPath = "";
 		unsigned int					mFboIndex = 0;
 		// video
