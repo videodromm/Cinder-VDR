@@ -143,13 +143,10 @@ bool VDAnimation::handleKeyUp(KeyEvent &event)
 
 	return event.isHandled();
 }
-ci::gl::TextureRef VDAnimation::getAudioTexture() {
-	bool audioDeviceFound = false;
-	std::string preferredAudioDevice = "{0.0.1.00000000}.{9a00fc87-a5d4-475f-bccd-8919f5c8fb61}";
-	mAudioFormat = gl::Texture2d::Format().swizzleMask(GL_RED, GL_RED, GL_RED, GL_ONE).internalFormat(GL_RED);
-	auto ctx = audio::Context::master();
-	if (!mLineInInitialized) {
+void  VDAnimation::initLineIn() {
 #if (defined( CINDER_MSW ) || defined( CINDER_MAC ))
+	bool audioDeviceFound = false;
+	if (!mLineInInitialized) {
 		if (getUseLineIn()) {
 			// linein
 			preventLineInCrash(); // at next launch
@@ -157,18 +154,22 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 			{
 				inputDevices = ci::audio::Device::getInputDevices();
 				outputDevices = ci::audio::Device::getOutputDevices();
-
+				std::string preferredAudioDeviceKey = "";
 				JsonTree doc;
 				JsonTree audioinputs = JsonTree::makeArray("audioinputs");
 				for (ci::audio::DeviceRef in : inputDevices) {
-					audioinputs.addChild(ci::JsonTree(in->getKey(), in->getName()));
-					if (in->getKey() == preferredAudioDevice) {
+					std::string currentInputName = in->getName();
+					audioinputs.addChild(ci::JsonTree(in->getKey(), currentInputName));
+
+
+					std::size_t nameIndex = currentInputName.find("Realtek");
+					if (nameIndex != std::string::npos) {
 						audioDeviceFound = true;
-						std::string preferredAudioDeviceName = in->getName();
-						mVDSettings->setMsg("Inputs\nPreferred: " + preferredAudioDeviceName + "\n");
+						preferredAudioDeviceKey = in->getKey();
+						mVDSettings->setMsg("Inputs\nPreferred: " + currentInputName + "\n");
 					}
 					else {
-						mVDSettings->setMsg("Inputs\nPreferred: " + in->getName() + "\n");
+						mVDSettings->setMsg("Inputs\n: " + currentInputName + "\n");
 					}
 				}
 				doc.pushBack(audioinputs);
@@ -180,7 +181,7 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 				doc.pushBack(audiooutputs);
 				doc.write(writeFile(getAssetPath("") / "audio.json"), JsonTree::WriteOptions());
 				if (audioDeviceFound) {
-					auto device = ci::audio::Device::findDeviceByKey(preferredAudioDevice);
+					auto device = ci::audio::Device::findDeviceByKey(preferredAudioDeviceKey);
 					CI_LOG_W("trying to open mic/line in, if no line follows in the log, the app crashed so put UseLineIn to false in the VDSettings.xml file");
 					mLineIn = ctx->createInputDeviceNode(device); //crashes if linein is present but disabled, doesn't go to catch block
 				}
@@ -205,7 +206,16 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 			}
 		}
 	}
+
 #endif
+}
+ci::gl::TextureRef VDAnimation::getAudioTexture() {
+	
+	//std::string preferredAudioDevice = "{0.0.1.00000000}.{9a00fc87-a5d4-475f-bccd-8919f5c8fb61}";
+	// todo load form json std::string preferredAudioDevice = "Realtek";
+	mAudioFormat = gl::Texture2d::Format().swizzleMask(GL_RED, GL_RED, GL_RED, GL_ONE).internalFormat(GL_RED);
+	//auto ctx = audio::Context::master();
+
 	if (!mWaveInitialized) {
 		if (getUseAudio()) {
 
@@ -306,9 +316,6 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 			if (i == getFreqIndex(1)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ1, f);
 			if (i == getFreqIndex(2)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ2, f);
 			if (i == getFreqIndex(3)) mVDUniforms->setUniformValue(mVDUniforms->IFREQ3, f);
-
-
-
 		}
 
 		// store it as a 512x2 texture

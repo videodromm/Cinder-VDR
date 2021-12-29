@@ -136,8 +136,8 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iTimeFactor", ITIMEFACTOR, 1.0f); // 49
 	// smooth animation
 	createFloatUniform("iSmooth", ISMOOTH, 0.005f); // 50
-	// 
-	//createFloatUniform("", , 0.005f); // 51
+	// DisplayMode
+	createFloatUniform("iDisplayMode", IDISPLAYMODE, 7.0f, 0.0f, 9.0f); // 51
 	// int
 	// blend mode 
 	createFloatUniform("iBlendmode", IBLENDMODE, 0.0f, 0.0f, 25.0f); // 60
@@ -601,6 +601,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iSmooth") {
 		rtn = ISMOOTH;
 	}
+	// DisplayMode 51
+	else if (key == "iDisplayMode") {
+		rtn = IDISPLAYMODE;
+	}
 	// int
 	// blend mode 60 
 	else if (key == "iBlendmode") {
@@ -797,9 +801,3 @@ bool VDUniforms::isExistingUniform(const std::string& aName) {
 	return stringToIndex(aName) != -1;
 };
 
-unsigned int VDUniforms::getDisplayMode() {
-	return mDisplayMode;
-};
-void VDUniforms::setDisplayMode(unsigned int aIndex) {
-	mDisplayMode = aIndex;
-};

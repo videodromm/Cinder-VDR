@@ -333,12 +333,7 @@ namespace videodromm {
 		void resetAnim() {
 			mVDAnimation->resetAnim();
 		}
-		void							setDisplayMode(unsigned int aMode) {	
-			mVDUniforms->setDisplayMode(aMode);
-		}
-		unsigned int								getDisplayMode() {
-			return mVDUniforms->getDisplayMode();
-		}
+		
 	private:
 		VDParamsRef						mVDParams;
 		// Settings

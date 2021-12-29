@@ -95,20 +95,28 @@ namespace videodromm
 		};
 		void							setFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0) {
 			if (mFboShaderList.size() > 0) {
-				
-				//unsigned int texIndex = getValidTexIndex(aTexIndex);
 				mFboShaderList[getValidFboIndex(aFboIndex)]->setInputTextureIndex(aTexIndex);
 				// TODO 20211227 check if useless now mFboShaderList[getValidFboIndex(aFboIndex)]->setInputTextureRef(mTextureList[texIndex]->getTexture());
 			}
 		}
-		/*ci::gl::Texture2dRef			getInputTexture(unsigned int aTexIndex) {
-			return mFboShaderList[getValidFboIndex(mSelectedFbo)]->getInputTexture(aTexIndex);
-		}*/
+	
 		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aTexIndex = 0) {
-			// Before 20111115 return mTextureList[mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureIndex()]->getTexture();
-			// Before 20211227 return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTexture(aTexIndex);
 			return mFboShaderList[getValidFboIndex(mSelectedFbo)]->getInputTexture(aTexIndex);
 		}
+		std::string						getInputTextureName(unsigned int aTexIndex = 0) {
+			return mFboShaderList[getValidFboIndex(mSelectedFbo)]->getTextureName(aTexIndex);
+		}
+		std::string						getFboTextureName(unsigned int aFboIndex) {
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->getTextureName(); // useless or duplic
+		};
+
+		int								getFboInputTextureWidth(unsigned int aFboIndex) {
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureWidth();
+		};
+		int								getFboInputTextureHeight(unsigned int aFboIndex) {
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureHeight();
+		};
+
 		void							setFboTextureAudioMode(unsigned int aFboIndex) {
 			mFboShaderList[getValidFboIndex(aFboIndex)]->setFboTextureAudioMode();
 		}
@@ -118,35 +126,12 @@ namespace videodromm
 		unsigned int					getFboInputTextureIndex(unsigned int aFboIndex) {
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureIndex();
 		}
-		// TODO 20211227
 		unsigned int					getInputTexturesCount(unsigned int aFboIndex = 0) {
-			//return (unsigned int)mTextureList.size();
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTexturesCount();
 		}
-		std::string						getInputTextureName(unsigned int aFboIndex) {
-			// Before 20111115 return mTextureList[aTexIndex]->getName();
-			return mFboShaderList[getValidFboIndex(aFboIndex)]->getTextureName();
-		}
-		int								getFboInputTextureWidth(unsigned int aFboIndex) {
-			//return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTexture() ? mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTexture()->getWidth() : mVDParams->getFboWidth();
-			//return mVDParams->getFboWidth();
-			//return mTextureList[mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureIndex()]->getTextureWidth();
-			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureWidth();
-		};
-		int								getFboInputTextureHeight(unsigned int aFboIndex) {
-			//return mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTexture() ? mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getInputTexture()->getHeight() : mVDParams->getFboHeight();
-			//return mVDParams->getFboHeight();
-			//return mTextureList[mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureIndex()]->getTextureHeight();
-			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureHeight();
-		};
 
 		std::string						getFboShaderName(unsigned int aFboIndex) {
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getShaderName();
-		};
-		std::string						getFboTextureName(unsigned int aFboIndex) {
-			//return mTextureList[getValidTexIndex(aFboIndex)]->getName();
-			return mFboShaderList[getValidFboIndex(aFboIndex)]->getTextureName();
-			//mFboShaderList[math<int>::min(aFboIndex, mFboShaderList.size() - 1)]->getTextureName();
 		};
 		bool							loadImageSequence(const string& aFolder, unsigned int aTextureIndex);
 		void							loadImageFile(const std::string& aFile, unsigned int aFboIndex = 0);

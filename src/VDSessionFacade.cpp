@@ -94,13 +94,6 @@ VDSessionFacadeRef VDSessionFacade::useTimeWithTempo() {
 	return shared_from_this();
 };
 
-VDSessionFacadeRef VDSessionFacade::setDisplayMode(int aMode) {
-	mVDSession->setDisplayMode(aMode);
-	return shared_from_this();
-}
-unsigned int VDSessionFacade::getDisplayMode() {
-	return mVDSession->getDisplayMode();
-}
 VDSessionFacadeRef VDSessionFacade::update() {
 	mVDSession->update();
 	mVDMediator->update();

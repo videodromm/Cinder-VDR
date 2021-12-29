@@ -137,34 +137,34 @@ bool VDKeyboard::handleKeyDown(KeyEvent& event) {
 		//if (isModDown) fboFlipV(0);// TODO other indexes mVDSettings->mFlipV = !mVDSettings->mFlipV; useless?
 		break;
 	case KeyEvent::KEY_F1:
-		mVDUniforms->setDisplayMode(7);
+		mVDMediator->setUniformValue(mVDUniforms->IDISPLAYMODE, VDDisplayMode::POST);		
 		break;
 	case KeyEvent::KEY_F2:
-		mVDUniforms->setDisplayMode(8);
+		mVDMediator->setUniformValue(mVDUniforms->IDISPLAYMODE, VDDisplayMode::MIXETTE);
 		break;
 	case KeyEvent::KEY_F3:
-		mVDUniforms->setDisplayMode(6);
+		mVDMediator->setUniformValue(mVDUniforms->IDISPLAYMODE, VDDisplayMode::FX);
 		break;
 	case KeyEvent::KEY_F4:
-		mVDUniforms->setDisplayMode(0);
+		mVDMediator->setUniformValue(mVDUniforms->IDISPLAYMODE, VDDisplayMode::FBO0);
 		break;
 	case KeyEvent::KEY_F5:
-		mVDUniforms->setDisplayMode(1);
+		mVDMediator->setUniformValue(mVDUniforms->IDISPLAYMODE, VDDisplayMode::FBO1);
 		break;
 	case KeyEvent::KEY_F6:
-		mVDUniforms->setDisplayMode(2);
+		mVDMediator->setUniformValue(mVDUniforms->IDISPLAYMODE, VDDisplayMode::FBO2);
 		break;
 	case KeyEvent::KEY_F7:
-		mVDUniforms->setDisplayMode(3);
+		mVDMediator->setUniformValue(mVDUniforms->IDISPLAYMODE, VDDisplayMode::FBO3);
 		break;
 	case KeyEvent::KEY_F8:
-		mVDUniforms->setDisplayMode(4);
+		mVDMediator->setUniformValue(mVDUniforms->IDISPLAYMODE, VDDisplayMode::FBO4);
 		break;
 	case KeyEvent::KEY_F9:
-		mVDUniforms->setDisplayMode(5);
+		mVDMediator->setUniformValue(mVDUniforms->IDISPLAYMODE, VDDisplayMode::FBO5);
 		break;
 	case KeyEvent::KEY_F10: // pauses app in debug mode
-		mVDUniforms->setDisplayMode(9);
+		mVDMediator->setUniformValue(mVDUniforms->IDISPLAYMODE, VDDisplayMode::WARP);
 		break;
 	default:
 		CI_LOG_V("session keydown: " + toString(event.getCode()));

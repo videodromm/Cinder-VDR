@@ -71,18 +71,18 @@ namespace videodromm
 			mInputTextureList[aTexIndex] = aTextureRef;
 		};
 		void									setFboTextureAudioMode() {
-			mCurrentFilename = mTextureName = "audio";
+			mCurrentFilename = mTextureName = mVDAnimation->getAudioTextureName();// "audio";
 			mTextureMode = VDTextureMode::AUDIO;
 		}
 		ci::gl::Texture2dRef					getFboInputTextureListItem(unsigned int aTexIndex) {
 			return mInputTextureList[aTexIndex];
 		};
-		std::string								getTextureName() {
+		std::string								getTextureName(unsigned int aTexIndex = 0) {
 			if (mIsHydraTex) {
 				return "fbotex" + mInputTextureIndex;
 			}
 			else {
-				return mStatus;// 20211212 was mCurrentFilename;
+				return mStatus + toString(aTexIndex);// 20211212 was mCurrentFilename;
 			}
 		};
 		// full path (dnd)

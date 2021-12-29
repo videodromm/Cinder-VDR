@@ -96,16 +96,22 @@ namespace videodromm
 		bool							getUseLineIn() {
 			return mUseLineIn;
 		};
-		void							setUseLineIn(bool useLineIn) {
+		void							setUseLineIn(bool useLineIn = true) {
 			mUseLineIn = useLineIn;
 		};
+		void							toggleUseLineIn() { 
+			mUseLineIn = !mUseLineIn; 
+			if (!mLineInInitialized && mUseLineIn) {
+				initLineIn();
+			}
+		};
+		void							initLineIn();
 		void							setUseWaveMonitor(bool useWaveMonitor) {
 			mUseAudio = useWaveMonitor;
 		};
 		bool							getUseWaveMonitor() { return mUseAudio; };
 		void							toggleUseWaveMonitor() { mUseAudio = !mUseAudio; };
 
-		void							toggleUseLineIn() { mUseLineIn = !mUseLineIn; };
 
 		// audio
 		bool							isAudioBuffered() { return mAudioBuffered; };
@@ -148,6 +154,7 @@ namespace videodromm
 		VDSettingsRef					mVDSettings;
 		VDUniformsRef					mVDUniforms;
 		// Audio
+		ci::audio::Context				*ctx = audio::Context::master();
 		std::vector<ci::audio::DeviceRef> inputDevices;
 		std::vector<ci::audio::DeviceRef> outputDevices;
 		bool							mUseAudio = true;

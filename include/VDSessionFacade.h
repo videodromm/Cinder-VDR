@@ -46,12 +46,11 @@ namespace videodromm
 		VDSessionFacadeRef		addSocketIOObserver(const std::string& host, unsigned int port);
 		VDSessionFacadeRef		setAnim(unsigned int aCtrl, unsigned int aAnim);
 		VDSessionFacadeRef		toggleValue(unsigned int aCtrl);
-		VDSessionFacadeRef		toggleUseLineIn();
 		VDSessionFacadeRef		tapTempo();
 		VDSessionFacadeRef		toggleUseTimeWithTempo();
 		VDSessionFacadeRef		useTimeWithTempo();
+		VDSessionFacadeRef		toggleUseLineIn();
 		VDSessionFacadeRef		loadFromJsonFile(const fs::path& jsonFile);
-		VDSessionFacadeRef		setDisplayMode(int aMode);
 		VDSessionFacadeRef		update();
 		// begin terminal operations
 		bool					getUseTimeWithTempo();
@@ -135,7 +134,8 @@ namespace videodromm
 		ci::gl::TextureRef		getAudioTexture() { return mVDSession->getAudioTexture(); };
 		bool					getUseAudio() { return mVDSession->getUseAudio(); };
 		bool					getUseLineIn() { return mVDSession->getUseLineIn(); };
-		void					setUseLineIn(bool useLineIn) { mVDSession->setUseLineIn(useLineIn); };
+		void					setUseLineIn(bool useLineIn = true) { mVDSession->setUseLineIn(useLineIn); };
+		
 		bool					isAudioBuffered() { return mVDSession->isAudioBuffered(); };
 		void					toggleAudioBuffered() { mVDSession->toggleAudioBuffered(); };
 		bool					getUseWaveMonitor() { return mVDSession->getUseWaveMonitor(); };

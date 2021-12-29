@@ -57,7 +57,7 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 	mModesList[VDDisplayMode::FX] = "Fx";
 	mModesList[VDDisplayMode::POST] = "Post";
 	mModesList[VDDisplayMode::MIXETTE] = "Mixette";
-	mModesList[VDDisplayMode::WARP] = "Warp"; // not used
+	mModesList[VDDisplayMode::WARP] = "Warp";
 
 	// reset no matter what, so we don't miss anything
 	cmd = -1;
@@ -200,10 +200,10 @@ void VDSession::update() {
 	mVDAnimation->update();
 
 	mVDMix->getMixetteTexture(0);
-	//if (mVDUniforms->getDisplayMode() == VDDisplayMode::WARP) 
+	
 	renderWarpsToFbo();
 	renderPostToFbo();
-	if (mVDUniforms->getDisplayMode() == VDDisplayMode::FX || getElapsedFrames() % 100 == 0) renderFxToFbo();
+	if (mVDUniforms->getUniformValue(mVDUniforms->IDISPLAYMODE) == VDDisplayMode::FX || getElapsedFrames() % 100 == 0) renderFxToFbo();
 }
 void VDSession::renderPostToFbo()
 {

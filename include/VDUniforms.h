@@ -120,7 +120,7 @@ namespace videodromm
 			IBADTV = 48,
 			ITIMEFACTOR = 49,
 			ISMOOTH = 50,
-
+			IDISPLAYMODE = 51,  
 			// int
 			IBLENDMODE = 60,
 			IBEAT = 61,
@@ -333,8 +333,7 @@ namespace videodromm
 		int getErrorCode() {
 			return mErrorCode;
 		}
-		unsigned int getDisplayMode();
-		void setDisplayMode(unsigned int aIndex);
+
 	private:
 
 		std::map<int, VDUniformStruct>		shaderUniforms;
@@ -353,7 +352,6 @@ namespace videodromm
 		// render windows
 		int								mRenderWidth;
 		int								mRenderHeight;
-		unsigned int					mDisplayMode = VDDisplayMode::POST;
 
 		void createVec2Uniform(const std::string& aName, int aCtrlIndex, vec2 aValue = vec2(0.0)) {
 			shaderUniforms[aCtrlIndex].name = aName;
