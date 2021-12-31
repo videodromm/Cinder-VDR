@@ -78,6 +78,8 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	mCurrentFilename = mTextureName = (json.hasChild("texturename")) ? json.getValueForKey<string>("texturename") : "0.jpg";
 	mTypestr = (json.hasChild("texturetype")) ? json.getValueForKey<string>("texturetype") : "UNKNOWN";
 	mTextureMode = (json.hasChild("texturemode")) ? json.getValueForKey<int>("texturemode") : VDTextureMode::UNKNOWN;
+	mTextureCount = (json.hasChild("texturecount")) ? json.getValueForKey<int>("texturecount") : 1;
+	auto start = Clock::now();
 
 	switch (mTextureMode)
 	{
@@ -95,7 +97,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		break;
 	case VDTextureMode::PARTS: // img parts
 		listIndex = 0;
-		for (size_t i{ 0 }; i < 13; i++)
+		for (size_t i{ 0 }; i < mTextureCount; i++)
 		{
 			mCurrentFilename = mTextureName + " (" + toString(i) + ").jpg";
 			//fs::path texFileOrPath = getAssetPath("") / mAssetsPath / currentFilename;
@@ -118,6 +120,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 				}
 			}
 		}
+		
 		break;
 
 	default:
@@ -225,7 +228,10 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		}
 		break;
 	}
-
+	auto end = Clock::now();
+	auto msdur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+	int ms = msdur.count();
+	mFboStatus = mTextureName + ": " + toString(ms) + "ms";
 	rtn = mInputTextureList.size() - 1;
 	return rtn;
 
@@ -334,8 +340,8 @@ void VDFboShader::loadImageFile(const std::string& aFile, unsigned int aTexIndex
 		// start profiling
 		auto start = Clock::now();
 
-		mInputTextureList[0] = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
-		mInputTextureNames[0] = aFile;
+		mInputTextureList[aTexIndex] = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+		mInputTextureNames[aTexIndex] = aFile;
 		auto end = Clock::now();
 		auto msdur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 		int ms = msdur.count();
@@ -478,9 +484,8 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				case GL_SAMPLER_2D: // sampler2D 35678 0x8B5E
 					texNameEndIndex = name.find("iChannel");
 					if (texNameEndIndex != std::string::npos && texNameEndIndex != -1) {
-						// bug! mShader->uniform(name, (uint32_t)(channelIndex));						
+						// NASTY BUG! mShader->uniform(name, (uint32_t)(channelIndex));						
 						mShader->uniform(name, channelIndex);
-						//mInputTextureList[channelIndex]->bind(253 + channelIndex);
 						channelIndex++;
 					}
 					else {
@@ -515,7 +520,6 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 					break;
 				case GL_FLOAT_VEC2:// vec2 35664 0x8B50
 					if (name == "RENDERSIZE" || name == "resolution") {
-						//mShader->uniform(name, vec2(mTexture->getWidth(), mTexture->getHeight()));
 						mShader->uniform(name, vec2(mVDParams->getFboWidth(), mVDParams->getFboHeight()));
 					}
 					else {

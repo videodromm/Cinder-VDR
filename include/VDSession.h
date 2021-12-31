@@ -235,6 +235,9 @@ namespace videodromm {
 		std::string								getFboError(unsigned int aFboIndex) {
 			return mVDMix->getFboError(aFboIndex);
 		};
+		std::string								getFboStatus(unsigned int aFboIndex) {
+			return mVDMix->getFboStatus(aFboIndex);
+		};
 
 		std::vector<ci::gl::GlslProg::Uniform>			getUniforms(unsigned int aFboIndex = 0) {
 			return mVDMix->getUniforms(aFboIndex);

@@ -94,6 +94,9 @@ namespace videodromm
 		std::string								getFboError() {
 			return mFboError;
 		};
+		std::string								getFboStatus() {
+			return mFboStatus;
+		};
 		bool									loadFragmentShaderFromFile(const string& aFileOrPath, bool isAudio = false);
 		void									setInputTextureIndex(unsigned int aTexIndex = 0) {
 			mInputTextureIndex = getValidTexIndex(aTexIndex);
@@ -147,6 +150,7 @@ namespace videodromm
 		string							mTypestr = "";
 		string							mExt = "jpg";
 		int								mTextureMode = VDTextureMode::UNKNOWN;
+		int								mTextureCount = 1;
 		float							mLastBar = 0.0f;
 		int								dotIndex = std::string::npos;
 		// 20211107
@@ -170,7 +174,6 @@ namespace videodromm
 		int								mMicroSeconds;
 		// include shader lines
 		std::string						shaderInclude;
-		std::string						mFboError;
 		bool							mValid = false;
 		//! Fbo
 		gl::FboRef						mFbo;
@@ -184,6 +187,8 @@ namespace videodromm
 		// messages
 		static const int				mFboMsgLength = 150;
 		std::string						mFboMsg;
+		std::string						mFboError = "";
+		std::string						mFboStatus = "";
 		std::string						mAssetsPath = "";
 		unsigned int					mFboIndex = 0;
 		// video
