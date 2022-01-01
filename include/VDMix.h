@@ -74,6 +74,13 @@ namespace videodromm
 		std::string						getFboStatus(unsigned int aFboIndex) {
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getFboStatus();
 		};
+		unsigned int					getFboMs(unsigned int aTexIndex = 0) {
+			return mFboShaderList[getValidFboIndex(mSelectedFbo)]->getFboMs(aTexIndex);
+		};
+		unsigned int					getFboMsTotal(unsigned int aFboIndex = 0) {
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->getFboMsTotal();
+		};
+
 		std::string						getAssetsPath() {
 			return mAssetsPath;
 		};
@@ -131,7 +138,6 @@ namespace videodromm
 		std::string						getFboShaderName(unsigned int aFboIndex) {
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getShaderName();
 		};
-		bool							loadImageSequence(const string& aFolder, unsigned int aTextureIndex);
 		void							loadImageFile(const std::string& aFile, unsigned int aFboIndex = 0);
 
 		std::vector<ci::gl::GlslProg::Uniform>	getFboShaderUniforms(unsigned int aFboShaderIndex);
@@ -204,7 +210,6 @@ namespace videodromm
 		unsigned int					mSelectedFbo = 0;
 		// textures
 		bool							save();
-		void							loadFbos();
 		gl::Texture::Format				fmt;
 		gl::Fbo::Format					fboFmt;
 		//! mixette

@@ -238,7 +238,13 @@ namespace videodromm {
 		std::string								getFboStatus(unsigned int aFboIndex) {
 			return mVDMix->getFboStatus(aFboIndex);
 		};
-
+		
+		unsigned int			getFboMs( unsigned int aTexIndex = 0) {
+			return mVDMix->getFboMs(aTexIndex);
+		};
+		unsigned int				getFboMsTotal(unsigned int aFboIndex) {
+			return mVDMix->getFboMsTotal(aFboIndex);
+		};
 		std::vector<ci::gl::GlslProg::Uniform>			getUniforms(unsigned int aFboIndex = 0) {
 			return mVDMix->getUniforms(aFboIndex);
 		}

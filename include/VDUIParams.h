@@ -26,11 +26,13 @@ namespace videodromm {
 		unsigned	uiXPosCol2 = uiXPosCol1 + uiMargin * 2 + previewFboWidth;
 		unsigned	uiXPosCol3 = (unsigned)(uiXPosCol2 * 3.4 + uiMargin);
 		unsigned	uiYPosRow2 = uiYPosRow1 + uiLargeH + uiMargin; // details, textures
-		unsigned	uiYPosRow3 = uiYPosRow2 + uiLargePreviewH + uiMargin;
+		unsigned	uiYPosRow3 = uiYPosRow2 + uiLargePreviewH;
 		unsigned	uiYPosRow4 = uiYPosRow3 + uiLargePreviewH + uiMargin;
 		unsigned	uiYPosRow5 = uiYPosRow4 + uiLargePreviewH + uiMargin;
 		unsigned	uiYPosRow6 = uiYPosRow5 + uiLargePreviewH + uiMargin;
 		unsigned	uiSmallH = uiYPosRow2 - uiYPosRow1 - uiMargin;
+		unsigned	uiSmallPreviewW = (unsigned)(previewFboWidth * 0.7);
+		unsigned	uiSmallPreviewH = (unsigned)(previewFboHeight * 0.7);
 
 	public:
 		VDUIParams(const VDUIParams&) = delete;
@@ -102,6 +104,12 @@ namespace videodromm {
 		};
 		unsigned getUILargePreviewH() const noexcept {
 			return uiLargePreviewH;
+		};
+		unsigned getUISmallPreviewW() const noexcept {
+			return uiSmallPreviewW;
+		};
+		unsigned getUISmallPreviewH() const noexcept {
+			return uiSmallPreviewH;
 		};
 	};
 

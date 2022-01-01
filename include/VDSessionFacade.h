@@ -103,6 +103,13 @@ namespace videodromm
 		std::string				getFboStatus(unsigned int aFboIndex) {
 			return mVDSession->getFboStatus(aFboIndex);
 		};
+		unsigned int			getFboMs(unsigned int aTexIndex = 0) {
+			return mVDSession->getFboMs(aTexIndex);
+		};
+		unsigned int			getFboMsTotal(unsigned int aFboIndex) {
+			return mVDSession->getFboMsTotal(aFboIndex);
+		};
+		
 		std::vector<ci::gl::GlslProg::Uniform> getFboShaderUniforms(unsigned int aFboShaderIndex);
 		//float					getFboShaderUniformValue();
 		float					getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex);

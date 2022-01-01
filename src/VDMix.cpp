@@ -18,11 +18,7 @@ namespace videodromm {
 		mVDAnimation = aVDAnimation;
 		// Uniforms
 		mVDUniforms = aVDUniforms;
-		// TODO TMP mDefaultTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
-		// check to see if mix.json file exists and restore if it does
-		// must have one texture initialized
-		//TextureAudioRef t(TextureAudio::create(mVDAnimation));
-		//mTextureList.push_back(t);
+
 		mDefaultTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown(false));
 
 		mixPath = getAssetPath("") / "mix.json";
@@ -37,9 +33,6 @@ namespace videodromm {
 			oStream.close();
 			save();
 		}
-
-		//mDefaultTexture = ci::gl::Texture::create(loadImage(loadAsset("0.jpg")));
-		//loadImageFile("0.jpg", 0);
 
 		mMixetteTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown(false));
 		// init fbo format
@@ -57,8 +50,6 @@ namespace videodromm {
 		}
 
 		mGlslMixette = gl::GlslProg::create(mVDParams->getDefaultVertexString(), loadString(loadFile(mMixetteFilePath)));
-
-		loadFbos();
 	} // constructor
 
 	bool VDMix::save()
@@ -137,34 +128,7 @@ namespace videodromm {
 	unsigned int VDMix::getValidFboIndex(unsigned int aFboIndex) {
 		return math<int>::min(aFboIndex, (unsigned int)mFboShaderList.size() - 1);
 	}
-	/*unsigned int VDMix::getValidTexIndex(unsigned int aTexIndex) {
-		return math<int>::min(aTexIndex, (unsigned int)mTextureList.size() - 1);
-	}*/
-	void VDMix::loadFbos() {
-		/* done better in Session
-				// 20211107 TODO add default fboshader if mFboShaderList empty? init shader
-				JsonTree json;
-				JsonTree shader = ci::JsonTree::makeArray("shader");
-				shader.addChild(ci::JsonTree("shadername", "mix"));
-				shader.pushBack(ci::JsonTree("shadertype", "fs"));
-				shader.pushBack(ci::JsonTree("shadertext", mVDParams->getDefaultShaderFragmentString()));
-				json.addChild(shader);
-				JsonTree texture = ci::JsonTree::makeArray("texture");
-				texture.addChild(ci::JsonTree("texturename", "audio"));
-				texture.pushBack(ci::JsonTree("texturetype", "audio"));
-				texture.pushBack(ci::JsonTree("texturemode", 0));
-				json.addChild(texture);
-				mFboShader = VDFboShader::create(mVDUniforms, mVDAnimation, json, 0, mAssetsPath);
-				mFboShaderList.push_back(mFboShader);
-				setFboInputTexture(getFboShaderListSize() - 1, 0);
-		*/
-	}
-	/*unsigned int VDMix::fboFromJson(const JsonTree& json, unsigned int aFboIndex) {
-		unsigned int rtn = 0;
-
-		rtn = createFboShaderTexture(json, aFboIndex);
-		return rtn;
-	}*/
+	
 	unsigned int VDMix::createFboShaderTexture(const JsonTree &json, unsigned int aFboIndex, const std::string& aFolder) {
 		unsigned int rtn = 0;
 		if (aFolder != "") mAssetsPath = aFolder;
@@ -339,16 +303,14 @@ namespace videodromm {
 			int dotIndex = texFileOrPath.filename().string().find_last_of(".");
 			if (dotIndex != std::string::npos)  ext = texFileOrPath.filename().string().substr(dotIndex + 1);
 			if (ext == "jpg" || ext == "png") {
-				/* 20211227 TextureImageRef t(TextureImage::create());
-				t->fromJson(texture);
-				mTextureList.push_back(t);*/
-
 				if (mFboShaderList.size() < 1) {
 					// no fbos, create one
 					JsonTree		json;
 					JsonTree texture = ci::JsonTree::makeArray("texture");
 					texture.addChild(ci::JsonTree("texturename", aFile));
 					texture.pushBack(ci::JsonTree("texturetype", "image"));
+					texture.pushBack(ci::JsonTree("texturemode", 1));
+					texture.pushBack(ci::JsonTree("texturecount", 1));
 					json.addChild(texture);
 					JsonTree shader = ci::JsonTree::makeArray("shader");
 					shader.addChild(ci::JsonTree("shadername", "inputImage.fs"));
@@ -363,28 +325,7 @@ namespace videodromm {
 			}
 		}
 	}
-	bool VDMix::loadImageSequence(const string& aFolder, unsigned int aTextureIndex) {
-		/*if (aTextureIndex > mTextureList.size() - 1) aTextureIndex = mTextureList.size() - 1;
-		CI_LOG_V("loadImageSequence " + aFolder + " at textureIndex " + toString(aTextureIndex));
-		// add texture xml
-		XmlTree			textureXml;
-		textureXml.setTag("texture");
-		textureXml.setAttribute("id", "0");
-		textureXml.setAttribute("texturetype", "sequence");
-		textureXml.setAttribute("path", aFolder);
-		TextureImageSequenceRef t(new TextureImageSequence(mVDAnimation));
-		if (t->fromXml(textureXml)) {
-			mTextureList.push_back(t);
-			return true;
-		}
-		else {
-			return false;
-		}*/
-		return false;
-	}
 
 #pragma endregion textures
-
-
 
 } // namespace videodromm

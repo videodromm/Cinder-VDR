@@ -76,6 +76,12 @@ namespace videodromm {
 		unsigned getUILargePreviewH() const noexcept {
 			return uiParams.getUILargePreviewH();
 		}; 
+		unsigned getUISmallPreviewW() const noexcept {
+			return uiParams.getUISmallPreviewW();
+		}; 
+		unsigned getUISmallPreviewH() const noexcept {
+			return uiParams.getUISmallPreviewH();
+		}; 
 		
 		~VDParams()
 		{
