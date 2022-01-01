@@ -251,9 +251,9 @@ void VDSessionFacade::setSelectedFbo(unsigned int aFboIndex) {
 unsigned int VDSessionFacade::getSelectedFbo() { 
 	return mVDSession->getSelectedFbo();
 };
-unsigned int VDSessionFacade::getFboInputTextureIndex(unsigned int aFboIndex) {
+/*unsigned int VDSessionFacade::getFboInputTextureIndex(unsigned int aFboIndex) {
 	return mVDSession->getFboInputTextureIndex(aFboIndex);
-}
+}*/
 std::string VDSessionFacade::getFboName(unsigned int aFboIndex) {
 	return mVDSession->getFboShaderName(aFboIndex);
 }

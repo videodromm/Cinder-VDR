@@ -114,12 +114,10 @@ namespace videodromm {
 			//mVDMix->setFboAudioInputTexture(0); // TODO 20210101 remove and use update()
 			return mVDAnimation->getAudioTexture();
 		};
-		/*void							setFboAudioInputTexture(unsigned int aFboIndex = 0) {
-			mVDMix->setFboAudioInputTexture(aFboIndex); // TODO 20210101 warning not updating
-		}*/
+		/*v
 		void							setFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0) {
 			mVDMix->setFboInputTexture(aFboIndex, aTexIndex);
-		}
+		}*/
 		std::string						getAudioTextureName() { return mVDAnimation->getAudioTextureName(); };
 		float*							getFreqs() { return mVDAnimation->iFreqs; };
 		int								getFreqIndexSize() { return mVDAnimation->getFreqIndexSize(); };
@@ -239,10 +237,13 @@ namespace videodromm {
 			return mVDMix->getFboStatus(aFboIndex);
 		};
 		
-		unsigned int			getFboMs( unsigned int aTexIndex = 0) {
+		unsigned int							getFboMs( unsigned int aTexIndex = 0) {
 			return mVDMix->getFboMs(aTexIndex);
 		};
-		unsigned int				getFboMsTotal(unsigned int aFboIndex) {
+		bool									isValidInputTexture( unsigned int aTexIndex = 0) {
+			return mVDMix->isValidInputTexture(aTexIndex);
+		};
+		unsigned int								getFboMsTotal(unsigned int aFboIndex) {
 			return mVDMix->getFboMsTotal(aFboIndex);
 		};
 		std::vector<ci::gl::GlslProg::Uniform>			getUniforms(unsigned int aFboIndex = 0) {
@@ -270,11 +271,10 @@ namespace videodromm {
 		ci::gl::Texture2dRef			getFboInputTextureListItem(unsigned int aFboIndex, unsigned int aTexIndex) {
 			return mVDMix->getFboInputTextureListItem(aFboIndex, aTexIndex);
 		}
-		unsigned int			getFboInputTextureIndex(unsigned int aFboIndex = 0) {
+		/*unsigned int			getFboInputTextureIndex(unsigned int aFboIndex = 0) {
 			return mVDMix->getFboInputTextureIndex(aFboIndex);
 		}
-		/*ci::gl::Texture2dRef			getInputTexture(unsigned int aTexIndex) {
-			return mVDMix->getInputTexture(aTexIndex);
+		
 		}*/
 		unsigned int					getInputTexturesCount(unsigned int aFboIndex = 0) {
 			return mVDMix->getInputTexturesCount(aFboIndex);

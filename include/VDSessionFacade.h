@@ -106,6 +106,9 @@ namespace videodromm
 		unsigned int			getFboMs(unsigned int aTexIndex = 0) {
 			return mVDSession->getFboMs(aTexIndex);
 		};
+		bool					isValidInputTexture(unsigned int aTexIndex) {
+			return mVDSession->isValidInputTexture(aTexIndex);
+		};
 		unsigned int			getFboMsTotal(unsigned int aFboIndex) {
 			return mVDSession->getFboMsTotal(aFboIndex);
 		};
@@ -138,7 +141,7 @@ namespace videodromm
 		void					setFboTextureAudioMode(unsigned int aFboIndex);
 		void					setSelectedFbo(unsigned int aFboIndex = 0);
 		unsigned int			getSelectedFbo();
-		unsigned int			getFboInputTextureIndex(unsigned int aFboIndex = 0);
+		//unsigned int			getFboInputTextureIndex(unsigned int aFboIndex = 0);
 
 		std::string				getFboName(unsigned int aFboIndex);
 		std::string				getTrackName() { return mTrackName; };
@@ -154,9 +157,9 @@ namespace videodromm
 		void					toggleUseWaveMonitor() { mVDSession->toggleUseWaveMonitor(); };
 		bool					getUseRandom() { return mVDSession->getUseRandom(); };
 		void					toggleUseRandom() { mVDSession->toggleUseRandom(); };
-		void					setFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0) {
+		/*void					setFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0) {
 			mVDSession->setFboInputTexture(aFboIndex, aTexIndex);
-		}
+		}*/
 		unsigned int			getInputTexturesCount(unsigned int aFboIndex = 0) {
 			return mVDSession->getInputTexturesCount(aFboIndex);
 		}

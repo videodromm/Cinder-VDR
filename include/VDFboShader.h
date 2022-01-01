@@ -46,6 +46,7 @@ namespace videodromm
 		std::string						name;
 		unsigned int					ms;
 		gl::TextureRef					texture;
+		bool							isValid;
 	};
 	class VDFboShader {
 	public:
@@ -69,31 +70,39 @@ namespace videodromm
 			mUniformValueByLocation[aLocationIndex] = aValue;
 		};
 		
+		/* 20220101 hydra check
 		void									setInputTextureRefByIndex(unsigned int aTexIndex, ci::gl::Texture2dRef aTextureRef) {
 			mInputTextureList[aTexIndex].texture = aTextureRef;
 			mInputTextureList[aTexIndex].name = "setInputTextureRefByIndex " + toString(aTexIndex);
-		};
+		};*/
 		void									setFboTextureAudioMode() {
 			mCurrentFilename = mTextureName = mVDAnimation->getAudioTextureName();// "audio";
 			mTextureMode = VDTextureMode::AUDIO;
 			mInputTextureList[0].texture = mVDAnimation->getAudioTexture();
 			mInputTextureList[0].name = mVDAnimation->getAudioTextureName();
 			mInputTextureList[0].ms = 0;
-			mInputTextureListIndexes[0] = 0;
+			mInputTextureList[0].isValid = true;
+			//mInputTextureListIndexes[0] = 0;
 		}
 		ci::gl::Texture2dRef					getFboInputTextureListItem(unsigned int aTexIndex) {
 			return mInputTextureList[aTexIndex].texture;
 		};
 		std::string								getTextureName(unsigned int aTexIndex = 0) {
-			if (mIsHydraTex) {
+			/* 20220101 hydra checkif (mIsHydraTex) {
 				return "fbotex" + mInputTextureIndex;
 			}
-			else {
+			else {*/
 				return mInputTextureList[aTexIndex].name;
-			}
+			//}
+		};
+		unsigned int							getFboMs(unsigned int aTexIndex = 0) {
+			return mInputTextureList[aTexIndex].ms;
+		};
+		unsigned int							getFboMsTotal() {
+			return msTotal;
 		};
 		// full path (dnd)
-		void									loadImageFile(const std::string& aFile, unsigned int aTexIndex = 0);
+		void									loadImageFile(const std::string& aFile, unsigned int aCurrentIndex = 0);
 		unsigned int							getInputTexturesCount() {
 			return mInputTextureList.size();
 		}
@@ -107,18 +116,23 @@ namespace videodromm
 			return mFboStatus;
 		};
 		bool									loadFragmentShaderFromFile(const string& aFileOrPath, bool isAudio = false);
-		void									setInputTextureIndex(unsigned int aTexIndex = 0) {
+		/*void									setInputTextureIndex(unsigned int aTexIndex = 0) {
 			mInputTextureIndex = getValidTexIndex(aTexIndex);
 		};
 		unsigned int							getInputTextureIndex() {
 			return mInputTextureIndex;
-		};
+		};*/
 		bool									isHydraTex() {
 			return mIsHydraTex;
 		}
 		ci::gl::Texture2dRef					getInputTexture(unsigned int aTexIndex = 0) {
 			//return (mtexMode == 8 && aTexIndex < getInputTexturesCount()) ? mInputTextureList[aTexIndex] : mInputTextureRef;
+			//CI_LOG_E("getInputTexture " << aTexIndex << " size " << mInputTextureList.size());
+			
 			return mInputTextureList[getValidTexIndex(aTexIndex)].texture;
+		};
+		bool									isValidInputTexture(unsigned int aTexIndex) {
+			return mInputTextureList[getValidTexIndex(aTexIndex)].isValid;
 		};
 		int										getInputTextureWidth() {
 			return mInputTextureList[0].texture->getWidth();
@@ -136,12 +150,7 @@ namespace videodromm
 			mCamUi.mouseDrag(event);
 			return true;
 		}
-		unsigned int					getFboMs(unsigned int aTexIndex = 0) {
-			return mInputTextureList[aTexIndex].ms;
-		};
-		unsigned int					getFboMsTotal() {
-			return msTotal;
-		};
+
 	private:
 		// Params
 		VDParamsRef						mVDParams;
@@ -153,10 +162,11 @@ namespace videodromm
 		//! Input textures
 		std::string						mCurrentFilename;
 		std::map<unsigned int, VDTextureStruct>		mInputTextureList;
-		std::map<unsigned int, unsigned int>		mInputTextureListIndexes;
+		
+		//std::map<unsigned int, unsigned int>		mInputTextureListIndexes;
 		unsigned int								mLastFoundImageIndex = 0;
 
-		unsigned int					mInputTextureIndex;
+		//unsigned int					mInputTextureIndex;
 		unsigned int					createInputTexture(const JsonTree &json);
 		bool							mLoadTopDown = false;
 		// 20211115
@@ -171,7 +181,7 @@ namespace videodromm
 		bool							mPreloadTextures = false;
 		//unsigned int					ms = 0;
 		unsigned int					msTotal = 0;
-		unsigned int					listIndex = 0;
+		//unsigned int					listIndex = 0;
 		float							mLastBar = 0.0f;
 		int								dotIndex = std::string::npos;
 		// 20211107
@@ -204,7 +214,7 @@ namespace videodromm
 		bool							isReady;
 		ci::gl::Texture2dRef			mRenderedTexture;
 		ci::gl::Texture2dRef			getFboTexture();
-		void							loadNextTexture(int aCurrentIndex);
+		void							loadNextTexture(unsigned int aCurrentIndex);
 		// messages
 		static const int				mFboMsgLength = 150;
 		std::string						mFboMsg;
@@ -221,9 +231,9 @@ namespace videodromm
 		ci::gl::GlslProgRef				mGlslVideoTexture;
 		ci::CameraPersp					mCam;
 		ci::CameraUi					mCamUi;
-		unsigned int					getValidTexIndex(unsigned int aTexIndex) {
-			return math<int>::min(aTexIndex, (unsigned int)mInputTextureList.size() - 1);
-		}
 		
+		unsigned int					getValidTexIndex(unsigned int aTexIndex) {
+			return math<unsigned int>::min(aTexIndex, (unsigned int)mInputTextureList.size() - 1);
+		}
 	};
 }

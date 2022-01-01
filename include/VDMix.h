@@ -74,6 +74,9 @@ namespace videodromm
 		std::string						getFboStatus(unsigned int aFboIndex) {
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getFboStatus();
 		};
+		bool							isValidInputTexture(unsigned int aTexIndex = 0) {
+			return mFboShaderList[getValidFboIndex(mSelectedFbo)]->isValidInputTexture(aTexIndex);
+		};
 		unsigned int					getFboMs(unsigned int aTexIndex = 0) {
 			return mFboShaderList[getValidFboIndex(mSelectedFbo)]->getFboMs(aTexIndex);
 		};
@@ -98,12 +101,12 @@ namespace videodromm
 		unsigned int					getSelectedFbo() {
 			return mSelectedFbo;
 		};
-		void							setFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0) {
+		/*void							setFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0) {
 			if (mFboShaderList.size() > 0) {
 				mFboShaderList[getValidFboIndex(aFboIndex)]->setInputTextureIndex(aTexIndex);
 				// TODO 20211227 check if useless now mFboShaderList[getValidFboIndex(aFboIndex)]->setInputTextureRef(mTextureList[texIndex]->getTexture());
 			}
-		}
+		}*/
 	
 		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aTexIndex = 0) {
 			return mFboShaderList[getValidFboIndex(mSelectedFbo)]->getInputTexture(aTexIndex);
@@ -128,9 +131,9 @@ namespace videodromm
 		ci::gl::Texture2dRef			getFboInputTextureListItem(unsigned int aFboIndex, unsigned int aTexIndex) {
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getFboInputTextureListItem(aTexIndex);
 		}
-		unsigned int					getFboInputTextureIndex(unsigned int aFboIndex) {
+		/*unsigned int					getFboInputTextureIndex(unsigned int aFboIndex) {
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureIndex();
-		}
+		}*/
 		unsigned int					getInputTexturesCount(unsigned int aFboIndex = 0) {
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTexturesCount();
 		}
@@ -150,6 +153,8 @@ namespace videodromm
 		}
 		ci::gl::TextureRef				getFboRenderedTexture(unsigned int aFboIndex) {
 			if (mFboShaderList.size() == 0) return mDefaultTexture;
+			/* 20220101 hydra check
+			
 			if (aFboIndex > mFboShaderList.size() - 1) aFboIndex = 0;
 
 			if (mFboShaderList[aFboIndex]->isHydraTex()) {
@@ -161,9 +166,10 @@ namespace videodromm
 			}
 			else {
 				// 20211227 useless? mFboShaderList[aFboIndex]->setInputTextureRef(mFboShaderList[aFboIndex]->getTexture());
-			}
-
+			}			
 			return mFboShaderList[aFboIndex]->getRenderedTexture();
+			*/
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->getRenderedTexture();
 
 		}
 		ci::gl::TextureRef				getFboTexture(unsigned int aFboIndex) {
