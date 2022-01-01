@@ -137,7 +137,7 @@ namespace videodromm {
 			mFboShaderList.push_back(fboShader);
 			rtn = (unsigned int)mFboShaderList.size() - 1;
 		}
-		else if (aFboIndex < mFboShaderList.size() - 1) {
+		else if (aFboIndex <= mFboShaderList.size() - 1) {
 			rtn = aFboIndex;
 			mFboShaderList[rtn] = fboShader;
 		}
@@ -145,15 +145,6 @@ namespace videodromm {
 			mFboShaderList.push_back(fboShader);
 			rtn = (unsigned int)mFboShaderList.size() - 1;
 		}
-		/*if (aFboIndex < 6) {// 20211120 == 0) {
-			mFboShaderList.push_back(fboShader);
-			rtn = (unsigned int)mFboShaderList.size() - 1;
-		}
-		else {
-			rtn = getValidFboIndex(aFboIndex);
-			mFboShaderList[rtn] = fboShader;
-		}*/
-
 		return rtn;
 	}
 	std::vector<ci::gl::GlslProg::Uniform> VDMix::getFboShaderUniforms(unsigned int aFboShaderIndex) {

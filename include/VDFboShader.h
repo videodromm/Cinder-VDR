@@ -156,9 +156,6 @@ namespace videodromm
 		std::map<unsigned int, unsigned int>		mInputTextureListIndexes;
 		unsigned int								mLastFoundImageIndex = 0;
 
-		/*std::map<unsigned int, gl::TextureRef>	mInputTextureList;
-		std::map<unsigned int, std::string>		mInputTextureNames;
-		std::map<unsigned int, unsigned int>	mInputTextureMs;*/
 		unsigned int					mInputTextureIndex;
 		unsigned int					createInputTexture(const JsonTree &json);
 		bool							mLoadTopDown = false;

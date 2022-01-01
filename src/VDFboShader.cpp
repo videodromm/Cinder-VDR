@@ -409,15 +409,17 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			}
 			else {
 				if (mTextureMode == VDTextureMode::SEQUENCE) {
+					CI_LOG_E("mInputTextureListIndexes" << (unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT) << "L" << listIndex << "I" << mInputTextureListIndexes[(unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)]);
 					if (mInputTextureListIndexes.find((unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)) == mInputTextureListIndexes.end()) {
 						// not found
 						mInputTextureList[mInputTextureListIndexes[mLastFoundImageIndex]].texture->bind(0);
 					}
 					else {
 						// found
-						CI_LOG_E("mInputTextureListIndexes" << mInputTextureListIndexes[(unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)]);
-						mLastFoundImageIndex = (unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT);
-						mInputTextureList[mInputTextureListIndexes[mLastFoundImageIndex]].texture->bind(0);
+						if (mInputTextureListIndexes[(unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)] != 0) {
+							mLastFoundImageIndex = (unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT);
+							mInputTextureList[mInputTextureListIndexes[mLastFoundImageIndex]].texture->bind(0);
+						}
 					}
 				}
 				else {
