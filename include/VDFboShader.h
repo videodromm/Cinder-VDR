@@ -82,7 +82,6 @@ namespace videodromm
 			mInputTextureList[0].name = mVDAnimation->getAudioTextureName();
 			mInputTextureList[0].ms = 0;
 			mInputTextureList[0].isValid = true;
-			//mInputTextureListIndexes[0] = 0;
 		}
 		ci::gl::Texture2dRef					getFboInputTextureListItem(unsigned int aTexIndex) {
 			return mInputTextureList[aTexIndex].texture;
@@ -164,7 +163,7 @@ namespace videodromm
 		std::map<unsigned int, VDTextureStruct>		mInputTextureList;
 		
 		//std::map<unsigned int, unsigned int>		mInputTextureListIndexes;
-		unsigned int								mLastFoundImageIndex = 0;
+		unsigned int					mCacheImageIndex = 0;
 
 		//unsigned int					mInputTextureIndex;
 		unsigned int					createInputTexture(const JsonTree &json);
@@ -179,10 +178,8 @@ namespace videodromm
 		int								mTextureMode = VDTextureMode::UNKNOWN;
 		int								mTextureCount = 1;
 		bool							mPreloadTextures = false;
-		//unsigned int					ms = 0;
 		unsigned int					msTotal = 0;
-		//unsigned int					listIndex = 0;
-		float							mLastBar = 0.0f;
+		// float							mLastBeat = 0.0f;
 		int								dotIndex = std::string::npos;
 		// 20211107
 		bool							mIsHydraTex = false;
@@ -201,8 +198,7 @@ namespace videodromm
 		std::string						mShaderFragmentString;
 
 		std::string						mFileNameWithExtension;
-		bool							mActive;
-		int								mMicroSeconds;
+		
 		// include shader lines
 		std::string						shaderInclude;
 		bool							mValid = false;

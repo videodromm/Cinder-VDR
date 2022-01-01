@@ -51,7 +51,6 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation,
 	mFbo = gl::Fbo::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), fboFmt);
 	mFboMsg = "";
 	mFboError = "";
-	mActive = true;
 	if (mShaderFragmentString.length() > 0) {
 		mValid = setFragmentShaderString(mShaderFragmentString, mShaderName);
 	}
@@ -76,29 +75,17 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	mTextureMode = (json.hasChild("texturemode")) ? json.getValueForKey<int>("texturemode") : VDTextureMode::UNKNOWN;
 	mTextureCount = (json.hasChild("texturecount")) ? json.getValueForKey<int>("texturecount") : 1;
 	mPreloadTextures = (json.hasChild("preloadtextures")) ? json.getValueForKey<bool>("preloadtextures") : false;
-	auto start = Clock::now();
-
+	msTotal = 0;
 	switch (mTextureMode)
 	{
 	case VDTextureMode::AUDIO: // audio
 		setFboTextureAudioMode();
 		break;
 	case VDTextureMode::SEQUENCE: // img seq loaded when ableton runs
-		//listIndex = 0;
 		// init with number 1 then getFboTexture will load next images
 		loadNextTexture(1);
-		if (mPreloadTextures) {
-			for (size_t i{ 2 }; i < mTextureCount; i++)
-			{
-				loadNextTexture(i);
-			}
-		}
-		else {
-			// getFboTexture will load next images
-		}
 		break;
 	case VDTextureMode::PARTS: // img parts
-		//listIndex = 0;
 		for (size_t i{ 0 }; i < mTextureCount; i++)
 		{
 			loadNextTexture(i);
@@ -187,9 +174,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		}
 		break;
 	}
-	auto end = Clock::now();
-	auto msdur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-	msTotal = msdur.count();
+
 	mFboStatus = mTextureName;
 	rtn = mInputTextureList.size() - 1;
 	return rtn;
@@ -291,39 +276,44 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 	return mValid;
 }
 void VDFboShader::loadImageFile(const std::string& aFile, unsigned int aCurrentIndex) {
-	fs::path texFileOrPath = aFile;
-	bool fileExists = fs::exists(texFileOrPath);
-	if (fileExists) {
-		// start profiling
-		auto start = Clock::now();
-
-		int slashIndex = aFile.find_last_of("\\");
-		if (slashIndex != std::string::npos) {
-			mCurrentFilename = aFile.substr(slashIndex + 1);
+	if (!mInputTextureList[aCurrentIndex].isValid || aCurrentIndex == 0) {
+		fs::path texFileOrPath = aFile;
+		bool fileExists = fs::exists(texFileOrPath);
+		if (fileExists) {
+			// start profiling
+			auto start = Clock::now();
+			int slashIndex = aFile.find_last_of("\\");
+			if (slashIndex != std::string::npos) {
+				mCurrentFilename = aFile.substr(slashIndex + 1);
+			}
+			else {
+				mCurrentFilename = aFile;
+			}
+			mInputTextureList[aCurrentIndex].texture = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+			mInputTextureList[aCurrentIndex].name = mCurrentFilename;
+			mInputTextureList[aCurrentIndex].isValid = true;
+			auto end = Clock::now();
+			auto msdur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+			mInputTextureList[aCurrentIndex].ms = msdur.count();
+			msTotal += mInputTextureList[aCurrentIndex].ms;
+			//mInputTextureListIndexes[mCurrentImageSequenceIndex] = aTexIndex;// = listIndex
+			mFboMsg = mCurrentFilename = mCurrentFilename + " " + toString(mInputTextureList[aCurrentIndex].ms) + "ms";
 		}
 		else {
-			mCurrentFilename = aFile;
+			// default to audio
+			mFboMsg = "audio, jpg or png does not exist: " + mTextureName;
+			setFboTextureAudioMode();
 		}
-		mInputTextureList[aCurrentIndex].texture = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
-		auto end = Clock::now();
-		auto msdur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-		mInputTextureList[aCurrentIndex].ms = msdur.count();
-		mInputTextureList[aCurrentIndex].name = mCurrentFilename;
-		mInputTextureList[aCurrentIndex].isValid = true;
-		//mInputTextureListIndexes[mCurrentImageSequenceIndex] = aTexIndex;// = listIndex
-		mFboMsg = mCurrentFilename = mCurrentFilename + " loaded in " + toString(mInputTextureList[aCurrentIndex].ms) + "ms";
 	}
 	else {
-		// default to audio
-		mFboMsg = "audio, jpg or png does not exist: " + mTextureName;
-		setFboTextureAudioMode();
+		// in cache
+		mFboMsg = mInputTextureList[aCurrentIndex].name + " cached";
 	}
 }
 // next in sequence
 void VDFboShader::loadNextTexture(unsigned int aCurrentIndex) {
 	if (mCurrentImageSequenceIndex != aCurrentIndex) {
 		mCurrentImageSequenceIndex = aCurrentIndex;
-		//if (mInputTextureListIndexes[mCurrentImageSequenceIndex] != 0) {
 		mCurrentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").jpg";
 		fs::path texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
 		// try with jpg
@@ -336,29 +326,30 @@ void VDFboShader::loadNextTexture(unsigned int aCurrentIndex) {
 			fileExists = fs::exists(texFileOrPath);
 		}
 		if (fileExists) {
-			//loadImageFile(texFileOrPath.string(), listIndex);
 			loadImageFile(texFileOrPath.string(), mCurrentImageSequenceIndex);
-			//mInputTextureIndex = listIndex;
-			//listIndex++;
 		}
-		//}
 	}
 }
 ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 
 	if (mValid) {
 		if (mTextureMode == VDTextureMode::SEQUENCE) {
+			// image at IBARBEAT must be loaded before bind()
 			loadNextTexture((int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT));
-		}/*
-		if (mLastBar != mVDUniforms->getUniformValue(mVDUniforms->IBAR) && mVDUniforms->getUniformValue(mVDUniforms->IBEAT) == 3) {
-			mLastBar = mVDUniforms->getUniformValue(mVDUniforms->IBAR);
-			//loadNextTexture();
-		}*/
+			if (mPreloadTextures) {
+				//CI_LOG_E("IBARBEAT " << (unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT) << " IBEAT " << (unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
+				if (mVDUniforms->getUniformValue(mVDUniforms->IBEAT) > 1) {
+					// try to load next images
+					if (mCacheImageIndex < mTextureCount) {
+						mCacheImageIndex++;
+						mFboStatus = " " + toString(mCacheImageIndex) + "/" + toString(mTextureCount);
+						loadNextTexture(mCacheImageIndex);
+					}
+				}
+			}
+		}
 		if (mTextureMode == VDTextureMode::AUDIO) {
 			setFboTextureAudioMode();
-			/*mInputTextureList[0].texture = mVDAnimation->getAudioTexture();
-			mInputTextureList[0].name = mVDAnimation->getAudioTextureName();
-			mFboMsg = "audio";*/
 		}
 		gl::ScopedFramebuffer fbScp(mFbo);
 		if (mVDUniforms->getUniformValue(mVDUniforms->ICLEAR)) {
@@ -425,7 +416,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 							mInputTextureList[mInputTextureListIndexes[mLastFoundImageIndex]].texture->bind(0);
 						}
 					}*/
-					CI_LOG_E("getFboTexture " << (unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT) << " I " << mInputTextureList[(unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)].name);
+					//CI_LOG_E("getFboTexture " << (unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT) << " I " << mInputTextureList[(unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)].name);
 					if (mInputTextureList[(unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)].isValid) {
 						mInputTextureList[(unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)].texture->bind(0);
 
