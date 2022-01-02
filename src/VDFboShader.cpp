@@ -83,13 +83,24 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		break;
 	case VDTextureMode::SEQUENCE: // img seq loaded when ableton runs
 		// init with number 1 then getFboTexture will load next images
+		mInputTextureList[0].isValid = false; // remove audio texture
 		loadNextTexture(1);
 		break;
 	case VDTextureMode::PARTS: // img parts
+		mInputTextureList[0].isValid = false; // remove audio texture
 		for (size_t i{ 0 }; i < mTextureCount; i++)
 		{
 			loadNextTexture(i);
 		}
+		break;
+	case VDTextureMode::SHARED: // shared
+		//mInputTextureList[0].isValid = false; // remove audio texture
+		// TODO
+		mInputTextureList[0].texture = mSpoutIn.receiveTexture();
+		// set name for UI
+		mInputTextureList[0].name = mSpoutIn.getSenderName();
+		mInputTextureList[0].ms = 0;
+		//mInputTextureList[0].isValid = true;
 		break;
 
 	default:

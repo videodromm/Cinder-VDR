@@ -31,8 +31,8 @@ namespace videodromm {
 		unsigned	uiYPosRow5 = uiYPosRow4 + uiLargePreviewH + uiMargin;
 		unsigned	uiYPosRow6 = uiYPosRow5 + uiLargePreviewH + uiMargin;
 		unsigned	uiSmallH = uiYPosRow2 - uiYPosRow1 - uiMargin;
-		unsigned	uiSmallPreviewW = (unsigned)(previewFboWidth * 0.7);
-		unsigned	uiSmallPreviewH = (unsigned)(previewFboHeight * 0.7);
+		unsigned	uiSmallPreviewW = (unsigned)(previewFboWidth * 0.6);
+		unsigned	uiSmallPreviewH = (unsigned)(previewFboHeight * 0.6);
 
 	public:
 		VDUIParams(const VDUIParams&) = delete;

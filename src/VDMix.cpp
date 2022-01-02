@@ -62,11 +62,7 @@ namespace videodromm {
 		doc.write(writeFile(mixPath), JsonTree::WriteOptions());
 		return true;
 	}
-	/*void VDMix::selectSenderPanel() {
-		if (ts) {
-			ts->getMaxFrame(); // TODO 20210130 rename or create new fct
-		}
-	}*/
+	
 
 	void VDMix::restore(const fs::path& aFilePath)
 	{

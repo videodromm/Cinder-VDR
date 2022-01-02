@@ -18,7 +18,7 @@
 #include "cinder/CameraUi.h"
 
 // textures
-#include "VDTexture.h"
+//#include "VDTexture.h"
 //! Uniforms
 #include "VDUniforms.h"
 //! Animation
@@ -27,6 +27,8 @@
 #include "VDParams.h"
 // video
 #include "ciWMFVideoPlayer.h"
+// Spout
+#include "CiSpoutIn.h"
 
 #include <atomic>
 #include <vector>
@@ -139,6 +141,12 @@ namespace videodromm
 		int										getInputTextureHeight() {
 			return mInputTextureList[0].texture->getHeight();
 		};
+		void									selectSenderPanel() {
+			mSpoutIn.getSpoutReceiver().SelectSenderPanel();
+		}
+		int										getInputTextureMode() {
+			return mTextureMode;
+		}
 		bool handleMouseDown(MouseEvent event)
 		{
 			mCamUi.mouseDown(event);
@@ -161,10 +169,8 @@ namespace videodromm
 		//! Input textures
 		std::string						mCurrentFilename;
 		std::map<unsigned int, VDTextureStruct>		mInputTextureList;
-		
-		//std::map<unsigned int, unsigned int>		mInputTextureListIndexes;
 		unsigned int					mCacheImageIndex = 0;
-
+		SpoutIn							mSpoutIn;
 		//unsigned int					mInputTextureIndex;
 		unsigned int					createInputTexture(const JsonTree &json);
 		bool							mLoadTopDown = false;
@@ -179,11 +185,10 @@ namespace videodromm
 		int								mTextureCount = 1;
 		bool							mPreloadTextures = false;
 		unsigned int					msTotal = 0;
-		// float							mLastBeat = 0.0f;
 		int								dotIndex = std::string::npos;
-		// 20211107
+		// hydra
 		bool							mIsHydraTex = false;
-		// 20211121
+
 		fs::path						texFileOrPath;
 		bool							fileExists;
 		//! shader

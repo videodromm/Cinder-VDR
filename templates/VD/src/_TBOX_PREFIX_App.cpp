@@ -10,8 +10,6 @@
 #include "VDSessionFacade.h"
 // Spout
 #include "CiSpoutOut.h"
-// Video
-//#include "ciWMFVideoPlayer.h"
 // Uniforms
 #include "VDUniforms.h"
 // Params
@@ -47,7 +45,7 @@ private:
 	// Mix
 	VDMixRef						mVDMix;
 	// Uniform
-	VDUniformRef					mVDUniform;
+	VDUniformsRef					mVDUniforms;
 	// Params
 	VDParamsRef						mVDParams;
 
@@ -74,17 +72,15 @@ _TBOX_PREFIX_App::_TBOX_PREFIX_App() : mSpoutOut("VDR", app::getWindowSize())
 	mVDSessionFacade = VDSessionFacade::createVDSession(mVDSettings, mVDAnimation, mVDUniforms, mVDMix)
 		->setUniformValue(mVDUniforms->IDISPLAYMODE, VDDisplayMode::POST)
 		->setupSession()
+		->setupWSClient()
 		->wsConnect()
 		//->setupOSCReceiver()
 		//->addOSCObserver(mVDSettings->mOSCDestinationHost, mVDSettings->mOSCDestinationPort)
 		->addUIObserver(mVDSettings, mVDUniforms)
-		->toggleUI()
 		->setUniformValue(mVDUniforms->IBPM, 160.0f)
 		->setUniformValue(mVDUniforms->IMOUSEX, 0.27710f)
-		->setUniformValue(mVDUniforms->IMOUSEY, 0.5648f)
-		->toggleValue(mVDUniforms->IFLIPV);
+		->setUniformValue(mVDUniforms->IMOUSEY, 0.5648f);
 
-	// sos only mVDSessionFacade->setUniformValue(mVDSettings->IEXPOSURE, 1.93f);
 	mFadeInDelay = true;
 }
 
@@ -163,17 +159,12 @@ void _TBOX_PREFIX_App::keyUp(KeyEvent event)
 
 	// let your application perform its keyUp handling here
 	if (!mVDSessionFacade->handleKeyUp(event)) {
-		/*switch (event.getCode()) {
-		default:
-			CI_LOG_V("main keyup: " + toString(event.getCode()));
-			break;
-		}*/
+		
 	}
 }
 void _TBOX_PREFIX_App::cleanup()
 {
 	CI_LOG_V("cleanup and save");
-	ui::Shutdown();
 	mVDSessionFacade->saveWarps();
 	mVDSettings->save();
 	CI_LOG_V("quit");
@@ -181,15 +172,8 @@ void _TBOX_PREFIX_App::cleanup()
 
 void _TBOX_PREFIX_App::update()
 {
-	/*switch (mVDSessionFacade->getCmd()) {
-	case 0:
-		//createControlWindow();
-		break;
-	case 1:
-		//deleteControlWindows();
-		break;
-	}*/
-	mVDSessionFacade->setUniformValue(mVDUniform->IFPS, getAverageFps());
+	
+	mVDSessionFacade->setUniformValue(mVDUniforms->IFPS, getAverageFps());
 	mVDSessionFacade->update();
 
 }
@@ -212,13 +196,8 @@ void _TBOX_PREFIX_App::draw()
 	}
 	else {
 		gl::setMatricesWindow(mVDParams->getFboWidth(), mVDParams->getFboHeight());
-		//gl::setMatricesWindow(mVDSessionFacade->getIntUniformValueByIndex(mVDSettings->IOUTW), mVDSessionFacade->getIntUniformValueByIndex(mVDSettings->IOUTH), true);
-		// textures needs updating ?
-		/*for (int t = 0; t < mVDSessionFacade->getInputTexturesCount(); t++) {
-			mVDSessionFacade->getInputTexture(t);
-		}*/
 		
-		int m = mVDSessionFacade->getDisplayMode();
+		int m = mVDSessionFacade->getUniformValue(mVDUniforms->IDISPLAYMODE);
 		if (m == VDDisplayMode::MIXETTE) {
 			gl::draw(mVDSessionFacade->buildRenderedMixetteTexture(0));
 			mSpoutOut.sendTexture(mVDSessionFacade->buildRenderedMixetteTexture(0));

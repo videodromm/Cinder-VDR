@@ -180,6 +180,7 @@ namespace videodromm
 		}
 		bool handleMouseDown(MouseEvent event)
 		{
+			if (mFboShaderList.size() == 0) return false;
 			for (unsigned int i = 0; i < mFboShaderList.size() - 1; i++)
 			{
 				mFboShaderList[i]->handleMouseDown(event);
@@ -188,6 +189,7 @@ namespace videodromm
 		}
 		bool handleMouseDrag(MouseEvent event)
 		{
+			if (mFboShaderList.size() == 0) return false;
 			for (unsigned int i = 0; i < mFboShaderList.size() - 1; i++)
 			{
 				mFboShaderList[i]->handleMouseDrag(event);
@@ -196,7 +198,16 @@ namespace videodromm
 		}
 		ci::gl::TextureRef				getMixetteTexture(unsigned int aFboIndex);
 		ci::gl::TextureRef				getRenderedMixetteTexture(unsigned int aFboIndex) { return mMixetteTexture; };
-		//void							selectSenderPanel();
+		void							selectSenderPanel() {
+			if (mFboShaderList.size() == 0) return;
+			for (unsigned int i = 0; i < mFboShaderList.size() - 1; i++)
+			{
+				if (mFboShaderList[i]->getInputTextureMode() == VDTextureMode::SHARED) {
+					mFboShaderList[i]->selectSenderPanel();
+				}
+				
+			}
+		};
 		void							restore(const fs::path& aFilePath);
 	private:
 		// Params
@@ -229,7 +240,6 @@ namespace videodromm
 		unsigned int					mCurrentSecond = 0;
 		unsigned int					mCurrentIndex = 0;
 		unsigned int					getValidFboIndex(unsigned int aFboIndex);
-		//TextureSharedRef				ts;
 		ci::gl::Texture2dRef			mDefaultTexture; //in case no fbos
 	};
 }

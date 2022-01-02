@@ -434,10 +434,10 @@ bool VDSession::handleKeyDown(KeyEvent& event)
 	if (!Warp::handleKeyDown(mWarpList, event)) {
 
 		switch (event.getCode()) {
-			//case KeyEvent::KEY_s:
-			//	// Spout UI
-			//	mVDMix->selectSenderPanel();
-			//	break;
+		case KeyEvent::KEY_s:
+			// Spout UI
+			mVDMix->selectSenderPanel();
+			break;
 		case KeyEvent::KEY_w:
 			CI_LOG_V("oscConnect");
 			if (isModDown) {
