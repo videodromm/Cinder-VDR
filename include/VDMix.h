@@ -200,7 +200,9 @@ namespace videodromm
 		ci::gl::TextureRef				getRenderedMixetteTexture(unsigned int aFboIndex) { return mMixetteTexture; };
 		void							selectSenderPanel() {
 			if (mFboShaderList.size() == 0) return;
-			for (unsigned int i = 0; i < mFboShaderList.size() - 1; i++)
+			mFboShaderList[0]->selectSenderPanel();
+			CI_LOG_E("selectSenderPanel " << (unsigned int)mFboShaderList.size());
+			for (size_t i{ 0 }; i < mFboShaderList.size() - 1; i++)
 			{
 				if (mFboShaderList[i]->getInputTextureMode() == VDTextureMode::SHARED) {
 					mFboShaderList[i]->selectSenderPanel();

@@ -94,13 +94,11 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		}
 		break;
 	case VDTextureMode::SHARED: // shared
-		//mInputTextureList[0].isValid = false; // remove audio texture
-		// TODO
 		mInputTextureList[0].texture = mSpoutIn.receiveTexture();
 		// set name for UI
 		mInputTextureList[0].name = mSpoutIn.getSenderName();
 		mInputTextureList[0].ms = 0;
-		//mInputTextureList[0].isValid = true;
+		mInputTextureList[0].isValid = true;
 		break;
 
 	default:
@@ -227,9 +225,9 @@ bool VDFboShader::loadFragmentStringFromFile() {
 	mValid = false;
 	// load fragment shader
 	mFileNameWithExtension = mFragFilePath.filename().string();
-	CI_LOG_V("loadFragmentStringFromFile, loading " + mFileNameWithExtension);
+	CI_LOG_V("loadFragmentStringFromFile, loading " << mFileNameWithExtension);
 	mValid = setFragmentShaderString(loadString(loadFile(mFragFilePath)), mFileNameWithExtension);
-	CI_LOG_V(mFragFilePath.string() + " loaded and compiled");
+	CI_LOG_V(mFragFilePath.string() << " loaded and compiled");
 	return mValid;
 }
 bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderString, const std::string& aName) {
@@ -255,7 +253,7 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 	std::string mNotFoundUniformsString = "/* " + mName + "\n";
 
 	// load fragment shader
-	CI_LOG_V("setFragmentShaderString, loading " + mName);
+	CI_LOG_V("setFragmentShaderString, loading " << mName);
 	try
 	{
 		std::size_t foundUniform = mOriginalFragmentString.find("uniform ");
@@ -277,12 +275,12 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 	catch (gl::GlslProgCompileExc& exc)
 	{
 		mFboStatus = mName + std::string(exc.what());
-		CI_LOG_V("setFragmentShaderString, unable to compile fragment shader:" + mFboError + " frag:" + mName);
+		CI_LOG_V("setFragmentShaderString, unable to compile fragment shader:" << mFboError << " frag:" << mName);
 	}
 	catch (const std::exception& e)
 	{
 		mFboStatus = mName + std::string(e.what());
-		CI_LOG_V("setFragmentShaderString, error on live fragment shader:" + mFboError + " frag:" + mName);
+		CI_LOG_V("setFragmentShaderString, error on live fragment shader:" << mFboError << " frag:" << mName);
 	}
 	return mValid;
 }
@@ -342,9 +340,14 @@ void VDFboShader::loadNextTexture(unsigned int aCurrentIndex) {
 	}
 }
 ci::gl::Texture2dRef VDFboShader::getFboTexture() {
-
+	std::string uniformName;
 	if (mValid) {
-		if (mTextureMode == VDTextureMode::SEQUENCE) {
+		switch (mTextureMode)
+		{
+		case VDTextureMode::AUDIO: // audio
+			setFboTextureAudioMode();
+			break;
+		case VDTextureMode::SEQUENCE:
 			// image at IBARBEAT must be loaded before bind()
 			loadNextTexture((int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT));
 			if (mPreloadTextures) {
@@ -358,15 +361,15 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 					}
 				}
 			}
-		}
-		if (mTextureMode == VDTextureMode::AUDIO) {
-			setFboTextureAudioMode();
-		}
-		gl::ScopedFramebuffer fbScp(mFbo);
-		if (mVDUniforms->getUniformValue(mVDUniforms->ICLEAR)) {
-			gl::clear(Color::black());
-		}
-		if (mTextureMode == VDTextureMode::MOVIE) {
+			break;
+		case VDTextureMode::SHARED:
+			if (mInputTextureList[0].isValid) {
+				mInputTextureList[0].texture = mSpoutIn.receiveTexture();
+				mInputTextureList[0].name = mSpoutIn.getSenderName();
+				mInputTextureList[0].isValid = true;
+			}
+			break;
+		case VDTextureMode::MOVIE:
 			// video
 			mFboMsg = "video";
 			gl::pushMatrices();
@@ -396,10 +399,15 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			}
 			// restore matrices
 			gl::popMatrices();
+			break;
 		}
-		else {
+		gl::ScopedFramebuffer fbScp(mFbo);
+		if (mVDUniforms->getUniformValue(mVDUniforms->ICLEAR)) {
+			gl::clear(Color::black());
+		}
+		if (mTextureMode != VDTextureMode::MOVIE) {
 			// not a video
-			std::string name;
+			
 			/* hydra
 				uniform float time;
 				uniform vec2 resolution;
@@ -414,37 +422,31 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				}
 			}
 			else {
-				if (mTextureMode == VDTextureMode::SEQUENCE) {
-					/*CI_LOG_E("mInputTextureListIndexes " << (unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT) << " L " << listIndex << " I " << mInputTextureListIndexes[(unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)]);
-					if (mInputTextureListIndexes.find((unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)) == mInputTextureListIndexes.end()) {
-						// not found
-						mInputTextureList[mInputTextureListIndexes[mLastFoundImageIndex]].texture->bind(0);
-					}
-					else {
-						// found
-						if (mInputTextureListIndexes[(unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)] != 0) {
-							mLastFoundImageIndex = (unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT);
-							mInputTextureList[mInputTextureListIndexes[mLastFoundImageIndex]].texture->bind(0);
-						}
-					}*/
-					//CI_LOG_E("getFboTexture " << (unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT) << " I " << mInputTextureList[(unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)].name);
-					if (mInputTextureList[(unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)].isValid) {
-						mInputTextureList[(unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)].texture->bind(0);
-
-					}
-
+				if (mTextureMode == VDTextureMode::SHARED) {
+					
+						mInputTextureList[0].texture->bind(0);
+				
 				}
 				else {
+					if (mTextureMode == VDTextureMode::SEQUENCE) {
 
-					if (mIsHydraTex) {
-						mInputTextureList[0].texture->bind(253);
-						for (size_t i{ 0 }; i < 4; i++)
-						{
-							mInputTextureList[i].texture->bind(254 + i);
+						//CI_LOG_E("getFboTexture " << (unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT) << " I " << mInputTextureList[(unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)].name);
+						if (mInputTextureList[(unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)].isValid) {
+							mInputTextureList[(unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)].texture->bind(0);
 						}
 					}
 					else {
-						mInputTextureList[0].texture->bind(0);
+
+						if (mIsHydraTex) {
+							mInputTextureList[0].texture->bind(253);
+							for (size_t i{ 0 }; i < 4; i++)
+							{
+								mInputTextureList[i].texture->bind(254 + i);
+							}
+						}
+						else {
+							mInputTextureList[0].texture->bind(0);
+						}
 					}
 				}
 			}
@@ -455,7 +457,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			mUniforms = mShader->getActiveUniforms();
 			for (const auto& uniform : mUniforms) {
 
-				name = uniform.getName();
+				uniformName = uniform.getName();
 				//CI_LOG_E(mShader->getLabel() + ", getShader uniform name:" + uniform.getName() + ", type:" + toString(uniform.getType()) + ", Location:" + toString(uniform.getLocation()));
 				//if (mVDAnimation->isExistingUniform(name)) {
 				int uniformType = uniform.getType();
@@ -463,37 +465,37 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				{
 
 				case GL_FLOAT: // float 5126 0x1406
-					if (name == "TIME" || name == "time") {
-						mShader->uniform(name, mVDUniforms->getUniformValue(mVDUniforms->ITIME));
+					if (uniformName == "TIME" || uniformName == "time") {
+						mShader->uniform(uniformName, mVDUniforms->getUniformValue(mVDUniforms->ITIME));
 					}
 					else {
-						if (mVDUniforms->isExistingUniform(name)) {
-							mShader->uniform(name, mVDUniforms->getUniformValueByName(name));
+						if (mVDUniforms->isExistingUniform(uniformName)) {
+							mShader->uniform(uniformName, mVDUniforms->getUniformValueByName(uniformName));
 						}
 						else {
 							int l = uniform.getLocation();
-							mShader->uniform(name, mUniformValueByLocation[l]);
+							mShader->uniform(uniformName, mUniformValueByLocation[l]);
 						}
 					}
 					break;
 				case GL_SAMPLER_2D: // sampler2D 35678 0x8B5E
-					texNameEndIndex = name.find("iChannel");
+					texNameEndIndex = uniformName.find("iChannel");
 					if (texNameEndIndex != std::string::npos && texNameEndIndex != -1) {
 						// NASTY BUG! mShader->uniform(name, (uint32_t)(channelIndex));						
-						mShader->uniform(name, channelIndex);
+						mShader->uniform(uniformName, channelIndex);
 						channelIndex++;
 					}
 					else {
-						if (name == "inputImage") {
-							mShader->uniform(name, 0);
+						if (uniformName == "inputImage") {
+							mShader->uniform(uniformName, 0);
 						}
 						else {
-							texNameEndIndex = name.find("tex");
+							texNameEndIndex = uniformName.find("tex");
 							if (texNameEndIndex != std::string::npos && texNameEndIndex != -1) {
 								// hydra fbo
 								mIsHydraTex = true;
 								// 20210116 TODO 
-								mShader->uniform(name, (uint32_t)(254 + channelIndex));
+								mShader->uniform(uniformName, 254 + channelIndex);
 								/*
 									osc(1,0.5,2).mult(shape(3)).out(o0)
 									osc(2,0.5,2).mult(shape(4)).out(o1)
@@ -506,7 +508,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 							}
 							else {
 								// onezero check
-								mShader->uniform(name, 0);
+								mShader->uniform(uniformName, 0);
 
 							}
 						}
@@ -514,34 +516,34 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 
 					break;
 				case GL_FLOAT_VEC2:// vec2 35664 0x8B50
-					if (name == "RENDERSIZE" || name == "resolution") {
-						mShader->uniform(name, vec2(mVDParams->getFboWidth(), mVDParams->getFboHeight()));
+					if (uniformName == "RENDERSIZE" || uniformName == "resolution") {
+						mShader->uniform(uniformName, vec2(mVDParams->getFboWidth(), mVDParams->getFboHeight()));
 					}
 					else {
-						mShader->uniform(name, mVDUniforms->getVec2UniformValueByName(name));
+						mShader->uniform(uniformName, mVDUniforms->getVec2UniformValueByName(uniformName));
 					}
 					break;
 				case GL_FLOAT_VEC3:// vec3 35665 0x8B51
-					mShader->uniform(name, mVDUniforms->getVec3UniformValueByName(name));
+					mShader->uniform(uniformName, mVDUniforms->getVec3UniformValueByName(uniformName));
 					break;
 				case GL_FLOAT_VEC4:// vec4 35666 0x8B52
-					if (name == "iDate") {
-						mShader->uniform(name, vec4(mVDUniforms->getUniformValue(mVDUniforms->IDATEX), mVDUniforms->getUniformValue(mVDUniforms->IDATEY), mVDUniforms->getUniformValue(mVDUniforms->IDATEZ), mVDUniforms->getUniformValue(mVDUniforms->IDATEW)));
+					if (uniformName == "iDate") {
+						mShader->uniform(uniformName, vec4(mVDUniforms->getUniformValue(mVDUniforms->IDATEX), mVDUniforms->getUniformValue(mVDUniforms->IDATEY), mVDUniforms->getUniformValue(mVDUniforms->IDATEZ), mVDUniforms->getUniformValue(mVDUniforms->IDATEW)));
 						//CI_LOG_E(mShader->getLabel() + ", getShader uniform name:" + uniform.getName() + ", IDATEX:" + toString(mVDUniforms->getUniformValue(mVDUniforms->IDATEX)) + ", IDATEY:" + toString(mVDUniforms->getUniformValue(mVDUniforms->IDATEY)) + ", IDATEZ:" + toString(mVDUniforms->getUniformValue(mVDUniforms->IDATEZ)) + ", IDATEW:" + toString(mVDUniforms->getUniformValue(mVDUniforms->IDATEW)));
 					}
 					else {
-						mShader->uniform(name, mVDUniforms->getVec4UniformValueByName(name));
+						mShader->uniform(uniformName, mVDUniforms->getVec4UniformValueByName(uniformName));
 					}
 					break;
 				case GL_INT: // int 5124 0x1404
 					// IBEAT 51
 					// IBAR 52
 					// IBARBEAT 53
-					mShader->uniform(name, mVDUniforms->getUniformValueByName(name));
+					mShader->uniform(uniformName, mVDUniforms->getUniformValueByName(uniformName));
 					break;
 				case GL_BOOL: // boolean 35670 0x8B56
 					//createBoolUniform(name, mVDAnimation->getUniformIndexForName(name), getBoolUniformValueByName(name)); // get same index as vdanimation
-					mShader->uniform(name, mVDUniforms->getUniformValueByName(name));
+					mShader->uniform(uniformName, mVDUniforms->getUniformValueByName(uniformName));
 					break;
 				case GL_FLOAT_MAT4: // 35676 0x8B5C ciModelViewProjection
 					break;
@@ -560,7 +562,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			fs::path fr = getAssetPath("") / "thumbs" / filename;
 
 			if (!fs::exists(fr)) {
-				CI_LOG_V(fr.string() + " does not exist, creating");
+				CI_LOG_V(fr.string() << " does not exist, creating");
 				Surface s8(mRenderedTexture->createSource());
 				writeImage(writeFile(fr), s8);
 			}
