@@ -322,7 +322,7 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 
 		// store it as a 512x2 texture
 		mAudioTexture = gl::Texture::create(signal, GL_RED, 32, 1, mAudioFormat);
-		mAudioName = "speckthor";
+		mAudioName = "audio";
 	}
 
 	return mAudioTexture;

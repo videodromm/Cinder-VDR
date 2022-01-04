@@ -73,7 +73,7 @@ namespace videodromm
 			IFGX = 6,
 			IFBX = 7,
 			ISOBEL = 8,
-			// 9 avail
+			IFACTOR = 9,
 			IVIGNETTE = 10,		// was 82 A#4
 			IROTATIONSPEED = 11,
 			IAUDIOX = 12,

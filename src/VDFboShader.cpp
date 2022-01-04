@@ -303,7 +303,14 @@ void VDFboShader::loadImageFile(const std::string& aFile, unsigned int aCurrentI
 			else {
 				mCurrentFilename = aFile;
 			}
-			mInputTextureList[aCurrentIndex].texture = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+			try
+			{
+				mInputTextureList[aCurrentIndex].texture = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+			}
+			catch (const std::exception& ex)
+			{			
+				CI_LOG_E("<< loadImageFile >> " << mCurrentFilename << " error: " <<ex.what());
+			}			
 			mInputTextureList[aCurrentIndex].name = mCurrentFilename;
 			mInputTextureList[aCurrentIndex].isValid = true;
 			auto end = Clock::now();

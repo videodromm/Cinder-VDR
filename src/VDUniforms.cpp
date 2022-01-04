@@ -43,14 +43,16 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iGreenMultiplier", IFGX, 1.0f, 0.0f, 3.0f); // 6
 	// blue multiplier 
 	createFloatUniform("iBlueMultiplier", IFBX, 1.0f, 0.0f, 3.0f); // 7
-	// gstnsmk
+	// sobel gstnsmk
 	createFloatUniform("iSobel", ISOBEL, 0.02f, 0.02f, 1.0f); // 8
+	// factor
+	createFloatUniform("iFactor", IFACTOR, 1.0f, 0.4f, 0.6f); // 9
 	// vignette
 	createFloatUniform("iVignette", IVIGNETTE, 0.0f); // 10
 
 	// rotary
 	// RotationSpeed
-	createFloatUniform("iRotationSpeed", IROTATIONSPEED, 0.02f, -0.1f, 1.0f); // 11
+	createFloatUniform("iRotationSpeed", IROTATIONSPEED, 0.0f, -0.1f, 1.0f); // 11
 	// Audio multfactor 
 	createFloatUniform("iAudioX", IAUDIOX, 1.0f, 0.01f, 30.0f); // 12
 	// zoom
@@ -76,13 +78,13 @@ VDUniforms::VDUniforms() {
 	// Speed 
 	createFloatUniform("iSpeed", ISPEED, 1.0f, 0.01f, 12.0f); // 22
 	// slitscan / matrix (or other) Param1 
-	//createFloatUniform("iPixelX", IPIXELX, 0.01f, -1.5f, 1.5f); // 23
+	createFloatUniform("iPixelX", IPIXELX, 0.0f, -0.5f, 0.5f); // 23
 	// slitscan / matrix(or other) Param2 
-	//createFloatUniform("iPixelY", IPIXELY, 0.01f, -1.5f, 1.5f); // 24
+	createFloatUniform("iPixelY", IPIXELY, 0.0f, -0.5f, 0.5f); // 24
 	// slitscan / matrix (or other) Param1 
-	createFloatUniform("iPixelX", IPIXELX, 40.0f, 0.00000000001f, 40.0f); // 23
+	//createFloatUniform("iPixelX", IPIXELX, 0.0f, 0.00000000001f, 40.0f); // 23
 	// slitscan / matrix(or other) Param2 
-	createFloatUniform("iPixelY", IPIXELY, 36.0f, 0.00000000001f, 40.0f); // 24
+	//createFloatUniform("iPixelY", IPIXELY, 0.0f, 0.00000000001f, 40.0f); // 24
 	// delta time in seconds
 	createFloatUniform("iDeltaTime", IDELTATIME, 60.0f / 160.0f); // 25
 	// Steps
@@ -443,6 +445,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	// 8
 	else if (key == "iSobel") {
 		rtn = ISOBEL;
+	}
+	// 9 
+	else if (key == "iFactor") {
+		rtn = IFACTOR;
 	}
 	// vignette 10
 	else if (key == "iVignette") {
