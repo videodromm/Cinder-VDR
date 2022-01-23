@@ -341,8 +341,14 @@ void VDFboShader::loadNextTexture(unsigned int aCurrentIndex) {
 		fileExists = fs::exists(texFileOrPath);
 
 		if (!fileExists) {
-			// try with png
+			// try with png (space) explorer
 			mCurrentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").png";
+			texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
+			fileExists = fs::exists(texFileOrPath);
+		}
+		if (!fileExists) {
+			// try with png (-) photoshop
+			mCurrentFilename = mTextureName + "-(" + toString(mCurrentImageSequenceIndex) + ").png";
 			texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
 			fileExists = fs::exists(texFileOrPath);
 		}
@@ -426,11 +432,11 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		case VDTextureMode::PARTS:
 			for (size_t i{ 0 }; i < mInputTextureList.size(); i++)
 			{
-				mInputTextureList[i].texture->bind(i);
+				if (mInputTextureList[i].texture) mInputTextureList[i].texture->bind(i);
 			}
 			break;
 		
-			if (mInputTextureList[0].texture) mInputTextureList[0].texture->bind(0);
+			//if (mInputTextureList[0].texture) mInputTextureList[0].texture->bind(0);
 			break;
 		case VDTextureMode::SEQUENCE:
 			if (mInputTextureList[(unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)].isValid &&

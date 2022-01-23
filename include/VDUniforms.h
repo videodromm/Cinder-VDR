@@ -24,7 +24,7 @@ namespace videodromm
 		POST,
 		MIXETTE,
 		WARP
-	}; 
+	};
 	//enum class UniformTypes { FLOAT, SAMPLER2D, VEC2, VEC3, VEC4, INT, BOOL };
 	// cinder::gl::GlslProg::Uniform
 	struct VDUniformStruct
@@ -120,7 +120,7 @@ namespace videodromm
 			IBADTV = 48,
 			ITIMEFACTOR = 49,
 			ISMOOTH = 50,
-			IDISPLAYMODE = 51,  
+			IDISPLAYMODE = 51,
 			// int
 			IBLENDMODE = 60,
 			IBEAT = 61,
@@ -180,6 +180,24 @@ namespace videodromm
 			SRCXRIGHT = 161,
 			SRCYLEFT = 162,
 			SRCYRIGHT = 163,
+
+			ISPEED0 = 170,
+			ISPEED1 = 171,
+			ISPEED2 = 172,
+			ISPEED3 = 173,
+			ISPEED4 = 174,
+			ISPEED5 = 175,
+			ISPEED6 = 176,
+			ISPEED7 = 177,
+			ISPEED8 = 178,
+			ISPEED9 = 179,
+			ISPEED10 = 180,
+			ISPEED11 = 181,
+			ISPEED12 = 182, 
+			ISPEED13 = 183,
+			ISPEED14 = 184,
+			ISPEED15 = 185,
+
 			ICOLOR = 301,
 			IMOUSE = 318,
 			IDATE = 373,
@@ -216,7 +234,7 @@ namespace videodromm
 		int								getUniformIndexForName(const std::string& aName) {
 			return shaderUniforms[stringToIndex(aName)].index;
 		};
-		
+
 		void setVec2UniformValueByName(const std::string& aName, vec2 aValue) {
 			if (aName == "") {
 				//CI_LOG_E("empty error");
@@ -272,7 +290,7 @@ namespace videodromm
 				shaderUniforms[stringToIndex(aName + "Z")].floatValue,
 				shaderUniforms[stringToIndex(aName + "W")].floatValue);
 		}
-		
+
 		float							getMinUniformValue(unsigned int aIndex) {
 			return shaderUniforms[aIndex].minValue;
 		}
@@ -377,7 +395,7 @@ namespace videodromm
 			shaderUniforms[aCtrlIndex].floatValue = aValue.x;
 			//shaderUniforms[aCtrlIndex].vec4Value = aValue;
 		}
-		
+
 		int stringToIndex(const std::string& key);
 		int mErrorCode = 0;
 	};

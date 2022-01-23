@@ -223,6 +223,23 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iFreq2", IFREQ2, 0.0f, 0.01f, 256.0f); // 142
 	// iFreq3  
 	createFloatUniform("iFreq3", IFREQ3, 0.0f, 0.01f, 256.0f); // 143
+	// iSpeedX  
+	createFloatUniform("iSpeed0", ISPEED0, 0.07f); // 170
+	createFloatUniform("iSpeed1", ISPEED1, 0.01f);
+	createFloatUniform("iSpeed2", ISPEED2, 0.01f);
+	createFloatUniform("iSpeed3", ISPEED3, 0.05f);
+	createFloatUniform("iSpeed4", ISPEED4, 0.01f);
+	createFloatUniform("iSpeed5", ISPEED5, 0.08f);
+	createFloatUniform("iSpeed6", ISPEED6, 0.04f);
+	createFloatUniform("iSpeed7", ISPEED7, 0.01f);
+	createFloatUniform("iSpeed8", ISPEED8, 0.01f);
+	createFloatUniform("iSpeed9", ISPEED9, 0.06f);
+	createFloatUniform("iSpeed10", ISPEED10, 0.01f);
+	createFloatUniform("iSpeed11", ISPEED11, 0.09f);
+	createFloatUniform("iSpeed12", ISPEED12, 0.1f);
+	createFloatUniform("iSpeed13", ISPEED13, 0.04f); // 183
+	createFloatUniform("iSpeed14", ISPEED14, 0.01f); 
+	createFloatUniform("iSpeed15", ISPEED15, 0.01f); 
 
 	// vec2
 	createVec2Uniform("resolution", RESOLUTION, vec2(1280.0f, 720.0f)); // hydra 150
@@ -367,7 +384,7 @@ void VDUniforms::vec4FromJson(const ci::JsonTree& json) {
 
 bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 	bool rtn = false;
-
+	
 	// we can't change TIME at index 0
 	if (aIndex > 0) {
 		if (aIndex == IBPM) {
@@ -790,6 +807,55 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "RENDERSIZE") {
 		rtn = RENDERSIZE;
 	} // isf 151
+	else if (key == "iSpeed0") {
+	rtn = ISPEED0;
+	}
+	else if (key == "iSpeed1") {
+	rtn = ISPEED1;
+	}
+	else if (key == "iSpeed2") {
+	rtn = ISPEED2;
+	}
+	else if (key == "iSpeed3") {
+	rtn = ISPEED3;
+	}
+	else if (key == "iSpeed4") {
+	rtn = ISPEED4;
+	}
+	else if (key == "iSpeed5") {
+	rtn = ISPEED5;
+	}
+	else if (key == "iSpeed6") {
+	rtn = ISPEED6;
+	}
+	else if (key == "iSpeed7") {
+	rtn = ISPEED7;
+	}
+	else if (key == "iSpeed8") {
+	rtn = ISPEED8;
+	}
+	else if (key == "iSpeed9") {
+	rtn = ISPEED9;
+	}
+	else if (key == "iSpeed10") {
+	rtn = ISPEED10;
+	}
+	else if (key == "iSpeed11") {
+	rtn = ISPEED11;
+	}
+	else if (key == "iSpeed12") {
+	rtn = ISPEED12;
+	}
+	else if (key == "iSpeed13") {
+	rtn = ISPEED13;
+	}
+	else if (key == "iSpeed14") {
+	rtn = ISPEED14;
+	}
+	else if (key == "iSpeed15") {
+	rtn = ISPEED15;
+	}
+	
 	else if (key == "ciModelViewProjection") {
 		rtn = 498; // TODO
 	}
