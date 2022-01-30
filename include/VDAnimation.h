@@ -135,7 +135,9 @@ namespace videodromm
 		void							setAnim(unsigned int aCtrl, unsigned int aAnim) {
 			mVDUniforms->setAnim(aCtrl, aAnim);
 		}
-
+		unsigned int					getAnim(unsigned int aCtrl) {
+			return mVDUniforms->getAnim(aCtrl);
+		}
 		unsigned int					getBlendModesCount() { return mBlendModes; };
 		bool							renderBlend() { return mBlendRender; };
 

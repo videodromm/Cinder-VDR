@@ -89,6 +89,9 @@ VDSessionFacadeRef VDSessionFacade::setAnim(unsigned int aCtrl, unsigned int aAn
 	mVDSession->setAnim(aCtrl, aAnim);
 	return shared_from_this();
 }
+unsigned int VDSessionFacade::getAnim(unsigned int aCtrl) { 
+	return mVDSession->getAnim(aCtrl);
+}
 VDSessionFacadeRef VDSessionFacade::toggleValue(unsigned int aCtrl) {
 	mVDSession->toggleValue(aCtrl);
 	return shared_from_this();

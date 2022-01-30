@@ -55,9 +55,8 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iRotationSpeed", IROTATIONSPEED, 0.0f, -0.1f, 1.0f); // 11
 	// Audio multfactor 
 	createFloatUniform("iAudioX", IAUDIOX, 1.0f, 0.01f, 30.0f); // 12
-	// zoom
-	createFloatUniform("iZoom", IZOOM, 1.0f, 0.95f, 1.05f, true); // 13
-
+	// smooth animation
+	createFloatUniform("iSmooth", ISMOOTH, 0.005f); // 50 -> 13
 	// exposure
 	createFloatUniform("iExposure", IEXPOSURE, 1.0f, 0.0f, 3.0f); // 14
 	// Pixelate
@@ -85,8 +84,9 @@ VDUniforms::VDUniforms() {
 	//createFloatUniform("iPixelX", IPIXELX, 0.0f, 0.00000000001f, 40.0f); // 23
 	// slitscan / matrix(or other) Param2 
 	//createFloatUniform("iPixelY", IPIXELY, 0.0f, 0.00000000001f, 40.0f); // 24
-	// delta time in seconds
-	createFloatUniform("iDeltaTime", IDELTATIME, 60.0f / 160.0f); // 25
+		// zoom
+	createFloatUniform("iZoom", IZOOM, 1.0f, 0.95f, 1.05f, true); // 13 -> 25
+
 	// Steps
 	createFloatUniform("iSteps", ISTEPS, 16.0f, 1.0f, 128.0f); // 26
 	// ratio
@@ -116,6 +116,8 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iWeight8", IWEIGHT8, 0.0f); // 39
 	// elapsed in bar 
 	//createFloatUniform("iElapsed", IELAPSED, 0.0f); // 39
+	// delta time in seconds
+	createFloatUniform("iDeltaTime", IDELTATIME, 60.0f / 160.0f); // 25 -> 40
 
 	// ISTART
 	createFloatUniform("iStart", ISTART, 0.0f, 1.0f, 4200.0f); // 41		
@@ -136,8 +138,7 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iBadTv", IBADTV, 0.0f, 0.0f, 5.0f); // 48
 	// iTimeFactor
 	createFloatUniform("iTimeFactor", ITIMEFACTOR, 1.0f); // 49
-	// smooth animation
-	createFloatUniform("iSmooth", ISMOOTH, 0.005f); // 50
+	
 	// DisplayMode
 	createFloatUniform("iDisplayMode", IDISPLAYMODE, 7.0f, 0.0f, 9.0f); // 51
 	// int
@@ -244,7 +245,7 @@ VDUniforms::VDUniforms() {
 	// vec2
 	createVec2Uniform("resolution", RESOLUTION, vec2(1280.0f, 720.0f)); // hydra 150
 	createVec2Uniform("RENDERSIZE", RENDERSIZE, vec2(getUniformValue(IRESOLUTIONX), getUniformValue(IRESOLUTIONY))); // isf 151
-		// vec4
+	// vec4
 	createVec4Uniform("iMouse", IMOUSE, vec4(0.27710f, 0.5648f, 0.0f, 0.0f)); // 318
 	// vec4 kinect2
 	createVec4Uniform("iSpineBase", 200, vec4(320.0f, 240.0f, 0.0f, 0.0f));

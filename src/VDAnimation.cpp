@@ -193,7 +193,7 @@ void  VDAnimation::initLineIn() {
 
 				CI_LOG_V("mic/line in opened");
 				saveLineIn();
-				
+
 				auto scopeLineInFmt = audio::MonitorSpectralNode::Format().fftSize(mFFTWindowSize * 2).windowSize(mFFTWindowSize);// CHECK is * 2 needed
 				mMonitorLineInSpectralNode = ctx->makeNode(new audio::MonitorSpectralNode(scopeLineInFmt));
 				mLineIn >> mMonitorLineInSpectralNode;
@@ -212,7 +212,7 @@ void  VDAnimation::initLineIn() {
 #endif
 }
 ci::gl::TextureRef VDAnimation::getAudioTexture() {
-	
+
 	//std::string preferredAudioDevice = "{0.0.1.00000000}.{9a00fc87-a5d4-475f-bccd-8919f5c8fb61}";
 	// todo load form json std::string preferredAudioDevice = "Realtek";
 	mAudioFormat = gl::Texture2d::Format().swizzleMask(GL_RED, GL_RED, GL_RED, GL_ONE).internalFormat(GL_RED);
@@ -365,7 +365,7 @@ void VDAnimation::update() {
 		// IBARBEAT = IBAR * 4 + IBEAT
 		float current = mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT); // 20210101 was int
 		if (current == 426.0f || current == 428.0f || current == 442.0f) {
-			mLastBar = 0.0f; 
+			mLastBar = 0.0f;
 		} //38 to set iStart
 		if (mLastBar != mVDUniforms->getUniformValue(mVDUniforms->IBAR)) {
 			mLastBar = mVDUniforms->getUniformValue(mVDUniforms->IBAR);
@@ -440,7 +440,7 @@ void VDAnimation::update() {
 		// TODO (modulo < 0.1) ? tempoMvg->setNameColor(ColorA::white()) : tempoMvg->setNameColor(UIController::DEFAULT_NAME_COLOR);
 		float targetValue = 1.0f;
 		for (unsigned int anim{ 1 }; anim < 29; anim++)
-		{			
+		{
 			switch (mVDUniforms->getUniformAnim(anim)) {
 			case 1: // ANIM_TIME
 				mVDUniforms->setUniformValue(anim, (modulo < 0.1f) ? mVDUniforms->getMaxUniformValue(anim) : mVDUniforms->getMinUniformValue(anim));
@@ -457,22 +457,23 @@ void VDAnimation::update() {
 				break;
 			case 5: // ANIM_SMOOTH
 				targetValue = mVDUniforms->getTargetUniformValue(anim);
-				if (abs(targetValue - mVDUniforms->getUniformValue(anim)) <= mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH)) {
+				if (abs(targetValue - mVDUniforms->getUniformValue(anim)) <= 0.1f) {//mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH)) {
 					targetValue = mVDUniforms->getDefaultUniformValue(anim);
+					mVDUniforms->setUniformValue(anim, mVDUniforms->getDefaultUniformValue(anim));
 					mVDUniforms->setAnim(anim, mVDSettings->ANIM_NONE);
 				}
 				else {
 
-				if (mVDUniforms->getUniformValue(anim) > targetValue) {
-					mVDUniforms->setUniformValue(anim, (mVDUniforms->getUniformValue(anim) - mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH)));
-				}
-				else if (mVDUniforms->getUniformValue(anim) < targetValue) {
-					mVDUniforms->setUniformValue(anim, (mVDUniforms->getUniformValue(anim) + mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH)));
-				}
+					if (mVDUniforms->getUniformValue(anim) > targetValue) {
+						mVDUniforms->setUniformValue(anim, (mVDUniforms->getUniformValue(anim) - mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH)));
+					}
+					else if (mVDUniforms->getUniformValue(anim) < targetValue) {
+						mVDUniforms->setUniformValue(anim, (mVDUniforms->getUniformValue(anim) + mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH)));
+					}
 
-				else {
-					mVDUniforms->setAnim(anim, mVDSettings->ANIM_NONE);
-				}
+					else {
+						mVDUniforms->setAnim(anim, mVDSettings->ANIM_NONE);
+					}
 				}
 				// ANIM_TREBLE mVDUniforms->setUniformValue(anim, (mVDUniforms->getDefaultUniformValue(anim) + 0.01f) * mVDUniforms->getUniformValue(mVDUniforms->IFREQ2) / 2.0f);
 				break;

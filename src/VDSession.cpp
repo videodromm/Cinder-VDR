@@ -627,6 +627,10 @@ void VDSession::saveWarps() {
 void VDSession::setAnim(unsigned int aCtrl, unsigned int aAnim) {
 	mVDAnimation->setAnim(aCtrl, aAnim);
 }
+unsigned int VDSession::getAnim(unsigned int aCtrl) {
+	return mVDAnimation->getAnim(aCtrl);
+}
+
 // control values
 void VDSession::toggleValue(unsigned int aCtrl) {
 	float val = mVDUniforms->getUniformValue(aCtrl);

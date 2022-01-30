@@ -48,8 +48,6 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 			found = true;
 			i = msg[0].int32();// TODO check was flt() from hydra standalone if ok can merge with midi;
 			f = msg[1].flt();// was for hydra / 128;
-			//mVDAnimation->setUniformValue(i, f);
-			//mVDSession->setUniformValue(aCtrl, aValue);
 			mVDMediator->setUniformValue(i, f);
 			//ss << " midi from OSC " << i << " value " << f;
 		}
@@ -88,7 +86,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 						mVDMediator->setUniformValue(mVDUniforms->ITRACK, (float)mNote);
 					}
 					else {
-						// sorry it doesn't send cc...
+						// it doesn't send cc...
 						mVDUniforms->setAnim(mNote, mVDSettings->ANIM_SMOOTH);
 						mVDUniforms->setTargetUniformValue(mNote, (float)mVelocity / 64.0f);
 						//mVDMediator->setUniformValue(mNote, (float)mVelocity / 64.0f);

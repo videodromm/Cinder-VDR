@@ -54,6 +54,7 @@ namespace videodromm
 		VDSessionFacadeRef		loadFromJsonFile(const fs::path& jsonFile);
 		VDSessionFacadeRef		update();
 		// begin terminal operations
+		unsigned int			getAnim(unsigned int aCtrl);
 		bool					getUseTimeWithTempo();
 		// OSC
 		bool					isOscSenderConnected();

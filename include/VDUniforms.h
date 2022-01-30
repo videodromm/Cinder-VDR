@@ -78,7 +78,6 @@ namespace videodromm
 			IROTATIONSPEED = 11,
 			IAUDIOX = 12,
 
-			IZOOM = 13,
 			IEXPOSURE = 14,
 			IPIXELATE = 15,
 			ITRIXELS = 16,
@@ -92,12 +91,12 @@ namespace videodromm
 			ISPEED = 22,
 			IPIXELX = 23,
 			IPIXELY = 24,
+			IZOOM = 25,
 			// 25 check maybe used by fps
 			ISTEPS = 26,
 			IRATIO = 27,
 			//28 should be more useful
 			IMAXVOLUME = 28,
-			IDELTATIME = 29,
 			ICONTOUR = 30,
 
 			IWEIGHT0 = 31,
@@ -110,6 +109,7 @@ namespace videodromm
 			IWEIGHT7 = 38,
 			IWEIGHT8 = 39,
 			// 40 avail
+			IDELTATIME = 40,
 			ISTART = 41,
 			IXFADE = 42,
 			ITEMPOTIME = 43,
@@ -119,7 +119,7 @@ namespace videodromm
 			TIME = 47,
 			IBADTV = 48,
 			ITIMEFACTOR = 49,
-			ISMOOTH = 50,
+			ISMOOTH = 13,
 			IDISPLAYMODE = 51,
 			// int
 			IBLENDMODE = 60,
@@ -228,6 +228,9 @@ namespace videodromm
 		}
 		void							setAnim(unsigned int aCtrl, unsigned int aAnim) {
 			shaderUniforms[aCtrl].anim = aAnim;
+		}
+		unsigned int					getAnim(unsigned int aCtrl) {
+			return shaderUniforms[aCtrl].anim;
 		}
 		bool setUniformValue(unsigned int aIndex, float aValue);
 		//void setUniformValueByName(const std::string& aName, float aValue);

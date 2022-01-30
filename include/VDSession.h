@@ -94,6 +94,7 @@ namespace videodromm {
 		bool							handleMouseUp(MouseEvent& event);
 
 		void							setAnim(unsigned int aCtrl, unsigned int aAnim);
+		unsigned int					getAnim(unsigned int aCtrl);
 		// control values
 		void							toggleValue(unsigned int aCtrl);
 		float							getMinUniformValue(unsigned int aIndex);
