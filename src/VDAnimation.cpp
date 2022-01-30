@@ -457,22 +457,18 @@ void VDAnimation::update() {
 				break;
 			case 5: // ANIM_SMOOTH
 				targetValue = mVDUniforms->getTargetUniformValue(anim);
-				if (abs(targetValue - mVDUniforms->getUniformValue(anim)) <= 0.1f) {//mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH)) {
-					targetValue = mVDUniforms->getDefaultUniformValue(anim);
-					mVDUniforms->setUniformValue(anim, mVDUniforms->getDefaultUniformValue(anim));
-					mVDUniforms->setAnim(anim, mVDSettings->ANIM_NONE);
+				if (abs(targetValue - mVDUniforms->getUniformValue(anim)) <= 0.006f) {//mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH)) {
+					resetUniformAnim(anim);
 				}
 				else {
-
 					if (mVDUniforms->getUniformValue(anim) > targetValue) {
-						mVDUniforms->setUniformValue(anim, (mVDUniforms->getUniformValue(anim) - mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH)));
+						mVDUniforms->setUniformValue(anim, (mVDUniforms->getUniformValue(anim) - mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH)/7.0f));
 					}
 					else if (mVDUniforms->getUniformValue(anim) < targetValue) {
-						mVDUniforms->setUniformValue(anim, (mVDUniforms->getUniformValue(anim) + mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH)));
+						mVDUniforms->setUniformValue(anim, (mVDUniforms->getUniformValue(anim) + mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH)/7.0f));
 					}
-
 					else {
-						mVDUniforms->setAnim(anim, mVDSettings->ANIM_NONE);
+						resetUniformAnim(anim);
 					}
 				}
 				// ANIM_TREBLE mVDUniforms->setUniformValue(anim, (mVDUniforms->getDefaultUniformValue(anim) + 0.01f) * mVDUniforms->getUniformValue(mVDUniforms->IFREQ2) / 2.0f);
@@ -499,6 +495,10 @@ void VDAnimation::update() {
 		}
 	}
 #pragma endregion animation
+}
+void VDAnimation::resetUniformAnim(unsigned int anim) {
+	mVDUniforms->setUniformValue(anim, mVDUniforms->getDefaultUniformValue(anim));
+	mVDUniforms->setAnim(anim, mVDSettings->ANIM_NONE);
 }
 bool VDAnimation::toggleValue(unsigned int aIndex) {
 	bool rtn = mVDUniforms->getUniformValue(aIndex);

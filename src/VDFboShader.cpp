@@ -335,11 +335,17 @@ void VDFboShader::loadImageFile(const std::string& aFile, unsigned int aCurrentI
 void VDFboShader::loadNextTexture(unsigned int aCurrentIndex) {
 	if (mCurrentImageSequenceIndex != aCurrentIndex) {
 		mCurrentImageSequenceIndex = aCurrentIndex;
+		// try with jpg (space) explorer
 		mCurrentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").jpg";
 		fs::path texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
-		// try with jpg
 		fileExists = fs::exists(texFileOrPath);
 
+		if (!fileExists) {
+			// try with jpg (-) photoshop
+			mCurrentFilename = mTextureName + "-(" + toString(mCurrentImageSequenceIndex) + ").jpg";
+			texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
+			fileExists = fs::exists(texFileOrPath);
+		}
 		if (!fileExists) {
 			// try with png (space) explorer
 			mCurrentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").png";

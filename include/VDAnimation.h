@@ -46,6 +46,7 @@ namespace videodromm
 		}
 		void							update();
 		void							resetAnim();
+		void							resetUniformAnim(unsigned int anim);
 		const int						mBlendModes = 28;
 		void							blendRenderEnable(bool render) { mBlendRender = render; };
 		// tap tempo
