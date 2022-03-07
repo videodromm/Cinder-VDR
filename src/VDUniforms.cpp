@@ -149,7 +149,7 @@ VDUniforms::VDUniforms() {
 	// bar 
 	createFloatUniform("iBar", IBAR, 0.0f, 0.0f, 3008.0f); // 62
 	// bar 
-	createFloatUniform("iBarBeat", IBARBEAT, 1.0f, 1.0f, 1200.0f); // 63		
+	createFloatUniform("iBarBeat", IBARBEAT, 1.0f, 1.0f, 3600.0f); // 63		
 	// fbo A
 	createFloatUniform("iFboA", IFBOA, 0); // 64
 	// fbo B

@@ -98,6 +98,7 @@ namespace videodromm {
 		float								getUniformValue(unsigned int aIndex);
 		std::string							getUniformName(unsigned int aIndex);
 		VDMediatorObservableRef				setUniformValue(int aIndex, float aValue);
+		//VDMediatorObservableRef				setUniformValueByName(std::string aName, float aValue);
 		//VDMediatorObservableRef				updateShaderText(int aIndex, float aValue);
 		void								setAnim(int aIndex, float aValue);
 		bool								handleKeyDown(KeyEvent& event);

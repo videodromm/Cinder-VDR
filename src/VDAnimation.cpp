@@ -462,10 +462,10 @@ void VDAnimation::update() {
 				}
 				else {
 					if (mVDUniforms->getUniformValue(anim) > targetValue) {
-						mVDUniforms->setUniformValue(anim, (mVDUniforms->getUniformValue(anim) - mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH)/7.0f));
+						mVDUniforms->setUniformValue(anim, (mVDUniforms->getUniformValue(anim) - mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH)/27.0f));
 					}
 					else if (mVDUniforms->getUniformValue(anim) < targetValue) {
-						mVDUniforms->setUniformValue(anim, (mVDUniforms->getUniformValue(anim) + mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH)/7.0f));
+						mVDUniforms->setUniformValue(anim, (mVDUniforms->getUniformValue(anim) + mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH)/27.0f));
 					}
 					else {
 						resetUniformAnim(anim);

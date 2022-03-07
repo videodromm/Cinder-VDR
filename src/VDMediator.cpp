@@ -220,9 +220,17 @@ VDMediatorObservableRef VDMediatorObservable::setUniformValue(int aIndex, float 
 	}
 	return shared_from_this();
 };
+/*VDMediatorObservableRef VDMediatorObservable::setUniformValueByName(std::string aName, float aValue) {
+	
+		for (auto observer : mObservers) {
+			observer->setUniformValueByName(aName, aValue);
+		}
+	
+	return shared_from_this();
+};
 
 
-/*
+
 VDMediatorObservableRef VDMediatorObservable::updateShaderText(int aIndex, float aValue) {
 	for (auto observer : mObservers) {
 		observer->setUniformValue(aIndex, aValue);

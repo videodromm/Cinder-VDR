@@ -308,9 +308,9 @@ void VDFboShader::loadImageFile(const std::string& aFile, unsigned int aCurrentI
 				mInputTextureList[aCurrentIndex].texture = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 			}
 			catch (const std::exception& ex)
-			{			
-				CI_LOG_E("<< loadImageFile >> " << mCurrentFilename << " error: " <<ex.what());
-			}			
+			{
+				CI_LOG_E("<< loadImageFile >> " << mCurrentFilename << " error: " << ex.what());
+			}
 			mInputTextureList[aCurrentIndex].name = mCurrentFilename;
 			mInputTextureList[aCurrentIndex].isValid = true;
 			auto end = Clock::now();
@@ -362,6 +362,7 @@ void VDFboShader::loadNextTexture(unsigned int aCurrentIndex) {
 			loadImageFile(texFileOrPath.string(), mCurrentImageSequenceIndex);
 		}
 	}
+	
 }
 ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 	std::string uniformName;
@@ -385,6 +386,42 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 					}
 				}
 			}
+			/*if (mCurrentImageSequenceIndex == 289) {
+				mCurrentFilename = mTextureName + "-(" + toString(mCurrentImageSequenceIndex) + "a).jpg";
+				texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
+				fileExists = fs::exists(texFileOrPath);
+				if (fileExists && mVDUniforms->getUniformValue(mVDUniforms->ITIME) > 3981.70) {
+					loadImageFile(texFileOrPath.string(), mCurrentImageSequenceIndex);
+				}
+			}
+			else if (mCurrentImageSequenceIndex == 290) {
+				if (mVDUniforms->getUniformValue(mVDUniforms->ITIME) > 3982.90) {
+					mCurrentFilename = mTextureName + "-(" + toString(mCurrentImageSequenceIndex) + "d).jpg";
+					texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
+					fileExists = fs::exists(texFileOrPath);
+					if (fileExists) loadImageFile(texFileOrPath.string(), mCurrentImageSequenceIndex);
+				}
+				else if (mVDUniforms->getUniformValue(mVDUniforms->ITIME) > 3982.75) {
+					mCurrentFilename = mTextureName + "-(" + toString(mCurrentImageSequenceIndex) + "c).jpg";
+					texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
+					fileExists = fs::exists(texFileOrPath);
+					if (fileExists) loadImageFile(texFileOrPath.string(), mCurrentImageSequenceIndex);
+				}
+				else if (mVDUniforms->getUniformValue(mVDUniforms->ITIME) > 3982.50) {
+					mCurrentFilename = mTextureName + "-(" + toString(mCurrentImageSequenceIndex) + "b).jpg";
+					texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
+					fileExists = fs::exists(texFileOrPath);
+					if (fileExists) loadImageFile(texFileOrPath.string(), mCurrentImageSequenceIndex);
+				}
+				else if (mVDUniforms->getUniformValue(mVDUniforms->ITIME) > 3982.25) {
+					mCurrentFilename = mTextureName + "-(" + toString(mCurrentImageSequenceIndex) + "a).jpg";
+					texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
+					fileExists = fs::exists(texFileOrPath);
+					if (fileExists) loadImageFile(texFileOrPath.string(), mCurrentImageSequenceIndex);
+				}
+
+			}*/
+
 			break;
 		case VDTextureMode::SHARED:
 			if (mInputTextureList[0].isValid) {
@@ -441,7 +478,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				if (mInputTextureList[i].texture) mInputTextureList[i].texture->bind(i);
 			}
 			break;
-		
+
 			//if (mInputTextureList[0].texture) mInputTextureList[0].texture->bind(0);
 			break;
 		case VDTextureMode::SEQUENCE:

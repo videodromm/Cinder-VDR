@@ -53,6 +53,24 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 		}
 		if (!found)
 		{
+			// GrabberSender
+			ctrl = "grab";
+			index = addr.find(ctrl);
+			if (index != std::string::npos)
+			{
+				found = true;
+				f = msg[0].flt();
+				int lastSlashIndex = addr.find_last_of("/");
+				//std::string u = addr.substr(dotIndex + 1);
+				int iu = std::atoi(addr.substr(lastSlashIndex + 1).c_str());
+
+				//if (u=="15") mVDMediator->setUniformValue(15, f);
+				//if (u == "25") mVDMediator->setUniformValue(25, f);
+				mVDMediator->setUniformValue(iu, f);
+			}
+		}
+		if (!found)
+		{
 			// accxyz
 			ctrl = "accxyz";
 			index = addr.find(ctrl);
@@ -87,6 +105,8 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 					}
 					else {
 						// it doesn't send cc... smooth is not smoothable
+						/*
+						obsolete since grabbersender
 						if (mNote == mVDUniforms->ISMOOTH) {
 							mVDMediator->setUniformValue(mNote, math<float>::min((float)mVelocity / 64.0f, 0.1f));// max 0.1f
 						}
@@ -100,7 +120,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 								mVDUniforms->setAnim(mNote, mVDSettings->ANIM_SMOOTH);
 								mVDUniforms->setTargetUniformValue(mNote, (float)mVelocity / 64.0f);
 							}
-						}
+						}*/
 						//mVDMediator->setUniformValue(mNote, (float)mVelocity / 64.0f);
 					}
 				}
