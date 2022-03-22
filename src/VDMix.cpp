@@ -129,7 +129,7 @@ namespace videodromm {
 		unsigned int rtn = 0;
 		if (aFolder != "") mAssetsPath = aFolder;
 		VDFboShaderRef fboShader = VDFboShader::create(mVDUniforms, mVDAnimation, json, aFboIndex, mAssetsPath);
-		if (mFboShaderList.size() == 0) {
+		if (mFboShaderList.size() == 0 || aFboIndex == 0) { // 20220321 tmp
 			mFboShaderList.push_back(fboShader);
 			rtn = (unsigned int)mFboShaderList.size() - 1;
 		}
@@ -280,7 +280,6 @@ namespace videodromm {
 
 
 #pragma region textures
-
 	void VDMix::loadImageFile(const std::string& aFile, unsigned int aFboIndex) {
 		int rtn = math<int>::min(aFboIndex, mFboShaderList.size() - 1);
 		fs::path texFileOrPath = aFile;
@@ -290,7 +289,7 @@ namespace videodromm {
 			int dotIndex = texFileOrPath.filename().string().find_last_of(".");
 			if (dotIndex != std::string::npos)  ext = texFileOrPath.filename().string().substr(dotIndex + 1);
 			if (ext == "jpg" || ext == "png") {
-				if (mFboShaderList.size() < 1) {
+				// 20220321  tmp if (mFboShaderList.size() < 1) {
 					// no fbos, create one
 					JsonTree		json;
 					JsonTree texture = ci::JsonTree::makeArray("texture");
@@ -303,12 +302,43 @@ namespace videodromm {
 					shader.addChild(ci::JsonTree("shadername", "inputImage.fs"));
 					shader.pushBack(ci::JsonTree("shadertype", "fs"));
 					json.addChild(shader);
-					createFboShaderTexture(json);
-				}
+					createFboShaderTexture(json, aFboIndex);
+					/* 20220321 tmp }
 				else {
 					mFboShaderList[rtn]->loadImageFile(aFile);
 					// 20211227 was setInputTextureRef(mTextureList[mTextureList.size() - 1]->getTexture());
-				}
+				}*/
+			}
+		}
+	}
+	void VDMix::loadVideoFile(const std::string& aFile, unsigned int aFboIndex) {
+		int rtn = math<int>::min(aFboIndex, mFboShaderList.size() - 1);
+		fs::path texFileOrPath = aFile;
+		if (fs::exists(texFileOrPath)) {
+
+			std::string ext = "";
+			int dotIndex = texFileOrPath.filename().string().find_last_of(".");
+			if (dotIndex != std::string::npos)  ext = texFileOrPath.filename().string().substr(dotIndex + 1);
+			if (ext == "mp4") {
+				// 20220321  tmp if (mFboShaderList.size() < 1) {
+					// no fbos, create one
+					JsonTree		json;
+					JsonTree texture = ci::JsonTree::makeArray("texture");
+					texture.addChild(ci::JsonTree("texturename", aFile));
+					texture.pushBack(ci::JsonTree("texturetype", "video"));
+					texture.pushBack(ci::JsonTree("texturemode", 3));
+					texture.pushBack(ci::JsonTree("texturecount", 1));
+					json.addChild(texture);
+					JsonTree shader = ci::JsonTree::makeArray("shader");
+					shader.addChild(ci::JsonTree("shadername", "inputImage.fs"));
+					shader.pushBack(ci::JsonTree("shadertype", "fs"));
+					json.addChild(shader);
+					createFboShaderTexture(json, aFboIndex);
+					/* 20220321 tmp }
+				else {
+					mFboShaderList[rtn]->loadImageFile(aFile);
+					// 20211227 was setInputTextureRef(mTextureList[mTextureList.size() - 1]->getTexture());
+				}*/
 			}
 		}
 	}

@@ -329,6 +329,10 @@ void VDSession::fileDrop(FileDropEvent event) {
 			// 20211227 useless? if (index > 3) index = 3;
 			loadImageFile(absolutePath, index);
 		}
+		else if (ext == "mp4" ) {
+			if (index < 1) index = 1;
+			loadVideoFile(absolutePath, index);
+		}
 		else if (ext == "wav" || ext == "mp3") {
 			loadAudioFile(absolutePath);
 		}

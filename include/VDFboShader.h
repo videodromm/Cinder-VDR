@@ -186,6 +186,7 @@ namespace videodromm
 		bool							mPreloadTextures = false;
 		unsigned int					msTotal = 0;
 		int								dotIndex = std::string::npos;
+		int								colonIndex = std::string::npos;
 		// hydra
 		bool							mIsHydraTex = false;
 

@@ -142,6 +142,7 @@ namespace videodromm
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getShaderName();
 		};
 		void							loadImageFile(const std::string& aFile, unsigned int aFboIndex = 0);
+		void							loadVideoFile(const std::string& aFile, unsigned int aFboIndex = 0);
 
 		std::vector<ci::gl::GlslProg::Uniform>	getFboShaderUniforms(unsigned int aFboShaderIndex);
 		float							getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex);

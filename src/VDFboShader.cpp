@@ -107,7 +107,15 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		break;
 
 	default:
-		texFileOrPath = getAssetPath("") / mAssetsPath / mTextureName;
+		colonIndex = mTextureName.find(":"); 
+		if (colonIndex != std::string::npos) {
+			// full path
+			texFileOrPath = mTextureName;
+		}
+		else {
+			// relative path 
+			texFileOrPath = getAssetPath("") / mAssetsPath / mTextureName;
+		}
 		mExt = "";
 		dotIndex = texFileOrPath.filename().string().find_last_of(".");
 		if (dotIndex != std::string::npos)  mExt = texFileOrPath.filename().string().substr(dotIndex + 1);
@@ -154,9 +162,10 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 					if (mBatchPlaneVideo) {
 						mBatchPlaneVideo->replaceGlslProg(mGlslVideoTexture);
 					}
-					if (!mVideo.isStopped()) {
+
+					/* 20220322 for debug if (!mVideo.isStopped()) {
 						mVideo.stop();
-					}
+					}*/
 					mIsVideoLoaded = mVideo.loadMovie(texFileOrPath);
 					mVideoDuration = mVideo.getDuration();
 					mVideoPos = mVideo.getPosition();
@@ -188,8 +197,8 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		}
 		break;
 	}
-
-	mFboStatus = mTextureName;
+	int slashIndex = mTextureName.find_last_of("\\");
+	(slashIndex != std::string::npos) ? mFboStatus = mTextureName.substr(slashIndex + 1) : mFboStatus = mTextureName;
 	rtn = mInputTextureList.size() - 1;
 	return rtn;
 

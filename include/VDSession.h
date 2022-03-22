@@ -294,6 +294,9 @@ namespace videodromm {
 		void							loadImageFile(const std::string& aFile, unsigned int aFboIndex = 0) {
 			mVDMix->loadImageFile(aFile, aFboIndex);
 		};
+		void							loadVideoFile(const std::string& aFile, unsigned int aFboIndex = 0) {
+			mVDMix->loadVideoFile(aFile, aFboIndex);
+		};		
 		//bool							loadImageSequence(const string& aFolder, unsigned int aTextureIndex);
 		bool							loadFolder(const string& aFolder);
 		void							loadAudioFile(const string& aFile);
