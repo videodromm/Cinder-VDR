@@ -103,6 +103,9 @@ namespace videodromm
 		void							setPreferredAudioInputDevice(const std::string& aPreferredAudioInputDevice) {
 			mPreferredAudioInputDevice = aPreferredAudioInputDevice;
 		};
+		void							setPreferredAudioOutputDevice(const std::string& aPreferredAudioOutputDevice) {
+			mPreferredAudioOutputDevice = aPreferredAudioOutputDevice;
+		};
 		void							initLineIn();
 		void							setUseWaveMonitor(bool useWaveMonitor) {
 			mUseAudio = useWaveMonitor;
@@ -157,6 +160,7 @@ namespace videodromm
 		std::vector<ci::audio::DeviceRef> inputDevices;
 		std::vector<ci::audio::DeviceRef> outputDevices;
 		std::string						mPreferredAudioInputDevice;
+		std::string						mPreferredAudioOutputDevice;
 		bool							mUseAudio = true;
 		bool							mUseRandom = false;
 		bool							mUseLineIn = false;

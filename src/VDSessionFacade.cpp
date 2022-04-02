@@ -403,6 +403,7 @@ void VDSessionFacade::restore()
 			JsonTree settings(doc.getChild("settings"));
 			if (settings.hasChild("apiUrl")) mVDSession->setApiUrl(settings.getValueForKey<std::string>("apiUrl"));
 			if (settings.hasChild("preferredAudioInput")) mVDSession->setPreferredAudioInputDevice(settings.getValueForKey<string>("preferredAudioInput"));
+			if (settings.hasChild("preferredAudioOutput")) mVDSession->setPreferredAudioOutputDevice(settings.getValueForKey<string>("preferredAudioOutput"));
 			if (settings.hasChild("preferredMidiInput")) mVDMediator->setPreferredMidiInputDevice(settings.getValueForKey<string>("preferredMidiInput"));
 
 		}

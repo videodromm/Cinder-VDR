@@ -216,6 +216,9 @@ namespace videodromm {
 		void									setPreferredAudioInputDevice(const std::string& aDevice) {
 			mVDAnimation->setPreferredAudioInputDevice(aDevice);
 		}
+		void									setPreferredAudioOutputDevice(const std::string& aDevice) {
+			mVDAnimation->setPreferredAudioOutputDevice(aDevice);
+		}
 		unsigned int							getFboShaderListSize() { return mVDMix->getFboShaderListSize(); };
 		ci::gl::TextureRef						getFboShaderTexture(unsigned int aFboShaderIndex);
 

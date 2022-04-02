@@ -395,41 +395,6 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 					}
 				}
 			}
-			/*if (mCurrentImageSequenceIndex == 289) {
-				mCurrentFilename = mTextureName + "-(" + toString(mCurrentImageSequenceIndex) + "a).jpg";
-				texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
-				fileExists = fs::exists(texFileOrPath);
-				if (fileExists && mVDUniforms->getUniformValue(mVDUniforms->ITIME) > 3981.70) {
-					loadImageFile(texFileOrPath.string(), mCurrentImageSequenceIndex);
-				}
-			}
-			else if (mCurrentImageSequenceIndex == 290) {
-				if (mVDUniforms->getUniformValue(mVDUniforms->ITIME) > 3982.90) {
-					mCurrentFilename = mTextureName + "-(" + toString(mCurrentImageSequenceIndex) + "d).jpg";
-					texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
-					fileExists = fs::exists(texFileOrPath);
-					if (fileExists) loadImageFile(texFileOrPath.string(), mCurrentImageSequenceIndex);
-				}
-				else if (mVDUniforms->getUniformValue(mVDUniforms->ITIME) > 3982.75) {
-					mCurrentFilename = mTextureName + "-(" + toString(mCurrentImageSequenceIndex) + "c).jpg";
-					texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
-					fileExists = fs::exists(texFileOrPath);
-					if (fileExists) loadImageFile(texFileOrPath.string(), mCurrentImageSequenceIndex);
-				}
-				else if (mVDUniforms->getUniformValue(mVDUniforms->ITIME) > 3982.50) {
-					mCurrentFilename = mTextureName + "-(" + toString(mCurrentImageSequenceIndex) + "b).jpg";
-					texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
-					fileExists = fs::exists(texFileOrPath);
-					if (fileExists) loadImageFile(texFileOrPath.string(), mCurrentImageSequenceIndex);
-				}
-				else if (mVDUniforms->getUniformValue(mVDUniforms->ITIME) > 3982.25) {
-					mCurrentFilename = mTextureName + "-(" + toString(mCurrentImageSequenceIndex) + "a).jpg";
-					texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
-					fileExists = fs::exists(texFileOrPath);
-					if (fileExists) loadImageFile(texFileOrPath.string(), mCurrentImageSequenceIndex);
-				}
-
-			}*/
 
 			break;
 		case VDTextureMode::SHARED:
