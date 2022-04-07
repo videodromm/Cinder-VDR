@@ -322,7 +322,7 @@ void VDWebsocket::wsClientConnect()
 {
 	std::stringstream s;
 	if (mWSPort == 80) {
-		s << "wss://" << mWSHost; //  for wss://bya.io/wss
+		s << "ws://" << mWSHost; //  for wss://bya.io/wss
 	}
 	else {
 		s << "ws://" << mWSHost << ":" << mWSPort;

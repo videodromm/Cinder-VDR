@@ -91,7 +91,7 @@ void VDMediatorObservable::loadWSFromJsonFile(const fs::path& jsonFile) {
 		if (json.hasChild("client")) {
 			JsonTree u(json.getChild("client"));
 			if (validateJson(u)) {
-				// (u.hasChild("port")) ? u.getValueForKey<int>("port") : OSC_DEFAULT_PORT;
+				
 				mWSHost = u.getValueForKey<std::string>("host");
 				mWSPort = u.getValueForKey<int>("port");
 			}
@@ -214,9 +214,10 @@ VDMediatorObservableRef VDMediatorObservable::setUniformValue(int aIndex, float 
 			observer->setUniformValue(aIndex, aValue);
 		}
 		// couldn't make an observer because it's both sender and receiver
+		/* 20220407 OSC routed to ws, freezes the app
 		if (mWSInstanced) {
 			mVDWebsocket->wsWrite("{\"params\" :[{ \"name\":" + toString(aIndex) + ",\"value\":" + toString(aValue) + "}]}");
-		}
+		} */
 	}
 	return shared_from_this();
 };
