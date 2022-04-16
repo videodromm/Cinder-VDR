@@ -401,7 +401,27 @@ bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 				}
 				else {
 					if ((aValue >= shaderUniforms[aIndex].minValue && aValue <= shaderUniforms[aIndex].maxValue) || shaderUniforms[aIndex].anim > 0) {
-						shaderUniforms[aIndex].floatValue = aValue;
+						if (aIndex == IBAR) {
+							//float previousBar = shaderUniforms[aIndex].floatValue;
+							mSavedBar = aValue;
+							//shaderUniforms[IBAR].floatValue = mSavedBar - shaderUniforms[IBARSTART].floatValue;
+							shaderUniforms[IBAR].floatValue = mSavedBar - shaderUniforms[IBARSTART].floatValue;
+							shaderUniforms[IBARBEAT].floatValue = shaderUniforms[IBAR].floatValue * 4 + shaderUniforms[IBEAT].floatValue;
+						}
+						else {
+							if (aIndex == ITRACK) {
+								shaderUniforms[ITIME].floatValue = (float)getElapsedSeconds();
+								shaderUniforms[ISTART].floatValue = shaderUniforms[ITIME].floatValue;
+								shaderUniforms[IBARSTART].floatValue = mSavedBar;
+								shaderUniforms[ITRACK].floatValue = aValue;
+								shaderUniforms[IBAR].floatValue = mSavedBar - shaderUniforms[IBARSTART].floatValue;
+								shaderUniforms[IBARBEAT].floatValue = shaderUniforms[aIndex].floatValue * 4 + shaderUniforms[IBEAT].floatValue;
+							}
+							else {
+								shaderUniforms[aIndex].floatValue = aValue;
+							}
+						}
+
 						rtn = true;
 					}
 					else {

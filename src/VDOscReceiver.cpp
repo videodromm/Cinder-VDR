@@ -95,35 +95,17 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 						// tracks from 110 = midi note D7
 						mVDMediator->setUniformValue(mVDUniforms->ITIME, (float)getElapsedSeconds());
 						mVDMediator->setUniformValue(mVDUniforms->ISTART, mVDUniforms->getUniformValue(mVDUniforms->ITIME));
-						mVDMediator->setUniformValue(mVDUniforms->IBAR, mSavedBar - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART));
+						
+						/*mVDMediator->setUniformValue(mVDUniforms->IBAR, mSavedBar - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART));
 						mVDMediator->setUniformValue(
 							mVDUniforms->IBARBEAT,
-							mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
+							mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));*/
 
 						// load folder in main app
-						mVDMediator->setUniformValue(mVDUniforms->IBARSTART, mSavedBar);
+						//mVDMediator->setUniformValue(mVDUniforms->IBARSTART, mSavedBar);
 						mVDMediator->setUniformValue(mVDUniforms->ITRACK, (float)mNote);
 					}
-					else {
-						// it doesn't send cc... smooth is not smoothable
-						/*
-						obsolete since grabbersender
-						if (mNote == mVDUniforms->ISMOOTH) {
-							mVDMediator->setUniformValue(mNote, math<float>::min((float)mVelocity / 64.0f, 0.1f));// max 0.1f
-						}
-						else {
-							if (mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH) < 0.03f) {
-								// set value directly
-								mVDMediator->setUniformValue(mNote, (float)mVelocity / 64.0f);
-							}
-							else {
-								// smooth to value
-								mVDUniforms->setAnim(mNote, mVDSettings->ANIM_SMOOTH);
-								mVDUniforms->setTargetUniformValue(mNote, (float)mVelocity / 64.0f);
-							}
-						}*/
-						//mVDMediator->setUniformValue(mNote, (float)mVelocity / 64.0f);
-					}
+					
 				}
 			}
 		}
@@ -172,11 +154,6 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 			f = msg[0].flt();
 			mVDAnimation->useTimeWithTempo();
 			mVDMediator->setUniformValue(mVDUniforms->ITIME, f);
-			//stringstream ss;
-			//ss << " " << f;
-			//CI_LOG_I("OSC: " << ctrl << " addr: " << addr);
-
-			//mVDAnimation->setUniformValue(mVDUniforms->IELAPSED, msg[0].flt());
 		}
 	}
 	if (!found)
@@ -186,7 +163,6 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 		//	HumanET	150
 		//	Hoover	135
 		//	Massactiv whatelse 138.77
-		//
 		ctrl = "/tempo";
 		index = addr.find(ctrl);
 		if (index != std::string::npos)
@@ -195,8 +171,43 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 			mVDAnimation->useTimeWithTempo();
 			f = msg[0].flt();
 			mVDMediator->setUniformValue(mVDUniforms->IBPM, f);
-			//ss << " " << f;
-			//CI_LOG_I("tempo:" + toString(mVDAnimation->getBpm()));
+		}
+	}
+	if (!found)
+	{
+		// int32 1 to 4 beat from Transthor
+		ctrl = "/beat";
+		index = addr.find(ctrl);
+		if (index != std::string::npos)
+		{
+			found = true;
+			mVDMediator->setUniformValue(mVDUniforms->IBAR, (float)msg[0].int32() - 1);
+		}
+	}
+	if (!found)
+	{
+		// int32 bar from Transthor
+		ctrl = "/bar";
+		index = addr.find(ctrl);
+		if (index != std::string::npos)
+		{
+			found = true;
+			mVDMediator->setUniformValue(mVDUniforms->IBAR, (float)msg[0].int32());			
+		}
+	}
+
+	if (!found)
+	{
+		ctrl = "link";
+		index = addr.find(ctrl);
+		if (index != std::string::npos)
+		{
+			found = true;
+			double d0 = msg[0].dbl(); // tempo
+			mVDMediator->setUniformValue(mVDUniforms->IBPM, d0);
+			double d1 = msg[1].dbl();
+			int d2 = msg[2].int32();
+			//! 20200526 mVDSocketio->changeIntValue(mVDUniforms->IBEAT, d2);
 		}
 	}
 	if (!found)
@@ -223,102 +234,6 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 					if (a == mVDAnimation->getFreqIndex(3)) mVDMediator->setUniformValue(mVDUniforms->IFREQ3, f);
 				}
 			}
-		}
-	}
-	/* obsolete
-	if (!found)
-	{
-		// from Midithor (i=0 on noteoff) Midi1 to Midi8
-		ctrl = "/Midi";
-		index = addr.find(ctrl);
-		if (index != std::string::npos)
-		{
-			found = true;
-			// get the argument type
-			if (msg.getArgType(0) == ArgType::INTEGER_32) {
-				int i = msg[0].int32();
-				// TODO 20211204 check bounds from /Note1
-				if (i > 80 && i < 109) {
-					// 20210101 was bool mVDUniforms->setBoolUniformValueByIndex(i, !mVDUniforms->getBoolUniformValueByIndex(i));
-					mVDMediator->setUniformValue(i, !mVDUniforms->getUniformValue(i));
-				}
-				// sos specific
-				if (i == 119) { // B7 end
-					mVDMediator->setUniformValue(mVDUniforms->ITIMEFACTOR, 0.02f);
-				}
-				if (i == 120) { // C8 slow
-					mVDMediator->setUniformValue(mVDUniforms->ITIMEFACTOR, 0.1f);
-				}
-				if (i == 121) { // C#8
-					mVDMediator->setUniformValue(mVDUniforms->ITIMEFACTOR, 0.18f);
-				}
-				if (i == 122) { // D8
-					mVDMediator->setUniformValue(mVDUniforms->ITIMEFACTOR, 0.25f);
-				}
-				if (i == 123) { // D#8
-					mVDMediator->setUniformValue(mVDUniforms->ITIMEFACTOR, 0.35f);
-				}
-				if (i == 124) { // E8 fast
-					mVDMediator->setUniformValue(mVDUniforms->ITIMEFACTOR, 1.0f);
-				}
-			}
-		}
-	}*/
-
-	if (!found)
-	{
-		// int32 1 to 4 beat from Transthor
-		ctrl = "/beat";
-		index = addr.find(ctrl);
-		if (index != std::string::npos)
-		{
-			found = true;
-			float previousBeat = mVDUniforms->getUniformValue(mVDUniforms->IBEAT);
-			mSavedBeat = (float)msg[0].int32() - 1;
-			if (previousBeat != mSavedBeat) {
-				mVDMediator->setUniformValue(mVDUniforms->IBEAT, mSavedBeat);
-				mVDMediator->setUniformValue(
-					mVDUniforms->IBARBEAT,
-					mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
-			}
-		}
-	}
-	if (!found)
-	{
-		// int32 bar from Transthor
-		ctrl = "/bar";
-		index = addr.find(ctrl);
-		if (index != std::string::npos)
-		{
-			found = true;
-			float previousBar = mVDUniforms->getUniformValue(mVDUniforms->IBAR);
-			mSavedBar = (float)msg[0].int32();
-			
-			if (previousBar != mSavedBar) {
-				mVDSettings->setErrorMsg("0bar: " + toString(msg[0].int32() - 1) + " - " + toString(mSavedBar) + " 1bar: " + toString(previousBar) + " - " + toString(mVDUniforms->getUniformValue(mVDUniforms->IBAR)));
-				//mVDSettings->iBarDuration = mVDUniforms->getUniformValue(mVDUniforms->ITIME) - mBarStart;// TODO test if useless
-				//mBarStart = mVDUniforms->getUniformValue(mVDUniforms->ITIME);
-				// 20220416 avoid constant update Fixes logo rotation glitch
-				mVDMediator->setUniformValue(mVDUniforms->IBAR, mSavedBar - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART));
-				mVDMediator->setUniformValue(
-					mVDUniforms->IBARBEAT,
-					mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
-			}			
-		}
-	}
-
-	if (!found)
-	{
-		ctrl = "link";
-		index = addr.find(ctrl);
-		if (index != std::string::npos)
-		{
-			found = true;
-			double d0 = msg[0].dbl(); // tempo
-			mVDMediator->setUniformValue(mVDUniforms->IBPM, d0);
-			double d1 = msg[1].dbl();
-			int d2 = msg[2].int32();
-			//! 20200526 mVDSocketio->changeIntValue(mVDUniforms->IBEAT, d2);
 		}
 	}
 	if (!found)

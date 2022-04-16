@@ -360,18 +360,13 @@ void VDAnimation::update() {
 	mVDSettings->iChannelTime[3] = (float)(getElapsedSeconds() - 3.0);
 	// ITIME
 	if (mUseTimeWithTempo)
-	{
-		
+	{		
 		// Ableton Link from openframeworks SocketIO
 		mVDUniforms->setUniformValue(mVDUniforms->ITIME,
 			mVDUniforms->getUniformValue(mVDUniforms->ITIME)  *
 			mVDUniforms->getUniformValue(mVDUniforms->ISPEED) *
 			mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
-		// CI_LOG_E("anim update time after:" + toString(mVDUniforms->getUniformValue(mVDUniforms->ITIME)));
 
-		//mVDUniforms->setUniformValue(mVDUniforms->ITIME,
-		//	mVDUniforms->getUniformValue(mVDUniforms->ITIME) * mVDSettings->iSpeedMultiplier * mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
-		//shaderUniforms["iElapsed"].floatValue = shaderUniforms["iPhase"].floatValue * mVDSettings->iSpeedMultiplier * shaderUniforms["iTimeFactor"].floatValue;
 		// sos
 		// IBARBEAT = IBAR * 4 + IBEAT
 		float current = mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT); // 20210101 was int
@@ -380,9 +375,6 @@ void VDAnimation::update() {
 		} //38 to set iStart
 		if (mLastBar != mVDUniforms->getUniformValue(mVDUniforms->IBAR)) {
 			mLastBar = mVDUniforms->getUniformValue(mVDUniforms->IBAR);
-			//if (mLastBar != 5 && mLastBar != 9 && mLastBar < 113) mVDSettings->iStart = mVDSession->getUniformValue(mVDUniforms->ITIME);
-			// TODO CHECK
-			//if (mLastBar != 107 && mLastBar != 111 && mLastBar < 205) mVDSettings->iStart = mVDSession->getUniformValue(mVDUniforms->ITIME);
 			if (mLastBar < 419.0f && mLastBar > 424.0f) { mVDSettings->iStart = mVDUniforms->getUniformValue(mVDUniforms->ITIME); }
 		}
 	}

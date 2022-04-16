@@ -1,14 +1,14 @@
 #pragma once
 
 #include "cinder/Cinder.h"
-//#include "cinder/app/App.h"
+#include "cinder/app/App.h"
 #include "cinder/gl/gl.h"
 //!  json
 #include "cinder/Json.h"
 
 
 using namespace ci;
-//using namespace ci::app;
+using namespace ci::app;
 
 namespace videodromm
 {
@@ -358,21 +358,21 @@ namespace videodromm
 	private:
 
 		std::map<int, VDUniformStruct>		shaderUniforms;
-		//fs::path						mUniformsJson;
+		//fs::path							mUniformsJson;
 		//! read a uniforms json file 
-		void							loadUniforms(const ci::DataSourceRef& source);
-		int								mLastBeat = 0;
+		void								loadUniforms(const ci::DataSourceRef& source);
+		int									mLastBeat = 0;
 
-		void							floatFromJson(const ci::JsonTree& json);
-		void							sampler2dFromJson(const ci::JsonTree& json);
-		void							vec2FromJson(const ci::JsonTree& json);
-		void							vec3FromJson(const ci::JsonTree& json);
-		void							vec4FromJson(const ci::JsonTree& json);
-		//void							intFromJson(const ci::JsonTree& json);
-		//void							boolFromJson(const ci::JsonTree& json);
+		void								floatFromJson(const ci::JsonTree& json);
+		void								sampler2dFromJson(const ci::JsonTree& json);
+		void								vec2FromJson(const ci::JsonTree& json);
+		void								vec3FromJson(const ci::JsonTree& json);
+		void								vec4FromJson(const ci::JsonTree& json);
+		//void								intFromJson(const ci::JsonTree& json);
+		//void								boolFromJson(const ci::JsonTree& json);
 		// render windows
-		int								mRenderWidth;
-		int								mRenderHeight;
+		int									mRenderWidth;
+		int									mRenderHeight;
 
 		void createVec2Uniform(const std::string& aName, int aCtrlIndex, vec2 aValue = vec2(0.0)) {
 			shaderUniforms[aCtrlIndex].name = aName;
@@ -399,7 +399,9 @@ namespace videodromm
 			//shaderUniforms[aCtrlIndex].vec4Value = aValue;
 		}
 
-		int stringToIndex(const std::string& key);
-		int mErrorCode = 0;
+		int									stringToIndex(const std::string& key);
+		int									mErrorCode = 0;
+		float								mSavedBar = 0.0f;
+		float								mSavedBeat = 0.0f;
 	};
 };
