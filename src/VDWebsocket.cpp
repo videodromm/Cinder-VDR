@@ -62,7 +62,7 @@ std::string * VDWebsocket::getBase64Image() {
 void VDWebsocket::parseMessage(std::string msg) {
 
 	if (!msg.empty()) {
-
+		mWebSocketsMsg = msg;
 		std::string first = msg.substr(0, 1);
 		if (first == "{") {
 			// json

@@ -90,15 +90,16 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				mNote = msg[0].int32();
 				// set iStart
 				if (mVelocity > 0) {
-					// note range 0 to 127 tracks from 110 = midi note D7
+					// note range 0 to 127 
 					if (mNote > 109) {
+						// tracks from 110 = midi note D7
 						mVDMediator->setUniformValue(mVDUniforms->ITIME, (float)getElapsedSeconds());
 						mVDMediator->setUniformValue(mVDUniforms->ISTART, mVDUniforms->getUniformValue(mVDUniforms->ITIME));
 						mVDMediator->setUniformValue(mVDUniforms->IBAR, mSavedBar - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART));
 						mVDMediator->setUniformValue(mVDUniforms->IBARSTART, mSavedBar);
 						mVDMediator->setUniformValue(
 							mVDUniforms->IBARBEAT,
-							mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));// - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART)
+							mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
 
 						// load folder in main app
 						mVDMediator->setUniformValue(mVDUniforms->ITRACK, (float)mNote);
@@ -301,7 +302,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				mVDMediator->setUniformValue(mVDUniforms->IBAR, mSavedBar - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART));
 				mVDMediator->setUniformValue(
 					mVDUniforms->IBARBEAT,
-					mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));//- mVDUniforms->getUniformValue(mVDUniforms->IBARSTART)
+					mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
 			}			
 		}
 	}
