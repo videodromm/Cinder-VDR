@@ -418,10 +418,8 @@ bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 				}
 			}
 		}
-
 	}
 	else {
-
 		// no max 
 		shaderUniforms[aIndex].floatValue = aValue;
 	}

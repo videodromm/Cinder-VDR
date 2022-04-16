@@ -65,6 +65,7 @@ namespace videodromm
 		int									mVelocity = 0;
 		int									mNote = 0;
 		float								mSavedBar = 0.0f;
+		float								mSavedBeat = 0.0f;
 	};
 }
 

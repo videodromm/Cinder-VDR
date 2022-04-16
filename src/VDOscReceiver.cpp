@@ -272,10 +272,14 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 		if (index != std::string::npos)
 		{
 			found = true;
-			mVDMediator->setUniformValue(mVDUniforms->IBEAT, msg[0].int32() - 1);
-			mVDMediator->setUniformValue(
-				mVDUniforms->IBARBEAT,
-				mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
+			float previousBeat = mVDUniforms->getUniformValue(mVDUniforms->IBEAT);
+			mSavedBeat = (float)msg[0].int32() - 1;
+			if (previousBeat != mSavedBeat) {
+				mVDMediator->setUniformValue(mVDUniforms->IBEAT, mSavedBeat);
+				mVDMediator->setUniformValue(
+					mVDUniforms->IBARBEAT,
+					mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
+			}
 		}
 	}
 	if (!found)
@@ -286,21 +290,19 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 		if (index != std::string::npos)
 		{
 			found = true;
-			float previousBar = mVDUniforms->getUniformValue(mVDUniforms->IBAR); // 20210101 was int
-
+			float previousBar = mVDUniforms->getUniformValue(mVDUniforms->IBAR);
 			mSavedBar = (float)msg[0].int32();
-			mVDSettings->setErrorMsg("0bar: " + toString(msg[0].int32() - 1) + " - " + toString(mSavedBar) + " 1bar: " + toString(previousBar) + " - " + toString(mVDUniforms->getUniformValue(mVDUniforms->IBAR)));
-			// TODO test if useless:
+			
 			if (previousBar != mSavedBar) {
-				mVDSettings->iBarDuration = mVDUniforms->getUniformValue(mVDUniforms->ITIME) - mBarStart;
+				mVDSettings->setErrorMsg("0bar: " + toString(msg[0].int32() - 1) + " - " + toString(mSavedBar) + " 1bar: " + toString(previousBar) + " - " + toString(mVDUniforms->getUniformValue(mVDUniforms->IBAR)));
+				mVDSettings->iBarDuration = mVDUniforms->getUniformValue(mVDUniforms->ITIME) - mBarStart;// TODO test if useless
 				mBarStart = mVDUniforms->getUniformValue(mVDUniforms->ITIME);
-			}
-			// TODO END
-			mVDMediator->setUniformValue(mVDUniforms->IBAR, mSavedBar - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART));
-			mVDMediator->setUniformValue(
-				mVDUniforms->IBARBEAT,
-				mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));//- mVDUniforms->getUniformValue(mVDUniforms->IBARSTART)
-
+				// 20220416 avoid constant update Fixes logo rotation glitch
+				mVDMediator->setUniformValue(mVDUniforms->IBAR, mSavedBar - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART));
+				mVDMediator->setUniformValue(
+					mVDUniforms->IBARBEAT,
+					mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));//- mVDUniforms->getUniformValue(mVDUniforms->IBARSTART)
+			}			
 		}
 	}
 
