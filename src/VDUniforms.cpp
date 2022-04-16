@@ -225,22 +225,22 @@ VDUniforms::VDUniforms() {
 	// iFreq3  
 	createFloatUniform("iFreq3", IFREQ3, 0.0f, 0.01f, 256.0f); // 143
 	// iSpeedX  
-	createFloatUniform("iSpeed0", ISPEED0, 0.07f); // 170
-	createFloatUniform("iSpeed1", ISPEED1, 0.01f);
-	createFloatUniform("iSpeed2", ISPEED2, 0.01f);
-	createFloatUniform("iSpeed3", ISPEED3, 0.05f);
-	createFloatUniform("iSpeed4", ISPEED4, 0.01f);
-	createFloatUniform("iSpeed5", ISPEED5, 0.08f);
-	createFloatUniform("iSpeed6", ISPEED6, 0.04f);
-	createFloatUniform("iSpeed7", ISPEED7, 0.01f);
-	createFloatUniform("iSpeed8", ISPEED8, 0.01f);
-	createFloatUniform("iSpeed9", ISPEED9, 0.06f);
-	createFloatUniform("iSpeed10", ISPEED10, 0.01f);
-	createFloatUniform("iSpeed11", ISPEED11, 0.09f);
-	createFloatUniform("iSpeed12", ISPEED12, 0.1f);
-	createFloatUniform("iSpeed13", ISPEED13, 0.04f); // 183
-	createFloatUniform("iSpeed14", ISPEED14, 0.01f); 
-	createFloatUniform("iSpeed15", ISPEED15, 0.01f); 
+	createFloatUniform("iSpeed0", ISPEED0, 0.0052f); // 170
+	createFloatUniform("iSpeed1", ISPEED1, 0.0043f);
+	createFloatUniform("iSpeed2", ISPEED2, 0.0045f);
+	createFloatUniform("iSpeed3", ISPEED3, 0.003f);
+	createFloatUniform("iSpeed4", ISPEED4, 0.0058f);
+	createFloatUniform("iSpeed5", ISPEED5, 0.0035f);
+	createFloatUniform("iSpeed6", ISPEED6, 0.0041f);
+	createFloatUniform("iSpeed7", ISPEED7, 0.0036f);
+	createFloatUniform("iSpeed8", ISPEED8, 0.005f);
+	createFloatUniform("iSpeed9", ISPEED9, 0.0035f);
+	createFloatUniform("iSpeed10", ISPEED10, 0.0052f);
+	createFloatUniform("iSpeed11", ISPEED11, 0.0045f);
+	createFloatUniform("iSpeed12", ISPEED12, 0.0052f);
+	createFloatUniform("iSpeed13", ISPEED13, 0.0042f); // 183
+	createFloatUniform("iSpeed14", ISPEED14, 0.0051f); 
+	createFloatUniform("iSpeed15", ISPEED15, 0.0065f); 
 
 	// vec2
 	createVec2Uniform("resolution", RESOLUTION, vec2(1280.0f, 720.0f)); // hydra 150
