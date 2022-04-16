@@ -96,12 +96,12 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 						mVDMediator->setUniformValue(mVDUniforms->ITIME, (float)getElapsedSeconds());
 						mVDMediator->setUniformValue(mVDUniforms->ISTART, mVDUniforms->getUniformValue(mVDUniforms->ITIME));
 						mVDMediator->setUniformValue(mVDUniforms->IBAR, mSavedBar - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART));
-						mVDMediator->setUniformValue(mVDUniforms->IBARSTART, mSavedBar);
 						mVDMediator->setUniformValue(
 							mVDUniforms->IBARBEAT,
 							mVDUniforms->getUniformValue(mVDUniforms->IBAR) * 4 + mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
 
 						// load folder in main app
+						mVDMediator->setUniformValue(mVDUniforms->IBARSTART, mSavedBar);
 						mVDMediator->setUniformValue(mVDUniforms->ITRACK, (float)mNote);
 					}
 					else {
@@ -296,8 +296,8 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 			
 			if (previousBar != mSavedBar) {
 				mVDSettings->setErrorMsg("0bar: " + toString(msg[0].int32() - 1) + " - " + toString(mSavedBar) + " 1bar: " + toString(previousBar) + " - " + toString(mVDUniforms->getUniformValue(mVDUniforms->IBAR)));
-				mVDSettings->iBarDuration = mVDUniforms->getUniformValue(mVDUniforms->ITIME) - mBarStart;// TODO test if useless
-				mBarStart = mVDUniforms->getUniformValue(mVDUniforms->ITIME);
+				//mVDSettings->iBarDuration = mVDUniforms->getUniformValue(mVDUniforms->ITIME) - mBarStart;// TODO test if useless
+				//mBarStart = mVDUniforms->getUniformValue(mVDUniforms->ITIME);
 				// 20220416 avoid constant update Fixes logo rotation glitch
 				mVDMediator->setUniformValue(mVDUniforms->IBAR, mSavedBar - mVDUniforms->getUniformValue(mVDUniforms->IBARSTART));
 				mVDMediator->setUniformValue(

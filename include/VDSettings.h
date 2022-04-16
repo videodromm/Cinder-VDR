@@ -88,7 +88,7 @@ namespace videodromm {
 		// shader uniforms	
 		//float						iSpeedMultiplier;   // speed multiplier 20211018 replaced by iSpeed
 		float						iStart = 1.0f;		// start adjustment
-		float						iBarDuration = 1.0f;// between 2 bars (seconds)
+		//float						iBarDuration = 1.0f;// between 2 bars (seconds)
 		float						iChannelTime[4];
 		bool						iFade;
 		bool						iRepeat;

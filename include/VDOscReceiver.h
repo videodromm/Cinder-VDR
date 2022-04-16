@@ -57,7 +57,7 @@ namespace videodromm
 		VDUniformsRef						mVDUniforms;
 		//Mediator
 		VDMediatorObservableRef				mVDMediator;
-		float								mBarStart = 0.0f;
+		//float								mBarStart = 0.0f;
 		// osc
 		std::shared_ptr<osc::ReceiverUdp>	mOscReceiver;
 
