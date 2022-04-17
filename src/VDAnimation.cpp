@@ -359,14 +359,13 @@ void VDAnimation::update() {
 	mVDSettings->iChannelTime[2] = (float)(getElapsedSeconds() - 2.0);
 	mVDSettings->iChannelTime[3] = (float)(getElapsedSeconds() - 3.0);
 	// ITIME
-	if (mUseTimeWithTempo)
-	{		
+	/*if (mUseTimeWithTempo)
+	{
 		// Ableton Link from openframeworks SocketIO
 		mVDUniforms->setUniformValue(mVDUniforms->ITIME,
 			mVDUniforms->getUniformValue(mVDUniforms->ITIME)  *
 			mVDUniforms->getUniformValue(mVDUniforms->ISPEED) *
 			mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
-
 		// sos
 		// IBARBEAT = IBAR * 4 + IBEAT
 		float current = mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT); // 20210101 was int
@@ -379,16 +378,22 @@ void VDAnimation::update() {
 		}
 	}
 	else
-	{
+	{*/
 		mVDUniforms->setUniformValue(mVDUniforms->ITIME,
 			((float)getElapsedSeconds() - mVDUniforms->getUniformValue(mVDUniforms->ISTART)) *
 			mVDUniforms->getUniformValue(mVDUniforms->ISPEED) *
 			mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
-		//mVDUniforms->setUniformValue(mVDUniforms->ITIME,
-		//(float)getElapsedSeconds() * mVDSettings->iSpeedMultiplier * mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
-		//shaderUniforms[mVDUniforms->ITIME].floatValue = getElapsedSeconds() * mVDSettings->iSpeedMultiplier * shaderUniforms[mVDUniforms->ITIMEFACTOR].floatValue;//mVDSettings->iTimeFactor;
-		//shaderUniforms["iElapsed"].floatValue = getElapsedSeconds() * mVDSettings->iSpeedMultiplier * shaderUniforms["iTimeFactor"].floatValue;//mVDSettings->iTimeFactor;
-	}
+		// sos
+		// IBARBEAT = IBAR * 4 + IBEAT
+		float current = mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT); // 20210101 was int
+		if (current == 426.0f || current == 428.0f || current == 442.0f) {
+			mLastBar = 0.0f;
+		} //38 to set iStart
+		if (mLastBar != mVDUniforms->getUniformValue(mVDUniforms->IBAR)) {
+			mLastBar = mVDUniforms->getUniformValue(mVDUniforms->IBAR);
+			if (mLastBar < 419.0f && mLastBar > 424.0f) { mVDSettings->iStart = mVDUniforms->getUniformValue(mVDUniforms->ITIME); }
+		}
+	//}
 	// iResolution
 	mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->IRESOLUTION, vec3(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY), 1.0));
 	mVDUniforms->setVec2UniformValueByIndex(mVDUniforms->RESOLUTION, vec2(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY)));

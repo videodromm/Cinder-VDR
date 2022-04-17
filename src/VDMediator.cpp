@@ -28,7 +28,7 @@ VDMediatorObservableRef VDMediatorObservable::setupOSCReceiver() {
 	fs::path jsonFile = getAssetPath("") / mOSCJsonFileName;
 	loadOSCReceiverFromJsonFile(jsonFile);
 	mVDOscReceiver->setupOSCReceiver(shared_from_this(), mOSCReceiverPort);
-	// saveOSCReceiverToJson();
+	// only save if not present saveOSCReceiverToJson();
 	return shared_from_this();
 }
 // midi
@@ -98,8 +98,9 @@ void VDMediatorObservable::loadWSFromJsonFile(const fs::path& jsonFile) {
 				mWSHost = u.getValueForKey<std::string>("host");
 				mWSPort = u.getValueForKey<int>("port");
 			}
-		}		
-	} else { 
+		}	
+	}
+	else {
 		saveWSToJson(); // create if not exists
 	}
 }

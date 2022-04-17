@@ -400,28 +400,36 @@ bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 					shaderUniforms[aIndex].floatValue = aValue;
 				}
 				else {
+					
 					if ((aValue >= shaderUniforms[aIndex].minValue && aValue <= shaderUniforms[aIndex].maxValue) || shaderUniforms[aIndex].anim > 0) {
-						if (aIndex == IBAR) {
+						//shaderUniforms[aIndex].floatValue = aValue;
+						switch (aIndex)
+						{
+						case IBAR:
 							//float previousBar = shaderUniforms[aIndex].floatValue;
 							mSavedBar = aValue;
 							//shaderUniforms[IBAR].floatValue = mSavedBar - shaderUniforms[IBARSTART].floatValue;
 							shaderUniforms[IBAR].floatValue = mSavedBar - shaderUniforms[IBARSTART].floatValue;
 							shaderUniforms[IBARBEAT].floatValue = shaderUniforms[IBAR].floatValue * 4 + shaderUniforms[IBEAT].floatValue;
-						}
-						else {
-							if (aIndex == ITRACK) {
+							break;
+						case ITRACK:
 								shaderUniforms[ITIME].floatValue = (float)getElapsedSeconds();
 								shaderUniforms[ISTART].floatValue = shaderUniforms[ITIME].floatValue;
 								shaderUniforms[IBARSTART].floatValue = mSavedBar;
 								shaderUniforms[ITRACK].floatValue = aValue;
 								shaderUniforms[IBAR].floatValue = mSavedBar - shaderUniforms[IBARSTART].floatValue;
-								shaderUniforms[IBARBEAT].floatValue = shaderUniforms[aIndex].floatValue * 4 + shaderUniforms[IBEAT].floatValue;
-							}
-							else {
+								shaderUniforms[IBARBEAT].floatValue = shaderUniforms[IBAR].floatValue * 4 + shaderUniforms[IBEAT].floatValue;
+							break;
+						case ITOGGLE:
+							shaderUniforms[ITOGGLE].floatValue = aValue;
+							shaderUniforms[ITIME].floatValue = (float)getElapsedSeconds();
+							shaderUniforms[ISTART].floatValue = shaderUniforms[ITIME].floatValue;
+							break;
+						default:
 								shaderUniforms[aIndex].floatValue = aValue;
-							}
+							break;
 						}
-
+						
 						rtn = true;
 					}
 					else {
@@ -438,8 +446,10 @@ bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 				}
 			}
 		}
+
 	}
 	else {
+
 		// no max 
 		shaderUniforms[aIndex].floatValue = aValue;
 	}
