@@ -73,7 +73,7 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iMouseZ", IMOUSEZ, 0.0f, 0.0f, 1.0f); //20
 	// vignette amount
 	createFloatUniform("iMouseW", IMOUSEW, 0.91f, 0.0f, 1.0f); //21
-	
+
 	// Speed 
 	createFloatUniform("iSpeed", ISPEED, 1.0f, 0.01f, 12.0f); // 22
 	// slitscan / matrix (or other) Param1 
@@ -138,7 +138,7 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iBadTv", IBADTV, 0.0f, 0.0f, 5.0f); // 48
 	// iTimeFactor
 	createFloatUniform("iTimeFactor", ITIMEFACTOR, 1.0f); // 49
-	
+
 	// DisplayMode
 	createFloatUniform("iDisplayMode", IDISPLAYMODE, 7.0f, 0.0f, 9.0f); // 51
 	// int
@@ -239,8 +239,8 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iSpeed11", ISPEED11, 0.0045f);
 	createFloatUniform("iSpeed12", ISPEED12, 0.0052f);
 	createFloatUniform("iSpeed13", ISPEED13, 0.0042f); // 183
-	createFloatUniform("iSpeed14", ISPEED14, 0.0051f); 
-	createFloatUniform("iSpeed15", ISPEED15, 0.0065f); 
+	createFloatUniform("iSpeed14", ISPEED14, 0.0051f);
+	createFloatUniform("iSpeed15", ISPEED15, 0.0065f);
 
 	// vec2
 	createVec2Uniform("resolution", RESOLUTION, vec2(1280.0f, 720.0f)); // hydra 150
@@ -385,7 +385,7 @@ void VDUniforms::vec4FromJson(const ci::JsonTree& json) {
 
 bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 	bool rtn = false;
-	
+
 	// we can't change TIME at index 0
 	if (aIndex > 0) {
 		if (aIndex == IBPM) {
@@ -400,25 +400,32 @@ bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 					shaderUniforms[aIndex].floatValue = aValue;
 				}
 				else {
-					
+
 					if ((aValue >= shaderUniforms[aIndex].minValue && aValue <= shaderUniforms[aIndex].maxValue) || shaderUniforms[aIndex].anim > 0) {
 						//shaderUniforms[aIndex].floatValue = aValue;
 						switch (aIndex)
 						{
 						case IBAR:
 							//float previousBar = shaderUniforms[aIndex].floatValue;
-							mSavedBar = aValue;
+							//mSavedBar = aValue;
 							//shaderUniforms[IBAR].floatValue = mSavedBar - shaderUniforms[IBARSTART].floatValue;
-							shaderUniforms[IBAR].floatValue = mSavedBar - shaderUniforms[IBARSTART].floatValue;
-							shaderUniforms[IBARBEAT].floatValue = shaderUniforms[IBAR].floatValue * 4 + shaderUniforms[IBEAT].floatValue;
+							shaderUniforms[IBAR].floatValue = aValue;
+							setIBarBeat();
+							break;
+						case IBEAT:
+							shaderUniforms[IBEAT].floatValue = aValue;
+							setIBarBeat();
 							break;
 						case ITRACK:
-								shaderUniforms[ITIME].floatValue = (float)getElapsedSeconds();
-								shaderUniforms[ISTART].floatValue = shaderUniforms[ITIME].floatValue;
-								shaderUniforms[IBARSTART].floatValue = mSavedBar;
-								shaderUniforms[ITRACK].floatValue = aValue;
-								shaderUniforms[IBAR].floatValue = mSavedBar - shaderUniforms[IBARSTART].floatValue;
-								shaderUniforms[IBARBEAT].floatValue = shaderUniforms[IBAR].floatValue * 4 + shaderUniforms[IBEAT].floatValue;
+							shaderUniforms[ITRACK].floatValue = aValue;
+							shaderUniforms[ITIME].floatValue = (float)getElapsedSeconds();
+							shaderUniforms[ISTART].floatValue = shaderUniforms[ITIME].floatValue;
+							shaderUniforms[IBARSTART].floatValue = shaderUniforms[IBAR].floatValue;
+							shaderUniforms[IBAR].floatValue = 0.0f;
+							setIBarBeat();
+							// reset zoom pixelate todo: all 1 to 30
+							shaderUniforms[IZOOM].floatValue = shaderUniforms[IZOOM].defaultValue;
+							shaderUniforms[IPIXELATE].floatValue = shaderUniforms[IPIXELATE].defaultValue;
 							break;
 						case ITOGGLE:
 							shaderUniforms[ITOGGLE].floatValue = aValue;
@@ -426,10 +433,10 @@ bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 							shaderUniforms[ISTART].floatValue = shaderUniforms[ITIME].floatValue;
 							break;
 						default:
-								shaderUniforms[aIndex].floatValue = aValue;
+							shaderUniforms[aIndex].floatValue = aValue;
 							break;
 						}
-						
+
 						rtn = true;
 					}
 					else {
@@ -708,19 +715,19 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	// vec3
 	// background 401
 	else if (key == "iBackgroundColor") {
-	rtn = IBACKGROUNDCOLOR;
+		rtn = IBACKGROUNDCOLOR;
 	}
 	// 101 
 	else if (key == "iBackgroundColorX") {
-	rtn = IBACKGROUNDCOLORX;
+		rtn = IBACKGROUNDCOLORX;
 	}
 	// 102
 	else if (key == "iBackgroundColorY") {
-	rtn = IBACKGROUNDCOLORY;
+		rtn = IBACKGROUNDCOLORY;
 	}
 	// 103
 	else if (key == "iBackgroundColorZ") {
-	rtn = IBACKGROUNDCOLORZ;
+		rtn = IBACKGROUNDCOLORZ;
 	}
 	// 421
 	else if (key == "iResolution") {
@@ -837,54 +844,54 @@ int VDUniforms::stringToIndex(const std::string& key) {
 		rtn = RENDERSIZE;
 	} // isf 151
 	else if (key == "iSpeed0") {
-	rtn = ISPEED0;
+		rtn = ISPEED0;
 	}
 	else if (key == "iSpeed1") {
-	rtn = ISPEED1;
+		rtn = ISPEED1;
 	}
 	else if (key == "iSpeed2") {
-	rtn = ISPEED2;
+		rtn = ISPEED2;
 	}
 	else if (key == "iSpeed3") {
-	rtn = ISPEED3;
+		rtn = ISPEED3;
 	}
 	else if (key == "iSpeed4") {
-	rtn = ISPEED4;
+		rtn = ISPEED4;
 	}
 	else if (key == "iSpeed5") {
-	rtn = ISPEED5;
+		rtn = ISPEED5;
 	}
 	else if (key == "iSpeed6") {
-	rtn = ISPEED6;
+		rtn = ISPEED6;
 	}
 	else if (key == "iSpeed7") {
-	rtn = ISPEED7;
+		rtn = ISPEED7;
 	}
 	else if (key == "iSpeed8") {
-	rtn = ISPEED8;
+		rtn = ISPEED8;
 	}
 	else if (key == "iSpeed9") {
-	rtn = ISPEED9;
+		rtn = ISPEED9;
 	}
 	else if (key == "iSpeed10") {
-	rtn = ISPEED10;
+		rtn = ISPEED10;
 	}
 	else if (key == "iSpeed11") {
-	rtn = ISPEED11;
+		rtn = ISPEED11;
 	}
 	else if (key == "iSpeed12") {
-	rtn = ISPEED12;
+		rtn = ISPEED12;
 	}
 	else if (key == "iSpeed13") {
-	rtn = ISPEED13;
+		rtn = ISPEED13;
 	}
 	else if (key == "iSpeed14") {
-	rtn = ISPEED14;
+		rtn = ISPEED14;
 	}
 	else if (key == "iSpeed15") {
-	rtn = ISPEED15;
+		rtn = ISPEED15;
 	}
-	
+
 	else if (key == "ciModelViewProjection") {
 		rtn = 498; // TODO
 	}

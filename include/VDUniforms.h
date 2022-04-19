@@ -398,10 +398,12 @@ namespace videodromm
 			shaderUniforms[aCtrlIndex].floatValue = aValue.x;
 			//shaderUniforms[aCtrlIndex].vec4Value = aValue;
 		}
-
+		void setIBarBeat() {
+			shaderUniforms[IBARBEAT].floatValue = (shaderUniforms[IBAR].floatValue - shaderUniforms[IBARSTART].floatValue) * 4 + shaderUniforms[IBEAT].floatValue;
+		}
 		int									stringToIndex(const std::string& key);
 		int									mErrorCode = 0;
-		float								mSavedBar = 0.0f;
-		float								mSavedBeat = 0.0f;
+		//float								mSavedBar = 0.0f;
+		//float								mSavedBeat = 0.0f;
 	};
 };

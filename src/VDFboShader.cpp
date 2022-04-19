@@ -394,6 +394,9 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 						loadNextTexture(mCacheImageIndex);
 					}
 				}
+				else {
+					mFboStatus = toString(mCacheImageIndex) + "/" + toString(mTextureCount) + " loaded in " + toString(msTotal) + "ms";
+				}
 			}
 
 			break;
