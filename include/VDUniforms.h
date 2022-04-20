@@ -78,6 +78,7 @@ namespace videodromm
 			IROTATIONSPEED = 11,
 			IAUDIOX = 12,
 
+			ISMOOTH = 13,
 			IEXPOSURE = 14,
 			IPIXELATE = 15,
 			ITRIXELS = 16,
@@ -92,11 +93,10 @@ namespace videodromm
 			IPIXELX = 23,
 			IPIXELY = 24,
 			IZOOM = 25,
-			// 25 check maybe used by fps
 			ISTEPS = 26,
 			IRATIO = 27,
 			//28 should be more useful
-			IMAXVOLUME = 28,
+			IEFFECT = 28,
 			ICONTOUR = 30,
 
 			IWEIGHT0 = 31,
@@ -119,8 +119,9 @@ namespace videodromm
 			TIME = 47,
 			IBADTV = 48,
 			ITIMEFACTOR = 49,
-			ISMOOTH = 13,
 			IDISPLAYMODE = 51,
+			IMAXVOLUME = 52,
+
 			// int
 			IBLENDMODE = 60,
 			IBEAT = 61,

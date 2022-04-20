@@ -91,8 +91,8 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iSteps", ISTEPS, 16.0f, 1.0f, 128.0f); // 26
 	// ratio
 	createFloatUniform("iRatio", IRATIO, 20.0f, 0.00000000001f, 40.0f); // 27
-	// Max Volume
-	createFloatUniform("volume0", IMAXVOLUME, 0.0f, 0.0f, 255.0f); // 29
+	// effect
+	createFloatUniform("iEffect", IEFFECT, 0.0f, -0.5f, 0.5f); // 28
 
 	// contour
 	createFloatUniform("iContour", ICONTOUR, 0.0f, 0.0f, 0.5f); // 30
@@ -141,6 +141,8 @@ VDUniforms::VDUniforms() {
 
 	// DisplayMode
 	createFloatUniform("iDisplayMode", IDISPLAYMODE, 7.0f, 0.0f, 9.0f); // 51
+	// Max Volume Hydra
+	createFloatUniform("volume0", IMAXVOLUME, 0.0f, 0.0f, 255.0f); // 52
 	// int
 	// blend mode 
 	createFloatUniform("iBlendmode", IBLENDMODE, 0.0f, 0.0f, 25.0f); // 60
@@ -574,13 +576,13 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iZoom") {
 		rtn = IZOOM;
 	}
-	// volume0 from hydra 29 
-	else if (key == "volume0") {
-		rtn = IMAXVOLUME;
-	}
 	// contour 30
 	else if (key == "iContour") {
 		rtn = ICONTOUR;
+	}
+	// effect 28
+	else if (key == "iEffect") {
+		rtn = IEFFECT;
 	}
 
 	// weight mix fbo texture 0 31
@@ -626,6 +628,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	// iStart 41 
 	else if (key == "iStart") {
 		rtn = ISTART;
+	}
+	// volume0 from hydra 52 
+	else if (key == "volume0") {
+		rtn = IMAXVOLUME;
 	}
 	// IMouse vec4 318
 	else if (key == "iMouse") {
