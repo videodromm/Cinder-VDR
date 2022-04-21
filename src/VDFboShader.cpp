@@ -141,7 +141,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 					}*/
 				}
 				if (fileExists) {
-					try {
+					/* 20220322 try {
 						mGlslVideoTexture = gl::GlslProg::create(gl::GlslProg::Format()
 							.vertex(loadAsset("video_texture.vs.glsl"))
 							.fragment(loadAsset("video_texture.fs.glsl")));
@@ -163,13 +163,16 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 						mBatchPlaneVideo->replaceGlslProg(mGlslVideoTexture);
 					}
 
-					/* 20220322 for debug if (!mVideo.isStopped()) {
+					for debug if (!mVideo.isStopped()) {
 						mVideo.stop();
-					}*/
-					mIsVideoLoaded = mVideo.loadMovie(texFileOrPath);
-					mVideoDuration = mVideo.getDuration();
-					mVideoPos = mVideo.getPosition();
-					//mVideo.play();
+						std::string videoPath = getAssetPath("sos17avril2022.mp4").string();
+	//std::string videoPath = getAssetPath("spidermoon.mov").string();
+	mVideo1.loadMovie(videoPath, "Haut-parleurs (Realtek(R) Audio)");
+	mVideo1.play();
+	mVideo1.getPresentationEndedSignal().connect([]() {
+		ci::app::console() << "Video finished playing!" << std::endl;
+	});
+
 					mCam.setPerspective(60.0f, getWindowAspectRatio(), 0.01f, 10000.0f);
 					mCam.lookAt(vec3(0, 0, 500), vec3(), vec3(0, 1, 0));
 					mCam.setAspectRatio(getWindowAspectRatio());
@@ -179,6 +182,11 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 					mVDUniforms->setUniformValue(mVDUniforms->IMOUSEY, 0.0f);
 					mVDUniforms->setUniformValue(mVDUniforms->IMOUSEZ, 0.0f);
 					//mInputTextureRef = gl::Texture::create(, gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+					}*/
+					mIsVideoLoaded = mVideo.loadMovie(texFileOrPath);
+					mVideoDuration = mVideo.getDuration();
+					mVideoPos = mVideo.getPosition();
+					mVideo.play();
 					mTypestr = "video";
 					mCurrentFilename = mTextureName;
 					mTextureMode = VDTextureMode::MOVIE;
@@ -410,8 +418,8 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		case VDTextureMode::MOVIE:
 			// video
 			mFboMsg = "video";
-			gl::pushMatrices();
-			gl::setMatrices(mCam);
+			//gl::pushMatrices();
+			//gl::setMatrices(mCam);
 			gl::ScopedViewport scopedViewport(getWindowSize());
 			//gl::ScopedDepth scopedDepth(true);
 			if (mIsVideoLoaded) {
@@ -422,9 +430,9 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 					mVideo.play();
 				}
 				vec2 videoSize = vec2(mVideo.getWidth(), mVideo.getHeight());
-				mGlslVideoTexture->uniform("uVideoSize", videoSize);
+				/* mGlslVideoTexture->uniform("uVideoSize", videoSize);
 				videoSize *= 0.5f;
-				{
+				 {
 					gl::ScopedColor scopedColor(Colorf::white());
 					gl::ScopedModelMatrix scopedModelMatrix;
 
@@ -433,10 +441,11 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 
 					gl::scale(vec3(videoSize, 1.0f));
 					mBatchPlaneVideo->draw();
-				}
+				} */
 			}
 			// restore matrices
-			gl::popMatrices();
+			//gl::popMatrices();
+				
 			break;
 		}
 		gl::ScopedFramebuffer fbScp(mFbo);
@@ -578,7 +587,18 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 
 		gl::drawSolidRect(Rectf(0, 0, mVDParams->getFboWidth(), mVDParams->getFboHeight()));
 		// TODO: test gl::ScopedViewport sVp(0, 0, mFbo->getWidth(), mFbo->getHeight());	
+	//20220421	
+		{
+			gl::ScopedColor scopedColor(Colorf::white());
+			gl::ScopedModelMatrix scopedModelMatrix;
 
+			ciWMFVideoPlayer::ScopedVideoTextureBind scopedVideoTex(mVideo, 0);
+
+			//gl::scale(vec3(1.0f));
+			mVideo.draw(0, 0);
+			//mBatchPlaneVideo->draw();
+		}
+		
 
 		mRenderedTexture = mFbo->getColorTexture();
 		if (!isReady) {

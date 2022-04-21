@@ -149,12 +149,12 @@ namespace videodromm
 		}
 		bool handleMouseDown(MouseEvent event)
 		{
-			mCamUi.mouseDown(event);
+			//mCamUi.mouseDown(event);
 			return true;
 		}
 		bool handleMouseDrag(MouseEvent event)
 		{
-			mCamUi.mouseDrag(event);
+			//mCamUi.mouseDrag(event);
 			return true;
 		}
 
@@ -229,10 +229,10 @@ namespace videodromm
 		float							mVideoPos = 0.0f;
 		float							mVideoDuration = 0.0f;
 		bool							mIsVideoLoaded = false;
-		ci::gl::BatchRef				mBatchPlaneVideo;
+		/*ci::gl::BatchRef				mBatchPlaneVideo;
 		ci::gl::GlslProgRef				mGlslVideoTexture;
 		ci::CameraPersp					mCam;
-		ci::CameraUi					mCamUi;
+		ci::CameraUi					mCamUi;*/
 		
 		unsigned int					getValidTexIndex(unsigned int aTexIndex) {
 			return math<unsigned int>::min(aTexIndex, (unsigned int)mInputTextureList.size() - 1);
