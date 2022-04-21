@@ -188,8 +188,15 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iResolutionX", IRESOLUTIONX, mRenderWidth, 320.01f, 4280.0f); // 121
 	// iResolutionY (should be fboheight?)  
 	createFloatUniform("iResolutionY", IRESOLUTIONY, mRenderHeight, 240.01f, 2160.0f); // 122
+	// iRenderXYX 
+	createFloatUniform("iRenderXYX", IRENDERXYX, 0.0f, -0.05f, 0.05f); // 124
+	// iRenderXYY  
+	createFloatUniform("iRenderXYY", IRENDERXYY, 0.0f, -0.05f, 0.05f); // 125
+	
+
 	// -300 rule
 	createVec3Uniform("iResolution", IRESOLUTION, vec3(getUniformValue(IRESOLUTIONX), getUniformValue(IRESOLUTIONY), 1.0)); // 421 
+	createVec2Uniform("iRenderXY", IRENDERXY, vec2(getUniformValue(IRENDERXYX), getUniformValue(IRENDERXYY))); // 424 
 	createVec3Uniform("iColor", ICOLOR, vec3(0.45, 0.0, 1.0)); // 301
 	createVec4Uniform("iDate", IDATE, vec4(2021.0f, 12.0f, 1.0f, 5.0f));// 363
 
@@ -737,15 +744,27 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	}
 	// 421
 	else if (key == "iResolution") {
-		rtn = IRESOLUTION;
+	rtn = IRESOLUTION;
 	}
 	// iResolutionX (should be fbowidth?) 121 
 	else if (key == "iResolutionX") {
-		rtn = IRESOLUTIONX;
+	rtn = IRESOLUTIONX;
 	}
 	// iResolutionY (should be fboheight?) 122  
 	else if (key == "iResolutionY") {
-		rtn = IRESOLUTIONY;
+	rtn = IRESOLUTIONY;
+	}
+	// iRender 424
+	else if (key == "iRenderXY") {
+	rtn = IRENDERXY;
+	}
+	// iRenderXYX 124 
+	else if (key == "iRenderXYX") {
+	rtn = IRENDERXYX;
+	}
+	// iRenderXYY 125 
+	else if (key == "iRenderXYY") {
+	rtn = IRENDERXYY;
 	}
 
 	// IPHASE 70 

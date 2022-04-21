@@ -153,6 +153,8 @@ namespace videodromm
 
 			IRESOLUTIONX = 121,
 			IRESOLUTIONY = 122,
+			IRENDERXYX = 124,
+			IRENDERXYY = 125,
 
 			IDEBUG = 129,
 			IXORY = 130,
@@ -204,6 +206,7 @@ namespace videodromm
 			IDATE = 373,
 			IBACKGROUNDCOLOR = 401,
 			IRESOLUTION = 421,
+				IRENDERXY = 424
 		};
 		bool							isExistingUniform(const std::string& aName);
 		int								getUniformType(unsigned int aIndex) {

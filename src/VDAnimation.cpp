@@ -398,6 +398,7 @@ void VDAnimation::update() {
 	mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->IRESOLUTION, vec3(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY), 1.0));
 	mVDUniforms->setVec2UniformValueByIndex(mVDUniforms->RESOLUTION, vec2(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY)));
 	mVDUniforms->setVec2UniformValueByIndex(mVDUniforms->RENDERSIZE, vec2(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY)));
+	mVDUniforms->setVec2UniformValueByIndex(mVDUniforms->IRENDERXY, vec2(mVDUniforms->getUniformValue(mVDUniforms->IRENDERXYX), mVDUniforms->getUniformValue(mVDUniforms->IRENDERXYY)));
 
 	// iDate
 	time_t now = time(0);

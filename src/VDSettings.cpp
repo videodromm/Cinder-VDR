@@ -401,8 +401,8 @@ void VDSettings::reset()
 	mMainWindowHeight = 720;
 	mRenderWidth = 1280;
 	mRenderHeight = 720;
-	// parameters not exposed in XML
-	mRenderXY = mTexMult = vec2(1.0f);
+	// parameters not exposed in XML mRenderXY = 
+	mTexMult = vec2(1.0f);
 	mLeftRenderXY = mRightRenderXY = mPreviewRenderXY = mWarp1RenderXY = mWarp2RenderXY = vec2(0.0f);
 	mRenderPosXY = vec2(0.0, 320.0);
 	mPreviewFragXY = vec2(0.0, 0.0);

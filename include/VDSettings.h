@@ -63,8 +63,8 @@ namespace videodromm {
 
 		// render windows
 		int							mRenderWidth;
-		int							mRenderHeight;
-		vec2						mRenderXY, mTexMult, mLeftRenderXY, mRightRenderXY, mPreviewRenderXY, mWarp1RenderXY, mWarp2RenderXY;
+		int							mRenderHeight;//mRenderXY,
+		vec2						mTexMult, mLeftRenderXY, mRightRenderXY, mPreviewRenderXY, mWarp1RenderXY, mWarp2RenderXY;
 		vec2						mRenderPosXY;
 		vec2						mPreviewFragXY;
 		vec2						mCamPosXY;
