@@ -586,17 +586,14 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		}
 
 		gl::drawSolidRect(Rectf(0, 0, mVDParams->getFboWidth(), mVDParams->getFboHeight()));
-		// TODO: test gl::ScopedViewport sVp(0, 0, mFbo->getWidth(), mFbo->getHeight());	
-	//20220421	
-		{
+		// 20220421 TODO use with shader, not directly
+		if (mTextureMode == VDTextureMode::MOVIE)
+		{			
 			gl::ScopedColor scopedColor(Colorf::white());
 			gl::ScopedModelMatrix scopedModelMatrix;
-
 			ciWMFVideoPlayer::ScopedVideoTextureBind scopedVideoTex(mVideo, 0);
-
-			//gl::scale(vec3(1.0f));
+			// 20220421 TODO for not 720p:  gl::scale(vec3(1.0f));
 			mVideo.draw(0, 0);
-			//mBatchPlaneVideo->draw();
 		}
 		
 
