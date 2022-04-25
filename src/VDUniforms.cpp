@@ -85,8 +85,8 @@ VDUniforms::VDUniforms() {
 	// slitscan / matrix(or other) Param2 
 	//createFloatUniform("iPixelY", IPIXELY, 0.0f, 0.00000000001f, 40.0f); // 24
 		// zoom
-	createFloatUniform("iZoom", IZOOM, 1.0f, 0.95f, 1.05f, true); // 13 -> 25
-
+	// createFloatUniform("iZoom", IZOOM, 1.0f, 0.95f, 1.05f, true); // mapnfold 
+	createFloatUniform("iZoom", IZOOM, 1.0f, 0.01f, 3.05f, true); // 25
 	// Steps
 	createFloatUniform("iSteps", ISTEPS, 16.0f, 1.0f, 128.0f); // 26
 	// ratio
@@ -138,11 +138,12 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iBadTv", IBADTV, 0.0f, 0.0f, 5.0f); // 48
 	// iTimeFactor
 	createFloatUniform("iTimeFactor", ITIMEFACTOR, 1.0f); // 49
-
 	// DisplayMode
 	createFloatUniform("iDisplayMode", IDISPLAYMODE, 7.0f, 0.0f, 9.0f); // 51
 	// Max Volume Hydra
 	createFloatUniform("volume0", IMAXVOLUME, 0.0f, 0.0f, 255.0f); // 52
+	// iMultiplier for iZoom
+	createFloatUniform("iMultiplier", IMULT, 1.0f, 0.0f, 30.0f); // 53
 	// int
 	// blend mode 
 	createFloatUniform("iBlendmode", IBLENDMODE, 0.0f, 0.0f, 25.0f); // 60
@@ -672,7 +673,11 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iTimeFactor") {
 		rtn = ITIMEFACTOR;
 	}
-	// smooth animation 50
+	// IMULT 53
+	else if (key == "iMult") {
+		rtn = IMULT;
+	}
+	// smooth animation 13
 	else if (key == "iSmooth") {
 		rtn = ISMOOTH;
 	}

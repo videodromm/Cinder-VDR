@@ -119,6 +119,7 @@ namespace videodromm
 			TIME = 47,
 			IBADTV = 48,
 			ITIMEFACTOR = 49,
+			IMULT = 53,
 			IDISPLAYMODE = 51,
 			IMAXVOLUME = 52,
 

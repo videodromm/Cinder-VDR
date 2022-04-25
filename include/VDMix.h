@@ -179,14 +179,23 @@ namespace videodromm
 			return mFboShaderList[aFboIndex]->getTexture();
 
 		}
+
+		
+		 
+			
+		
+		
 		bool handleMouseDown(MouseEvent event)
 		{
-			if (mFboShaderList.size() == 0) return false;
-			for (unsigned int i = 0; i < mFboShaderList.size() - 1; i++)
-			{
-				mFboShaderList[i]->handleMouseDown(event);
+			bool handled = false;
+			if (mFboShaderList.size() > 0) {
+				for (unsigned int i = 0; i < mFboShaderList.size() - 1; i++)
+				{
+					if (mFboShaderList[i]->handleMouseDown(event)) handled = true;// event.getPos()
+				}
 			}
-			return true;
+			event.setHandled(handled);
+			return event.isHandled();			
 		}
 		bool handleMouseDrag(MouseEvent event)
 		{

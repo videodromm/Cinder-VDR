@@ -71,7 +71,7 @@ namespace videodromm
 		void									setUniformValueByLocation(unsigned int aLocationIndex, float aValue) {
 			mUniformValueByLocation[aLocationIndex] = aValue;
 		};
-		
+
 		/* 20220101 hydra check
 		void									setInputTextureRefByIndex(unsigned int aTexIndex, ci::gl::Texture2dRef aTextureRef) {
 			mInputTextureList[aTexIndex].texture = aTextureRef;
@@ -93,7 +93,7 @@ namespace videodromm
 				return "fbotex" + mInputTextureIndex;
 			}
 			else {*/
-				return mInputTextureList[aTexIndex].name;
+			return mInputTextureList[aTexIndex].name;
 			//}
 		};
 		unsigned int							getFboMs(unsigned int aTexIndex = 0) {
@@ -129,7 +129,7 @@ namespace videodromm
 		ci::gl::Texture2dRef					getInputTexture(unsigned int aTexIndex = 0) {
 			//return (mtexMode == 8 && aTexIndex < getInputTexturesCount()) ? mInputTextureList[aTexIndex] : mInputTextureRef;
 			//CI_LOG_E("getInputTexture " << aTexIndex << " size " << mInputTextureList.size());
-			
+
 			return mInputTextureList[getValidTexIndex(aTexIndex)].texture;
 		};
 		bool									isValidInputTexture(unsigned int aTexIndex) {
@@ -149,8 +149,12 @@ namespace videodromm
 		}
 		bool handleMouseDown(MouseEvent event)
 		{
+			bool handled = false;
+			mx = event.getPos().x;
+			my = event.getPos().y;
 			//mCamUi.mouseDown(event);
-			return true;
+			event.setHandled(handled);
+			return event.isHandled();
 		}
 		bool handleMouseDrag(MouseEvent event)
 		{
@@ -204,7 +208,7 @@ namespace videodromm
 		std::string						mShaderFragmentString;
 
 		std::string						mFileNameWithExtension;
-		
+
 		// include shader lines
 		std::string						shaderInclude;
 		bool							mValid = false;
@@ -229,11 +233,9 @@ namespace videodromm
 		float							mVideoPos = 0.0f;
 		float							mVideoDuration = 0.0f;
 		bool							mIsVideoLoaded = false;
-		/*ci::gl::BatchRef				mBatchPlaneVideo;
-		ci::gl::GlslProgRef				mGlslVideoTexture;
-		ci::CameraPersp					mCam;
-		ci::CameraUi					mCamUi;*/
-		
+		// mouse
+		float mx = 0.0f;
+		float my = 0.0f;
 		unsigned int					getValidTexIndex(unsigned int aTexIndex) {
 			return math<unsigned int>::min(aTexIndex, (unsigned int)mInputTextureList.size() - 1);
 		}

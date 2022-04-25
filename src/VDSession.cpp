@@ -386,9 +386,8 @@ bool VDSession::handleMouseDown(MouseEvent& event)
 	bool handled = true;
 	// pass this mouse event to the warp editor first
 	if (!Warp::handleMouseDown(mWarpList, event)) {
-		// let your application perform its mouseMove handling here
-		handled = false;
-		mVDMix->handleMouseDown(event);
+		// let your application perform its mouseMove handling here event.getPos()
+		handled = mVDMix->handleMouseDown(event);
 	}
 	event.setHandled(handled);
 	return event.isHandled();

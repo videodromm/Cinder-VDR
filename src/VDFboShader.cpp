@@ -560,13 +560,19 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				mShader->uniform(uniformName, mVDUniforms->getVec3UniformValueByName(uniformName));
 				break;
 			case GL_FLOAT_VEC4:// vec4 35666 0x8B52
-				if (uniformName == "iDate") {
-					mShader->uniform(uniformName, vec4(mVDUniforms->getUniformValue(mVDUniforms->IDATEX), mVDUniforms->getUniformValue(mVDUniforms->IDATEY), mVDUniforms->getUniformValue(mVDUniforms->IDATEZ), mVDUniforms->getUniformValue(mVDUniforms->IDATEW)));
-					//CI_LOG_E(mShader->getLabel() + ", getShader uniform name:" + uniform.getName() + ", IDATEX:" + toString(mVDUniforms->getUniformValue(mVDUniforms->IDATEX)) + ", IDATEY:" + toString(mVDUniforms->getUniformValue(mVDUniforms->IDATEY)) + ", IDATEZ:" + toString(mVDUniforms->getUniformValue(mVDUniforms->IDATEZ)) + ", IDATEW:" + toString(mVDUniforms->getUniformValue(mVDUniforms->IDATEW)));
+				/*if (uniformName == "iMouse") {
+					// mx my =0.0...
+					mShader->uniform(uniformName, vec4(mVDUniforms->getUniformValue(mVDUniforms->IMOUSEX), mVDUniforms->getUniformValue(mVDUniforms->IMOUSEY), mVDUniforms->getUniformValue(mVDUniforms->IMOUSEZ), mVDUniforms->getUniformValue(mVDUniforms->IMOUSEW)));
 				}
-				else {
-					mShader->uniform(uniformName, mVDUniforms->getVec4UniformValueByName(uniformName));
-				}
+				else {*/
+					if (uniformName == "iDate") {
+						mShader->uniform(uniformName, vec4(mVDUniforms->getUniformValue(mVDUniforms->IDATEX), mVDUniforms->getUniformValue(mVDUniforms->IDATEY), mVDUniforms->getUniformValue(mVDUniforms->IDATEZ), mVDUniforms->getUniformValue(mVDUniforms->IDATEW)));
+						//CI_LOG_E(mShader->getLabel() + ", getShader uniform name:" + uniform.getName() + ", IDATEX:" + toString(mVDUniforms->getUniformValue(mVDUniforms->IDATEX)) + ", IDATEY:" + toString(mVDUniforms->getUniformValue(mVDUniforms->IDATEY)) + ", IDATEZ:" + toString(mVDUniforms->getUniformValue(mVDUniforms->IDATEZ)) + ", IDATEW:" + toString(mVDUniforms->getUniformValue(mVDUniforms->IDATEW)));
+					}
+					else {
+						mShader->uniform(uniformName, mVDUniforms->getVec4UniformValueByName(uniformName));
+					}
+				//}
 				break;
 			case GL_INT: // int 5124 0x1404
 				// IBEAT 51

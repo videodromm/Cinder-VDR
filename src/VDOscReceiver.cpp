@@ -63,6 +63,18 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				int lastSlashIndex = addr.find_last_of("/");
 				//std::string u = addr.substr(dotIndex + 1);
 				int iu = std::atoi(addr.substr(lastSlashIndex + 1).c_str());
+				// mult for zoom
+				if (iu == mVDUniforms->IMULT) {
+					f *= 4.0f;
+				}
+				// zoom 632 644
+				if (iu == mVDUniforms->IZOOM) {
+					// TODO if (mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT) > 631.0f) {
+					//	if (mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT) < 644.0f) {
+							f *= mVDUniforms->getUniformValue(mVDUniforms->IMULT);
+						//}
+					//}
+				}
 				mVDMediator->setUniformValue(iu, f);
 			}
 		}
@@ -89,7 +101,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				if (mVelocity > 0) {
 					// note range 0 to 127 tracks from 110 = midi note D7
 					if (mNote > 109) {
-						
+
 						// load folder in main app
 						if (mVDUniforms->getUniformValue(mVDUniforms->ITRACK) == (float)mNote) {
 							// same track, reset 
@@ -256,7 +268,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 			{
 				found = true;
 				mVDMediator->setUniformValue(mVDUniforms->IBAR, (float)msg[0].int32());
-				
+
 			}
 		}
 
