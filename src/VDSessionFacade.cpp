@@ -11,6 +11,10 @@ VDSessionFacadeRef VDSessionFacade::createVDSession(VDSettingsRef aVDSettings, V
 	// OK ->addObserver(VDUIObserver::connect(aVDSettings, aVDAnimation));// ->addObserver(new UIDisplay());	
 		// check to see if session.json file exists and restore if it does	
 	mediator->setupKeyboard();
+#ifdef _DEBUG
+	VDLog::create();
+#endif 
+
 	return VDSessionFacadeRef(new VDSessionFacade(VDSessionRef(new VDSession(aVDSettings, aVDAnimation, aVDUniforms, aVDMix)), mediator));
 }
 VDSessionFacadeRef VDSessionFacade::setUniformValue(unsigned int aCtrl, float aValue) {

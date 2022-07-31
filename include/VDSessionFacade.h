@@ -8,7 +8,10 @@
 #include "cinder/Cinder.h"
 #include "cinder/app/App.h"
 // Logger
-//#include "VDLog.h"
+#ifdef _DEBUG
+#include "VDLog.h"
+#endif 
+
 // Settings
 #include "VDSettings.h"
 //
