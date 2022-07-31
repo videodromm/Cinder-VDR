@@ -44,7 +44,7 @@ VDUniforms::VDUniforms() {
 	// blue multiplier 
 	createFloatUniform("iBlueMultiplier", IFBX, 1.0f, 0.0f, 3.0f); // 7
 	// sobel gstnsmk
-	createFloatUniform("iSobel", ISOBEL, 0.02f, 0.02f, 1.0f); // 8
+	createFloatUniform("iSobel", ISOBEL, 0.02f, 0.02f, 2.0f); // 8
 	// factor
 	createFloatUniform("iFactor", IFACTOR, 1.0f, 0.4f, 0.6f); // 9
 	// vignette
@@ -58,7 +58,7 @@ VDUniforms::VDUniforms() {
 	// smooth animation
 	createFloatUniform("iSmooth", ISMOOTH, 0.005f); // 50 -> 13
 	// exposure
-	createFloatUniform("iExposure", IEXPOSURE, 1.0f, 0.0f, 3.0f); // 14
+	createFloatUniform("iExposure", IEXPOSURE, 1.0f, 0.0f, 13.0f); // 14
 	// Pixelate
 	createFloatUniform("iPixelate", IPIXELATE, 1.0f, 0.01f); // 15
 	// Trixels
