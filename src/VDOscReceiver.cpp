@@ -286,6 +286,49 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				//! 20200526 mVDSocketio->changeIntValue(mVDUniforms->IBEAT, d2);
 			}
 		}
+		// azure kinect
+		if (!found)
+		{
+			ctrl = "kb";
+			index = addr.find(ctrl);
+			if (index != std::string::npos)
+			{
+				/*	createVec4Uniform("Pelvis", 200, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+				string adrs = "/kb" + to_string(bodyIdx) + "/" + to_string(i + 200);// jointNames[i];
+				m.setAddress(adrs);
+				m.addFloatArg(joint.position.xyz.x);
+				m.addFloatArg(joint.position.xyz.y);
+				m.addFloatArg(joint.position.xyz.z);
+				m.addIntArg(i);
+				m.addIntArg(bodyIdx);
+				m.addStringArg(jointNames[i]);*/
+				try {
+					int lastSlashIndex = addr.find_last_of("/"); // 0 2
+					
+					found = true;
+					f = msg[0].flt(); //posX
+					float posY = msg[1].flt();
+					float posZ = msg[2].flt();
+					i = msg[3].int32();//bodyId
+					int joint = std::stoi(addr.substr(lastSlashIndex + 1));
+					mVDUniforms->setVec4UniformValueByIndex(joint, vec4(f, posY, posZ, i));
+					if (joint == 227) {
+						// Nose
+						mVDMediator->setUniformValue(mVDUniforms->IFREQ0, f);
+						mVDMediator->setUniformValue(mVDUniforms->IFREQ1, posY);
+						mVDMediator->setUniformValue(mVDUniforms->IFREQ2, posZ);
+						mVDMediator->setUniformValue(mVDUniforms->IFREQ3, i);
+						mNote = joint; 
+						mVelocity = posY;
+					}
+				}
+				catch (const std::exception& e) {
+					ss << addr << " not integer";
+					mVDSettings->setErrorMsg(ss.str());
+					CI_LOG_E("not integer: " << addr);
+				}
+			}
+		}
 		if (!found)
 		{
 			// touchosc

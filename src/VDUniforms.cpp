@@ -86,7 +86,7 @@ VDUniforms::VDUniforms() {
 	//createFloatUniform("iPixelY", IPIXELY, 0.0f, 0.00000000001f, 40.0f); // 24
 		// zoom
 	// createFloatUniform("iZoom", IZOOM, 1.0f, 0.95f, 1.05f, true); // mapnfold 
-	createFloatUniform("iZoom", IZOOM, 1.0f, 0.01f, 3.05f, true); // 25
+	createFloatUniform("iZoom", IZOOM, 1.0f, 0.01f, 30.05f, true); // 25
 	// Steps
 	createFloatUniform("iSteps", ISTEPS, 16.0f, 1.0f, 128.0f); // 26
 	// ratio
@@ -144,6 +144,16 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("volume0", IMAXVOLUME, 0.0f, 0.0f, 255.0f); // 52
 	// iMultiplier for iZoom
 	createFloatUniform("iMultiplier", IMULT, 1.0f, 0.0f, 30.0f); // 53
+
+	// iParams
+	createFloatUniform("iParam0", IPARAM0, 1.0f, 0.0f, 30.0f); // 54
+	createFloatUniform("iParam1", IPARAM1, 1.0f, 0.0f, 30.0f); // 55
+	createFloatUniform("iParam2", IPARAM2, 1.0f, 0.0f, 30.0f); // 56
+	createFloatUniform("iParam3", IPARAM3, 1.0f, 0.0f, 30.0f); // 57
+	createFloatUniform("iParam4", IPARAM4, 1.0f, 0.0f, 30.0f); // 58
+	createFloatUniform("iParam5", IPARAM5, 1.0f, 0.0f, 30.0f); // 59
+
+
 	// int
 	// blend mode 
 	createFloatUniform("iBlendmode", IBLENDMODE, 0.0f, 0.0f, 25.0f); // 60
@@ -176,6 +186,7 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iDateW", IDATEW, 0.91f, 0.0f, 90000.0f); // 76 25 hours
 	// start bar
 	createFloatUniform("iBarStart", IBARSTART, 0.0f, 0.0f, 1200.0f); // 77		
+	// CODE150 from 80 more 81 dancer 82 iron
 	// background red
 	createFloatUniform("iBackgroundColorX", IBACKGROUNDCOLORX, 0.56f); // 101
 	// background green
@@ -257,33 +268,39 @@ VDUniforms::VDUniforms() {
 	createVec2Uniform("RENDERSIZE", RENDERSIZE, vec2(getUniformValue(IRESOLUTIONX), getUniformValue(IRESOLUTIONY))); // isf 151
 	// vec4
 	createVec4Uniform("iMouse", IMOUSE, vec4(0.27710f, 0.5648f, 0.0f, 0.0f)); // 318
-	// vec4 kinect2
-	createVec4Uniform("iSpineBase", 200, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("SpineMid", 201, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("Neck", 202, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("Head", 203, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("ShldrL", 204, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("ElbowL", 205, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("WristL", 206, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("HandL", 207, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("ShldrR", 208, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("ElbowR", 209, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("WristR", 210, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("HandR", 211, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("HipL", 212, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("KneeL", 213, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("AnkleL", 214, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("FootL", 215, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("HipR", 216, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("KneeR", 217, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("AnkleR", 218, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("FootR", 219, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("SpineShldr", 220, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("HandTipL", 221, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("ThumbL", 222, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("HandTipR", 223, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	createVec4Uniform("ThumbR", 224, vec4(320.0f, 240.0f, 0.0f, 0.0f));
-	//}
+	// vec4 azure kinect
+	createVec4Uniform("Pelvis", 200, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("SpineNavel", 201, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("SpineChest", 202, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("Neck", 203, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("ClavL", 204, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("ShldrL", 205, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("ElbowL", 206, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("WristL", 207, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("HandL", 208, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("HandTipL", 209, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("ThumbL", 210, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("ClavR", 211, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("ShldrR", 212, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("ElbowR", 213, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("WristR", 214, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("HandR", 215, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("HandTipR", 216, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("ThumbR", 217, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("HipL", 218, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("KneeL", 219, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("AnkleL", 220, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("FootL", 221, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("HipR", 222, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("KneeR", 223, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("AnkleR", 224, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("FootR", 225, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("Head", 226, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("Nose", 227, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("EyeL", 228, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("EarL", 229, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("EyeR", 230, vec4(320.0f, 240.0f, 0.0f, 0.0f));
+	createVec4Uniform("EarR", 231, vec4(320.0f, 240.0f, 0.0f, 0.0f));
 }
 void VDUniforms::loadUniforms(const ci::DataSourceRef& source) {
 
@@ -684,6 +701,30 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	// DisplayMode 51
 	else if (key == "iDisplayMode") {
 		rtn = IDISPLAYMODE;
+	}
+	// iParam0 54
+	else if (key == "iParam0") {
+	rtn = IPARAM0;
+	}
+	// iParam0 55
+	else if (key == "iParam1") {
+	rtn = IPARAM1;
+	}
+	// iParam0 56
+	else if (key == "iParam2") {
+	rtn = IPARAM2;
+	}
+	// iParam0 57
+	else if (key == "iParam3") {
+	rtn = IPARAM3;
+	}
+	// iParam0 58
+	else if (key == "iParam4") {
+	rtn = IPARAM4;
+	}
+	// iParam0 59
+	else if (key == "iParam5") {
+	rtn = IPARAM5;
 	}
 	// int
 	// blend mode 60 

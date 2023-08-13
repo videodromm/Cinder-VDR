@@ -119,9 +119,15 @@ namespace videodromm
 			TIME = 47,
 			IBADTV = 48,
 			ITIMEFACTOR = 49,
-			IMULT = 53,
 			IDISPLAYMODE = 51,
 			IMAXVOLUME = 52,
+			IMULT = 53,
+			IPARAM0 = 54,
+			IPARAM1 = 55,
+			IPARAM2 = 56,
+			IPARAM3 = 57,
+			IPARAM4 = 58,
+			IPARAM5 = 59,
 
 			// int
 			IBLENDMODE = 60,

@@ -81,6 +81,8 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	mTextureCount = (json.hasChild("texturecount")) ? json.getValueForKey<int>("texturecount") : 1;
 	mPreloadTextures = (json.hasChild("preloadtextures")) ? json.getValueForKey<bool>("preloadtextures") : false;
 	msTotal = 0;
+	CI_LOG_V("createInputTexture: mCurrentFilename " + toString(mTextureCount) + " mTextureCount: " + mCurrentFilename + " mPreloadTextures: " + toString(mPreloadTextures));
+
 	switch (mTextureMode)
 	{
 	case VDTextureMode::AUDIO: // audio

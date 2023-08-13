@@ -321,11 +321,16 @@ void VDWebsocket::wsConnect() {
 void VDWebsocket::wsClientConnect()
 {
 	std::stringstream s;
-	if (mWSPort == 80) {
-		s << "ws://" << mWSHost; //  for wss://bya.io/wss
+	if (mWSPort == 443) {
+		s << mWSHost; 
 	}
 	else {
-		s << "ws://" << mWSHost << ":" << mWSPort;
+		if (mWSPort == 80) {
+			s << "ws://" << mWSHost; 
+		}
+		else {
+			s << "ws://" << mWSHost << ":" << mWSPort;
+		}
 	}
 	// BL TEMP s << "ws://127.0.0.1:8088";
 	mWebSocketsMsg = s.str();
@@ -433,6 +438,15 @@ void VDWebsocket::changeFloatValue(unsigned int aControl, float aValue, bool for
 
 		sendJSON(strParams);
 	}*/
+	/* TMP 20230226 begin
+	stringstream sParams;
+	// update color vec3
+	if (aControl > 10 && aControl < 19) {
+		sParams << "{\"params\" :[{\"name\" : " << aControl << ",\"value\" : " << aValue << "}]}";
+		string strParams = sParams.str();
+		sendJSON(strParams);
+	}
+	// TMP 20230226 end */
 }
 void VDWebsocket::changeShaderIndex(unsigned int aWarpIndex, unsigned int aWarpShaderIndex, unsigned int aSlot) {
 	//aSlot 0 = A, 1 = B,...
