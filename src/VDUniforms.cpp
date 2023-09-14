@@ -150,9 +150,8 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iParam1", IPARAM1, 1.0f, 0.0f, 30.0f); // 55
 	createFloatUniform("iParam2", IPARAM2, 1.0f, 0.0f, 30.0f); // 56
 	createFloatUniform("iParam3", IPARAM3, 1.0f, 0.0f, 30.0f); // 57
-	createFloatUniform("iParam4", IPARAM4, 1.0f, 0.0f, 30.0f); // 58
-	createFloatUniform("iParam5", IPARAM5, 1.0f, 0.0f, 30.0f); // 59
-
+	createFloatUniform("iParam4", IPARAM4, 1.0f, 0.0f, 10.0f); // 58
+	createFloatUniform("iParam5", IPARAM5, 1.0f, 0.0f, 3.0f); // 59
 
 	// int
 	// blend mode 
@@ -201,9 +200,9 @@ VDUniforms::VDUniforms() {
 	// iResolutionY (should be fboheight?)  
 	createFloatUniform("iResolutionY", IRESOLUTIONY, mRenderHeight, 240.01f, 2160.0f); // 122
 	// iRenderXYX 
-	createFloatUniform("iRenderXYX", IRENDERXYX, 0.0f, -0.05f, 0.05f); // 124
+	createFloatUniform("iRenderXYX", IRENDERXYX, 0.0f, -1.0f, 1.0f); // 124
 	// iRenderXYY  
-	createFloatUniform("iRenderXYY", IRENDERXYY, 0.0f, -0.05f, 0.05f); // 125
+	createFloatUniform("iRenderXYY", IRENDERXYY, 0.0f, -1.0f, 1.0f); // 125
 	
 
 	// -300 rule

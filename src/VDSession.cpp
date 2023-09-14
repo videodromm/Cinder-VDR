@@ -233,6 +233,9 @@ void VDSession::renderPostToFbo()
 		mGlslPost->uniform("iRedMultiplier", mVDUniforms->getUniformValue(mVDUniforms->IFRX));
 		mGlslPost->uniform("iGreenMultiplier", mVDUniforms->getUniformValue(mVDUniforms->IFGX));
 		mGlslPost->uniform("iBlueMultiplier", mVDUniforms->getUniformValue(mVDUniforms->IFBX));
+		mGlslPost->uniform("iRenderXYX", mVDUniforms->getUniformValue(mVDUniforms->IRENDERXYX));
+		mGlslPost->uniform("iRenderXYY", mVDUniforms->getUniformValue(mVDUniforms->IRENDERXYY));
+
 		gl::drawSolidRect(Rectf(0, 0, mVDParams->getFboWidth(), mVDParams->getFboHeight()));
 	}
 }
@@ -255,6 +258,7 @@ void VDSession::renderFxToFbo()
 		mGlslFx->uniform("iResolution", vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
 		mGlslFx->uniform("iChannel0", 41); // texture 0	
 		mGlslFx->uniform("iTime", mVDUniforms->getUniformValue(mVDUniforms->ITIME));
+		mGlslFx->uniform("iGreyScale", mVDUniforms->getUniformValue(mVDUniforms->IGREYSCALE));
 		mGlslFx->uniform("iFreq0", mVDUniforms->getUniformValue(mVDUniforms->IFREQ0));
 		mGlslFx->uniform("iMouse", mVDUniforms->getVec4UniformValueByName("iMouse"));
 
