@@ -349,7 +349,7 @@ void VDMidi::midiListener(midi::Message msg) {
 		}
 		// 23 for midiWeights
 		if (midiPitch == 23) {
-			midiWeights = true;
+			midiWeights = false;
 		}
 		ss << " noteon Chn: " << midiChannel << " Pitch: " << midiPitch;
 		CI_LOG_V("Midi: " + ss.str());
@@ -362,7 +362,7 @@ void VDMidi::midiListener(midi::Message msg) {
 		}
 		// 23 for midiWeights
 		if (midiPitch == 23) {
-			midiWeights = false;
+			midiWeights = true;
 		}
 
 		if (midiPitch < 7) {

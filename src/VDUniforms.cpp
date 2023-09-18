@@ -76,10 +76,10 @@ VDUniforms::VDUniforms() {
 
 	// Speed 
 	createFloatUniform("iSpeed", ISPEED, 1.0f, 0.01f, 12.0f); // 22
-	// slitscan / matrix (or other) Param1 
-	createFloatUniform("iPixelX", IPIXELX, 0.0f, -0.5f, 0.5f); // 23
-	// slitscan / matrix(or other) Param2 
-	createFloatUniform("iPixelY", IPIXELY, 0.0f, -0.5f, 0.5f); // 24
+	// iRenderXYX 
+	createFloatUniform("iRenderXYX", IRENDERXYX, 0.0f, -1.0f, 1.0f); // 23
+	// iRenderXYY  
+	createFloatUniform("iRenderXYY", IRENDERXYY, 0.0f, -1.0f, 1.0f); // 24 
 	// slitscan / matrix (or other) Param1 
 	//createFloatUniform("iPixelX", IPIXELX, 0.0f, 0.00000000001f, 40.0f); // 23
 	// slitscan / matrix(or other) Param2 
@@ -199,11 +199,12 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iResolutionX", IRESOLUTIONX, mRenderWidth, 320.01f, 4280.0f); // 121
 	// iResolutionY (should be fboheight?)  
 	createFloatUniform("iResolutionY", IRESOLUTIONY, mRenderHeight, 240.01f, 2160.0f); // 122
-	// iRenderXYX 
-	createFloatUniform("iRenderXYX", IRENDERXYX, 0.0f, -1.0f, 1.0f); // 124
-	// iRenderXYY  
-	createFloatUniform("iRenderXYY", IRENDERXYY, 0.0f, -1.0f, 1.0f); // 125
-	
+
+	// slitscan / matrix (or other) Param1 
+	createFloatUniform("iPixelX", IPIXELX, 0.0f, -0.5f, 0.5f); // 124 
+	// slitscan / matrix(or other) Param2 
+	createFloatUniform("iPixelY", IPIXELY, 0.0f, -0.5f, 0.5f); // 125
+
 
 	// -300 rule
 	createVec3Uniform("iResolution", IRESOLUTION, vec3(getUniformValue(IRESOLUTIONX), getUniformValue(IRESOLUTIONY), 1.0)); // 421 
@@ -215,13 +216,14 @@ VDUniforms::VDUniforms() {
 	// invert
 	// glitch
 	createFloatUniform("iGlitch", IGLITCH, 0.0f); // 81
-	// greyscale 
-	createFloatUniform("iGreyScale", IGREYSCALE, 0.0f); //82
+	createFloatUniform("iClear", ICLEAR, 0.0f); // 82
 	// toggle
 	createFloatUniform("iToggle", ITOGGLE, 0.0f); // 83
+
 	// invert
 	createFloatUniform("iInvert", IINVERT, 0.0f); // 86
-	createFloatUniform("iClear", ICLEAR, 0.0f); // 88
+	// greyscale 
+	createFloatUniform("iGreyScale", IGREYSCALE, 0.0f); //88
 	createFloatUniform("iDebug", IDEBUG, 0.0f); // 129
 	createFloatUniform("iXorY", IXORY, 0.0f); // 130
 	createFloatUniform("iFlipH", IFLIPH, 0.0f); // 131
@@ -576,15 +578,16 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "speed") {
 		rtn = ISPEED;
 	}
-	// slitscan / matrix (or other) Param1 23 
-	else if (key == "iPixelX") {
-		rtn = IPIXELX;
+	// iRenderXYX 23 
+	else if (key == "iRenderXYX") {
+		rtn = IRENDERXYX;
 	}
-	// slitscan / matrix(or other) Param2 24 
-	else if (key == "iPixelY") {
-		rtn = IPIXELY;
+	// iRenderXYY 24 
+	else if (key == "iRenderXYY") {
+		rtn = IRENDERXYY;
 	}
-	// delta time in seconds 25
+	
+	// delta time in seconds 40
 	else if (key == "iDeltaTime") {
 		rtn = IDELTATIME;
 	}
@@ -803,13 +806,13 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iRenderXY") {
 	rtn = IRENDERXY;
 	}
-	// iRenderXYX 124 
-	else if (key == "iRenderXYX") {
-	rtn = IRENDERXYX;
+	// slitscan / matrix (or other) Param1 124 
+	else if (key == "iPixelX") {
+	rtn = IPIXELX;
 	}
-	// iRenderXYY 125 
-	else if (key == "iRenderXYY") {
-	rtn = IRENDERXYY;
+	// slitscan / matrix(or other) Param2 125 
+	else if (key == "iPixelY") {
+	rtn = IPIXELY;
 	}
 
 	// IPHASE 70 
@@ -839,9 +842,9 @@ int VDUniforms::stringToIndex(const std::string& key) {
 		rtn = IGLITCH;
 	}
 
-	// greyscale 82
-	else if (key == "iGreyScale") {
-		rtn = IGREYSCALE;
+	// 82
+	else if (key == "iClear") {
+		rtn = ICLEAR;
 	}
 	// toggle 83
 	else if (key == "iToggle") {
@@ -851,9 +854,9 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iInvert") {
 		rtn = IINVERT;
 	}
-	// 88
-	else if (key == "iClear") {
-		rtn = ICLEAR;
+	// greyscale 88
+	else if (key == "iGreyScale") {
+		rtn = IGREYSCALE;
 	}
 	else if (key == "iDebug") {
 		rtn = IDEBUG;

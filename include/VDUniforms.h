@@ -90,8 +90,9 @@ namespace videodromm
 			IMOUSEW = 21,
 
 			ISPEED = 22,
-			IPIXELX = 23,
-			IPIXELY = 24,
+			IRENDERXYX = 23,
+			IRENDERXYY = 24,
+
 			IZOOM = 25,
 			ISTEPS = 26,
 			IRATIO = 27,
@@ -149,10 +150,10 @@ namespace videodromm
 			IBARSTART = 77,
 			// booleans 80 to 110
 			IGLITCH = 81,	// A4
-			IGREYSCALE = 82,
+			ICLEAR = 82,	// 
 			ITOGGLE = 83,	// B4 for sos
 			IINVERT = 86,	// D5
-			ICLEAR = 88,	// 
+			IGREYSCALE = 88,
 
 			IBACKGROUNDCOLORX = 101,
 			IBACKGROUNDCOLORY = 102,
@@ -160,8 +161,8 @@ namespace videodromm
 
 			IRESOLUTIONX = 121,
 			IRESOLUTIONY = 122,
-			IRENDERXYX = 124,
-			IRENDERXYY = 125,
+				IPIXELX = 124,
+				IPIXELY = 125,
 
 			IDEBUG = 129,
 			IXORY = 130,
