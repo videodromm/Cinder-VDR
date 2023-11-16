@@ -329,9 +329,6 @@ void VDMidi::midiListener(midi::Message msg) {
 			midiStickyPrevValue = mVDAnimation->getBoolUniformValueByIndex(midiPitch + 80);
 		}*/
 		//mVDMediator->setUniformValue(midiPitch + 80, true);
-
-		
-
 		if (midiPitch < 7) {
 			mVDUniforms->setUniformValue(mVDUniforms->IWEIGHT0 + midiPitch, 1.0);
 			//mVDMediator->setMode(midiPitch);			
@@ -343,12 +340,25 @@ void VDMidi::midiListener(midi::Message msg) {
 			//mSelectedFboB = midiPitch - 8;
 			//mFBOBChanged = true;
 		}*/
-		// R row 16 to 22
-		if (midiPitch > 15 && midiPitch < 23) {
+		// R row top 0 to 7
+		// R row middle 8 to 15
+		if (midiPitch > 7 && midiPitch < 16) {
+			int uniformIndex = midiPitch + 243;
+			// ICOLUMN1 = 201
+			if (mVDUniforms->getUniformValue(uniformIndex) == 0.0f) {
+				mVDMediator->setUniformValue(uniformIndex, 1.0f);
+			}
+			else {
+				ss << " ICOLUMN1: " << mVDUniforms->getUniformValue(uniformIndex);
+				CI_LOG_E("Midi: " + ss.str());
+			}
+		}
+		// R row bottom 16 to 23
+		if (midiPitch > 15 && midiPitch < 24) {
 			mVDMediator->setUniformValue(midiPitch + 65, true);
 		}
-		// 23 for midiWeights
-		if (midiPitch == 23) {
+		// 7 for midiWeights
+		if (midiPitch == 7) {
 			midiWeights = false;
 		}
 		ss << " noteon Chn: " << midiChannel << " Pitch: " << midiPitch;
@@ -357,14 +367,13 @@ void VDMidi::midiListener(midi::Message msg) {
 	case MIDI_NOTE_OFF:
 		midiPitch = msg.pitch;
 		// R row 16 to 22
-		if (midiPitch > 15 && midiPitch < 23) {
+		if (midiPitch > 15 && midiPitch < 24) {
 			mVDMediator->setUniformValue(midiPitch + 65, false);
 		}
-		// 23 for midiWeights
-		if (midiPitch == 23) {
+		// 7 for midiWeights
+		if (midiPitch == 7) {
 			midiWeights = true;
 		}
-
 		if (midiPitch < 7) {
 			//mVDMediator->setMode(7);
 			mVDUniforms->setUniformValue(mVDUniforms->IWEIGHT0 + midiPitch, 0.0);

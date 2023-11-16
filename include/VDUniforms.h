@@ -204,10 +204,19 @@ namespace videodromm
 			ISPEED9 = 179,
 			ISPEED10 = 180,
 			ISPEED11 = 181,
-			ISPEED12 = 182, 
+			ISPEED12 = 182,
 			ISPEED13 = 183,
 			ISPEED14 = 184,
 			ISPEED15 = 185,
+
+			ICOLUMN1 = 251, // Resolume
+			ICOLUMN2 = 252,
+			ICOLUMN3 = 253,
+			ICOLUMN4 = 254,
+			ICOLUMN5 = 255, 
+			ICOLUMN6 = 256,
+			ICOLUMN7 = 257,
+			ICOLUMN8 = 258,
 
 			ICOLOR = 301,
 			IMOUSE = 318,

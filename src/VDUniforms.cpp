@@ -66,7 +66,7 @@ VDUniforms::VDUniforms() {
 	// iChromatic
 	createFloatUniform("iChromatic", ICHROMATIC, 0.0f, 0.000000001f); // 17
 		// iMouseX  
-	createFloatUniform("iMouseX", IMOUSEX, 0.27710f, 0.0f, 1280.0f); //18
+	createFloatUniform("iMouseX", IMOUSEX, 0.27710f, 0.0f, 1.0f); //18 20231116 max was 1280.0f default SOS was 0.27710f
 	// iMouseY  
 	createFloatUniform("iMouseY", IMOUSEY, 0.5648f, 0.0f, 800.0f); //19
 	// iMouseZ  
@@ -263,6 +263,16 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iSpeed13", ISPEED13, 0.0042f); // 183
 	createFloatUniform("iSpeed14", ISPEED14, 0.0051f);
 	createFloatUniform("iSpeed15", ISPEED15, 0.0065f);
+
+	// iColumn Resolume
+	createFloatUniform("iColumn1", ICOLUMN1, 0.0f);
+	createFloatUniform("iColumn2", ICOLUMN2, 0.0f);
+	createFloatUniform("iColumn3", ICOLUMN3, 0.0f);
+	createFloatUniform("iColumn4", ICOLUMN4, 0.0f);
+	createFloatUniform("iColumn5", ICOLUMN5, 0.0f);
+	createFloatUniform("iColumn6", ICOLUMN6, 0.0f);
+	createFloatUniform("iColumn7", ICOLUMN7, 0.0f);
+	createFloatUniform("iColumn8", ICOLUMN8, 0.0f);
 
 	// vec2
 	createVec2Uniform("resolution", RESOLUTION, vec2(1280.0f, 720.0f)); // hydra 150
