@@ -83,13 +83,13 @@ namespace videodromm
 			IPIXELATE = 15,
 			ITRIXELS = 16,
 			ICHROMATIC = 17,
+			IXFADE = 18,
 
-			IMOUSEX = 18,
-			IMOUSEY = 19,
-			IMOUSEZ = 20,
-			IMOUSEW = 21,
+			IMOUSEX = 19,
+			IMOUSEY = 20,
+			IMOUSEZ = 21,
+			IMOUSEW = 22,
 
-			ISPEED = 22,
 			IRENDERXYX = 23,
 			IRENDERXYY = 24,
 
@@ -98,6 +98,7 @@ namespace videodromm
 			IRATIO = 27,
 			//28 should be more useful
 			IEFFECT = 28,
+			ISPEED = 29,
 			ICONTOUR = 30,
 
 			IWEIGHT0 = 31,
@@ -112,7 +113,7 @@ namespace videodromm
 			// 40 avail
 			IDELTATIME = 40,
 			ISTART = 41,
-			IXFADE = 42,
+			// 42 avail
 			ITEMPOTIME = 43,
 			IFPS = 44,
 			IBPM = 45,
@@ -219,11 +220,11 @@ namespace videodromm
 			ICOLUMN8 = 258,
 
 			ICOLOR = 301,
-			IMOUSE = 318,
+			IMOUSE = 319,
 			IDATE = 373,
 			IBACKGROUNDCOLOR = 401,
 			IRESOLUTION = 421,
-				IRENDERXY = 424
+			IRENDERXY = 424
 		};
 		bool							isExistingUniform(const std::string& aName);
 		int								getUniformType(unsigned int aIndex) {

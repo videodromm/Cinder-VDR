@@ -65,17 +65,17 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iTrixels", ITRIXELS, 0.0f); // 16
 	// iChromatic
 	createFloatUniform("iChromatic", ICHROMATIC, 0.0f, 0.000000001f); // 17
-		// iMouseX  
-	createFloatUniform("iMouseX", IMOUSEX, 0.27710f, 0.0f, 1.0f); //18 20231116 max was 1280.0f default SOS was 0.27710f
+		// iCrossfade
+	createFloatUniform("iCrossfade", IXFADE,  0.27710f, 0.0f, 1.0f); //18 was 42 20231116
+	// iMouseX  
+	createFloatUniform("iMouseX", IMOUSEX, 0.27710f, 0.0f, 1280.0f); //19
 	// iMouseY  
-	createFloatUniform("iMouseY", IMOUSEY, 0.5648f, 0.0f, 800.0f); //19
+	createFloatUniform("iMouseY", IMOUSEY, 0.5648f, 0.0f, 800.0f); //20
 	// iMouseZ  
-	createFloatUniform("iMouseZ", IMOUSEZ, 0.0f, 0.0f, 1.0f); //20
+	createFloatUniform("iMouseZ", IMOUSEZ, 0.0f, 0.0f, 1.0f); //21
 	// vignette amount
-	createFloatUniform("iMouseW", IMOUSEW, 0.91f, 0.0f, 1.0f); //21
+	createFloatUniform("iMouseW", IMOUSEW, 0.91f, 0.0f, 1.0f); //22
 
-	// Speed 
-	createFloatUniform("iSpeed", ISPEED, 1.0f, 0.01f, 12.0f); // 22
 	// iRenderXYX 
 	createFloatUniform("iRenderXYX", IRENDERXYX, 0.0f, -1.0f, 1.0f); // 23
 	// iRenderXYY  
@@ -93,6 +93,8 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iRatio", IRATIO, 20.0f, 0.00000000001f, 40.0f); // 27
 	// effect
 	createFloatUniform("iEffect", IEFFECT, 0.0f, -0.5f, 0.5f); // 28
+	// Speed 
+	createFloatUniform("iSpeed", ISPEED, 1.0f, 0.01f, 12.0f); // 29
 
 	// contour
 	createFloatUniform("iContour", ICONTOUR, 0.0f, 0.0f, 0.5f); // 30
@@ -122,8 +124,6 @@ VDUniforms::VDUniforms() {
 	// ISTART
 	createFloatUniform("iStart", ISTART, 0.0f, 1.0f, 4200.0f); // 41		
 
-	// iCrossfade
-	createFloatUniform("iCrossfade", IXFADE, 1.0f); //42
 	// tempo time
 	createFloatUniform("iTempoTime", ITEMPOTIME, 0.1f); //43
 	// fps
@@ -568,7 +568,7 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iChromatic") {
 		rtn = ICHROMATIC;
 	}
-	// iCrossfade 42
+	// iCrossfade 18
 	else if (key == "iCrossfade") {
 		rtn = IXFADE;
 	}
@@ -674,19 +674,19 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iMouse") {
 		rtn = IMOUSE;
 	}
-	// iMouseX 18  
+	// iMouseX 19  
 	else if (key == "iMouseX") {
 		rtn = IMOUSEX;
 	}
-	// iMouseY 19  
+	// iMouseY 20  
 	else if (key == "iMouseY") {
 		rtn = IMOUSEY;
 	}
-	// iMouseZ 20  
+	// iMouseZ 21  
 	else if (key == "iMouseZ") {
 		rtn = IMOUSEZ;
 	}
-	// iMouseW 21
+	// iMouseW 22
 	else if (key == "iMouseW") {
 		rtn = IMOUSEW;
 	}

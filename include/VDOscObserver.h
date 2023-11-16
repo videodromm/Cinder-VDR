@@ -59,7 +59,7 @@ namespace videodromm {
 				sendIndex = false;
 				break;
 			case 18:
-				// IMOUSEX setUniformValue(mVDUniforms->IMOUSEX, 0.27710f)
+				// IXFADE
 				oscMsg = "/composition/crossfader/phase";
 				sendIndex = false;
 				sendValueOnly = true;
