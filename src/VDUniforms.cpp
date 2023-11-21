@@ -92,7 +92,7 @@ VDUniforms::VDUniforms() {
 	// ratio
 	createFloatUniform("iRatio", IRATIO, 20.0f, 0.00000000001f, 40.0f); // 27
 	// effect
-	createFloatUniform("iEffect", IEFFECT, 0.0f, -0.5f, 0.5f); // 28
+	createFloatUniform("iEffect", IEFFECT, 0.0f, -0.5f, 0.5f, true); // 28
 	// Speed 
 	createFloatUniform("iSpeed", ISPEED, 1.0f, 0.01f, 12.0f); // 29
 
@@ -145,13 +145,13 @@ VDUniforms::VDUniforms() {
 	// iMultiplier for iZoom
 	createFloatUniform("iMultiplier", IMULT, 1.0f, 0.0f, 30.0f); // 53
 
-	// iParams
-	createFloatUniform("iParam0", IPARAM0, 1.0f, 0.0f, 30.0f); // 54
-	createFloatUniform("iParam1", IPARAM1, 1.0f, 0.0f, 30.0f); // 55
-	createFloatUniform("iParam2", IPARAM2, 1.0f, 0.0f, 30.0f); // 56
-	createFloatUniform("iParam3", IPARAM3, 1.0f, 0.0f, 30.0f); // 57
-	createFloatUniform("iParam4", IPARAM4, 1.0f, 0.0f, 10.0f); // 58
-	createFloatUniform("iParam5", IPARAM5, 1.0f, 0.0f, 3.0f); // 59
+	// iPars
+	createFloatUniform("iPar0", IPAR0, 1.0f, 0.0f, 30.0f); // 54
+	createFloatUniform("iPar1", IPAR1, 0.20f, 0.0f, 30.0f); // 55
+	createFloatUniform("iPar2", IPAR2, 1.0f, 0.0f, 30.0f); // 56
+	createFloatUniform("iPar3", IPAR3, 1.385f, 0.0f, 30.0f); // 57
+	createFloatUniform("iPar4", IPAR4, 1.817f, 0.0f, 10.0f); // 58
+	createFloatUniform("iPar5", IPAR5, 1.0f, 0.0f, 3.0f); // 59
 
 	// int
 	// blend mode 
@@ -714,29 +714,29 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iDisplayMode") {
 		rtn = IDISPLAYMODE;
 	}
-	// iParam0 54
-	else if (key == "iParam0") {
-	rtn = IPARAM0;
+	// iPar0 54
+	else if (key == "iPar0") {
+	rtn = IPAR0;
 	}
-	// iParam0 55
-	else if (key == "iParam1") {
-	rtn = IPARAM1;
+	// iPar0 55
+	else if (key == "iPar1") {
+	rtn = IPAR1;
 	}
-	// iParam0 56
-	else if (key == "iParam2") {
-	rtn = IPARAM2;
+	// iPar0 56
+	else if (key == "iPar2") {
+	rtn = IPAR2;
 	}
-	// iParam0 57
-	else if (key == "iParam3") {
-	rtn = IPARAM3;
+	// iPar0 57
+	else if (key == "iPar3") {
+	rtn = IPAR3;
 	}
-	// iParam0 58
-	else if (key == "iParam4") {
-	rtn = IPARAM4;
+	// iPar0 58
+	else if (key == "iPar4") {
+	rtn = IPAR4;
 	}
-	// iParam0 59
-	else if (key == "iParam5") {
-	rtn = IPARAM5;
+	// iPar0 59
+	else if (key == "iPar5") {
+	rtn = IPAR5;
 	}
 	// int
 	// blend mode 60 

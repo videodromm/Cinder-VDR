@@ -124,12 +124,12 @@ namespace videodromm
 			IDISPLAYMODE = 51,
 			IMAXVOLUME = 52,
 			IMULT = 53,
-			IPARAM0 = 54,
-			IPARAM1 = 55,
-			IPARAM2 = 56,
-			IPARAM3 = 57,
-			IPARAM4 = 58,
-			IPARAM5 = 59,
+			IPAR0 = 54,
+			IPAR1 = 55,
+			IPAR2 = 56,
+			IPAR3 = 57,
+			IPAR4 = 58,
+			IPAR5 = 59,
 
 			// int
 			IBLENDMODE = 60,
