@@ -76,10 +76,10 @@ namespace videodromm
 			IFACTOR = 9,
 			IVIGNETTE = 10,		// was 82 A#4
 			IROTATIONSPEED = 11,
-			IAUDIOX = 12,
+			IEFFECT = 12, // was 28
 
 			ISMOOTH = 13,
-			IEXPOSURE = 14,
+			IRATIO = 14, // was 27
 			IPIXELATE = 15,
 			ITRIXELS = 16,
 			ICHROMATIC = 17,
@@ -95,9 +95,9 @@ namespace videodromm
 
 			IZOOM = 25,
 			ISTEPS = 26,
-			IRATIO = 27,
-			//28 should be more useful
-			IEFFECT = 28,
+			IEXPOSURE = 27, // was 14
+
+			//27 28 avail
 			ISPEED = 29,
 			ICONTOUR = 30,
 
@@ -110,10 +110,10 @@ namespace videodromm
 			IWEIGHT6 = 37,
 			IWEIGHT7 = 38,
 			IWEIGHT8 = 39,
-			// 40 avail
-			IDELTATIME = 40,
+			
+			IAUDIOX = 40,// 40 was 12
 			ISTART = 41,
-			// 42 avail
+			IDELTATIME = 42,
 			ITEMPOTIME = 43,
 			IFPS = 44,
 			IBPM = 45,

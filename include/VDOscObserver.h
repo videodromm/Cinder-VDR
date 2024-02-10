@@ -48,7 +48,8 @@ namespace videodromm {
 			}*/
 			std::string oscMsg("");
 			std::string oscMsg2("");
-			bool sendIndex = true; 
+			std::string oscMsg3("");
+			bool sendIndex = true;
 			bool sendValueOnly = false;
 				// /composition/crossfader/phase  /composition/crossfader/sideb /composition/tempocontroller/tempo
 				// /composition/layers/2/clips/4/transport/position
@@ -56,6 +57,21 @@ namespace videodromm {
 			case 11:
 				// IROTATIONSPEED
 				oscMsg = "/composition/dashboard/link1";
+				sendIndex = false;
+				break;
+			case 12:
+				// was IAUDIOX = 40,
+				oscMsg = "/composition/dashboard/link2";
+				sendIndex = false;
+				break;
+			case 13:
+				// was ISMOOTH,
+				oscMsg = "/composition/dashboard/link3";
+				sendIndex = false;
+				break;
+			case 14:
+				// 
+				oscMsg = "/composition/dashboard/link4";
 				sendIndex = false;
 				break;
 			case 18:
@@ -68,8 +84,10 @@ namespace videodromm {
 				// IFPS nothing
 				break;
 			case 88:
-				// IGREYSCALE
-				oscMsg = "/composition/video/effects/colorize/bypassed";
+				// IGREYSCALE colorize
+				/*oscMsg = "/composition/video/effects/radar/bypassed";
+				oscMsg2 = "/composition/video/effects/edgedetection/bypassed";
+				oscMsg3 = "/composition/video/effects/bloom/bypassed";*/
 				sendIndex = false;
 				break;
 			case 251:
@@ -131,6 +149,12 @@ namespace videodromm {
 				osc::Message msg2(oscMsg2);
 				msg2.append(aValue);
 				mSender.send(msg2, std::bind(&VDOscObserver::onSendError,
+					this, std::placeholders::_1));
+			}
+			if (oscMsg3.length() > 1) {
+				osc::Message msg3(oscMsg3);
+				msg3.append(aValue);
+				mSender.send(msg3, std::bind(&VDOscObserver::onSendError,
 					this, std::placeholders::_1));
 			}
 			return shared_from_this();

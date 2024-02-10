@@ -53,8 +53,8 @@ VDUniforms::VDUniforms() {
 	// rotary
 	// RotationSpeed
 	createFloatUniform("iRotationSpeed", IROTATIONSPEED, 0.0f, -0.1f, 1.0f); // 11
-	// Audio multfactor 
-	createFloatUniform("iAudioX", IAUDIOX, 1.0f, 0.01f, 30.0f); // 12
+	// effect
+	createFloatUniform("iEffect", IEFFECT, 0.0f, -0.5f, 0.5f, true); // 12
 	// smooth animation
 	createFloatUniform("iSmooth", ISMOOTH, 0.005f); // 50 -> 13
 	// exposure
@@ -91,8 +91,7 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iSteps", ISTEPS, 16.0f, 1.0f, 128.0f); // 26
 	// ratio
 	createFloatUniform("iRatio", IRATIO, 20.0f, 0.00000000001f, 40.0f); // 27
-	// effect
-	createFloatUniform("iEffect", IEFFECT, 0.0f, -0.5f, 0.5f, true); // 28
+
 	// Speed 
 	createFloatUniform("iSpeed", ISPEED, 1.0f, 0.01f, 12.0f); // 29
 
@@ -118,11 +117,13 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iWeight8", IWEIGHT8, 0.0f); // 39
 	// elapsed in bar 
 	//createFloatUniform("iElapsed", IELAPSED, 0.0f); // 39
-	// delta time in seconds
-	createFloatUniform("iDeltaTime", IDELTATIME, 60.0f / 160.0f); // 25 -> 40
+	// Audio multfactor 
+	createFloatUniform("iAudioX", IAUDIOX, 1.0f, 0.01f, 30.0f); // 40 was 12
 
 	// ISTART
 	createFloatUniform("iStart", ISTART, 0.0f, 1.0f, 4200.0f); // 41		
+	// delta time in seconds
+	createFloatUniform("iDeltaTime", IDELTATIME, 60.0f / 160.0f); // 42 was 25 then 40
 
 	// tempo time
 	createFloatUniform("iTempoTime", ITEMPOTIME, 0.1f); //43
@@ -146,7 +147,7 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iMultiplier", IMULT, 1.0f, 0.0f, 30.0f); // 53
 
 	// iPars
-	createFloatUniform("iPar0", IPAR0, 1.0f, 0.0f, 30.0f); // 54
+	createFloatUniform("iPar0", IPAR0, 0.01f, 0.0f, 30.0f); // 54
 	createFloatUniform("iPar1", IPAR1, 0.20f, 0.0f, 30.0f); // 55
 	createFloatUniform("iPar2", IPAR2, 1.0f, 0.0f, 30.0f); // 56
 	createFloatUniform("iPar3", IPAR3, 1.385f, 0.0f, 30.0f); // 57
@@ -549,7 +550,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iRotationSpeed") {
 		rtn = IROTATIONSPEED;
 	}
-
+	// effect 12
+	else if (key == "iEffect") {
+		rtn = IEFFECT;
+	}
 
 	// rotary
 	// exposure 14
@@ -597,10 +601,7 @@ int VDUniforms::stringToIndex(const std::string& key) {
 		rtn = IRENDERXYY;
 	}
 	
-	// delta time in seconds 40
-	else if (key == "iDeltaTime") {
-		rtn = IDELTATIME;
-	}
+
 	// Steps 26
 	else if (key == "iSteps") {
 		rtn = ISTEPS;
@@ -617,10 +618,7 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iContour") {
 		rtn = ICONTOUR;
 	}
-	// effect 28
-	else if (key == "iEffect") {
-		rtn = IEFFECT;
-	}
+
 
 	// weight mix fbo texture 0 31
 	else if (key == "iWeight0") {
@@ -665,6 +663,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	// iStart 41 
 	else if (key == "iStart") {
 		rtn = ISTART;
+	}
+	// delta time in seconds 42
+	else if (key == "iDeltaTime") {
+	rtn = IDELTATIME;
 	}
 	// volume0 from hydra 52 
 	else if (key == "volume0") {
