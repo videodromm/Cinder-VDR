@@ -250,7 +250,7 @@ namespace videodromm {
 		gl::clear(Color::black());
 
 		// nasty bug! bind to 100+f
-		int f = 0;
+		/* int f = 0;
 		for (auto &fbo : mFboShaderList) {
 			if (mFboShaderList[f]->isValid()) {// white mix bug && mVDAnimation->getUniformValue(mVDUniforms->IWEIGHT0 + f) > 0.05f) {
 				//fbo->getTexture()->bind(f); not in right order
@@ -264,6 +264,28 @@ namespace videodromm {
 		int i = 0;
 		for (auto &fbo : mFboShaderList) {
 			if (fbo->isValid()) {// white mix bug && mVDAnimation->getUniformValue(mVDUniforms->IWEIGHT0 + i) > 0.1f) {
+				mGlslMixette->uniform("iChannel" + toString(i), 100 + i);
+				mGlslMixette->uniform("iWeight" + toString(i), mVDUniforms->getUniformValue(mVDUniforms->IWEIGHT0 + i));
+			}
+			i++;
+		} 
+		new test:*/
+		/* done in next for loop:
+		int f = 0;
+		for (auto &fbo : mFboShaderList) {
+			if (mFboShaderList[f]->isValid()) {// white mix bug && mVDAnimation->getUniformValue(mVDUniforms->IWEIGHT0 + f) > 0.05f) {
+				//fbo->getTexture()->bind(f); not in right order
+				mFboShaderList[f]->getTexture()->bind(100 + f);
+			}
+			f++;
+		}*/
+		gl::ScopedGlslProg prog(mGlslMixette);
+		mGlslMixette->uniform("iResolution", vec3(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY), 1.0));
+		mGlslMixette->uniform("iBlendmode", (int)mVDUniforms->getUniformValue(mVDUniforms->IBLENDMODE));
+		int i = 0;
+		for (auto &fbo : mFboShaderList) {
+			if (fbo->isValid()) {// white mix bug
+				if (mVDUniforms->getUniformValue(mVDUniforms->IWEIGHT0 + i) > 0.01f) mFboShaderList[i]->getTexture()->bind(100 + i);
 				mGlslMixette->uniform("iChannel" + toString(i), 100 + i);
 				mGlslMixette->uniform("iWeight" + toString(i), mVDUniforms->getUniformValue(mVDUniforms->IWEIGHT0 + i));
 			}

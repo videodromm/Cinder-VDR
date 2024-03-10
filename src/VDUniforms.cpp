@@ -60,9 +60,9 @@ VDUniforms::VDUniforms() {
 	// exposure
 	createFloatUniform("iExposure", IEXPOSURE, 1.0f, 0.0f, 13.0f); // 14
 	// Pixelate
-	createFloatUniform("iPixelate", IPIXELATE, 1.0f, 0.01f); // 15
+	createFloatUniform("iPixelate", IPIXELATE, 1.0f, 0.01f, 1.0f); // 15
 	// Trixels
-	createFloatUniform("iTrixels", ITRIXELS, 0.0f); // 16
+	createFloatUniform("iTrixels", ITRIXELS, 0.0f, 0.0f, 1.0f); // 16
 	// iChromatic
 	createFloatUniform("iChromatic", ICHROMATIC, 0.0f, 0.000000001f); // 17
 		// iCrossfade
@@ -98,27 +98,27 @@ VDUniforms::VDUniforms() {
 	// contour
 	createFloatUniform("iContour", ICONTOUR, 0.0f, 0.0f, 0.5f); // 30
 	// weight mix fbo texture 0
-	createFloatUniform("iWeight0", IWEIGHT0, 0.0f); // 31
+	createFloatUniform("iWeight0", IWEIGHT0, 0.0f, 0.0f, 1.0f); // 31
 	// weight texture 1
-	createFloatUniform("iWeight1", IWEIGHT1, 1.0f); // 32
+	createFloatUniform("iWeight1", IWEIGHT1, 1.0f, 0.0f, 1.0f); // 32
 	// weight texture 2
-	createFloatUniform("iWeight2", IWEIGHT2, 0.0f); // 33
+	createFloatUniform("iWeight2", IWEIGHT2, 0.0f, 0.0f, 1.0f); // 33
 	// weight texture 3
-	createFloatUniform("iWeight3", IWEIGHT3, 0.0f); // 34
+	createFloatUniform("iWeight3", IWEIGHT3, 0.0f, 0.0f, 1.0f); // 34
 	// weight texture 4
-	createFloatUniform("iWeight4", IWEIGHT4, 0.0f); // 35
+	createFloatUniform("iWeight4", IWEIGHT4, 0.0f, 0.0f, 1.0f); // 35
 	// weight texture 5
-	createFloatUniform("iWeight5", IWEIGHT5, 0.0f); // 36
+	createFloatUniform("iWeight5", IWEIGHT5, 0.0f, 0.0f, 1.0f); // 36
 	// weight texture 6
-	createFloatUniform("iWeight6", IWEIGHT6, 0.0f); // 37
+	createFloatUniform("iWeight6", IWEIGHT6, 0.0f, 0.0f, 1.0f); // 37
 	// weight texture 7
-	createFloatUniform("iWeight7", IWEIGHT7, 0.0f); // 38
+	createFloatUniform("iWeight7", IWEIGHT7, 0.0f, 0.0f, 1.0f); // 38
 	// weight texture 8 
-	createFloatUniform("iWeight8", IWEIGHT8, 0.0f); // 39
+	createFloatUniform("iWeight8", IWEIGHT8, 0.0f, 0.0f, 1.0f); // 39
 	// elapsed in bar 
 	//createFloatUniform("iElapsed", IELAPSED, 0.0f); // 39
 	// Audio multfactor 
-	createFloatUniform("iAudioX", IAUDIOX, 1.0f, 0.01f, 30.0f); // 40 was 12
+	createFloatUniform("iAudioX", IAUDIOX, 1.0f, 0.01f, 7.0f); // 40 was 12
 
 	// ISTART
 	createFloatUniform("iStart", ISTART, 0.0f, 1.0f, 4200.0f); // 41		
