@@ -260,6 +260,7 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 	mFboError = "";
 	mName = aName;
 	mIsHydraTex = false;
+	isReady = false;
 	// we would like a name without extension
 	if (mName.length() == 0) {
 		mName = toString((int)getElapsedSeconds());
@@ -607,17 +608,28 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 
 		mRenderedTexture = mFbo->getColorTexture();
 		if (!isReady) {
-			std::string filename = mName + ".jpg";
+			saveThumbnail(false);
+		/*	std::string filename = mName + ".jpg";
 			fs::path fr = getAssetPath("") / "thumbs" / filename;
 
 			if (!fs::exists(fr)) {
 				CI_LOG_V(fr.string() << " does not exist, creating");
 				Surface s8(mRenderedTexture->createSource());
 				writeImage(writeFile(fr), s8);
-			}
+			}*/
 		}
 	}
 	return mRenderedTexture;
+}
+void VDFboShader::saveThumbnail(bool overwrite) {
+	std::string filename = mName + ".jpg";
+	fs::path fr = getAssetPath("") / "thumbs" / filename;
+
+	if (!fs::exists(fr) || overwrite) {
+		//CI_LOG_V(fr.string() << " does not exist, creating");
+		Surface s8(mRenderedTexture->createSource());
+		writeImage(writeFile(fr), s8);
+	}
 }
 
 ci::gl::Texture2dRef VDFboShader::getTexture() {

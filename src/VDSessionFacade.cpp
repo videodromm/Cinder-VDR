@@ -252,6 +252,9 @@ ci::gl::Texture2dRef VDSessionFacade::getFboInputTexture(unsigned int aTexIndex)
 void VDSessionFacade::setFboTextureAudioMode(unsigned int aFboIndex) {
 	return mVDSession->setFboTextureAudioMode(aFboIndex);
 }
+void VDSessionFacade::saveThumbnail(unsigned int aFboIndex) {
+	mVDSession->saveThumbnail(aFboIndex);
+}
 void VDSessionFacade::setSelectedFbo(unsigned int aFboIndex) {
 	mVDSession->setSelectedFbo(aFboIndex);
 }

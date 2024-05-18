@@ -266,8 +266,11 @@ namespace videodromm {
 		void							setFboTextureAudioMode(unsigned int aFboIndex) {
 			return mVDMix->setFboTextureAudioMode(aFboIndex);
 		};
+		void							saveThumbnail(unsigned int aFboIndex) {
+			mVDMix->saveThumbnail(aFboIndex);
+		}
 		void							setSelectedFbo(unsigned int aFboIndex) {
-			return mVDMix->setSelectedFbo(aFboIndex);
+			mVDMix->setSelectedFbo(aFboIndex);
 		}
 		unsigned int					getSelectedFbo() {
 			return mVDMix->getSelectedFbo();

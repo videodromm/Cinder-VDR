@@ -165,8 +165,8 @@ void VDMediatorObservable::update() {
 		// TODO timeline().apply(&mWarps[aWarpIndex]->ABCrossfade, 0.0f, 2.0f); };
 	}*/
 }
-bool VDMediatorObservable::setFragmentShaderString(const std::string& aFragmentShaderString, const std::string& aName) {
-	return mVDMix->setFragmentShaderString(aFragmentShaderString, aName);
+bool VDMediatorObservable::setFragmentShaderString(const std::string& aFragmentShaderString, const std::string& aName, unsigned int aFboShaderIndex) {
+	return mVDMix->setFragmentShaderString(aFragmentShaderString, aName, aFboShaderIndex);
 }
 int VDMediatorObservable::getOSCReceiverPort() {
 	return mOSCReceiverPort;
@@ -220,10 +220,10 @@ VDMediatorObservableRef VDMediatorObservable::setUniformValue(int aIndex, float 
 			observer->setUniformValue(aIndex, aValue);
 		}
 		// couldn't make an observer because it's both sender and receiver
-		/* 20220407 OSC routed to ws, freezes the app
+		/* 20220407 OSC routed to ws, freezes the app */
 		if (mWSInstanced) {
 			mVDWebsocket->wsWrite("{\"params\" :[{ \"name\":" + toString(aIndex) + ",\"value\":" + toString(aValue) + "}]}");
-		} */
+		}
 	}
 	return shared_from_this();
 };

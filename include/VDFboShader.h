@@ -60,6 +60,7 @@ namespace videodromm
 
 		ci::gl::Texture2dRef					getTexture(); //TODO 20200610; = 0
 		ci::gl::Texture2dRef					getRenderedTexture();
+		void									saveThumbnail(bool overwrite = true);
 		bool									isValid();
 		std::string								getShaderName();
 		std::vector<ci::gl::GlslProg::Uniform>	getUniforms();

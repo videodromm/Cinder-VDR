@@ -143,6 +143,7 @@ namespace videodromm
 		std::string				getFboInputTextureName(unsigned int aFboIndex = 0);
 		ci::gl::Texture2dRef	getFboInputTexture(unsigned int aTexIndex = 0);
 		void					setFboTextureAudioMode(unsigned int aFboIndex);
+		void					saveThumbnail(unsigned int aFboIndex = 0);
 		void					setSelectedFbo(unsigned int aFboIndex = 0);
 		unsigned int			getSelectedFbo();
 		//unsigned int			getFboInputTextureIndex(unsigned int aFboIndex = 0);

@@ -206,7 +206,7 @@ namespace videodromm {
 		return rtn;
 	}
 
-	bool VDMix::setFragmentShaderString(const string& aFragmentShaderString, const std::string& aName) {
+	bool VDMix::setFragmentShaderString(const string& aFragmentShaderString, const std::string& aName, unsigned int aFboShaderIndex) {
 		// received from websocket, tested with hydra
 		JsonTree		json;
 		JsonTree shader = ci::JsonTree::makeArray("shader");
@@ -219,7 +219,7 @@ namespace videodromm {
 		texture.pushBack(ci::JsonTree("texturetype", "audio"));
 		texture.pushBack(ci::JsonTree("texturemode", VDTextureMode::AUDIO));
 		json.addChild(texture);
-		int rtn = findAvailableIndex(0, json);
+		int rtn = findAvailableIndex(aFboShaderIndex, json); // 20240518 was 0
 		mFboShaderList[rtn]->setFragmentShaderString(aFragmentShaderString, aName + toString(rtn));
 		return rtn;
 	}
