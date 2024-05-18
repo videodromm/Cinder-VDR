@@ -77,9 +77,9 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iMouseW", IMOUSEW, 0.91f, 0.0f, 1.0f); //22
 
 	// iRenderXYX 
-	createFloatUniform("iRenderXYX", IRENDERXYX, 0.0f, -1.0f, 1.0f); // 23
+	createFloatUniform("iRenderXYX", IRENDERXYX, 0.0f, -1.0f, 1920.0f); // 23
 	// iRenderXYY  
-	createFloatUniform("iRenderXYY", IRENDERXYY, 0.0f, -1.0f, 1.0f); // 24 
+	createFloatUniform("iRenderXYY", IRENDERXYY, 0.0f, -1.0f, 1080.0f); // 24 
 	// slitscan / matrix (or other) Param1 
 	//createFloatUniform("iPixelX", IPIXELX, 0.0f, 0.00000000001f, 40.0f); // 23
 	// slitscan / matrix(or other) Param2 

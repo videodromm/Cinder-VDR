@@ -436,6 +436,9 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 					mVideo.play();
 				}
 				vec2 videoSize = vec2(mVideo.getWidth(), mVideo.getHeight());
+				/*mVDUniforms->setUniformValue(mVDUniforms->IRENDERXYX, mVideo.getWidth()*0.25);
+				mVDUniforms->setUniformValue(mVDUniforms->IRENDERXYY, mVideo.getHeight()*0.25);
+				mVDUniforms->setVec2UniformValueByIndex(mVDUniforms->IRENDERXY, vec2(mVideo.getWidth()*0.25, mVideo.getHeight()*0.25));*/
 				/* mGlslVideoTexture->uniform("uVideoSize", videoSize);
 				videoSize *= 0.5f;
 				 {

@@ -352,7 +352,7 @@ namespace videodromm {
 					texture.pushBack(ci::JsonTree("texturecount", 1));
 					json.addChild(texture);
 					JsonTree shader = ci::JsonTree::makeArray("shader");
-					shader.addChild(ci::JsonTree("shadername", "inputImage.fs"));
+					shader.addChild(ci::JsonTree("shadername", "inputVideo.fs"));
 					shader.pushBack(ci::JsonTree("shadertype", "fs"));
 					json.addChild(shader);
 					createFboShaderTexture(json, aFboIndex);
