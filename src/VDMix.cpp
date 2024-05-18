@@ -220,7 +220,7 @@ namespace videodromm {
 		texture.pushBack(ci::JsonTree("texturemode", VDTextureMode::AUDIO));
 		json.addChild(texture);
 		int rtn = findAvailableIndex(aFboShaderIndex, json); // 20240518 was 0
-		mFboShaderList[rtn]->setFragmentShaderString(aFragmentShaderString, aName + toString(rtn));
+		mFboShaderList[rtn]->setFragmentShaderString(aFragmentShaderString, aName);
 		return rtn;
 	}
 	int VDMix::loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex) {

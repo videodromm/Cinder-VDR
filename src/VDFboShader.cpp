@@ -33,7 +33,7 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation,
 	//mInputTextureIndex = 0;
 	// 20211107 only if no texture ?
 	setFboTextureAudioMode();
-
+	CI_LOG_V(json.serialize());
 	if (json.hasChild("shader")) {
 		JsonTree shaderJsonTree(json.getChild("shader"));
 		mShaderName = mShaderFileName = (shaderJsonTree.hasChild("shadername")) ? shaderJsonTree.getValueForKey<string>("shadername") : "inputImage.fs";
@@ -226,8 +226,11 @@ bool VDFboShader::loadFragmentShaderFromFile(const string& aFileOrPath, bool isA
 			if (!fs::exists(mFragFilePath)) {
 				mFragFilePath = getAssetPath("") / mAssetsPath / aFileOrPath;
 				if (!fs::exists(mFragFilePath)) {
-					fileExists = false;
-					mFboError = "VDFboShader file does not exist in assets root or current subfolder:" + aFileOrPath;
+					mFragFilePath = getAssetPath("") / aFileOrPath;
+					if (!fs::exists(mFragFilePath)) {
+						fileExists = false;
+						mFboError = "VDFboShader file does not exist in assets root or current subfolder:" + aFileOrPath;
+					}
 				}
 			}
 		}
