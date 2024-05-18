@@ -257,8 +257,10 @@ void VDSession::renderFxToFbo()
 
 		mGlslFx->uniform("iResolution", vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
 		mGlslFx->uniform("iChannel0", 41); // texture 0	
+		mGlslFx->uniform("iChannel1", 41); // texture audio
 		mGlslFx->uniform("iTime", mVDUniforms->getUniformValue(mVDUniforms->ITIME));
 		mGlslFx->uniform("iGreyScale", mVDUniforms->getUniformValue(mVDUniforms->IGREYSCALE));
+		mGlslFx->uniform("iGlitch", mVDUniforms->getUniformValue(mVDUniforms->IGLITCH));
 		mGlslFx->uniform("iFreq0", mVDUniforms->getUniformValue(mVDUniforms->IFREQ0));
 		mGlslFx->uniform("iMouse", mVDUniforms->getVec4UniformValueByName("iMouse"));
 

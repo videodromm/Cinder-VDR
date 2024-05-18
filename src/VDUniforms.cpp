@@ -74,7 +74,7 @@ VDUniforms::VDUniforms() {
 	// iMouseZ  
 	createFloatUniform("iMouseZ", IMOUSEZ, 0.0f, 0.0f, 1.0f); //21
 	// vignette amount
-	createFloatUniform("iMouseW", IMOUSEW, 0.91f, 0.0f, 1.0f); //22
+	createFloatUniform("iMouseW", IMOUSEW, 0.91f, 0.0f, 1.0f); //22 20240518 default was 0.91f
 
 	// iRenderXYX 
 	createFloatUniform("iRenderXYX", IRENDERXYX, 0.0f, -1.0f, 1920.0f); // 23
