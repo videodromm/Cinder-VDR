@@ -235,7 +235,7 @@ void VDSession::renderPostToFbo()
 		mGlslPost->uniform("iBlueMultiplier", mVDUniforms->getUniformValue(mVDUniforms->IFBX));
 		mGlslPost->uniform("iRenderXYX", mVDUniforms->getUniformValue(mVDUniforms->IRENDERXYX));
 		mGlslPost->uniform("iRenderXYY", mVDUniforms->getUniformValue(mVDUniforms->IRENDERXYY));
-
+		mGlslPost->uniform("iMouse", mVDUniforms->getVec4UniformValueByName("iMouse"));
 		gl::drawSolidRect(Rectf(0, 0, mVDParams->getFboWidth(), mVDParams->getFboHeight()));
 	}
 }
