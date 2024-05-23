@@ -35,6 +35,11 @@ VDAnimation::VDAnimation(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms) {
 	startTime = currentTime = mTimer.getSeconds();
 
 	mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->IRESOLUTION, vec3(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY), 1.0));
+	/* for swa
+	for (int i{ 0 }; i < 40; i++)
+	{
+		uniformToJson(i);
+	}*/
 }
 
 //! uniform to json
@@ -49,14 +54,17 @@ JsonTree VDAnimation::uniformToJson(int i)
 	int uniformType = mVDUniforms->getUniformType(i);//  shaderUniforms[i].uniformType;
 	u.addChild(ci::JsonTree("type", uniformType));
 	u.addChild(ci::JsonTree("name", mVDUniforms->getUniformName(i)));
-	u.addChild(ci::JsonTree("index", i));
+	u.addChild(ci::JsonTree("id", i));
 	// type specific 
 	switch (uniformType) {
 	case 0:
+	case 5126:
 		//float
 		u.addChild(ci::JsonTree("value", mVDUniforms->getDefaultUniformValue(i)));
+		u.addChild(ci::JsonTree("defaultValue", mVDUniforms->getDefaultUniformValue(i)));
 		u.addChild(ci::JsonTree("min", mVDUniforms->getMinUniformValue(i)));
 		u.addChild(ci::JsonTree("max", mVDUniforms->getMaxUniformValue(i)));
+		u.addChild(ci::JsonTree("color", "dark"));
 		break;
 	case 1:
 		// sampler2d
@@ -81,6 +89,12 @@ JsonTree VDAnimation::uniformToJson(int i)
 	}
 
 	json.pushBack(u);
+	CI_LOG_V(json.serialize());
+	std::string filename = mVDUniforms->getUniformName(i) + ".json";
+	fs::path fr = getAssetPath("") / "json" / filename;
+	if (!fs::exists(fr)) {
+		json.write(writeFile(fr), JsonTree::WriteOptions());
+	}
 	return json;
 }
 

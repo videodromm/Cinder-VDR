@@ -57,8 +57,8 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iEffect", IEFFECT, 0.0f, -0.5f, 0.5f, true); // 12
 	// smooth animation
 	createFloatUniform("iSmooth", ISMOOTH, 0.005f); // 50 -> 13
-	// exposure
-	createFloatUniform("iExposure", IEXPOSURE, 1.0f, 0.0f, 13.0f); // 14
+		// ratio
+	createFloatUniform("iRatio", IRATIO, 20.0f, 0.00000000001f, 40.0f); // 14
 	// Pixelate
 	createFloatUniform("iPixelate", IPIXELATE, 1.0f, 0.01f, 1.0f); // 15
 	// Trixels
@@ -89,9 +89,11 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iZoom", IZOOM, 1.0f, 0.01f, 30.05f, true); // 25
 	// Steps
 	createFloatUniform("iSteps", ISTEPS, 16.0f, 1.0f, 128.0f); // 26
-	// ratio
-	createFloatUniform("iRatio", IRATIO, 20.0f, 0.00000000001f, 40.0f); // 27
+	// exposure
+	createFloatUniform("iExposure", IEXPOSURE, 1.0f, 0.0f, 13.0f); // 27
 
+	// iTimeFactor
+	createFloatUniform("iTimeFactor", ITIMEFACTOR, 1.0f, 0.00000000001f, 10.0f); // 28
 	// Speed 
 	createFloatUniform("iSpeed", ISPEED, 1.0f, 0.01f, 12.0f); // 29
 
@@ -137,8 +139,7 @@ VDUniforms::VDUniforms() {
 	// TODO 20211204 check createFloatUniform("time", TIME, 0.0f); // 47
 	// bad tv
 	createFloatUniform("iBadTv", IBADTV, 0.0f, 0.0f, 5.0f); // 48
-	// iTimeFactor
-	createFloatUniform("iTimeFactor", ITIMEFACTOR, 1.0f); // 49
+
 	// DisplayMode
 	createFloatUniform("iDisplayMode", IDISPLAYMODE, 7.0f, 0.0f, 9.0f); // 51
 	// Max Volume Hydra
@@ -556,7 +557,7 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	}
 
 	// rotary
-	// exposure 14
+	// exposure 27
 	else if (key == "iExposure") {
 		rtn = IEXPOSURE;
 	}
@@ -609,6 +610,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	// ratio 27
 	else if (key == "iRatio") {
 		rtn = IRATIO;
+	}
+	// iTimeFactor 28
+	else if (key == "iTimeFactor") {
+	rtn = ITIMEFACTOR;
 	}
 	// zoom 13
 	else if (key == "iZoom") {
@@ -700,10 +705,7 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iBadTv") {
 		rtn = IBADTV;
 	}
-	// iTimeFactor 49
-	else if (key == "iTimeFactor") {
-		rtn = ITIMEFACTOR;
-	}
+
 	// IMULT 53
 	else if (key == "iMult") {
 		rtn = IMULT;

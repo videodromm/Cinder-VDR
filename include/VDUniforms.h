@@ -96,6 +96,7 @@ namespace videodromm
 			IZOOM = 25,
 			ISTEPS = 26,
 			IEXPOSURE = 27, // was 14
+			ITIMEFACTOR = 28,
 
 			//27 28 avail
 			ISPEED = 29,
@@ -120,7 +121,6 @@ namespace videodromm
 			IVFALLOFF = 46,
 			TIME = 47,
 			IBADTV = 48,
-			ITIMEFACTOR = 49,
 			IDISPLAYMODE = 51,
 			IMAXVOLUME = 52,
 			IMULT = 53,
