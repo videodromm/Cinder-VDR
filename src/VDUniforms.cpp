@@ -57,7 +57,7 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iEffect", IEFFECT, 0.0f, -0.5f, 0.5f, true); // 12
 	// smooth animation
 	createFloatUniform("iSmooth", ISMOOTH, 0.005f); // 50 -> 13
-		// ratio
+	// ratio
 	createFloatUniform("iRatio", IRATIO, 20.0f, 0.00000000001f, 40.0f); // 14
 	// Pixelate
 	createFloatUniform("iPixelate", IPIXELATE, 1.0f, 0.01f, 1.0f); // 15
@@ -206,7 +206,6 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iPixelX", IPIXELX, 0.0f, -0.5f, 0.5f); // 124 
 	// slitscan / matrix(or other) Param2 
 	createFloatUniform("iPixelY", IPIXELY, 0.0f, -0.5f, 0.5f); // 125
-
 
 	// -300 rule
 	createVec3Uniform("iResolution", IRESOLUTION, vec3(getUniformValue(IRESOLUTIONX), getUniformValue(IRESOLUTIONY), 1.0)); // 421 
