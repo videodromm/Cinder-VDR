@@ -347,7 +347,7 @@ void VDWebsocket::wsClientDisconnect()
 }
 void VDWebsocket::wsWrite(const std::string& msg)
 {
-	if (clientConnected) mClient.write(msg);
+	// 20240128 don't send to avoid loop if (clientConnected) mClient.write(msg);
 }
 
 void VDWebsocket::sendJSON(const std::string& params) {

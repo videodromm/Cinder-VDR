@@ -143,7 +143,7 @@ namespace videodromm
 			return mInputTextureList[0].texture->getHeight();
 		};
 		void									selectSenderPanel() {
-			mSpoutIn.getSpoutReceiver().SelectSenderPanel();
+			mSpoutIn.getSpoutReceiver().SelectSender();//Panel
 		}
 		int										getInputTextureMode() {
 			return mTextureMode;

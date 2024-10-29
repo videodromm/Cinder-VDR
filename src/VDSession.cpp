@@ -264,6 +264,24 @@ void VDSession::renderFxToFbo()
 		mGlslFx->uniform("iFreq0", mVDUniforms->getUniformValue(mVDUniforms->IFREQ0));
 		mGlslFx->uniform("iMouse", mVDUniforms->getVec4UniformValueByName("iMouse"));
 
+		mGlslFx->uniform("iTempoTime", mVDUniforms->getUniformValue(mVDUniforms->ITEMPOTIME));
+		mGlslFx->uniform("iRatio", mVDUniforms->getUniformValue(mVDUniforms->IRATIO));
+		mGlslFx->uniform("iSobel", mVDUniforms->getUniformValue(mVDUniforms->ISOBEL));
+		mGlslFx->uniform("iExposure", mVDUniforms->getUniformValue(mVDUniforms->IEXPOSURE));
+		mGlslFx->uniform("iTrixels", mVDUniforms->getUniformValue(mVDUniforms->ITRIXELS)); // trixels if > 0.
+		mGlslFx->uniform("iPixelate", mVDUniforms->getUniformValue(mVDUniforms->IPIXELATE)); // pixelate if < 1.
+		mGlslFx->uniform("iZoom", mVDUniforms->getUniformValue(mVDUniforms->IZOOM));
+		mGlslFx->uniform("iChromatic", mVDUniforms->getUniformValue(mVDUniforms->ICHROMATIC));
+		mGlslFx->uniform("iFlipV", mVDUniforms->getUniformValue(mVDUniforms->IFLIPPOSTV));
+		mGlslFx->uniform("iFlipH", mVDUniforms->getUniformValue(mVDUniforms->IFLIPPOSTH));
+		mGlslFx->uniform("iInvert", mVDUniforms->getUniformValue(mVDUniforms->IINVERT));
+		mGlslFx->uniform("iToggle", mVDUniforms->getUniformValue(mVDUniforms->ITOGGLE));
+		mGlslFx->uniform("iVignette", mVDUniforms->getUniformValue(mVDUniforms->IVIGNETTE));
+		mGlslFx->uniform("iRedMultiplier", mVDUniforms->getUniformValue(mVDUniforms->IFRX));
+		mGlslFx->uniform("iGreenMultiplier", mVDUniforms->getUniformValue(mVDUniforms->IFGX));
+		mGlslFx->uniform("iBlueMultiplier", mVDUniforms->getUniformValue(mVDUniforms->IFBX));
+		mGlslFx->uniform("iRenderXYX", mVDUniforms->getUniformValue(mVDUniforms->IRENDERXYX));
+		mGlslFx->uniform("iRenderXYY", mVDUniforms->getUniformValue(mVDUniforms->IRENDERXYY));
 
 		gl::drawSolidRect(Rectf(0, 0, mVDParams->getFboWidth(), mVDParams->getFboHeight()));
 	}

@@ -64,7 +64,7 @@ VDUniforms::VDUniforms() {
 	// Trixels
 	createFloatUniform("iTrixels", ITRIXELS, 0.0f, 0.0f, 1.0f); // 16
 	// iChromatic
-	createFloatUniform("iChromatic", ICHROMATIC, 0.0f, 0.000000001f); // 17
+	createFloatUniform("iChromatic", ICHROMATIC, 0.0f); // 17 min was, 0.000000001f
 		// iCrossfade
 	createFloatUniform("iCrossfade", IXFADE,  0.27710f, 0.0f, 1.0f); //18 was 42 20231116
 	// iMouseX  
@@ -93,7 +93,7 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iExposure", IEXPOSURE, 1.0f, 0.0f, 13.0f); // 27
 
 	// iTimeFactor
-	createFloatUniform("iTimeFactor", ITIMEFACTOR, 1.0f, 0.00000000001f, 10.0f); // 28
+	createFloatUniform("iTimeFactor", ITIMEFACTOR, 1.0f, 0.00000000001f, 4.0f); // 28
 	// Speed 
 	createFloatUniform("iSpeed", ISPEED, 1.0f, 0.01f, 12.0f); // 29
 
@@ -217,7 +217,7 @@ VDUniforms::VDUniforms() {
 	// invert
 	// glitch
 	createFloatUniform("iGlitch", IGLITCH, 0.0f); // 81
-	createFloatUniform("iClear", ICLEAR, 0.0f); // 82
+	createFloatUniform("iClear", ICLEAR, 1.0f); // 82
 	// toggle
 	createFloatUniform("iToggle", ITOGGLE, 0.0f); // 83
 

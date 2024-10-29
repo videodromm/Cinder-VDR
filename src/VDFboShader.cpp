@@ -104,6 +104,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		mInputTextureList[0].texture = mSpoutIn.receiveTexture();
 		// set name for UI
 		mInputTextureList[0].name = mSpoutIn.getSenderName();
+		mCurrentFilename = mTextureName = "spout in";// mSpoutIn.getSenderName();
 		mInputTextureList[0].ms = 0;
 		mInputTextureList[0].isValid = true;
 		break;
@@ -168,12 +169,12 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 					for debug if (!mVideo.isStopped()) {
 						mVideo.stop();
 						std::string videoPath = getAssetPath("sos17avril2022.mp4").string();
-	//std::string videoPath = getAssetPath("spidermoon.mov").string();
-	mVideo1.loadMovie(videoPath, "Haut-parleurs (Realtek(R) Audio)");
-	mVideo1.play();
-	mVideo1.getPresentationEndedSignal().connect([]() {
-		ci::app::console() << "Video finished playing!" << std::endl;
-	});
+						//std::string videoPath = getAssetPath("spidermoon.mov").string();
+						mVideo1.loadMovie(videoPath, "Haut-parleurs (Realtek(R) Audio)");
+						mVideo1.play();
+						mVideo1.getPresentationEndedSignal().connect([]() {
+							ci::app::console() << "Video finished playing!" << std::endl;
+						});
 
 					mCam.setPerspective(60.0f, getWindowAspectRatio(), 0.01f, 10000.0f);
 					mCam.lookAt(vec3(0, 0, 500), vec3(), vec3(0, 1, 0));

@@ -214,14 +214,14 @@ namespace videodromm
 		void							selectSenderPanel() {
 			if (mFboShaderList.size() == 0) return;
 			mFboShaderList[0]->selectSenderPanel();
-			CI_LOG_E("selectSenderPanel " << (unsigned int)mFboShaderList.size());
+			/* CI_LOG_E("selectSenderPanel " << (unsigned int)mFboShaderList.size());
 			for (size_t i{ 0 }; i < mFboShaderList.size() - 1; i++)
 			{
 				if (mFboShaderList[i]->getInputTextureMode() == VDTextureMode::SHARED) {
 					mFboShaderList[i]->selectSenderPanel();
 				}
 				
-			}
+			} */
 		};
 		void							restore(const fs::path& aFilePath);
 	private:
