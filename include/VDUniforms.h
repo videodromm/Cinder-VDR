@@ -150,10 +150,10 @@ IDATEZ = 75,
 IDATEW = 76,
 IBARSTART = 77,
 // booleans 80 to 110
-IGLITCH = 81,	// A4
 ICLEAR = 82,	// 
 ITOGGLE = 83,	// B4 for sos
 IINVERT = 86,	// D5
+IGLITCH = 87,	// was A4 now what?
 IGREYSCALE = 88,
 
 IBACKGROUNDCOLORX = 101,

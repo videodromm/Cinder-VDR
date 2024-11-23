@@ -187,7 +187,6 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iDateW", IDATEW, 0.91f, 0.0f, 90000.0f); // 76 25 hours
 	// start bar
 	createFloatUniform("iBarStart", IBARSTART, 0.0f, 0.0f, 1200.0f); // 77		
-	// CODE150 from 80 more 81 dancer 82 iron
 	// background red
 	createFloatUniform("iBackgroundColorX", IBACKGROUNDCOLORX, 0.56f); // 101
 	// background green
@@ -214,15 +213,15 @@ VDUniforms::VDUniforms() {
 	createVec4Uniform("iDate", IDATE, vec4(2021.0f, 12.0f, 1.0f, 5.0f));// 363
 
 	// boolean
-	// invert
-	// glitch
-	createFloatUniform("iGlitch", IGLITCH, 0.0f); // 81
+	// clear
 	createFloatUniform("iClear", ICLEAR, 1.0f); // 82
 	// toggle
 	createFloatUniform("iToggle", ITOGGLE, 0.0f); // 83
 
 	// invert
 	createFloatUniform("iInvert", IINVERT, 0.0f); // 86
+	// glitch
+	createFloatUniform("iGlitch", IGLITCH, 0.0f); // 87
 	// greyscale 
 	createFloatUniform("iGreyScale", IGREYSCALE, 0.0f); //88
 	createFloatUniform("iDebug", IDEBUG, 0.0f); // 129
@@ -454,7 +453,7 @@ bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 						case IBEAT:
 							shaderUniforms[IBEAT].floatValue = aValue;
 							setIBarBeat();
-							break;
+							break; 
 						case ITRACK:
 							shaderUniforms[ITRACK].floatValue = aValue;
 							shaderUniforms[ITIME].floatValue = (float)getElapsedSeconds();
@@ -849,11 +848,7 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	}
 
 	// boolean
-	// invert
-	// glitch 81
-	else if (key == "iGlitch") {
-		rtn = IGLITCH;
-	}
+	
 
 	// 82
 	else if (key == "iClear") {
@@ -866,6 +861,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	// invert 86
 	else if (key == "iInvert") {
 		rtn = IINVERT;
+	}
+	// glitch 87
+	else if (key == "iGlitch") {
+	rtn = IGLITCH;
 	}
 	// greyscale 88
 	else if (key == "iGreyScale") {

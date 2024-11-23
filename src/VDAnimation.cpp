@@ -502,7 +502,24 @@ void VDAnimation::update() {
 				break;
 			}
 		}
-
+		// boolean fx
+		for (unsigned int anim{ 86 }; anim < 89; anim++)
+		{
+			switch (mVDUniforms->getUniformAnim(anim)) {
+			case 1: // ANIM_TIME
+				mVDUniforms->setUniformValue(anim, (modulo < 0.1f) ? mVDUniforms->getMaxUniformValue(anim) : mVDUniforms->getMinUniformValue(anim));
+				break;
+			case 2: // ANIM_AUTO
+				mVDUniforms->setUniformValue(anim, lmap<float>(mVDUniforms->getUniformValue(mVDUniforms->ITEMPOTIME), 0.00001f,
+					mVDUniforms->getUniformValue(mVDUniforms->IDELTATIME), mVDUniforms->getMinUniformValue(anim), mVDUniforms->getMaxUniformValue(anim)));
+				break;
+			
+			
+			default:
+				// no animation
+				break;
+			}
+		}
 		// foreground color vec3 update
 		mVDUniforms->setVec3UniformValueByIndex(mVDUniforms->ICOLOR, vec3(mVDUniforms->getUniformValue(mVDUniforms->ICOLORX), mVDUniforms->getUniformValue(mVDUniforms->ICOLORY), mVDUniforms->getUniformValue(mVDUniforms->ICOLORZ)));
 
