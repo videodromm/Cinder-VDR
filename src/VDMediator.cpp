@@ -73,6 +73,9 @@ VDMediatorObservableRef VDMediatorObservable::setupWSClient() {
 	// only save if not present saveWSToJson();
 	return shared_from_this();
 }
+bool VDMediatorObservable::isWSConnected() { 
+	return (mWSInstanced) ? mVDWebsocket->isConnected() : false;
+};
 void VDMediatorObservable::loadOSCReceiverFromJsonFile(const fs::path& jsonFile) {
 	if (fs::exists(jsonFile)) {
 		JsonTree json(loadFile(jsonFile));

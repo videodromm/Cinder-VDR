@@ -217,7 +217,6 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iClear", ICLEAR, 1.0f); // 82
 	// toggle
 	createFloatUniform("iToggle", ITOGGLE, 0.0f); // 83
-
 	// invert
 	createFloatUniform("iInvert", IINVERT, 0.0f); // 86
 	// glitch

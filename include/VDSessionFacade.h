@@ -208,12 +208,12 @@ namespace videodromm
 		}
 
 	private:
-		VDSessionFacade(VDSessionRef session, VDMediatorObservableRef mediator) : mVDSession(session), mVDMediator(mediator), mOscSenderConnected(false), mIsMidiSetup(false), mOscReceiverConnected(false), mWSClientConnected(false) { }
+		VDSessionFacade(VDSessionRef session, VDMediatorObservableRef mediator) : mVDSession(session), mVDMediator(mediator), mOscSenderConnected(false), mIsMidiSetup(false), mOscReceiverConnected(false) { }
 		VDSessionRef						mVDSession;
 		VDMediatorObservableRef				mVDMediator;
 		bool								mOscSenderConnected = false;
 		bool								mOscReceiverConnected = false;
-		bool								mWSClientConnected = false;
+
 		bool								mIsMidiSetup = false;
 		std::string							mTrackName = "";
 		// session

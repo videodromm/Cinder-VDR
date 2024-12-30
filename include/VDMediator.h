@@ -93,6 +93,7 @@ namespace videodromm {
 		void								wsConnect();
 		void								wsPing();
 		void								update();
+		bool								isWSConnected();
 
 		VDMediatorObservableRef				setupKeyboard();
 		float								getUniformValue(unsigned int aIndex);

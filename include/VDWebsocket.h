@@ -54,6 +54,7 @@ namespace videodromm
 		//bool						hasReceivedShader() { return shaderReceived; };
 		//std::string					getReceivedShader();
 		bool						hasReceivedUniforms() { return shaderUniforms; };
+		bool						isConnected() { return clientConnected;  };
 		std::string					getReceivedUniforms();
 		// received stream
 		std::string	*				getBase64Image();
