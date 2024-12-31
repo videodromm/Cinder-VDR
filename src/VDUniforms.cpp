@@ -44,7 +44,7 @@ VDUniforms::VDUniforms() {
 	// blue multiplier 
 	createFloatUniform("iBlueMultiplier", IFBX, 1.0f, 0.0f, 3.0f); // 7
 	// sobel gstnsmk
-	createFloatUniform("iSobel", ISOBEL, 0.02f, 0.02f, 2.0f); // 8
+	// createFloatUniform("iSobel", ISOBEL, 0.02f, 0.02f, 2.0f); // 8
 	// factor
 	createFloatUniform("iFactor", IFACTOR, 1.0f, 0.4f, 0.6f); // 9
 	// vignette
@@ -219,10 +219,13 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iToggle", ITOGGLE, 0.0f); // 83
 	// invert
 	createFloatUniform("iInvert", IINVERT, 0.0f); // 86
-	// glitch
-	createFloatUniform("iGlitch", IGLITCH, 0.0f); // 87
+	// sobel
+	createFloatUniform("iSobel", ISOBEL, 0.0f); // 87
 	// greyscale 
 	createFloatUniform("iGreyScale", IGREYSCALE, 0.0f); //88
+	// glitch
+	createFloatUniform("iGlitch", IGLITCH, 0.0f); // 89
+
 	createFloatUniform("iDebug", IDEBUG, 0.0f); // 129
 	createFloatUniform("iXorY", IXORY, 0.0f); // 130
 	createFloatUniform("iFlipH", IFLIPH, 0.0f); // 131
@@ -533,9 +536,9 @@ int VDUniforms::stringToIndex(const std::string& key) {
 		rtn = IFBX;
 	}
 	// 8
-	else if (key == "iSobel") {
+	/* else if (key == "iSobel") {
 		rtn = ISOBEL;
-	}
+	} */
 	// 9 
 	else if (key == "iFactor") {
 		rtn = IFACTOR;
@@ -861,13 +864,17 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iInvert") {
 		rtn = IINVERT;
 	}
-	// glitch 87
-	else if (key == "iGlitch") {
-	rtn = IGLITCH;
+	// sobel 87
+	else if (key == "iSobel") {
+		rtn = ISOBEL;
 	}
 	// greyscale 88
 	else if (key == "iGreyScale") {
 		rtn = IGREYSCALE;
+	}
+	// glitch 89
+	else if (key == "iGlitch") {
+		rtn = IGLITCH;
 	}
 	else if (key == "iDebug") {
 		rtn = IDEBUG;

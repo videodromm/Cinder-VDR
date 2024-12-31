@@ -91,6 +91,10 @@ bool VDKeyboard::handleKeyDown(KeyEvent& event) {
 		// glitch
 		mVDMediator->setUniformValue(mVDUniforms->IGLITCH, true);
 		break;
+	case KeyEvent::KEY_l:
+		// sobel
+		mVDMediator->setUniformValue(mVDUniforms->ISOBEL, true);
+		break;
 	case KeyEvent::KEY_i:
 		// invert
 		mVDMediator->setUniformValue(mVDUniforms->IINVERT, true);
@@ -184,41 +188,45 @@ bool VDKeyboard::handleKeyUp(KeyEvent& event) {
 	bool isModDown = event.isControlDown();
 #endif
 
-			// Animation did not handle the key, so handle it here
-			switch (event.getCode()) {
-			case KeyEvent::KEY_y:
-				// glitch
-				mVDMediator->setUniformValue(mVDUniforms->IGLITCH, false);
-				break;
-			case KeyEvent::KEY_t:
-				// trixels
-				mVDMediator->setUniformValue(mVDUniforms->ITRIXELS, 0.0f);
-				break;
-			case KeyEvent::KEY_i:
-				// invert
-				mVDMediator->setUniformValue(mVDUniforms->IINVERT, false);
-				break;
-			case KeyEvent::KEY_u:
-				// chromatic
-				mVDMediator->setUniformValue(mVDUniforms->ICHROMATIC, 0.0f);
-				break;
-			case KeyEvent::KEY_p:
-				// pixelate
-				mVDMediator->setUniformValue(mVDUniforms->IPIXELATE, 1.0f);
-				break;
-			case KeyEvent::KEY_o:
-				// toggle
-				mVDMediator->setUniformValue(mVDUniforms->ITOGGLE, false);
-				break;
-			case KeyEvent::KEY_z:
-				// zoom
-				mVDMediator->setUniformValue(mVDUniforms->IZOOM, 1.0f);
-				break;
-			default:
-				CI_LOG_V("VDKeyboard keyup: " + toString(event.getCode()));
-				handled = false;
-				break;
-			}
+	// Animation did not handle the key, so handle it here
+	switch (event.getCode()) {
+	case KeyEvent::KEY_y:
+		// glitch
+		mVDMediator->setUniformValue(mVDUniforms->IGLITCH, false);
+		break;
+		case KeyEvent::KEY_l:
+		// sobel
+		mVDMediator->setUniformValue(mVDUniforms->ISOBEL, false);
+		break;
+	case KeyEvent::KEY_t:
+		// trixels
+		mVDMediator->setUniformValue(mVDUniforms->ITRIXELS, 0.0f);
+		break;
+	case KeyEvent::KEY_i:
+		// invert
+		mVDMediator->setUniformValue(mVDUniforms->IINVERT, false);
+		break;
+	case KeyEvent::KEY_u:
+		// chromatic
+		mVDMediator->setUniformValue(mVDUniforms->ICHROMATIC, 0.0f);
+		break;
+	case KeyEvent::KEY_p:
+		// pixelate
+		mVDMediator->setUniformValue(mVDUniforms->IPIXELATE, 1.0f);
+		break;
+	case KeyEvent::KEY_o:
+		// toggle
+		mVDMediator->setUniformValue(mVDUniforms->ITOGGLE, false);
+		break;
+	case KeyEvent::KEY_z:
+		// zoom
+		mVDMediator->setUniformValue(mVDUniforms->IZOOM, 1.0f);
+		break;
+	default:
+		CI_LOG_V("VDKeyboard keyup: " + toString(event.getCode()));
+		handled = false;
+		break;
+	}
 	
 	CI_LOG_V((handled ? "VDKeyboard keyup handled " : "VDKeyboard keyup not handled "));
 	event.setHandled(handled);
