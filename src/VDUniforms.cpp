@@ -45,6 +45,10 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iBlueMultiplier", IFBX, 1.0f, 0.0f, 3.0f); // 7
 	// sobel gstnsmk
 	// createFloatUniform("iSobel", ISOBEL, 0.02f, 0.02f, 2.0f); // 8
+	// zoom
+	createFloatUniform("iZoom", IZOOM, 1.0f, 0.95f, 1.05f); // 8 mapnfold 
+	// createFloatUniform("iZoom", IZOOM, 1.0f, 0.01f, 30.05f, true); // 8
+
 	// factor
 	createFloatUniform("iFactor", IFACTOR, 1.0f, 0.4f, 0.6f); // 9
 	// vignette
@@ -84,9 +88,6 @@ VDUniforms::VDUniforms() {
 	//createFloatUniform("iPixelX", IPIXELX, 0.0f, 0.00000000001f, 40.0f); // 23
 	// slitscan / matrix(or other) Param2 
 	//createFloatUniform("iPixelY", IPIXELY, 0.0f, 0.00000000001f, 40.0f); // 24
-		// zoom
-	// createFloatUniform("iZoom", IZOOM, 1.0f, 0.95f, 1.05f, true); // mapnfold 
-	createFloatUniform("iZoom", IZOOM, 1.0f, 0.01f, 30.05f, true); // 25
 	// Steps
 	createFloatUniform("iSteps", ISTEPS, 16.0f, 1.0f, 128.0f); // 26
 	// exposure
@@ -487,7 +488,7 @@ bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 						// TODO 20211011 find bug max = 0.0
 						if (shaderUniforms[aIndex].maxValue == 0.0f) {
 							mErrorCode = 1;
-							shaderUniforms[aIndex].maxValue == 1.0f; // put breakpoint here
+							shaderUniforms[aIndex].maxValue = 1.0f; // put breakpoint here
 						}
 					}
 				}
@@ -539,6 +540,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	/* else if (key == "iSobel") {
 		rtn = ISOBEL;
 	} */
+	// 8
+	else if (key == "iZoom") {
+		rtn = IZOOM;
+	}
 	// 9 
 	else if (key == "iFactor") {
 		rtn = IFACTOR;
@@ -601,8 +606,6 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iRenderXYY") {
 		rtn = IRENDERXYY;
 	}
-	
-
 	// Steps 26
 	else if (key == "iSteps") {
 		rtn = ISTEPS;
@@ -615,16 +618,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iTimeFactor") {
 	rtn = ITIMEFACTOR;
 	}
-	// zoom 13
-	else if (key == "iZoom") {
-		rtn = IZOOM;
-	}
 	// contour 30
 	else if (key == "iContour") {
 		rtn = ICONTOUR;
 	}
-
-
 	// weight mix fbo texture 0 31
 	else if (key == "iWeight0") {
 		rtn = IWEIGHT0;

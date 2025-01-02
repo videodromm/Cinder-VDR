@@ -73,6 +73,7 @@ namespace videodromm
 			IFGX = 6,
 			IFBX = 7,
 			// ISOBEL = now 87,
+			IZOOM = 8,
 			IFACTOR = 9,
 			IVIGNETTE = 10,		// was 82 A#4
 			IROTATIONSPEED = 11,
@@ -93,7 +94,6 @@ namespace videodromm
 			IRENDERXYX = 23,
 			IRENDERXYY = 24,
 
-			IZOOM = 25,
 			ISTEPS = 26,
 			IEXPOSURE = 27, // was 14
 			ITIMEFACTOR = 28,

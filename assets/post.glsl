@@ -137,18 +137,18 @@ void main() {
 	c.r *= iRedMultiplier;
 	c.g *= iGreenMultiplier;
 	c.b *= iBlueMultiplier;
-	/* old vignette
+	// old vignette
 	if (iVignette > 0.0) { 
 		vec2 p = 1.0 + -2.0 * uv;
 		p.y *= 0.4;
 		c = mix( c, vec4( 0.1 ), dot( p, p )*iVignette*3.0 ); 
-	}*/
-	// new vignette
-	if (iVignette > 0.0) { 
+	}
+	// new vignette cyrano
+	/* if (iVignette > 0.0) { 
 		vec2 p = 1.0 + -2.0 * uv;
 		p.y *= 1.1;
 		p.x *= 2.0;
 		c -= pow(length(p), 500.0);
-	}
+	}*/
    	gl_FragColor = c;
 }
