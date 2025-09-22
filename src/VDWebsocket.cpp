@@ -14,6 +14,11 @@ VDWebsocket::VDWebsocket() {
 	clientConnected = false;
 	mWSHost = "127.0.0.1";
 	mWSPort = 8088;
+	
+	// Auto-reconnect functionality
+	mAutoReconnect = true;
+	mLastReconnectAttempt = 0.0;
+	mReconnectInterval = 60.0; // 60 seconds = 1 minute
 
 	//wsConnect();
 	mPingTime = getElapsedSeconds();
@@ -279,6 +284,7 @@ std::string VDWebsocket::getWSMsg() {
 }
 void VDWebsocket::wsConnect() {
 	mWebSocketsMsg = "Connecting...";
+	mLastReconnectAttempt = getElapsedSeconds(); // Reset reconnect timer
 	mClient.connectOpenEventHandler([&]() {
 		clientConnected = true;
 		mWebSocketsMsg = "Connected";
@@ -290,6 +296,7 @@ void VDWebsocket::wsConnect() {
 		//mVDSettings->mWebSocketsNewMsg = true;
 	});
 	mClient.connectFailEventHandler([&](std::string err) {
+		clientConnected = false;
 		mWebSocketsMsg = "WS Error";
 		//mVDSettings->mWebSocketsNewMsg = true;
 		if (!err.empty()) {
@@ -297,6 +304,7 @@ void VDWebsocket::wsConnect() {
 		}
 	});
 	mClient.connectInterruptEventHandler([&]() {
+		clientConnected = false;
 		mWebSocketsMsg = "WS Interrupted";
 		//mVDSettings->mWebSocketsNewMsg = true;
 	});
@@ -342,6 +350,7 @@ void VDWebsocket::wsClientDisconnect()
 	{
 		clientConnected = false;
 		mClient.disconnect();
+		mAutoReconnect = false; // Disable auto-reconnect when manually disconnecting
 	}
 
 }
@@ -494,6 +503,17 @@ void VDWebsocket::update() {
 	if (clientConnected)
 	{
 		mClient.poll();
+	}
+	else if (mAutoReconnect)
+	{
+		// Auto-reconnect logic when disconnected
+		double currentTime = getElapsedSeconds();
+		if (currentTime - mLastReconnectAttempt >= mReconnectInterval)
+		{
+			mLastReconnectAttempt = currentTime;
+			mWebSocketsMsg = "Auto-reconnecting...";
+			wsConnect();
+		}
 	}
 
 }

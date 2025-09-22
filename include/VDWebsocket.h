@@ -39,6 +39,10 @@ namespace videodromm
 		void						wsWrite(const std::string& msg);
 		void						wsConnect();
 		void						wsPing();
+		// Auto-reconnect control
+		void						setAutoReconnect(bool enable) { mAutoReconnect = enable; }
+		bool						getAutoReconnect() const { return mAutoReconnect; }
+		void						setReconnectInterval(double intervalSeconds) { mReconnectInterval = intervalSeconds; }
 		// change a control value and update network clients
 		void						changeFloatValue(unsigned int aControl, float aValue, bool forceSend = false, bool toggle = false, bool increase = false, bool decrease = false);
 		void						changeIntValue(unsigned int aControl, int aValue);
@@ -89,6 +93,10 @@ namespace videodromm
 		std::string					mWebSocketsMsg;
 		std::string					mWSHost;
 		int							mWSPort;
+		// Auto-reconnect functionality
+		bool						mAutoReconnect;
+		double						mLastReconnectAttempt;
+		double						mReconnectInterval; // in seconds
 		// received shaders
 		//bool						shaderReceived; // TODO remove
 		//std::string					receivedFragString; // TODO remove
