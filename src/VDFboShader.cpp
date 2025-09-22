@@ -299,6 +299,7 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 		// update only if success
 		mShaderFragmentString = mOutputFragmentString;
 		mFboMsg = mName;
+		mFboStatus = "";
 		mValid = true;
 	}
 	catch (gl::GlslProgCompileExc& exc)
