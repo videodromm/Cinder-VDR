@@ -93,6 +93,10 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		mInputTextureList[0].isValid = false; // remove audio texture
 		loadNextTexture(1);
 		break;
+	case VDTextureMode::TEXT: // text
+		mInputTextureList[0].isValid = false; // remove audio texture
+		
+		break;
 	case VDTextureMode::PARTS: // img parts
 		mInputTextureList[0].isValid = false; // remove audio texture
 		for (size_t i{ 0 }; i < mTextureCount; i++)
@@ -394,6 +398,18 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 	if (mValid) {
 		switch (mTextureMode)
 		{
+		case VDTextureMode::TEXT: 
+			mFboMsg = "text";
+			mFont = Font("Gill Sans Ultra Bold", mVDUniforms->getUniformValue(mVDUniforms->ISMOOTH) * 256.0f);
+			mSize = vec2(mVDParams->getFboWidth(), mVDParams->getFboHeight());
+			//gl::ScopedViewport scopedViewport(getWindowSize());
+			//mTextbox = TextBox().alignment(TextBox::CENTER).font(mFont).size(ivec2(mSize.x, TextBox::GROW)).text(mTextureName);
+			mTextbox = TextBox().alignment(TextBox::CENTER).font(mFont).size(mSize).text(mTextureName);
+			mTextbox.setColor(Color(1.0f, 1.0f, 1.0f));
+			mTextbox.setBackgroundColor(ColorA(0.0f, 0.0f, 0.0f, mVDUniforms->getUniformValue(mVDUniforms->IALPHA)));
+			//ivec2 sz = mTextbox.measure();
+			mTextTexture = gl::Texture2d::create(mTextbox.render());
+			break; 
 		case VDTextureMode::AUDIO: // audio
 			setFboTextureAudioMode();
 			break;
@@ -466,6 +482,9 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		// bind texture
 		switch (mTextureMode)
 		{
+		case VDTextureMode::TEXT:
+			// nothing
+			break;
 		case VDTextureMode::MOVIE:
 			// nothing
 			break;
@@ -612,7 +631,13 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			// 20220421 TODO for not 720p:  gl::scale(vec3(1.0f));
 			mVideo.draw(0, 0);
 		}
-		
+		if (mTextureMode == VDTextureMode::TEXT)
+		{			
+			gl::ScopedColor scopedColor(Colorf::white());
+			gl::ScopedModelMatrix scopedModelMatrix;
+			if (mTextTexture)
+				gl::draw(mTextTexture);
+		}
 
 		mRenderedTexture = mFbo->getColorTexture();
 		if (!isReady) {

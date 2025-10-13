@@ -240,5 +240,10 @@ namespace videodromm
 		unsigned int					getValidTexIndex(unsigned int aTexIndex) {
 			return math<unsigned int>::min(aTexIndex, (unsigned int)mInputTextureList.size() - 1);
 		}
+		// text
+		gl::TextureRef		mTextTexture;
+		vec2				mSize;
+		Font				mFont;
+		TextBox				mTextbox;
 	};
 }

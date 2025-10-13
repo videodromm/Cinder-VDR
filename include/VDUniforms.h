@@ -12,7 +12,7 @@ using namespace ci::app;
 
 namespace videodromm
 {
-	enum VDTextureMode { UNKNOWN, IMAGE, SEQUENCE, MOVIE, CAMERA, SHARED, AUDIO, STREAM, PARTS };
+	enum VDTextureMode { UNKNOWN, IMAGE, SEQUENCE, MOVIE, CAMERA, SHARED, AUDIO, STREAM, PARTS, TEXT };
 	enum VDDisplayMode {
 		FBO0,
 		FBO1,
