@@ -93,7 +93,8 @@ namespace videodromm
 
 			IRENDERXYX = 23,
 			IRENDERXYY = 24,
-
+			// param to modify (vsn1)
+			ISELECTED = 25,
 			ISTEPS = 26,
 			IEXPOSURE = 27, // was 14
 			ITIMEFACTOR = 28,

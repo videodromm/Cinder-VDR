@@ -84,6 +84,9 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iRenderXYX", IRENDERXYX, 0.0f, -1.0f, 1920.0f); // 23
 	// iRenderXYY  
 	createFloatUniform("iRenderXYY", IRENDERXYY, 0.0f, -1.0f, 1080.0f); // 24 
+	// iSelected  
+	createFloatUniform("iSelected", ISELECTED, 31.0f, 0.0f, 100.0f); // 25
+	// createFloatUniform(const std::string& aName, int aCtrlIndex, float aValue = 1.0f, float aMin = 0.0f, float aMax = 1.0f, bool overrideValue = false)
 	// slitscan / matrix (or other) Param1 
 	//createFloatUniform("iPixelX", IPIXELX, 0.0f, 0.00000000001f, 40.0f); // 23
 	// slitscan / matrix(or other) Param2 
@@ -606,6 +609,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iRenderXYY") {
 		rtn = IRENDERXYY;
 	}
+	// iSelected 25
+	/*else if (key == "iSelected") {
+		rtn = ISELECTED;
+	}*/
 	// Steps 26
 	else if (key == "iSteps") {
 		rtn = ISTEPS;

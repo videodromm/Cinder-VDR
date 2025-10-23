@@ -33,6 +33,10 @@ namespace videodromm {
 		}
 		VDUniformObserverRef setUniformValue(int aIndex, float aValue) {
 			mVDUniforms->setUniformValue(aIndex, aValue);
+			if (aIndex == 40) {
+				int selected = int(mVDUniforms->getUniformValue(25));
+				mVDUniforms->setUniformValue(int(mVDUniforms->getUniformValue(25)), aValue);
+			}
 			return shared_from_this();
 		}
 		
