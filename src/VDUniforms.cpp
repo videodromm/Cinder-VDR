@@ -85,7 +85,7 @@ VDUniforms::VDUniforms() {
 	// iRenderXYY  
 	createFloatUniform("iRenderXYY", IRENDERXYY, 0.0f, -1.0f, 1080.0f); // 24 
 	// iSelected  
-	createFloatUniform("iSelected", ISELECTED, 31.0f, 0.0f, 100.0f); // 25
+	createFloatUniform("iSelected", ISELECTED, 30.0f, 0.0f, 100.0f); // 25
 	// createFloatUniform(const std::string& aName, int aCtrlIndex, float aValue = 1.0f, float aMin = 0.0f, float aMax = 1.0f, bool overrideValue = false)
 	// slitscan / matrix (or other) Param1 
 	//createFloatUniform("iPixelX", IPIXELX, 0.0f, 0.00000000001f, 40.0f); // 23
@@ -157,7 +157,7 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iPar2", IPAR2, 1.0f, 0.0f, 30.0f); // 56
 	createFloatUniform("iPar3", IPAR3, 1.385f, 0.0f, 30.0f); // 57
 	createFloatUniform("iPar4", IPAR4, 1.817f, 0.0f, 10.0f); // 58
-	createFloatUniform("iPar5", IPAR5, 1.0f, 0.0f, 3.0f); // 59
+	createFloatUniform("iPar5", IPAR5, 0.0f, 0.0f, 2.5f); // 59
 
 	// int
 	// blend mode 

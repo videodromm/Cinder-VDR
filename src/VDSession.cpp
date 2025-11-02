@@ -211,6 +211,7 @@ void VDSession::renderPostToFbo()
 
 		// not used yet mGlslPost->uniform("TIME", getUniformValue(mVDUniforms->ITIME) - mVDSettings->iStart);;
 		mGlslPost->uniform("iResolution", vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
+		mGlslPost->uniform("iColor", vec3(mVDUniforms->getUniformValue(mVDUniforms->ICOLORX), mVDUniforms->getUniformValue(mVDUniforms->ICOLORY), mVDUniforms->getUniformValue(mVDUniforms->ICOLORZ)));
 		mGlslPost->uniform("iChannel0", 40); // texture 0
 		// tmp 20210102
 		float iz = mVDUniforms->getUniformValue(mVDUniforms->IZOOM);
@@ -224,6 +225,7 @@ void VDSession::renderPostToFbo()
 		mGlslPost->uniform("iZoom", mVDUniforms->getUniformValue(mVDUniforms->IZOOM));
 		mGlslPost->uniform("iGlitch", mVDUniforms->getUniformValue(mVDUniforms->IGLITCH));
 		mGlslPost->uniform("iChromatic", mVDUniforms->getUniformValue(mVDUniforms->ICHROMATIC));
+		mGlslPost->uniform("iPar5", mVDUniforms->getUniformValue(mVDUniforms->IPAR5));
 		mGlslPost->uniform("iFlipV", mVDUniforms->getUniformValue(mVDUniforms->IFLIPPOSTV));
 		mGlslPost->uniform("iFlipH", mVDUniforms->getUniformValue(mVDUniforms->IFLIPPOSTH));
 		mGlslPost->uniform("iInvert", mVDUniforms->getUniformValue(mVDUniforms->IINVERT));
