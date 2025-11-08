@@ -232,6 +232,7 @@ void VDSession::renderPostToFbo()
 		mGlslPost->uniform("iToggle", mVDUniforms->getUniformValue(mVDUniforms->ITOGGLE));
 		mGlslPost->uniform("iGreyScale", mVDUniforms->getUniformValue(mVDUniforms->IGREYSCALE));
 		mGlslPost->uniform("iVignette", mVDUniforms->getUniformValue(mVDUniforms->IVIGNETTE));
+		mGlslPost->uniform("iAlpha", mVDUniforms->getUniformValue(mVDUniforms->IALPHA));
 		mGlslPost->uniform("iRedMultiplier", mVDUniforms->getUniformValue(mVDUniforms->IFRX));
 		mGlslPost->uniform("iGreenMultiplier", mVDUniforms->getUniformValue(mVDUniforms->IFGX));
 		mGlslPost->uniform("iBlueMultiplier", mVDUniforms->getUniformValue(mVDUniforms->IFBX));

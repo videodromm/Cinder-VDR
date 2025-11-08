@@ -113,7 +113,6 @@ namespace videodromm
 			IWEIGHT7 = 38,
 			IWEIGHT8 = 39,
 			
-			IAUDIOX = 40,// 40 was 12
 			ISTART = 41,
 			IDELTATIME = 42,
 			ITEMPOTIME = 43,
@@ -122,6 +121,7 @@ namespace videodromm
 			IVFALLOFF = 46,
 			TIME = 47,
 			IBADTV = 48,
+			IAUDIOX = 49,
 			IDISPLAYMODE = 51,
 			IMAXVOLUME = 52,
 			IMULT = 53,

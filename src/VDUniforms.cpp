@@ -123,13 +123,11 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iWeight8", IWEIGHT8, 0.0f, 0.0f, 1.0f); // 39
 	// elapsed in bar 
 	//createFloatUniform("iElapsed", IELAPSED, 0.0f); // 39
-	// Audio multfactor 
-	createFloatUniform("iAudioX", IAUDIOX, 1.0f, 0.01f, 7.0f); // 40 was 12
 
 	// ISTART
 	createFloatUniform("iStart", ISTART, 0.0f, 1.0f, 4200.0f); // 41		
 	// delta time in seconds
-	createFloatUniform("iDeltaTime", IDELTATIME, 60.0f / 160.0f); // 42 was 25 then 40
+	createFloatUniform("iDeltaTime", IDELTATIME, 60.0f / 160.0f); // 42
 
 	// tempo time
 	createFloatUniform("iTempoTime", ITEMPOTIME, 0.1f); //43
@@ -143,6 +141,8 @@ VDUniforms::VDUniforms() {
 	// TODO 20211204 check createFloatUniform("time", TIME, 0.0f); // 47
 	// bad tv
 	createFloatUniform("iBadTv", IBADTV, 0.0f, 0.0f, 5.0f); // 48
+	// Audio multfactor 
+	createFloatUniform("iAudioX", IAUDIOX, 1.0f, 0.01f, 7.0f); // 49
 
 	// DisplayMode
 	createFloatUniform("iDisplayMode", IDISPLAYMODE, 7.0f, 0.0f, 9.0f); // 51
@@ -665,10 +665,7 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iWeight8") {
 		rtn = IWEIGHT8;
 	}
-	// Audio multfactor 40 
-	else if (key == "iAudioX") {
-		rtn = IAUDIOX;
-	}
+	
 	// iStart 41 
 	else if (key == "iStart") {
 		rtn = ISTART;
@@ -709,7 +706,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	else if (key == "iBadTv") {
 		rtn = IBADTV;
 	}
-
+	// Audio multfactor 49 
+	else if (key == "iAudioX") {
+		rtn = IAUDIOX;
+	}
 	// IMULT 53
 	else if (key == "iMult") {
 		rtn = IMULT;
