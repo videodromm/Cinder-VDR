@@ -100,7 +100,7 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 				// set iStart
 				if (mVelocity > 0) {
 					// note range 0 to 127 tracks from 110 = midi note D7
-					if (mNote > 109) {
+					if (mNote > 104) {
 
 						// load folder in main app
 						if (mVDUniforms->getUniformValue(mVDUniforms->ITRACK) == (float)mNote) {
