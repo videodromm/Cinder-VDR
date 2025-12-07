@@ -24,7 +24,7 @@ namespace videodromm {
 		unsigned	uiPreviewH = previewHeight + uiMargin;
 		unsigned	uiXPosCol1 = uiLargeW + uiMargin * 2;
 		unsigned	uiXPosCol2 = uiXPosCol1 + uiMargin * 2 + previewFboWidth;
-		unsigned	uiXPosCol3 = (unsigned)(uiXPosCol2 * 3.35 + uiMargin);
+		unsigned	uiXPosCol3 = (unsigned)(uiXPosCol2 * 3.17 + uiMargin);
 		unsigned	uiYPosRow2 = uiYPosRow1 + uiLargePreviewH + uiMargin; // details, textures
 		unsigned	uiYPosRow3 = uiYPosRow2 + uiLargeH + uiLargePreviewH + 40;// 60;
 		unsigned	uiYPosRow4 = uiYPosRow3 + uiLargePreviewH + uiMargin;
