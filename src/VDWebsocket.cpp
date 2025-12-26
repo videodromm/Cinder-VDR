@@ -335,7 +335,7 @@ void VDWebsocket::wsClientConnect()
 			s << "ws://" << mWSHost; 
 		}
 		else {
-			s << "ws://" << mWSHost << ":" << mWSPort;
+			s << "ws://" << mWSHost << ":" << mWSPort << "/?app=vdc";
 		}
 	}
 	// BL TEMP s << "ws://127.0.0.1:8088";
