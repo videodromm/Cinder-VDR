@@ -1,4 +1,4 @@
-uniform vec3 iResolution;uniform sampler2D iChannel0;uniform float iZoom;
+uniform vec3 iResolution;uniform sampler2D iChannel0;uniform float iZoom;uniform float iRenderXYX;uniform float iRenderXYY;
 uniform float iTime;uniform float iTempoTime;uniform float iRatio;uniform float iVignette;uniform float iToggle;
 uniform float iExposure;uniform float iSobel;uniform float iChromatic;uniform float iGreyScale;
 uniform float iFlipV;uniform float iFlipH;uniform float iInvert;uniform float iTrixels;
@@ -77,14 +77,51 @@ vec4 trixels( vec2 inUV, sampler2D tex )
 }
 // trixels end
 // glitch begin
-float glitchHash(float x)
-{
-	return fract(sin(x * 11.1753) * 192652.37862);
+//2D (returns 0 - 1)
+float random2d(vec2 n) { 
+    return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
 }
-float glitchNse(float x)
+
+float randomRange (in vec2 seed, in float min, in float max) {
+		return min + random2d(seed) * (max - min);
+}
+
+// return 1 if v inside 1d range
+float insideRange(float v, float bottom, float top) {
+   return step(bottom, v) - step(top, v);
+}
+vec4 glitch( vec2 inUV )
 {
-	float fl = floor(x);
-	return mix(glitchHash(fl), glitchHash(fl + 1.0), smoothstep(0.0, 1.0, fract(x)));
+	// glitch https://www.shadertoy.com/view/MtXBDs
+	vec4 rtn;
+	float time = floor(iTime * 6.5);
+	//randomly offset slices horizontally
+    float maxOffset = iGlitch/iRatio;
+    for (float i = 0.0; i < 10.0 * iGlitch; i += 1.0) {
+        float sliceY = random2d(vec2(time , 2345.0 + float(i)));
+        float sliceH = random2d(vec2(time , 9035.0 + float(i))) * 0.25;
+        float hOffset = randomRange(vec2(time , 9625.0 + float(i)), -maxOffset, maxOffset);
+        vec2 uvOff = inUV;
+        uvOff.x += hOffset;
+        if (insideRange(inUV.y, sliceY, fract(sliceY+sliceH)) == 1.0 ){
+        	rtn = texture(iChannel0, uvOff).rgba;
+        }
+    }
+	//do slight offset on one entire channel
+    float maxColOffset = iGlitch/iRatio;
+    float rnd = random2d(vec2(time , 9545.0));
+    vec2 colOffset = vec2(randomRange(vec2(time , 9545.0),-maxColOffset,maxColOffset), 
+                       randomRange(vec2(time , 7205.0),-maxColOffset,maxColOffset));
+    if (rnd < 0.33){
+        rtn.r = texture(iChannel0, inUV + colOffset).r;
+        
+    }else if (rnd < 0.66){
+        rtn.g = texture(iChannel0, inUV + colOffset).g;
+        
+    } else{
+        rtn.b = texture(iChannel0, inUV + colOffset).b;  
+    }
+	return rtn;
 }
 // glitch end
 vec4 greyScale( vec4 colored )
@@ -101,6 +138,16 @@ void main() {
 	  vec2 cZ = vec2(xZ, yZ);
 	  uv = uv+cZ;
 	}
+	// x axis
+	if ( iRenderXYX != 0.0 )
+	{
+	  uv.x -= iRenderXYX;
+	}
+	// y axis
+	if ( iRenderXYY != 0.0 )
+	{
+	  uv.y -= iRenderXYY;
+	}
 	// flip horizontally
 	/*if (iFlipH > 0.0)
 	{
@@ -116,19 +163,13 @@ void main() {
 		vec2 divs = vec2(iResolution.x * iPixelate / iResolution.y*60.0, iPixelate*60.0);
 		uv = floor(uv * divs)/ divs;
 	}
-	// glitch
-	if (iGlitch > 0.0) 
-	{
-		float s = iTempoTime * iRatio;
-		float te = iTempoTime * 9.0 / 16.0;
-		vec2 shk = (vec2(glitchNse(s), glitchNse(s + 11.0)) * 2.0 - 1.0) * exp(-5.0 * fract(te * 4.0)) * 0.1;
-		uv += shk;		
-	}
 	vec4 t0 = texture(iChannel0, uv);
 	vec4 c = vec4(0.0);
 	if (iSobel > 0.03) { t0 = sobel(iSobel * 3.0 /iResolution.x, iSobel * 3.0 /iResolution.y, uv); }
 	if (iChromatic > 0.0) { t0 = chromatic(uv) * t0; }
 	if (iTrixels > 0.0) { t0 = trixels( uv, iChannel0 ); }
+	// glitch
+	if (iGlitch > 0.0) { t0 = glitch( uv ); }
 
 	c = t0;c *= iExposure;
 	if (iInvert > 0.0) { c.r = 1.0 - c.r; c.g = 1.0 - c.g; c.b = 1.0 - c.b; }
@@ -137,18 +178,18 @@ void main() {
 	c.r *= iRedMultiplier;
 	c.g *= iGreenMultiplier;
 	c.b *= iBlueMultiplier;
-	// old vignette
+	/* old vignette
 	if (iVignette > 0.0) { 
 		vec2 p = 1.0 + -2.0 * uv;
 		p.y *= 0.4;
 		c = mix( c, vec4( 0.1 ), dot( p, p )*iVignette*3.0 ); 
-	}
-	// new vignette cyrano
-	/* if (iVignette > 0.0) { 
+	}*/
+	// new vignette
+	if (iVignette > 0.0) { 
 		vec2 p = 1.0 + -2.0 * uv;
 		p.y *= 1.1;
 		p.x *= 2.0;
 		c -= pow(length(p), 500.0);
-	}*/
+	}
    	gl_FragColor = c;
 }
