@@ -12,7 +12,7 @@ VDLogRef	VDLog::create() {
 VDLog::VDLog()
 {
 	auto sysLogger = log::makeLogger<log::LoggerSystem>();
-	sysLogger->setLoggingLevel(log::LEVEL_WARNING);
+	//sysLogger->setLoggingLevel(log::LEVEL_WARNING);
 
 	// only log to file in debug mode
 #ifdef _DEBUG

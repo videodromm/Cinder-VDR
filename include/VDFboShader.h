@@ -26,7 +26,7 @@
 // Params
 #include "VDParams.h"
 // video
-#include "ciWMFVideoPlayer.h"
+//#include "ciWMFVideoPlayer.h"
 // Spout
 #include "CiSpoutIn.h"
 
@@ -52,9 +52,9 @@ namespace videodromm
 	};
 	class VDFboShader {
 	public:
-		VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation, const JsonTree &json, unsigned int aFboIndex, const std::string& aAssetsPath);
+		VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation, const Json &json, unsigned int aFboIndex, const std::string& aAssetsPath);
 		~VDFboShader(void);
-		static VDFboShaderRef create(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation, const JsonTree &json, unsigned int aFboIndex, const std::string& aAssetsPath) {
+		static VDFboShaderRef create(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation, const Json &json, unsigned int aFboIndex, const std::string& aAssetsPath) {
 			return std::make_shared<VDFboShader>(aVDUniforms, aVDAnimation, json, aFboIndex, aAssetsPath);
 		}
 
@@ -177,7 +177,7 @@ namespace videodromm
 		unsigned int					mCacheImageIndex = 0;
 		SpoutIn							mSpoutIn;
 		//unsigned int					mInputTextureIndex;
-		unsigned int					createInputTexture(const JsonTree &json);
+		unsigned int					createInputTexture(const Json &json);
 		bool							mLoadTopDown = false;
 		// 20211115
 		int								mCurrentImageSequenceIndex = 0;
@@ -230,7 +230,7 @@ namespace videodromm
 		std::string						mAssetsPath = "";
 		unsigned int					mFboIndex = 0;
 		// video
-		ciWMFVideoPlayer				mVideo;
+		//ciWMFVideoPlayer				mVideo;
 		float							mVideoPos = 0.0f;
 		float							mVideoDuration = 0.0f;
 		bool							mIsVideoLoaded = false;

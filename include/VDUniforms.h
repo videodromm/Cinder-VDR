@@ -5,7 +5,7 @@
 #include "cinder/gl/gl.h"
 //!  json
 #include "cinder/Json.h"
-
+#include "cinder/Utilities.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -379,6 +379,7 @@ namespace videodromm
 		int getErrorCode() {
 			return mErrorCode;
 		}
+		int									stringToIndex(const std::string& key);
 
 	private:
 
@@ -388,13 +389,13 @@ namespace videodromm
 		void								loadUniforms(const ci::DataSourceRef& source);
 		int									mLastBeat = 0;
 
-		void								floatFromJson(const ci::JsonTree& json);
-		void								sampler2dFromJson(const ci::JsonTree& json);
-		void								vec2FromJson(const ci::JsonTree& json);
-		void								vec3FromJson(const ci::JsonTree& json);
-		void								vec4FromJson(const ci::JsonTree& json);
-		//void								intFromJson(const ci::JsonTree& json);
-		//void								boolFromJson(const ci::JsonTree& json);
+		void								floatFromJson(const ci::Json& json);
+		void								sampler2dFromJson(const ci::Json& json);
+		void								vec2FromJson(const ci::Json& json);
+		void								vec3FromJson(const ci::Json& json);
+		void								vec4FromJson(const ci::Json& json);
+		//void								intFromJson(const ci::Json& json);
+		//void								boolFromJson(const ci::Json& json);
 		// render windows
 		int									mRenderWidth;
 		int									mRenderHeight;
@@ -426,7 +427,6 @@ namespace videodromm
 		void setIBarBeat() {
 			shaderUniforms[IBARBEAT].floatValue = (shaderUniforms[IBAR].floatValue - shaderUniforms[IBARSTART].floatValue) * 4 + shaderUniforms[IBEAT].floatValue;
 		}
-		int									stringToIndex(const std::string& key);
 		int									mErrorCode = 0;
 		//float								mSavedBar = 0.0f;
 		//float								mSavedBeat = 0.0f;

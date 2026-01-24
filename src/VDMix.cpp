@@ -54,12 +54,13 @@ namespace videodromm {
 
 	bool VDMix::save()
 	{
-		JsonTree doc;
+		int rfrf;
+		/*Json doc;
 
-		JsonTree settings = JsonTree::makeArray("settings");
-		settings.addChild(ci::JsonTree("assetspath", mAssetsPath));
+		Json settings = Json::makeArray("settings");
+		settings.addChild(ci::Json("assetspath", mAssetsPath));
 		doc.pushBack(settings);
-		doc.write(writeFile(mixPath), JsonTree::WriteOptions());
+		doc.write(writeFile(mixPath), Json::WriteOptions());*/
 		return true;
 	}
 	
@@ -71,13 +72,26 @@ namespace videodromm {
 			return;
 		}
 		try {
-			JsonTree doc(loadFile(aFilePath));
+			const ci::Json json = loadJson( app::loadAsset( aFilePath ) );
+			
+			if( json.contains( "assetspath" ) && json["assetspath"].is_string() ) {
+				mAssetsPath = json["assetspath"].get<std::string>();
+				
+			}
+			for( auto& feature : json["uniforms"] ) {
+				const string& name = feature.contains( "name" ) ? feature["name"] : "";
+				unsigned int index = feature.contains( "index" ) ? feature["index"] : 0;
+				float value  = feature.contains( "value" ) ?  feature["value"] : 0;
+				mVDUniforms->setUniformValue( index,  value );
+				
+			}
+		/*Json doc(loadFile(aFilePath));
 			if (doc.hasChild("settings")) {
-				JsonTree settings(doc.getChild("settings"));
+				Json settings(doc.getChild("settings"));
 				if (settings.hasChild("assetspath")) mAssetsPath = settings.getValueForKey<string>("assetspath");
 			}
 			if (doc.hasChild("uniforms")) {
-				JsonTree uniforms(doc.getChild("uniforms"));
+				Json uniforms(doc.getChild("uniforms"));
 				for (unsigned int i = 0; i < 100; i++)
 				{
 					if (uniforms.hasChild(mVDUniforms->getUniformName(i))) {
@@ -86,38 +100,10 @@ namespace videodromm {
 				}
 			}
 			
-
-			/* 20211227 mTextureList moved to fboshader if (doc.hasChild("camera")) {
-				JsonTree settings(doc.getChild("camera"));
-				if (settings.hasChild("texturename")) {
-					TextureCameraRef tc(TextureCamera::create());
-					mTextureList.push_back(tc);
-					// init with shader, colors inverted
-					JsonTree jsonInverted;
-					JsonTree shaderInverted = ci::JsonTree::makeArray("shader");
-					shaderInverted.addChild(ci::JsonTree("shadername", "inverted"));
-					shaderInverted.pushBack(ci::JsonTree("shadertype", "fs"));
-					shaderInverted.pushBack(ci::JsonTree("shadertext", mVDParams->getInvertedDefaultShaderFragmentString()));
-					jsonInverted.addChild(shaderInverted);
-					JsonTree textureInverted = ci::JsonTree::makeArray("texture");
-					textureInverted.addChild(ci::JsonTree("texturename", "audio"));
-					textureInverted.pushBack(ci::JsonTree("texturetype", "audio"));
-					textureInverted.pushBack(ci::JsonTree("texturemode", 0));
-					jsonInverted.addChild(textureInverted);
-					mMixFboShader = VDFboShader::create(mVDUniforms, mVDAnimation, jsonInverted, 0, mAssetsPath);
-					mFboShaderList.push_back(mMixFboShader);
-					setFboInputTexture(getFboShaderListSize() - 1, 1);
-				}
-			}
-			if (doc.hasChild("shared")) {
-				JsonTree settings(doc.getChild("shared"));
-				if (settings.hasChild("name")) {
-					ts = TextureShared::create();
-					mTextureList.push_back(ts);
-				}
-			}*/
+*/
+			
 		}
-		catch (const JsonTree::ExcJsonParserError& exc) {
+		catch (const ci::Exception& exc) { // Json::exception& exc
 			CI_LOG_W(exc.what());
 		}
 	}
@@ -125,7 +111,7 @@ namespace videodromm {
 		return math<int>::min(aFboIndex, (unsigned int)mFboShaderList.size() - 1);
 	}
 	
-	unsigned int VDMix::createFboShaderTexture(const JsonTree &json, unsigned int aFboIndex, const std::string& aFolder) {
+	unsigned int VDMix::createFboShaderTexture(const Json &json, unsigned int aFboIndex, const std::string& aFolder) {
 		unsigned int rtn = 0;
 		if (aFolder != "") mAssetsPath = aFolder;
 		VDFboShaderRef fboShader = VDFboShader::create(mVDUniforms, mVDAnimation, json, aFboIndex, mAssetsPath);
@@ -154,7 +140,7 @@ namespace videodromm {
 		mFboShaderList[aFboShaderIndex]->setUniformValueByLocation(aLocationIndex, aValue);
 	};
 
-	unsigned int VDMix::findAvailableIndex(unsigned int aFboShaderIndex, const JsonTree &json) {
+	unsigned int VDMix::findAvailableIndex(unsigned int aFboShaderIndex, const Json &json) {
 		unsigned int rtn = aFboShaderIndex;
 		unsigned int iSecond = (unsigned int)getElapsedSeconds();
 		CI_LOG_V(" mCurrentSecond " + toString(mCurrentSecond) + " getElapsedSeconds " + toString(iSecond) + " mCurrentIndex " + toString(mCurrentIndex));
@@ -207,34 +193,40 @@ namespace videodromm {
 	}
 
 	bool VDMix::setFragmentShaderString(const string& aFragmentShaderString, const std::string& aName, unsigned int aFboShaderIndex) {
+		int rfrf;
 		// received from websocket, tested with hydra
-		JsonTree		json;
-		JsonTree shader = ci::JsonTree::makeArray("shader");
-		shader.addChild(ci::JsonTree("shadername", aName));
-		shader.pushBack(ci::JsonTree("shadertype", "fs"));
-		shader.pushBack(ci::JsonTree("shadertext", aFragmentShaderString));
-		json.addChild(shader);
-		JsonTree texture = ci::JsonTree::makeArray("texture");
-		texture.addChild(ci::JsonTree("texturename", "audio"));
-		texture.pushBack(ci::JsonTree("texturetype", "audio"));
-		texture.pushBack(ci::JsonTree("texturemode", VDTextureMode::AUDIO));
-		json.addChild(texture);
-		int rtn = findAvailableIndex(aFboShaderIndex, json); // 20240518 was 0
-		mFboShaderList[rtn]->setFragmentShaderString(aFragmentShaderString, aName);
-		return rtn;
+		//Json		json;
+		//Json shader = ci::Json::makeArray("shader");
+		//shader.addChild(ci::Json("shadername", aName));
+		//shader.pushBack(ci::Json("shadertype", "fs"));
+		//shader.pushBack(ci::Json("shadertext", aFragmentShaderString));
+		//json.addChild(shader);
+		//Json texture = ci::Json::makeArray("texture");
+		//texture.addChild(ci::Json("texturename", "audio"));
+		//texture.pushBack(ci::Json("texturetype", "audio"));
+		//texture.pushBack(ci::Json("texturemode", VDTextureMode::AUDIO));
+		//json.addChild(texture);
+		//int rtn = findAvailableIndex(aFboShaderIndex, json); // 20240518 was 0
+		//mFboShaderList[rtn]->setFragmentShaderString(aFragmentShaderString, aName);
+		return 1; // rtn;
 	}
 	int VDMix::loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex) {
-		JsonTree		json;
-		JsonTree shader = ci::JsonTree::makeArray("shader");
-		shader.addChild(ci::JsonTree("shadername", "todo.txt"));
-		shader.pushBack(ci::JsonTree("shadertype", "fs"));
-		shader.pushBack(ci::JsonTree("shadertext", "todo"));
-		json.addChild(shader);
-		JsonTree texture = ci::JsonTree::makeArray("texture");
-		texture.addChild(ci::JsonTree("texturename", "audio"));
-		texture.pushBack(ci::JsonTree("texturetype", "audio"));
-		texture.pushBack(ci::JsonTree("texturemode", VDTextureMode::AUDIO));
-		json.addChild(texture);
+		int rfrf;
+		const ci::Json json
+			= { { "shader", { { "shadername", "todo.txt" }, { "shadertype", "fs" }, { "shadertext", "todo" } } }, { "texture", { { "texturename", "audio" }, { "texturetype", "audio" }, { "texturemode", VDTextureMode::AUDIO } } }
+
+				  };
+		
+		//Json shader = ci::Json::makeArray("shader");
+		//shader.addChild(ci::Json("shadername", "todo.txt"));
+		//shader.pushBack(ci::Json("shadertype", "fs"));
+		//shader.pushBack(ci::Json("shadertext", "todo"));
+		//json.addChild(shader);
+		//Json texture = ci::Json::makeArray("texture");
+		//texture.addChild(ci::Json("texturename", "audio"));
+		//texture.pushBack(ci::Json("texturetype", "audio"));
+		//texture.pushBack(ci::Json("texturemode", VDTextureMode::AUDIO));
+		//json.addChild(texture);
 
 		// if aFboShaderIndex is out of bounds try to find invalid fbo index or create a new fbo until MAX
 		int rtn = findAvailableIndex(aFboShaderIndex, json);
@@ -310,27 +302,23 @@ namespace videodromm {
 			std::string ext = "";
 			int dotIndex = texFileOrPath.filename().string().find_last_of(".");
 			if (dotIndex != std::string::npos)  ext = texFileOrPath.filename().string().substr(dotIndex + 1);
-			if (ext == "jpg" || ext == "png") {
-				// 20220321  tmp if (mFboShaderList.size() < 1) {
-					// no fbos, create one
-					JsonTree		json;
-					JsonTree texture = ci::JsonTree::makeArray("texture");
-					texture.addChild(ci::JsonTree("texturename", aFile));
-					texture.pushBack(ci::JsonTree("texturetype", "image"));
-					texture.pushBack(ci::JsonTree("texturemode", 1));
-					texture.pushBack(ci::JsonTree("texturecount", 1));
-					json.addChild(texture);
-					JsonTree shader = ci::JsonTree::makeArray("shader");
-					shader.addChild(ci::JsonTree("shadername", "inputImage.fs"));
-					shader.pushBack(ci::JsonTree("shadertype", "fs"));
-					json.addChild(shader);
-					createFboShaderTexture(json, aFboIndex);
-					/* 20220321 tmp }
-				else {
-					mFboShaderList[rtn]->loadImageFile(aFile);
-					// 20211227 was setInputTextureRef(mTextureList[mTextureList.size() - 1]->getTexture());
-				}*/
-			}
+			//if (ext == "jpg" || ext == "png") {
+			//	
+			//		// no fbos, create one
+			//		Json		json;
+			//		Json texture = ci::Json::makeArray("texture");
+			//		texture.addChild(ci::Json("texturename", aFile));
+			//		texture.pushBack(ci::Json("texturetype", "image"));
+			//		texture.pushBack(ci::Json("texturemode", 1));
+			//		texture.pushBack(ci::Json("texturecount", 1));
+			//		json.addChild(texture);
+			//		Json shader = ci::Json::makeArray("shader");
+			//		shader.addChild(ci::Json("shadername", "inputImage.fs"));
+			//		shader.pushBack(ci::Json("shadertype", "fs"));
+			//		json.addChild(shader);
+			//		createFboShaderTexture(json, aFboIndex);
+			//		
+			//}
 		}
 	}
 	void VDMix::loadVideoFile(const std::string& aFile, unsigned int aFboIndex) {
@@ -341,27 +329,23 @@ namespace videodromm {
 			std::string ext = "";
 			int dotIndex = texFileOrPath.filename().string().find_last_of(".");
 			if (dotIndex != std::string::npos)  ext = texFileOrPath.filename().string().substr(dotIndex + 1);
-			if (ext == "mp4") {
-				// 20220321  tmp if (mFboShaderList.size() < 1) {
-					// no fbos, create one
-					JsonTree		json;
-					JsonTree texture = ci::JsonTree::makeArray("texture");
-					texture.addChild(ci::JsonTree("texturename", aFile));
-					texture.pushBack(ci::JsonTree("texturetype", "video"));
-					texture.pushBack(ci::JsonTree("texturemode", 3));
-					texture.pushBack(ci::JsonTree("texturecount", 1));
-					json.addChild(texture);
-					JsonTree shader = ci::JsonTree::makeArray("shader");
-					shader.addChild(ci::JsonTree("shadername", "inputVideo.fs"));
-					shader.pushBack(ci::JsonTree("shadertype", "fs"));
-					json.addChild(shader);
-					createFboShaderTexture(json, aFboIndex);
-					/* 20220321 tmp }
-				else {
-					mFboShaderList[rtn]->loadImageFile(aFile);
-					// 20211227 was setInputTextureRef(mTextureList[mTextureList.size() - 1]->getTexture());
-				}*/
-			}
+			//if (ext == "mp4") {
+			//	// 20220321  tmp if (mFboShaderList.size() < 1) {
+			//		// no fbos, create one
+			//		Json		json;
+			//		Json texture = ci::Json::makeArray("texture");
+			//		texture.addChild(ci::Json("texturename", aFile));
+			//		texture.pushBack(ci::Json("texturetype", "video"));
+			//		texture.pushBack(ci::Json("texturemode", 3));
+			//		texture.pushBack(ci::Json("texturecount", 1));
+			//		json.addChild(texture);
+			//		Json shader = ci::Json::makeArray("shader");
+			//		shader.addChild(ci::Json("shadername", "inputVideo.fs"));
+			//		shader.pushBack(ci::Json("shadertype", "fs"));
+			//		json.addChild(shader);
+			//		createFboShaderTexture(json, aFboIndex);
+			//		
+			//}
 		}
 	}
 

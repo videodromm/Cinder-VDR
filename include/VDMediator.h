@@ -21,7 +21,7 @@
 // Mix
 #include "VDMix.h"
 // Websocket client
-#include "VDWebsocket.h"
+//#include "VDWebsocket.h"
 #include <memory>
 #include <vector>
 
@@ -125,17 +125,17 @@ namespace videodromm {
 		// Mix
 		VDMixRef							mVDMix;
 		//! OSC
-		bool								validateJson(const JsonTree& tree);
+		bool								validateJson(const Json& tree);
 		int									mOSCReceiverPort;
 		const std::string					mOSCJsonFileName = "oscreceiver.json";
 		void								loadOSCReceiverFromJsonFile(const fs::path& jsonFile);
-		JsonTree							saveOSCReceiverToJson() const;
+		Json							saveOSCReceiverToJson() const;
 		//! WS
 		std::string							mWSHost;
 		int									mWSPort;
 		const std::string					mWSJsonFileName = "wsclient.json";
 		void								loadWSFromJsonFile(const fs::path& jsonFile);
-		JsonTree							saveWSToJson() const;
+		Json							saveWSToJson() const;
 		bool								mWSInstanced = false;
 		//std::string							mShaderLeft;
 		//std::string							mShaderRight;

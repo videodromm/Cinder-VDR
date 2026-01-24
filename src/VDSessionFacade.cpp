@@ -70,10 +70,10 @@ VDSessionFacadeRef VDSessionFacade::setupHttpClient() {
 	mVDSession->setupHttpClient();
 	return shared_from_this();
 }
-VDSessionFacadeRef VDSessionFacade::loadShaderFromHttp(const std::string& url, unsigned int aFboIndex) {
-	mVDSession->loadShaderFromHttp(url, aFboIndex);
-	return shared_from_this();
-}
+//VDSessionFacadeRef VDSessionFacade::loadShaderFromHttp(const std::string& url, unsigned int aFboIndex) {
+//	mVDSession->loadShaderFromHttp(url, aFboIndex);
+//	return shared_from_this();
+//}
 VDSessionFacadeRef VDSessionFacade::setupKeyboard() {
 	mVDMediator->setupKeyboard();
 	return shared_from_this();
@@ -390,11 +390,11 @@ void VDSessionFacade::save()
 {
 	saveWarps();
 	// save in sessionPath
-	/* JsonTree doc;
-	JsonTree settings = JsonTree::makeArray("settings");
-	settings.addChild(ci::JsonTree("apiUrl", ""));
+	/* Json doc;
+	Json settings = Json::makeArray("settings");
+	settings.addChild(ci::Json("apiUrl", ""));
 	doc.pushBack(settings);
-	doc.write(writeFile(sessionPath), JsonTree::WriteOptions());*/
+	doc.write(writeFile(sessionPath), Json::WriteOptions());*/
 }
 
 void VDSessionFacade::restore()
@@ -405,10 +405,10 @@ void VDSessionFacade::restore()
 		return;
 	}
 
-	try {
-		JsonTree doc(loadFile(sessionPath));
+	/*try {
+		Json doc(loadFile(sessionPath));
 		if (doc.hasChild("settings")) {
-			JsonTree settings(doc.getChild("settings"));
+			Json settings(doc.getChild("settings"));
 			if (settings.hasChild("apiUrl")) mVDSession->setApiUrl(settings.getValueForKey<std::string>("apiUrl"));
 			if (settings.hasChild("preferredAudioInput")) mVDSession->setPreferredAudioInputDevice(settings.getValueForKey<string>("preferredAudioInput"));
 			if (settings.hasChild("preferredAudioOutput")) mVDSession->setPreferredAudioOutputDevice(settings.getValueForKey<string>("preferredAudioOutput"));
@@ -416,7 +416,7 @@ void VDSessionFacade::restore()
 
 		}
 	}
-	catch (const JsonTree::ExcJsonParserError& exc) {
+	catch (const Json::ExcJsonParserError& exc) {
 		CI_LOG_W(exc.what());
-	}
+	}*/
 }

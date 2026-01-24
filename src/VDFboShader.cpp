@@ -8,7 +8,7 @@ varying vec2 uv;
 uniform sampler2D prevBuffer;
 */
 
-VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation, const JsonTree &json, unsigned int aFboIndex, const std::string& aAssetsPath)
+VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation, const Json &json, unsigned int aFboIndex, const std::string& aAssetsPath)
 	:mVDUniforms{ aVDUniforms },
 	mVDAnimation{ aVDAnimation }
 {
@@ -33,17 +33,42 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation,
 	//mInputTextureIndex = 0;
 	// 20211107 only if no texture ?
 	setFboTextureAudioMode();
-	CI_LOG_V(json.serialize());
-	if (json.hasChild("shader")) {
-		JsonTree shaderJsonTree(json.getChild("shader"));
+	// CI_LOG_V(json.serialize());
+	for( auto& [key, val] : json.items() ) {
+		std::cout << "key: " << key << ", value:" << val << '\n';
+		if( key == "shader" ) {
+			const ci::Json shader = val;
+			mShaderName = mShaderFileName = ( shader.contains( "shadername" ) && shader["shadername"].is_string() ) ? shader["shadername"].get<std::string>() : "inputImage.fs";
+			mShaderFragmentString = ( shader.contains( "shadertext" ) && shader["shadertext"].is_string() ) ? shader["shadertext"].get<std::string>() : "";
+			shaderType = ( shader.contains( "shaderType" ) && shader["shaderType"].is_string() ) ? shader["shaderType"].get<std::string>() : "fs";
+				
+		}
+		else if( key == "texture" ) {
+			createInputTexture( val );
+		}
+	}
+	/*if (json.contains("shader")) {
+		Json shaderJsonTree(json.getChild("shader"));
 		mShaderName = mShaderFileName = (shaderJsonTree.hasChild("shadername")) ? shaderJsonTree.getValueForKey<string>("shadername") : "inputImage.fs";
 		mShaderFragmentString = (shaderJsonTree.hasChild("shadertext")) ? shaderJsonTree.getValueForKey<string>("shadertext") : "";
-		shaderType = (json.hasChild("shadertype")) ? json.getValueForKey<string>("shadertype") : "fs";
+		shaderType = (json.contains("shadertype")) ? json.getValueForKey<string>("shadertype") : "fs";
 	}
-	if (json.hasChild("texture")) {
+	if (json.contains("texture")) {
 
-		JsonTree textureJsonTree(json.getChild("texture"));
+		Json textureJsonTree(json.getChild("texture"));
 		createInputTexture(textureJsonTree);
+	}*/
+	if (json.contains("shadername")) {
+		mShaderName = mShaderFileName = json.value( "shadername", "inputImage.fs" );
+	}
+	if( json.contains( "shadertext" ) ) {
+		mShaderFragmentString = json.value( "shadertext", "" );
+	}
+	if( json.contains( "shadertype" ) ) {
+		shaderType = json.value( "shadertype", "fs" );
+	}
+	if (json.contains("texture")) {
+		createInputTexture(json["texture"]);
 	}
 
 	// init texture
@@ -72,14 +97,14 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation,
 }
 VDFboShader::~VDFboShader(void) {
 }
-unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
+unsigned int VDFboShader::createInputTexture(const Json &json) {
 	unsigned int rtn = 0;
 	//unsigned int listIndex = 0;
-	mCurrentFilename = mTextureName = (json.hasChild("texturename")) ? json.getValueForKey<string>("texturename") : "0.jpg";
-	mTypestr = (json.hasChild("texturetype")) ? json.getValueForKey<string>("texturetype") : "UNKNOWN";
-	mTextureMode = (json.hasChild("texturemode")) ? json.getValueForKey<int>("texturemode") : VDTextureMode::UNKNOWN;
-	mTextureCount = (json.hasChild("texturecount")) ? json.getValueForKey<int>("texturecount") : 1;
-	mPreloadTextures = (json.hasChild("preloadtextures")) ? json.getValueForKey<bool>("preloadtextures") : false;
+	mCurrentFilename = mTextureName = json.contains("texturename") ? json.value("texturename", "0.jpg") : "0.jpg";
+	mTypestr = (json.contains("texturetype") && json["texturetype"].is_string()) ? json["texturetype"].get<std::string>() : "UNKNOWN";
+	mTextureMode = json.contains("texturemode") ? json.value("texturemode", VDTextureMode::UNKNOWN) : VDTextureMode::UNKNOWN;
+	mTextureCount = json.contains("texturecount") ? json.value("texturecount", 1) : 1;
+	mPreloadTextures = json.contains("preloadtextures") ? json.value("preloadtextures", false) : false;
 	msTotal = 0;
 	CI_LOG_V("createInputTexture: mCurrentFilename " + toString(mTextureCount) + " mTextureCount: " + mCurrentFilename + " mPreloadTextures: " + toString(mPreloadTextures));
 
@@ -190,13 +215,13 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 					mVDUniforms->setUniformValue(mVDUniforms->IMOUSEZ, 0.0f);
 					//mInputTextureRef = gl::Texture::create(, gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 					}*/
-					mIsVideoLoaded = mVideo.loadMovie(texFileOrPath);
+					/* 2026 TODO mIsVideoLoaded = mVideo.loadMovie(texFileOrPath);
 					mVideoDuration = mVideo.getDuration();
 					mVideoPos = mVideo.getPosition();
 					mVideo.play();
 					mTypestr = "video";
 					mCurrentFilename = mTextureName;
-					mTextureMode = VDTextureMode::MOVIE;
+					mTextureMode = VDTextureMode::MOVIE;*/
 				}
 				else {
 					// default to audio
@@ -442,10 +467,9 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		case VDTextureMode::MOVIE:
 			// video
 			mFboMsg = "video";
-			//gl::pushMatrices();
-			//gl::setMatrices(mCam);
-			gl::ScopedViewport scopedViewport(getWindowSize());
-			//gl::ScopedDepth scopedDepth(true);
+			
+			/*gl::ScopedViewport scopedViewport(getWindowSize());
+			
 			if (mIsVideoLoaded) {
 				mVideo.update();
 				mVideoPos = mVideo.getPosition();
@@ -454,24 +478,9 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 					mVideo.play();
 				}
 				vec2 videoSize = vec2(mVideo.getWidth(), mVideo.getHeight());
-				/*mVDUniforms->setUniformValue(mVDUniforms->IRENDERXYX, mVideo.getWidth()*0.25);
-				mVDUniforms->setUniformValue(mVDUniforms->IRENDERXYY, mVideo.getHeight()*0.25);
-				mVDUniforms->setVec2UniformValueByIndex(mVDUniforms->IRENDERXY, vec2(mVideo.getWidth()*0.25, mVideo.getHeight()*0.25));*/
-				/* mGlslVideoTexture->uniform("uVideoSize", videoSize);
-				videoSize *= 0.5f;
-				 {
-					gl::ScopedColor scopedColor(Colorf::white());
-					gl::ScopedModelMatrix scopedModelMatrix;
-
-					ciWMFVideoPlayer::ScopedVideoTextureBind scopedVideoTex(mVideo, 0);
-					gl::translate(vec3(mVDUniforms->getUniformValue(mVDUniforms->IMOUSEX)*100.0f, mVDUniforms->getUniformValue(mVDUniforms->IMOUSEY)*100.0f, mVDUniforms->getUniformValue(mVDUniforms->IMOUSEZ)*100.0f));
-
-					gl::scale(vec3(videoSize, 1.0f));
-					mBatchPlaneVideo->draw();
-				} */
-			}
-			// restore matrices
-			//gl::popMatrices();
+				
+			}*/
+			
 				
 			break;
 		}
@@ -623,14 +632,14 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 
 		gl::drawSolidRect(Rectf(0, 0, mVDParams->getFboWidth(), mVDParams->getFboHeight()));
 		// 20220421 TODO use with shader, not directly
-		if (mTextureMode == VDTextureMode::MOVIE)
-		{			
-			gl::ScopedColor scopedColor(Colorf::white());
-			gl::ScopedModelMatrix scopedModelMatrix;
-			ciWMFVideoPlayer::ScopedVideoTextureBind scopedVideoTex(mVideo, 0);
-			// 20220421 TODO for not 720p:  gl::scale(vec3(1.0f));
-			mVideo.draw(0, 0);
-		}
+		//if (mTextureMode == VDTextureMode::MOVIE)
+		//{			
+		//	gl::ScopedColor scopedColor(Colorf::white());
+		//	gl::ScopedModelMatrix scopedModelMatrix;
+		//	ciWMFVideoPlayer::ScopedVideoTextureBind scopedVideoTex(mVideo, 0);
+		//	// 20220421 TODO for not 720p:  gl::scale(vec3(1.0f));
+		//	mVideo.draw(0, 0);
+		//}
 		if (mTextureMode == VDTextureMode::TEXT)
 		{			
 			gl::ScopedColor scopedColor(Colorf::white());

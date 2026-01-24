@@ -16,13 +16,13 @@
 
 #include <memory>
 #include <vector>
-#include "cinder/osc/Osc.h"
+//#include "cinder/osc/Osc.h"
 
 using namespace ci;
 using namespace ci::app;
-using namespace asio;
-using namespace asio::ip;
-using namespace ci::osc;
+//using namespace asio;
+//using namespace asio::ip;
+//using namespace ci::osc;
 
 namespace videodromm {
 	
@@ -136,7 +136,7 @@ namespace videodromm {
 			default:
 				oscMsg = "/params";
 			}
-			if (oscMsg.length() > 1) {
+			/*if (oscMsg.length() > 1) {
 				osc::Message msg(oscMsg);
 				if (sendIndex) {
 					msg.append(aIndex);
@@ -156,40 +156,44 @@ namespace videodromm {
 				msg3.append(aValue);
 				mSender.send(msg3, std::bind(&VDOscObserver::onSendError,
 					this, std::placeholders::_1));
-			}
+			}*/
 			return shared_from_this();
 		}
 		VDOscObserver* bind() {
-			try {
-				// Bind the sender to the endpoint. This function may throw. The exception will contain asio::error_code information.
-				mSender.bind();
-				mIsConnected = true;
-			}
-			catch (const osc::Exception& ex) {
-				CI_LOG_E("Error binding: " << ex.what() << " val: " << ex.value());
-			}
+			//try {
+			//	// Bind the sender to the endpoint. This function may throw. The exception will contain asio::error_code information.
+			//	mSender.bind();
+			//	mIsConnected = true;
+			//}
+			//catch (const osc::Exception& ex) {
+			//	CI_LOG_E("Error binding: " << ex.what() << " val: " << ex.value());
+			//}
 			return this;
 		}
-		void VDOscObserver::onSendError(asio::error_code error)
-		{
-			if (error) {
-				CI_LOG_E("Error sending: " << error.message() << " val: " << error.value());
-				// If you determine that this error is fatal, make sure to flip mIsConnected. It's possible that the error isn't fatal.
-				mIsConnected = false;
-				try {
-					// Close the socket on exit. This function could throw. The exception will contain asio::error_code information.
-					mSender.close();
-				}
-				catch (const osc::Exception& ex) {
-					CI_LOG_EXCEPTION("Cleaning up socket: val -" << ex.value(), ex);
-				}
-			}
-		}
+		//void VDOscObserver::onSendError(asio::error_code error)
+		//{
+		//	if (error) {
+		//		CI_LOG_E("Error sending: " << error.message() << " val: " << error.value());
+		//		// If you determine that this error is fatal, make sure to flip mIsConnected. It's possible that the error isn't fatal.
+		//		mIsConnected = false;
+		//		try {
+		//			// Close the socket on exit. This function could throw. The exception will contain asio::error_code information.
+		//			mSender.close();
+		//		}
+		//		catch (const osc::Exception& ex) {
+		//			CI_LOG_EXCEPTION("Cleaning up socket: val -" << ex.value(), ex);
+		//		}
+		//	}
+		//}
 		bool mIsConnected = false;
-		~VDOscObserver() { mSender.close(); };
+		~VDOscObserver() { 
+			//mSender.close();
+		};
 	private:
-		VDOscObserver(const std::string& host, unsigned int port) : mSender(10002, host, port) {
+		VDOscObserver(const std::string& host, unsigned int port)
+			//: mSender(10002, host, port) 
+		{
 		}
-		osc::SenderUdp	mSender;
+		//osc::SenderUdp	mSender;
 	};
 }

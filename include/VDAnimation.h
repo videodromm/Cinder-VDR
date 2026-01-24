@@ -171,7 +171,7 @@ namespace videodromm
 		//unsigned char					dTexture[256];// MUST be < mWindowSize
 
 		// shaders
-		ci::JsonTree					uniformToJson(int i);
+		ci::Json					uniformToJson(int i);
 
 		// time
 		ci::Timer						mTimer;

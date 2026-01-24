@@ -320,111 +320,112 @@ VDUniforms::VDUniforms() {
 	createVec4Uniform("EarR", 231, vec4(320.0f, 240.0f, 0.0f, 0.0f));
 }
 void VDUniforms::loadUniforms(const ci::DataSourceRef& source) {
+	int rfrf;
+	//Json json(source);
 
-	JsonTree json(source);
+	//// try to load the specified json file
+	//if (json.contains("uniforms")) {
+	//	Json u(json.getChild("uniforms"));
 
-	// try to load the specified json file
-	if (json.hasChild("uniforms")) {
-		JsonTree u(json.getChild("uniforms"));
+	//	// iterate uniforms
+	//	for (size_t i{ 0 }; i < u.getNumChildren(); i++) {
+	//		Json child(u.getChild(i));
 
-		// iterate uniforms
-		for (size_t i{ 0 }; i < u.getNumChildren(); i++) {
-			JsonTree child(u.getChild(i));
-
-			if (child.hasChild("uniform")) {
-				JsonTree w(child.getChild("uniform"));
-				// create uniform of the correct type
-				int uniformType = (w.hasChild("type")) ? w.getValueForKey<int>("type") : 0;
-				switch (uniformType) {
-				case GL_FLOAT:
-					// float 5126 GL_FLOAT 0x1406
-					floatFromJson(child);
-					break;
-				case GL_SAMPLER_2D:
-					// sampler2d 35678 GL_SAMPLER_2D 0x8B5E
-					sampler2dFromJson(child);
-					break;
-				case GL_FLOAT_VEC2:
-					// vec2 35664
-					vec2FromJson(child);
-					break;
-				case GL_FLOAT_VEC3:
-					// vec3 35665
-					vec3FromJson(child);
-					break;
-				case GL_FLOAT_VEC4:
-					// vec4 35666 GL_FLOAT_VEC4
-					vec4FromJson(child);
-					break;
-				case GL_INT:
-					// int 5124 GL_INT 0x1404
-					floatFromJson(child);
-					break;
-				case GL_BOOL:
-					// boolean 35670 GL_BOOL 0x8B56
-					floatFromJson(child);
-					break;
-				}
-			}
-		}
-	}
+	//		if (child.hasChild("uniform")) {
+	//			Json w(child.getChild("uniform"));
+	//			// create uniform of the correct type
+	//			int uniformType = (w.hasChild("type")) ? w.getValueForKey<int>("type") : 0;
+	//			switch (uniformType) {
+	//			case GL_FLOAT:
+	//				// float 5126 GL_FLOAT 0x1406
+	//				floatFromJson(child);
+	//				break;
+	//			case GL_SAMPLER_2D:
+	//				// sampler2d 35678 GL_SAMPLER_2D 0x8B5E
+	//				sampler2dFromJson(child);
+	//				break;
+	//			case GL_FLOAT_VEC2:
+	//				// vec2 35664
+	//				vec2FromJson(child);
+	//				break;
+	//			case GL_FLOAT_VEC3:
+	//				// vec3 35665
+	//				vec3FromJson(child);
+	//				break;
+	//			case GL_FLOAT_VEC4:
+	//				// vec4 35666 GL_FLOAT_VEC4
+	//				vec4FromJson(child);
+	//				break;
+	//			case GL_INT:
+	//				// int 5124 GL_INT 0x1404
+	//				floatFromJson(child);
+	//				break;
+	//			case GL_BOOL:
+	//				// boolean 35670 GL_BOOL 0x8B56
+	//				floatFromJson(child);
+	//				break;
+	//			}
+	//		}
+	//	}
+	//}
 }
 
-void VDUniforms::floatFromJson(const ci::JsonTree& json) {
-	std::string jName;
+void VDUniforms::floatFromJson(const ci::Json& json) {
+	int frfr;
+	/*std::string jName;
 	int jCtrlIndex;
 	float jValue, jMin, jMax;
-	if (json.hasChild("uniform")) {
-		JsonTree u(json.getChild("uniform"));
+	if (json.contains("uniform")) {
+		Json u(json.getChild("uniform"));
 		jName = (u.hasChild("name")) ? u.getValueForKey<std::string>("name") : "unknown";
 		jCtrlIndex = (u.hasChild("index")) ? u.getValueForKey<int>("index") : 249;
 		jValue = (u.hasChild("value")) ? u.getValueForKey<float>("value") : 0.01f;
 		jMin = (u.hasChild("min")) ? u.getValueForKey<float>("min") : 0.0f;
 		jMax = (u.hasChild("max")) ? u.getValueForKey<float>("max") : 1.0f;
 		createFloatUniform(jName, jCtrlIndex, jValue, jMin, jMax);
-	}
+	}*/
 }
-void VDUniforms::sampler2dFromJson(const ci::JsonTree& json) {
-	std::string jName;
+void VDUniforms::sampler2dFromJson(const ci::Json& json) {
+	/*std::string jName;
 	int jCtrlIndex;
 	int jTextureIndex;
-	if (json.hasChild("uniform")) {
-		JsonTree u(json.getChild("uniform"));
+	if (json.contains("uniform")) {
+		Json u(json.getChild("uniform"));
 		jName = (u.hasChild("name")) ? u.getValueForKey<std::string>("name") : "unknown";
 		jCtrlIndex = (u.hasChild("index")) ? u.getValueForKey<int>("index") : 250;
 		jTextureIndex = (u.hasChild("textureindex")) ? u.getValueForKey<int>("textureindex") : 0;;
 		createSampler2DUniform(jName, jTextureIndex);
-	}
+	}*/
 }
-void VDUniforms::vec2FromJson(const ci::JsonTree& json) {
-	std::string jName;
+void VDUniforms::vec2FromJson(const ci::Json& json) {
+	/*std::string jName;
 	int jCtrlIndex;
-	if (json.hasChild("uniform")) {
-		JsonTree u(json.getChild("uniform"));
+	if (json.contains("uniform")) {
+		Json u(json.getChild("uniform"));
 		jName = (u.hasChild("name")) ? u.getValueForKey<std::string>("name") : "unknown";
 		jCtrlIndex = (u.hasChild("index")) ? u.getValueForKey<int>("index") : 251;
 		createVec2Uniform(jName, jCtrlIndex);
-	}
+	}*/
 }
-void VDUniforms::vec3FromJson(const ci::JsonTree& json) {
-	std::string jName;
+void VDUniforms::vec3FromJson(const ci::Json& json) {
+	/*std::string jName;
 	int jCtrlIndex;
-	if (json.hasChild("uniform")) {
-		JsonTree u(json.getChild("uniform"));
+	if (json.contains("uniform")) {
+		Json u(json.getChild("uniform"));
 		jName = (u.hasChild("name")) ? u.getValueForKey<std::string>("name") : "unknown";
 		jCtrlIndex = (u.hasChild("index")) ? u.getValueForKey<int>("index") : 252;
 		createVec3Uniform(jName, jCtrlIndex);
-	}
+	}*/
 }
-void VDUniforms::vec4FromJson(const ci::JsonTree& json) {
-	std::string jName;
+void VDUniforms::vec4FromJson(const ci::Json& json) {
+	/*std::string jName;
 	int jCtrlIndex;
-	if (json.hasChild("uniform")) {
-		JsonTree u(json.getChild("uniform"));
+	if (json.contains("uniform")) {
+		Json u(json.getChild("uniform"));
 		jName = (u.hasChild("name")) ? u.getValueForKey<std::string>("name") : "unknown";
 		jCtrlIndex = (u.hasChild("index")) ? u.getValueForKey<int>("index") : 253;
 		createVec4Uniform(jName, jCtrlIndex);
-	}
+	}*/
 }
 
 bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {

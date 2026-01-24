@@ -87,7 +87,7 @@ namespace videodromm
 		std::string						getAssetsPath() {
 			return mAssetsPath;
 		};
-		unsigned int					findAvailableIndex(unsigned int aFboShaderIndex, const JsonTree &json);
+		unsigned int					findAvailableIndex(unsigned int aFboShaderIndex, const Json &json);
 		bool							setFragmentShaderString(const string& aFragmentShaderString, const std::string& aName = "", unsigned int aFboShaderIndex = 0);
 
 		int								loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex);
@@ -151,7 +151,7 @@ namespace videodromm
 		float							getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex);
 		void							setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue);
 
-		unsigned int					createFboShaderTexture(const JsonTree &json, unsigned int aFboIndex = 0, const std::string& aFolder = "");
+		unsigned int					createFboShaderTexture(const Json &json, unsigned int aFboIndex = 0, const std::string& aFolder = "");
 		void							clearFboShaderList() {
 			mFboShaderList.clear();
 		}

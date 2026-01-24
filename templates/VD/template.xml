@@ -3,10 +3,8 @@
 <template name="VDR: Basic" parent="org.libcinder.apptemplates.basicopengl">
 	<requires>com.videodromm.vdr</requires>
 	<requires>nl.cowlumbus.warping</requires>
-	<requires>com.wk.websocketpp</requires>
-	<requires>org.libcinder.OSC</requires>
+	
 	<requires>mb.cinder.midi2</requires>
-	<requires>org.libcinder.HTTPS</requires>
 	<platform os="msw">
 		<requires>fr.batchass.spout</requires>
 	</platform>

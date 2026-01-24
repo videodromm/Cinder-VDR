@@ -44,7 +44,7 @@ namespace videodromm {
 		void						reset();
 		void						resetSomeParams();
 		// json
-		ci::JsonTree				toJson(bool save = false) const;
+		ci::Json				toJson(bool save = false) const;
 		// params
 		int							mMainWindowX, mMainWindowY, mMarginSmall, mMainWindowWidth, mMainWindowHeight;
 		float						mCodeEditorWidth, mCodeEditorHeight;
