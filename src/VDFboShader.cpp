@@ -309,7 +309,7 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 	catch (gl::GlslProgCompileExc& exc)
 	{
 		mFboStatus = mName + std::string(exc.what());
-		CI_LOG_V("setFragmentShaderString, unable to compile fragment shader:" << mFboError << " frag:" << mName);
+		CI_LOG_V("setFragmentShaderString, unable to compile fragment shader -95:" << mFboError << " frag: " << mName << " status " << mFboStatus);
 	}
 	catch (const std::exception& e)
 	{
