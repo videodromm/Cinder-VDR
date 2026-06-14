@@ -81,7 +81,14 @@ void VDWebsocket::parseMessage(std::string msg) {
 						int name = jsonElement->getChild("name").getValue<int>();
 						float value = jsonElement->getChild("value").getValue<float>();
 						// basic name value 
+						/* debug only 
+						if (value == 0.0) {
+							mVDMediator->setUniformValue(name, value);
+						}
+						else {*/
+
 						mVDMediator->setUniformValue(name, value);
+						//}
 					}
 				}
 				if (json.hasChild("anim")) {
