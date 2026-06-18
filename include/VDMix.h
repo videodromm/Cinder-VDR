@@ -12,6 +12,7 @@
 #include "cinder/gl/gl.h"
 #include "cinder/gl/GlslProg.h"
 #include "cinder/Json.h"
+#include "cinder/JsonTree.h"
 #include "cinder/Capture.h"
 #include "cinder/Log.h"
 #include "cinder/Timeline.h"

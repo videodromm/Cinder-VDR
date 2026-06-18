@@ -170,7 +170,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 						mBatchPlaneVideo->replaceGlslProg(mGlslVideoTexture);
 					}
 
-					for debug if (!mVideo.isStopped()) {
+					for debug if (!true) {
 						mVideo.stop();
 						std::string videoPath = getAssetPath("sos17avril2022.mp4").string();
 						//std::string videoPath = getAssetPath("spidermoon.mov").string();
@@ -190,10 +190,10 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 					mVDUniforms->setUniformValue(mVDUniforms->IMOUSEZ, 0.0f);
 					//mInputTextureRef = gl::Texture::create(, gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 					}*/
-					mIsVideoLoaded = mVideo.loadMovie(texFileOrPath);
-					mVideoDuration = mVideo.getDuration();
-					mVideoPos = mVideo.getPosition();
-					mVideo.play();
+					mIsVideoLoaded = false; // mVideo.loadMovie disabled
+					
+					
+					
 					mTypestr = "video";
 					mCurrentFilename = mTextureName;
 					mTextureMode = VDTextureMode::MOVIE;
@@ -447,13 +447,13 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			gl::ScopedViewport scopedViewport(getWindowSize());
 			//gl::ScopedDepth scopedDepth(true);
 			if (mIsVideoLoaded) {
-				mVideo.update();
-				mVideoPos = mVideo.getPosition();
-				if (mVideo.isStopped() || mVideo.isPaused()) {
-					mVideo.setPosition(0.0);
-					mVideo.play();
+				
+				
+				if (true || true) {
+					
+					
 				}
-				vec2 videoSize = vec2(mVideo.getWidth(), mVideo.getHeight());
+				vec2 videoSize = vec2(0);
 				/*mVDUniforms->setUniformValue(mVDUniforms->IRENDERXYX, mVideo.getWidth()*0.25);
 				mVDUniforms->setUniformValue(mVDUniforms->IRENDERXYY, mVideo.getHeight()*0.25);
 				mVDUniforms->setVec2UniformValueByIndex(mVDUniforms->IRENDERXY, vec2(mVideo.getWidth()*0.25, mVideo.getHeight()*0.25));*/
@@ -463,7 +463,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 					gl::ScopedColor scopedColor(Colorf::white());
 					gl::ScopedModelMatrix scopedModelMatrix;
 
-					ciWMFVideoPlayer::ScopedVideoTextureBind scopedVideoTex(mVideo, 0);
+					// video disabled
 					gl::translate(vec3(mVDUniforms->getUniformValue(mVDUniforms->IMOUSEX)*100.0f, mVDUniforms->getUniformValue(mVDUniforms->IMOUSEY)*100.0f, mVDUniforms->getUniformValue(mVDUniforms->IMOUSEZ)*100.0f));
 
 					gl::scale(vec3(videoSize, 1.0f));
@@ -627,9 +627,9 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		{			
 			gl::ScopedColor scopedColor(Colorf::white());
 			gl::ScopedModelMatrix scopedModelMatrix;
-			ciWMFVideoPlayer::ScopedVideoTextureBind scopedVideoTex(mVideo, 0);
+			// video disabled
 			// 20220421 TODO for not 720p:  gl::scale(vec3(1.0f));
-			mVideo.draw(0, 0);
+			
 		}
 		if (mTextureMode == VDTextureMode::TEXT)
 		{			

@@ -22,7 +22,7 @@
 #include "cinder/audio/NodeEffects.h"
 #include "cinder/Rand.h"
 //!  json
-//#include "cinder/Json.h"
+#include "cinder/JsonTree.h"
 //!  Settings
 #include "VDSettings.h"
 //!  Uniforms

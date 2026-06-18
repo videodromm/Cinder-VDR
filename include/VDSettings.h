@@ -3,7 +3,7 @@
 	Global settings for the app
 */
 // TODO switch from xml to json
-// TODO remove public Si beans on laisse ‡ public
+// TODO remove public Si beans on laisse ù public
 
 
 #pragma once
@@ -14,7 +14,7 @@
 #include "cinder/gl/Fbo.h"
 #include "cinder/Timeline.h"
 #include "cinder/Xml.h"
-#include "cinder/Json.h"
+#include "cinder/JsonTree.h"
 #include "cinder/Log.h"
 
 using namespace ci;

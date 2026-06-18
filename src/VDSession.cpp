@@ -2,6 +2,7 @@
 //  VDsession.cpp
 //
 
+#include "jsoncpp/json.h"
 #include "VDSession.h"
 
 using namespace videodromm;
@@ -93,11 +94,11 @@ void VDSession::makeRequest(http::UrlRef url, unsigned int aFboIndex)
 		app::console() << "Content: " << std::endl;
 		auto content = response->getContent();
 		std::string jsonStr(static_cast<const char*>(content->getData()), content->getSize());
-		Json::Features features;
+		::Json::Features features;
 		features.allowComments_ = true;
 		features.strictRoot_ = true;
-		Json::Reader reader(features);
-		Json::Value value;
+		::Json::Reader reader(features);
+		::Json::Value value;
 		reader.parse(jsonStr, value, false);
 		CI_LOG_I(value.toStyledString());
 		int found = 0;

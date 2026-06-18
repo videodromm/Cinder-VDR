@@ -2,6 +2,7 @@
 #include "cinder/Cinder.h"
 #include "cinder/app/App.h"
 #include "cinder/Json.h"
+#include "cinder/JsonTree.h"
 
 // Mediator
 #include "VDMediator.h"
