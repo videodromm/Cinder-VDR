@@ -13,13 +13,13 @@ using namespace ci::app;
 namespace videodromm
 {
 	enum VDTextureMode { UNKNOWN, IMAGE, SEQUENCE, MOVIE, CAMERA, SHARED, AUDIO, STREAM, PARTS, TEXT };
-	enum VDDisplayMode {
-		FBO0,
+		/*FBO0,
 		FBO1,
 		FBO2,
 		FBO3,
 		FBO4,
-		FBO5,
+		FBO5,*/
+	enum VDDisplayMode {
 		FX,
 		POST,
 		MIXETTE,

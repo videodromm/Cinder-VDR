@@ -145,7 +145,7 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iAudioX", IAUDIOX, 1.0f, 0.01f, 7.0f); // 49
 
 	// DisplayMode
-	createFloatUniform("iDisplayMode", IDISPLAYMODE, 7.0f, 0.0f, 9.0f); // 51
+	createFloatUniform("iDisplayMode", IDISPLAYMODE, 1.0f, 0.0f, 3.0f); // 51
 	// Max Volume Hydra
 	createFloatUniform("volume0", IMAXVOLUME, 0.0f, 0.0f, 255.0f); // 52
 	// iMultiplier for iZoom

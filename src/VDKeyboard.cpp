@@ -149,7 +149,7 @@ bool VDKeyboard::handleKeyDown(KeyEvent& event) {
 	case KeyEvent::KEY_F3:
 		mVDMediator->setUniformValue(mVDUniforms->IDISPLAYMODE, VDDisplayMode::FX);
 		break;
-	case KeyEvent::KEY_F4:
+	/* case KeyEvent::KEY_F4:
 		mVDMediator->setUniformValue(mVDUniforms->IDISPLAYMODE, VDDisplayMode::FBO0);
 		break;
 	case KeyEvent::KEY_F5:
@@ -166,7 +166,7 @@ bool VDKeyboard::handleKeyDown(KeyEvent& event) {
 		break;
 	case KeyEvent::KEY_F9:
 		mVDMediator->setUniformValue(mVDUniforms->IDISPLAYMODE, VDDisplayMode::FBO5);
-		break;
+		break; */
 	case KeyEvent::KEY_F10: // pauses app in debug mode
 		mVDMediator->setUniformValue(mVDUniforms->IDISPLAYMODE, VDDisplayMode::WARP);
 		break;

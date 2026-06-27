@@ -48,12 +48,12 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 	loadFolder(mVDMix->getAssetsPath());
 
 	// Modes
-	mModesList[VDDisplayMode::FBO0] = "Fbo0";
+	/*mModesList[VDDisplayMode::FBO0] = "Fbo0";
 	mModesList[VDDisplayMode::FBO1] = "Fbo1";
 	mModesList[VDDisplayMode::FBO2] = "Fbo2";
 	mModesList[VDDisplayMode::FBO3] = "Fbo3";
 	mModesList[VDDisplayMode::FBO4] = "Fbo4";
-	mModesList[VDDisplayMode::FBO5] = "Fbo5";
+	mModesList[VDDisplayMode::FBO5] = "Fbo5";*/
 	mModesList[VDDisplayMode::FX] = "Fx";
 	mModesList[VDDisplayMode::POST] = "Post";
 	mModesList[VDDisplayMode::MIXETTE] = "Mixette";
