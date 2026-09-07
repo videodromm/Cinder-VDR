@@ -44,7 +44,7 @@ namespace videodromm
 		VDSessionFacadeRef		setupMidi();
 		VDSessionFacadeRef		setupWSClient();
 		VDSessionFacadeRef		setupHttpClient();
-		//VDSessionFacadeRef		loadShaderFromHttp(const std::string& url, unsigned int aFboIndex);
+		VDSessionFacadeRef		loadShaderFromHttp(const std::string& url, unsigned int aFboIndex);
 		VDSessionFacadeRef		setupKeyboard();
 		VDSessionFacadeRef		addOSCObserver(const std::string& host, unsigned int port);
 		VDSessionFacadeRef		addSocketIOObserver(const std::string& host, unsigned int port);
@@ -89,7 +89,6 @@ namespace videodromm
 		void					setWSMsg(const std::string& aMsg);
 		std::string				getWSMsg();
 
-		ci::gl::TextureRef		buildRenderedMixetteTexture(unsigned int aIndex);
 		ci::gl::TextureRef		buildFboTexture(unsigned int aIndex);
 		ci::gl::TextureRef		buildFboRenderedTexture(unsigned int aFboIndex);
 		ci::gl::TextureRef		getFboShaderTexture(unsigned int aIndex);

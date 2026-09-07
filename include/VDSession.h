@@ -21,10 +21,9 @@
 // Warping
 #include "Warp.h"
 // json
-#include "cinder/Json.h"
-// #include "jsoncpp/json.h"
+#include "cinder/JsonTree.h"
 // http
-// #include "cinder/http/http.hpp"
+#include "cinder/http/http.hpp"
 
 using namespace ci;
 using namespace ci::app;
@@ -53,16 +52,14 @@ namespace videodromm {
 
 		void							loadFromJsonFile(const fs::path& jsonFile);
 		void							setupHttpClient();
-		//void							loadShaderFromHttp(const std::string& url, unsigned int aFboIndex);
-		unsigned int					fboFromJson(const Json& json, unsigned int aFboIndex = 0, const std::string& aFolder = "") {
+		void							loadShaderFromHttp(const std::string& url, unsigned int aFboIndex);
+		unsigned int					fboFromJson(const JsonTree& json, unsigned int aFboIndex = 0, const std::string& aFolder = "") {
 			return mVDMix->createFboShaderTexture(json, aFboIndex, aFolder);
 		};
 
 		//! Mix
 		ci::gl::TextureRef				getFboRenderedTexture(unsigned int aFboIndex);
 		ci::gl::TextureRef				getFboTexture(unsigned int aFboIndex);
-		ci::gl::TextureRef				getMixetteTexture(unsigned int aFboIndex);
-		ci::gl::TextureRef				getRenderedMixetteTexture(unsigned int aFboIndex);
 		ci::gl::TextureRef				getPostFboTexture();
 		ci::gl::TextureRef				getFxFboTexture();
 		ci::gl::TextureRef				getWarpFboTexture();
@@ -225,7 +222,7 @@ namespace videodromm {
 		std::vector<ci::gl::GlslProg::Uniform>	getFboShaderUniforms(unsigned int aFboShaderIndex);
 		float									getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex);
 		void									setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue);
-		unsigned int 							createFboShaderTexture(const Json& json, unsigned int aFboIndex = 0) {
+		unsigned int 							createFboShaderTexture(const JsonTree& json, unsigned int aFboIndex = 0) {
 			return mVDMix->createFboShaderTexture(json, aFboIndex);
 		};
 		bool									isFboValid(unsigned int aFboIndex) {
@@ -404,12 +401,12 @@ namespace videodromm {
 
 		bool							odd = false;
 		// http
-		//void									makeRequest(http::UrlRef url, unsigned int aFboIndex);
+		void									makeRequest(http::UrlRef url, unsigned int aFboIndex);
 
-		//std::shared_ptr<ci::http::Session>		session;
-		//std::shared_ptr<ci::http::SslSession>	sslSession;
+		std::shared_ptr<ci::http::Session>		session;
+		std::shared_ptr<ci::http::SslSession>	sslSession;
 		ci::gl::TextureRef texture;
-		//http::UrlRef							httpUrl, httpsUrl;
+		http::UrlRef							httpUrl, httpsUrl;
 		//bool useHttp = false;
 	};
 

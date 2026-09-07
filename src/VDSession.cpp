@@ -2,6 +2,7 @@
 //  VDsession.cpp
 //
 
+#include "jsoncpp/json.h"
 #include "VDSession.h"
 
 using namespace videodromm;
@@ -9,6 +10,12 @@ using namespace videodromm;
 VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms, VDMixRef aVDMix)
 {
 	CI_LOG_V("VDSession ctor");
+	{
+		GLint maxTexUnits = 0, maxCombined = 0;
+		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTexUnits);
+		glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxCombined);
+		CI_LOG_V("GL_MAX_TEXTURE_IMAGE_UNITS=" << maxTexUnits << " GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS=" << maxCombined);
+	}
 	mVDSettings = aVDSettings;
 	mVDAnimation = aVDAnimation;
 	mVDUniforms = aVDUniforms;
@@ -48,15 +55,8 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 	loadFolder(mVDMix->getAssetsPath());
 
 	// Modes
-	mModesList[VDDisplayMode::FBO0] = "Fbo0";
-	mModesList[VDDisplayMode::FBO1] = "Fbo1";
-	mModesList[VDDisplayMode::FBO2] = "Fbo2";
-	mModesList[VDDisplayMode::FBO3] = "Fbo3";
-	mModesList[VDDisplayMode::FBO4] = "Fbo4";
-	mModesList[VDDisplayMode::FBO5] = "Fbo5";
 	mModesList[VDDisplayMode::FX] = "Fx";
 	mModesList[VDDisplayMode::POST] = "Post";
-	mModesList[VDDisplayMode::MIXETTE] = "Mixette";
 	mModesList[VDDisplayMode::WARP] = "Warp";
 
 	// reset no matter what, so we don't miss anything
@@ -68,73 +68,72 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 
 }
 void VDSession::loadFromJsonFile(const fs::path& jsonFile) {
-	int frfr;
-	/*if (fs::exists(jsonFile)) {
-		Json json(loadFile(jsonFile));
+	if (fs::exists(jsonFile)) {
+		JsonTree json(loadFile(jsonFile));
 		fboFromJson(json);
-	}*/
+	}
 }
 void VDSession::setupHttpClient() {
 
 }
-//void VDSession::loadShaderFromHttp(const std::string& url, unsigned int aFboIndex) {
-//	httpsUrl = std::make_shared<http::Url>(mApiurl + url);
-//	makeRequest(httpsUrl, aFboIndex);
-//}
-//void VDSession::makeRequest(http::UrlRef url, unsigned int aFboIndex)
-//{
-//	auto request = std::make_shared<http::Request>(http::RequestMethod::GET, url);
-//	request->appendHeader(http::Connection(http::Connection::Type::CLOSE));
-//	request->appendHeader(http::Accept());
-//
-//	auto onComplete = [&](asio::error_code ec, http::ResponseRef response) {
-//		//texture = ci::gl::Texture::create(loadImage(ci::DataSourceBuffer::create(response->getContent()),
-//		//	ImageSource::Options(), ".jpg"));
-//		app::console() << response->getHeaders() << std::endl;
-//		app::console() << "Content: " << std::endl;
-//		auto content = response->getContent();
-//		std::string jsonStr(static_cast<const char*>(content->getData()), content->getSize());
-//		Json::Features features;
-//		features.allowComments_ = true;
-//		features.strictRoot_ = true;
-//		Json::Reader reader(features);
-//		Json::Value value;
-//		reader.parse(jsonStr, value, false);
-//		CI_LOG_I(value.toStyledString());
-//		int found = 0;
-//		auto types = value.getMemberNames();
-//		for (auto &typeName : types) {
-//			auto &typeObj = value[typeName];
-//			if (typeName == "title") {
-//				found++;
-//			}
-//			if (typeName == "content") {
-//				found++;
-//			}
-//		}
-//		if (found == 2) {
-//			auto &titleObj = value["title"];
-//			auto &contentObj = value["content"];
-//			mVDMix->setFragmentShaderString(contentObj.asString(), titleObj.asString());
-//		}
-//	};
-//	auto onError = [](asio::error_code ec, const http::UrlRef &url, http::ResponseRef response) {
-//		CI_LOG_E(ec.message() << " val: " << ec.value() << " Url: " << url->to_string());
-//		if (response) {
-//			app::console() << "Headers: " << std::endl;
-//			app::console() << response->getHeaders() << std::endl;
-//		}
-//	};
-//
-//	if (url->port() == 80) {
-//		session = std::make_shared<http::Session>(request, onComplete, onError);
-//		session->start();
-//	}
-//	else if (url->port() == 443) {
-//		sslSession = std::make_shared<http::SslSession>(request, onComplete, onError);
-//		sslSession->start();
-//	}
-//}
+void VDSession::loadShaderFromHttp(const std::string& url, unsigned int aFboIndex) {
+	httpsUrl = std::make_shared<http::Url>(mApiurl + url);
+	makeRequest(httpsUrl, aFboIndex);
+}
+void VDSession::makeRequest(http::UrlRef url, unsigned int aFboIndex)
+{
+	auto request = std::make_shared<http::Request>(http::RequestMethod::GET, url);
+	request->appendHeader(http::Connection(http::Connection::Type::CLOSE));
+	request->appendHeader(http::Accept());
+
+	auto onComplete = [&](asio::error_code ec, http::ResponseRef response) {
+		//texture = ci::gl::Texture::create(loadImage(ci::DataSourceBuffer::create(response->getContent()),
+		//	ImageSource::Options(), ".jpg"));
+		app::console() << response->getHeaders() << std::endl;
+		app::console() << "Content: " << std::endl;
+		auto content = response->getContent();
+		std::string jsonStr(static_cast<const char*>(content->getData()), content->getSize());
+		::Json::Features features;
+		features.allowComments_ = true;
+		features.strictRoot_ = true;
+		::Json::Reader reader(features);
+		::Json::Value value;
+		reader.parse(jsonStr, value, false);
+		CI_LOG_I(value.toStyledString());
+		int found = 0;
+		auto types = value.getMemberNames();
+		for (auto &typeName : types) {
+			auto &typeObj = value[typeName];
+			if (typeName == "title") {
+				found++;
+			}
+			if (typeName == "content") {
+				found++;
+			}
+		}
+		if (found == 2) {
+			auto &titleObj = value["title"];
+			auto &contentObj = value["content"];
+			mVDMix->setFragmentShaderString(contentObj.asString(), titleObj.asString());
+		}
+	};
+	auto onError = [](asio::error_code ec, const http::UrlRef &url, http::ResponseRef response) {
+		CI_LOG_E(ec.message() << " val: " << ec.value() << " Url: " << url->to_string());
+		if (response) {
+			app::console() << "Headers: " << std::endl;
+			app::console() << response->getHeaders() << std::endl;
+		}
+	};
+
+	if (url->port() == 80) {
+		session = std::make_shared<http::Session>(request, onComplete, onError);
+		session->start();
+	}
+	else if (url->port() == 443) {
+		sslSession = std::make_shared<http::SslSession>(request, onComplete, onError);
+		sslSession->start();
+	}
+}
 
 bool VDSession::loadFolder(const string& aFolder) {
 	unsigned int f = 0;
@@ -144,28 +143,28 @@ bool VDSession::loadFolder(const string& aFolder) {
 		// find mix.json
 		std::string mixFileName = "mix.json";
 		fs::path mixFile = getAssetPath("") / aFolder / mixFileName;
-		/*if (fs::exists(mixFile)) {
+		if (fs::exists(mixFile)) {
 			mVDMix->clearFboShaderList();
-			Json mix(loadFile(mixFile));
+			JsonTree mix(loadFile(mixFile));
 			mVDMix->restore(mixFile);
-		}*/
+		}
 	}
 
 	// find fbo...json
-	//while (found) {
-	//	std::string jsonFileName = "fbo" + toString(f) + ".json";
+	while (found) {
+		std::string jsonFileName = "fbo" + toString(f) + ".json";
 
-	//	fs::path jsonFile = getAssetPath("") / aFolder / jsonFileName;
-	//	//if (fs::exists(jsonFile)) {
-	//	//	//loadFromJsonFile(jsonFile)->createShader()->createUniforms()->compile()->createFboWhenSuccess()->addToFboList();
-	//	//	Json json(loadFile(jsonFile));
-	//	//	fboFromJson(json, f, aFolder);
-	//	//	f++;
-	//	//}
-	//	//else {
-	//	//	found = false;
-	//	//}
-	//} //while
+		fs::path jsonFile = getAssetPath("") / aFolder / jsonFileName;
+		if (fs::exists(jsonFile)) {
+			//loadFromJsonFile(jsonFile)->createShader()->createUniforms()->compile()->createFboWhenSuccess()->addToFboList();
+			JsonTree json(loadFile(jsonFile));
+			fboFromJson(json, f, aFolder);
+			f++;
+		}
+		else {
+			found = false;
+		}
+	} //while
 
 	return !found;
 }
@@ -187,8 +186,6 @@ void VDSession::update() {
 
 	// fps calculated in main app
 	mVDAnimation->update();
-
-	mVDMix->getMixetteTexture(0);
 	
 	renderWarpsToFbo();
 	renderPostToFbo();
@@ -207,13 +204,13 @@ void VDSession::renderPostToFbo()
 
 		// texture binding must be before ScopedGlslProg
 		//mWarpsFbo->getColorTexture()
-		mWarpTexture->bind(40);
+		mWarpTexture->bind(0);
 		gl::ScopedGlslProg prog(mGlslPost);
 
 		// not used yet mGlslPost->uniform("TIME", getUniformValue(mVDUniforms->ITIME) - mVDSettings->iStart);;
 		mGlslPost->uniform("iResolution", vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
 		mGlslPost->uniform("iColor", vec3(mVDUniforms->getUniformValue(mVDUniforms->ICOLORX), mVDUniforms->getUniformValue(mVDUniforms->ICOLORY), mVDUniforms->getUniformValue(mVDUniforms->ICOLORZ)));
-		mGlslPost->uniform("iChannel0", 40); // texture 0
+		mGlslPost->uniform("iChannel0", 0); // texture 0
 		// tmp 20210102
 		float iz = mVDUniforms->getUniformValue(mVDUniforms->IZOOM);
 		mGlslPost->uniform("iTime", mVDUniforms->getUniformValue(mVDUniforms->ITIME));
@@ -256,12 +253,12 @@ void VDSession::renderFxToFbo()
 
 		// texture binding must be before ScopedGlslProg
 		//mWarpsFbo->getColorTexture()
-		mWarpTexture->bind(41);
+		mWarpTexture->bind(0);
 		gl::ScopedGlslProg prog(mGlslFx);
 
 		mGlslFx->uniform("iResolution", vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
-		mGlslFx->uniform("iChannel0", 41); // texture 0	
-		mGlslFx->uniform("iChannel1", 41); // texture audio
+		mGlslFx->uniform("iChannel0", 0); // texture 0
+		mGlslFx->uniform("iChannel1", 0); // texture audio
 		mGlslFx->uniform("iTime", mVDUniforms->getUniformValue(mVDUniforms->ITIME));
 		mGlslFx->uniform("iGreyScale", mVDUniforms->getUniformValue(mVDUniforms->IGREYSCALE));
 		mGlslFx->uniform("iGlitch", mVDUniforms->getUniformValue(mVDUniforms->IGLITCH));
@@ -303,10 +300,10 @@ void VDSession::renderWarpsToFbo()
 		int a = 0;
 
 		for (auto& warp : mWarpList) {
-			//a = warp->getAFboIndex();
+			a = warp->getAFboIndex();
 			if (a < 0) a = 0; // TODO 20200228 a could be negative if warps3.xml > warps01.json
 			i = math<int>::min(a, getFboShaderListSize() - 1);
-			warp->draw(mVDMix->getRenderedMixetteTexture(0));
+			warp->draw(mPostFbo->getColorTexture());
 		}
 		mWarpTexture = mWarpsFbo->getColorTexture();
 	}
@@ -345,9 +342,8 @@ void VDSession::fileDrop(FileDropEvent event) {
 		ext = absolutePath.substr(dotIndex + 1);
 		//fileName = absolutePath.substr(slashIndex + 1, dotIndex - slashIndex - 1);
 		if (ext == "json") {
-			const ci::Json mData = loadJson( app::loadAsset( absolutePath ) );
-			//Json json(loadFile(absolutePath));
-			fboFromJson( mData );
+			JsonTree json(loadFile(absolutePath));
+			fboFromJson(json);
 		}
 
 		else if (ext == "glsl" || ext == "frag" || ext == "fs") {
@@ -570,12 +566,6 @@ void VDSession::setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned
 	//mFboShaderList[aFboShaderIndex]->setUniformValueByLocation(aLocationIndex, aValue);
 	mVDMix->setUniformValueByLocation(aFboShaderIndex, aLocationIndex, aValue);
 };
-ci::gl::TextureRef VDSession::getMixetteTexture(unsigned int aFboIndex) {
-	return mVDMix->getMixetteTexture(aFboIndex);
-}
-ci::gl::TextureRef VDSession::getRenderedMixetteTexture(unsigned int aFboIndex) {
-	return mVDMix->getRenderedMixetteTexture(aFboIndex);
-}
 ci::gl::TextureRef VDSession::getPostFboTexture() {
 	return mPostFbo->getColorTexture();
 };
@@ -594,10 +584,7 @@ void VDSession::resize() {
 	Warp::setSize(mWarpList, ivec2(mVDParams->getFboWidth(), mVDParams->getFboHeight()));
 }
 unsigned int VDSession::getWarpCount() { return mWarpList.size(); };
-std::string	 VDSession::getWarpName(unsigned int aWarpIndex) {
-	return "warptodo";
-		//mWarpList[math<int>::min(aWarpIndex, mWarpList.size() - 1)]->getName(); 
-};// or trycatch
+std::string	 VDSession::getWarpName(unsigned int aWarpIndex) { return mWarpList[math<int>::min(aWarpIndex, mWarpList.size() - 1)]->getName(); };// or trycatch
 int VDSession::getWarpWidth(unsigned int aWarpIndex) { return mWarpList[math<int>::min(aWarpIndex, mWarpList.size() - 1)]->getWidth(); };
 int VDSession::getWarpHeight(unsigned int aWarpIndex) { return mWarpList[math<int>::min(aWarpIndex, mWarpList.size() - 1)]->getHeight(); };
 void VDSession::setWarpWidth(unsigned int aWarpIndex, int aWidth) {
@@ -610,29 +597,22 @@ void VDSession::setWarpHeight(unsigned int aWarpIndex, int aHeight) {
 	mWarpList[math<int>::min(aWarpIndex, mWarpList.size() - 1)]->setHeight(aHeight);
 
 };
-unsigned int VDSession::getWarpAFboIndex( unsigned int aWarpIndex )
-{
-	return 1;
-	//mWarpList[math<int>::min(aWarpIndex, mWarpList.size() - 1)]->getAFboIndex();
-};
-unsigned int VDSession::getWarpBFboIndex(unsigned int aWarpIndex) { 
-	return 1;
-	//mWarpList[math<int>::min(aWarpIndex, mWarpList.size() - 1)]->getBFboIndex(); 
-};
+unsigned int VDSession::getWarpAFboIndex(unsigned int aWarpIndex) { return mWarpList[math<int>::min(aWarpIndex, mWarpList.size() - 1)]->getAFboIndex(); };
+unsigned int VDSession::getWarpBFboIndex(unsigned int aWarpIndex) { return mWarpList[math<int>::min(aWarpIndex, mWarpList.size() - 1)]->getBFboIndex(); };
 void VDSession::setWarpAFboIndex(unsigned int aWarpIndex, unsigned int aWarpFboIndex) {
-	/*if (aWarpIndex < mWarpList.size() && aWarpFboIndex < mVDMix->getFboShaderListSize()) {
+	if (aWarpIndex < mWarpList.size() && aWarpFboIndex < mVDMix->getFboShaderListSize()) {
 		mWarpList[aWarpIndex]->setAFboIndex(aWarpFboIndex);
-	}*/
+	}
 }
 void VDSession::setWarpBFboIndex(unsigned int aWarpIndex, unsigned int aWarpFboIndex) {
-	/*if (aWarpIndex < mWarpList.size() && aWarpFboIndex < mVDMix->getFboShaderListSize()) {
+	if (aWarpIndex < mWarpList.size() && aWarpFboIndex < mVDMix->getFboShaderListSize()) {
 		mWarpList[aWarpIndex]->setBFboIndex(aWarpFboIndex);
-	}*/
+	}
 }
 
 void VDSession::createWarp() {
 	auto warp = WarpBilinear::create();
-	/*warp->setName("New");
+	warp->setName("New");
 	warp->setAFboIndex(0);
 	warp->setBFboIndex(0);
 	warp->setAShaderIndex(0);
@@ -640,7 +620,7 @@ void VDSession::createWarp() {
 	warp->setAShaderFilename("inputImage.fs");
 	warp->setBShaderFilename("inputImage.fs");
 	warp->setATextureFilename("audio");
-	warp->setBTextureFilename("audio");*/
+	warp->setBTextureFilename("audio");
 	mWarpList.push_back(WarpBilinear::create());
 }
 std::string VDSession::getFboShaderName(unsigned int aFboIndex) {
@@ -655,7 +635,7 @@ void VDSession::saveWarps() {
 		//
 		warp->setAShaderFilename(getFboShaderName(warp->getAFboIndex()));
 		warp->setATextureFilename(getFboTextureName(warp->getAFboIndex()));
-		Json		json;
+		JsonTree		json;
 		string jsonFileName = "warp" + toString(i) + ".json";
 		fs::path jsonFile = getAssetPath("") / mVDSettings->mAssetsPath / jsonFileName;
 		// write file

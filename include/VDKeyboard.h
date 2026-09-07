@@ -6,7 +6,6 @@
 #pragma once
 #include "cinder/Cinder.h"
 #include "cinder/app/App.h"
-#include "cinder/Json.h"
 
 // Settings
 #include "VDSettings.h"

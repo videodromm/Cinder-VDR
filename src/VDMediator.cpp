@@ -63,89 +63,87 @@ std::string VDMediatorObservable::getPreferredMidiInputDevice() {
 
 VDMediatorObservableRef VDMediatorObservable::setupWSClient() {
 	// WS Receiver
-	//mVDWebsocket = VDWebsocket::create();
-	/*mWSInstanced = true; 
+	mVDWebsocket = VDWebsocket::create();
+	mWSInstanced = true; 
 	mWSHost = WS_DEFAULT_HOST;
 	mWSPort = WS_DEFAULT_PORT;
 	fs::path jsonFile = getAssetPath("") / mWSJsonFileName;
-	loadWSFromJsonFile(jsonFile);*/
-	//mVDWebsocket->setupWSClient(shared_from_this(), mWSHost, mWSPort);
+	loadWSFromJsonFile(jsonFile);
+	mVDWebsocket->setupWSClient(shared_from_this(), mWSHost, mWSPort);
 	// only save if not present saveWSToJson();
 	return shared_from_this();
 }
 bool VDMediatorObservable::isWSConnected() { 
-	//return (mWSInstanced) ? mVDWebsocket->isConnected() : false;
-	return false;
+	return (mWSInstanced) ? mVDWebsocket->isConnected() : false;
 };
 void VDMediatorObservable::loadOSCReceiverFromJsonFile(const fs::path& jsonFile) {
 	if (fs::exists(jsonFile)) {
-		//Json json(loadFile(jsonFile));
-		//if (json.contains("receiver")) {
-		//	Json u(json.getChild("receiver"));
-		//	if (validateJson(u)) {
-		//		// (u.hasChild("port")) ? u.getValueForKey<int>("port") : OSC_DEFAULT_PORT;
-		//		mOSCReceiverPort = u.getValueForKey<int>("port");
-		//	}
-		//}		
+		JsonTree json(loadFile(jsonFile));
+		if (json.hasChild("receiver")) {
+			JsonTree u(json.getChild("receiver"));
+			if (validateJson(u)) {
+				// (u.hasChild("port")) ? u.getValueForKey<int>("port") : OSC_DEFAULT_PORT;
+				mOSCReceiverPort = u.getValueForKey<int>("port");
+			}
+		}		
 	}
 	else {
 		saveOSCReceiverToJson(); // create if not exists
 	}
 }
 void VDMediatorObservable::loadWSFromJsonFile(const fs::path& jsonFile) {
-	int rfrf;
-	//if (fs::exists(jsonFile)) {
-	//	Json json(loadFile(jsonFile));
-	//	if (json.contains("client")) {
-	//		Json u(json.getChild("client"));
-	//		if (validateJson(u)) {
-	//			
-	//			mWSHost = u.getValueForKey<std::string>("host");
-	//			mWSPort = u.getValueForKey<int>("port");
-	//		}
-	//	}	
-	//}
-	//else {
-	//	saveWSToJson(); // create if not exists
-	//}
+	if (fs::exists(jsonFile)) {
+		JsonTree json(loadFile(jsonFile));
+		if (json.hasChild("client")) {
+			JsonTree u(json.getChild("client"));
+			if (validateJson(u)) {
+				
+				mWSHost = u.getValueForKey<std::string>("host");
+				mWSPort = u.getValueForKey<int>("port");
+			}
+		}	
+	}
+	else {
+		saveWSToJson(); // create if not exists
+	}
 }
 // => VDJsonManager
-bool VDMediatorObservable::validateJson(const Json& tree) {
+bool VDMediatorObservable::validateJson(const JsonTree& tree) {
 	bool rtn = false;
-	//if (tree.hasChild("port")) {
-	//	CI_LOG_W(tree.getNodeType());
-	//	if (tree.getNodeType() == cinder::Json::NodeType::NODE_OBJECT) {//3 not 4 NODE_VALUE) {
-	//		int p = tree.getValueForKey<int>("port");
-	//		if (p > 0 && p < 65536) {
-	//			rtn = true;
-	//		}
-	//	}
-	//}
-	//if (!rtn) {
-	//	CI_LOG_E("json not well formatted");
-	//}
+	if (tree.hasChild("port")) {
+		CI_LOG_W(tree.getNodeType());
+		if (tree.getNodeType() == cinder::JsonTree::NodeType::NODE_OBJECT) {//3 not 4 NODE_VALUE) {
+			int p = tree.getValueForKey<int>("port");
+			if (p > 0 && p < 65536) {
+				rtn = true;
+			}
+		}
+	}
+	if (!rtn) {
+		CI_LOG_E("json not well formatted");
+	}
 	return rtn;
 }
 //! to json
-Json VDMediatorObservable::saveOSCReceiverToJson() const
+JsonTree VDMediatorObservable::saveOSCReceiverToJson() const
 {
-	Json json;
-	/*Json receiver = ci::Json::makeArray("receiver");
-	receiver.addChild(ci::Json("port", mOSCReceiverPort));
+	JsonTree json;
+	JsonTree receiver = ci::JsonTree::makeArray("receiver");
+	receiver.addChild(ci::JsonTree("port", mOSCReceiverPort));
 	json.addChild(receiver);
 	fs::path jsonFile = getAssetPath("") / mOSCJsonFileName;
-	json.write(jsonFile);*/
+	json.write(jsonFile);
 	return json;
 }
-Json VDMediatorObservable::saveWSToJson() const
+JsonTree VDMediatorObservable::saveWSToJson() const
 {
-	Json json;
-	/*Json client = ci::Json::makeArray("client");
-	client.addChild(ci::Json("host", mWSHost));
-	client.addChild(ci::Json("port", mWSPort));
+	JsonTree json;
+	JsonTree client = ci::JsonTree::makeArray("client");
+	client.addChild(ci::JsonTree("host", mWSHost));
+	client.addChild(ci::JsonTree("port", mWSPort));
 	json.addChild(client);
 	fs::path jsonFile = getAssetPath("") / mWSJsonFileName;
-	json.write(jsonFile);*/
+	json.write(jsonFile);
 	return json;
 }
 int VDMediatorObservable::getWSClientPort() {
@@ -155,10 +153,10 @@ void VDMediatorObservable::setWSClientPort(int aPort) {
 	mWSPort = aPort;
 }
 void VDMediatorObservable::wsConnect() {
-	//mVDWebsocket->wsConnect();
+	mVDWebsocket->wsConnect();
 }
 void VDMediatorObservable::update() {
-	//mVDWebsocket->update();
+	mVDWebsocket->update();
 	/*if (mVDWebsocket->hasReceivedShader()) {
 		std::string receivedShader = mVDWebsocket->getReceivedShader();
 		if (mVDUniforms->getUniformValue(mVDUniforms->IXFADE) < 0.5) {
@@ -187,13 +185,13 @@ std::string VDMediatorObservable::getOSCMsg() {
 }
 
 void VDMediatorObservable::setWSMsg(const std::string& aMsg) {
-	//mVDWebsocket->setWSMsg(aMsg);
+	mVDWebsocket->setWSMsg(aMsg);
 };
 std::string VDMediatorObservable::getWSMsg() {
-	return "";// mVDWebsocket->getWSMsg();
+	return mVDWebsocket->getWSMsg();
 }
 void VDMediatorObservable::wsPing() {
-	//mVDWebsocket->wsPing();
+	mVDWebsocket->wsPing();
 };
 VDMediatorObservableRef VDMediatorObservable::setupKeyboard() {
 	// Keyboard
@@ -227,7 +225,7 @@ VDMediatorObservableRef VDMediatorObservable::setUniformValue(int aIndex, float 
 		// couldn't make an observer because it's both sender and receiver
 		/* 20220407 OSC routed to ws, freezes the app */
 		if (mWSInstanced) {
-			//mVDWebsocket->wsWrite("{\"params\" :[{ \"name\":" + toString(aIndex) + ",\"value\":" + toString(aValue) + "}]}");
+			mVDWebsocket->wsWrite("{\"params\" :[{ \"name\":" + toString(aIndex) + ",\"value\":" + toString(aValue) + "}]}");
 		}
 	}
 	return shared_from_this();

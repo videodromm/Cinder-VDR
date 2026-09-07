@@ -30,14 +30,13 @@ VDSettingsRef VDSettings::create(const std::string& filename)
 
 
 //! to json
-Json	VDSettings::toJson(bool save) const
+JsonTree	VDSettings::toJson(bool save) const
 {
-	Json		json;
-	json.value( "osc", toString( mOSCEnabled ) );	
-	/*Json osc = ci::Json::makeArray("osc");
-	osc.addChild(ci::Json("OSCEnabled", toString(mOSCEnabled)));
+	JsonTree		json;
+	JsonTree osc = ci::JsonTree::makeArray("osc");
+	osc.addChild(ci::JsonTree("OSCEnabled", toString(mOSCEnabled)));
 
-	json.addChild(osc);*/
+	json.addChild(osc);
 
 	return json;
 }

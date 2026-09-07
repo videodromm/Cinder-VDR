@@ -11,7 +11,7 @@ uniform float       iWeight1;         	// weight of channel 1
 uniform float       iWeight2;         	// weight of channel 2
 uniform sampler2D   iAudio0;				// input channel 0 (audio)
 uniform vec4        iMouse;              	// mouse pixel coords. xy: current (if MLB down), zw: click
-uniform float       iGlobalTime;         	// shader playback time (in seconds)
+uniform float       iTime;         	// shader playback time (in seconds)
 uniform vec3        iBackgroundColor;    	// background color
 uniform vec3        iColor;              	// color
 uniform int         iSteps;              	// steps for iterations
@@ -159,8 +159,8 @@ vec3 spotLight( vec3 curSample )
 {
 
 	vec2 lightPos = vec2(
-		(1.2 + sin(iGlobalTime)) * 0.4 * iResolution.x,
-		(1.2 + cos(iGlobalTime)) * 0.4 * iResolution.y
+		(1.2 + sin(iTime)) * 0.4 * iResolution.x,
+		(1.2 + cos(iTime)) * 0.4 * iResolution.y
 	);
 	
 	// control with the mouse.
@@ -245,7 +245,7 @@ vec4 trixels( vec2 inUV, sampler2D tex )
         {
             vec2 screenPos = vec2(startX+x*halfBase,startY+y*halfHeight);
             vec2 uv1 = screenPos / iResolution.xy;
-			blend += texture2D(tex, uv1);         
+			blend += texture(tex, uv1);         
         }
     }
     rtn = (blend / 9.0);
@@ -258,7 +258,7 @@ vec4 grid( vec2 inUV, sampler2D tex )
     vec2 uv = (floor(gl_FragCoord.xy/iGridSize)*iGridSize)/ iResolution.xy;
     vec3 texColor;
 
-    texColor = texture2D(tex, uv).xyz;
+    texColor = texture(tex, uv).xyz;
     
     float diff = pow(distance(texColor,vec3(0.0,1.0,0.0)),8.0); 
     diff = smoothstep(0.0,1.5,diff);
@@ -287,14 +287,14 @@ vec4 grid( vec2 inUV, sampler2D tex )
 // left main lines begin
 vec3 shaderLeft(vec2 uv)
 {
-	vec4 left = texture2D(iChannel0, uv);
+	vec4 left = texture(iChannel0, uv);
 	// chromatic aberration
 	if (iChromatic > 0.0) 
 	{
 		vec2 offset = vec2(iChromatic/50.,.0);
-		left.r = texture2D(iChannel0, uv+offset.xy).r;
-		left.g = texture2D(iChannel0, uv          ).g;
-		left.b = texture2D(iChannel0, uv+offset.yx).b;
+		left.r = texture(iChannel0, uv+offset.xy).r;
+		left.g = texture(iChannel0, uv          ).g;
+		left.b = texture(iChannel0, uv+offset.yx).b;
 	}
   // Trixels
   if (iTrixels > 0.0) 
@@ -313,14 +313,14 @@ vec3 shaderLeft(vec2 uv)
 // middle main lines begin
 vec3 shaderMiddle(vec2 uv)
 {
-	vec4 middle = texture2D(iChannel1, uv);
+	vec4 middle = texture(iChannel1, uv);
 	// chromatic aberation
 	if (iChromatic > 0.0) 
 	{
 		vec2 offset = vec2(iChromatic/50.,.0);
-		middle.r = texture2D(iChannel1, uv+offset.xy).r;
-		middle.g = texture2D(iChannel1, uv          ).g;
-		middle.b = texture2D(iChannel1, uv+offset.yx).b;
+		middle.r = texture(iChannel1, uv+offset.xy).r;
+		middle.g = texture(iChannel1, uv          ).g;
+		middle.b = texture(iChannel1, uv+offset.yx).b;
 	}
 	// Trixels
 	if (iTrixels > 0.0) 
@@ -340,14 +340,14 @@ vec3 shaderMiddle(vec2 uv)
 // right main lines begin
 vec3 shaderRight(vec2 uv)
 {
-	vec4 right = texture2D(iChannel2, uv);
+	vec4 right = texture(iChannel2, uv);
 	// chromatic aberation
 	if (iChromatic > 0.0) 
 	{
 		vec2 offset = vec2(iChromatic/50.,.0);
-		right.r = texture2D(iChannel2, uv+offset.xy).r;
-		right.g = texture2D(iChannel2, uv          ).g;
-		right.b = texture2D(iChannel2, uv+offset.yx).b;
+		right.r = texture(iChannel2, uv+offset.xy).r;
+		right.g = texture(iChannel2, uv          ).g;
+		right.b = texture(iChannel2, uv+offset.yx).b;
 	}
 	// Trixels
 	if (iTrixels > 0.0) 
@@ -664,7 +664,7 @@ vec3 mainFunction( vec2 uv )
 float BadTVResoRand(in float a, in float b) { return fract((cos(dot(vec2(a,b) ,vec2(12.9898,78.233))) * 43758.5453)); }
 
 // output
-out vec4 gl_FragColor;
+out vec4 fragColor;
 
 // main start
 void main(void)
@@ -683,7 +683,7 @@ void main(void)
 		uv.y = 1.0 - uv.y;
 	}
 	// rotate
-	//float rad = radians(360.0 * fract(iGlobalTime*iRotationSpeed));
+	//float rad = radians(360.0 * fract(iTime*iRotationSpeed));
 	//mat2 rotate = mat2(cos(rad),sin(rad),-sin(rad),cos(rad));
 	//uv = rotate * (uv - 0.5) + 0.5;
 
@@ -702,16 +702,16 @@ void main(void)
 		if (iXorY)
 		{
 			float z1 = floor((x/iParam1) + 0.5);	   //((x/20.0) + 0.5)
-			x2 = x + (sin(z1 + (iGlobalTime * 2.0)) * iRatio);
+			x2 = x + (sin(z1 + (iTime * 2.0)) * iRatio);
 		}
 		else
 		{
 			float z2 = floor((y/iParam2) + 0.5);	   //((x/20.0) + 0.5)
-			y2 = y + (sin(z2 + (iGlobalTime * 2.0)) * iRatio);
+			y2 = y + (sin(z2 + (iTime * 2.0)) * iRatio);
 		}
 
 		vec2 uv2 = vec2(x2 / iResolution.x, y2/ iResolution.y);
-		uv 	= texture2D( iChannel1, uv2 ).rg;
+		uv 	= texture( iChannel1, uv2 ).rg;
 	}
 	// glitch
 	if (iGlitch == 1) 
@@ -767,17 +767,17 @@ void main(void)
 		float c = 1.;
 		if (iXorY)
 		{
-			c += iBadTv * sin(iGlobalTime * 2. + uv.y * 100. * iParam1);
-			c += iBadTv * sin(iGlobalTime * 1. + uv.y * 80.);
-			c += iBadTv * sin(iGlobalTime * 5. + uv.y * 900. * iParam2);
-			c += 1. * cos(iGlobalTime + uv.x);
+			c += iBadTv * sin(iTime * 2. + uv.y * 100. * iParam1);
+			c += iBadTv * sin(iTime * 1. + uv.y * 80.);
+			c += iBadTv * sin(iTime * 5. + uv.y * 900. * iParam2);
+			c += 1. * cos(iTime + uv.x);
 		}
 		else
 		{
-			c += iBadTv * sin(iGlobalTime * 2. + uv.x * 100. * iParam1);
-			c += iBadTv * sin(iGlobalTime * 1. + uv.x * 80.);
-			c += iBadTv * sin(iGlobalTime * 5. + uv.x * 900. * iParam2);
-			c += 1. * cos(iGlobalTime + uv.y);
+			c += iBadTv * sin(iTime * 2. + uv.x * 100. * iParam1);
+			c += iBadTv * sin(iTime * 1. + uv.x * 80.);
+			c += iBadTv * sin(iTime * 5. + uv.x * 900. * iParam2);
+			c += 1. * cos(iTime + uv.y);
 		}	
 	
 		//vignetting
@@ -785,7 +785,7 @@ void main(void)
 		c *= sin(uv.y*3.);
 		c *= .9;
 	
-		uv += iGlobalTime;
+		uv += iTime;
 	
 		float r = BadTVResoRand(uv.x, uv.y);
 		float g = BadTVResoRand(uv.x * 9., uv.y * 9.);
@@ -805,7 +805,7 @@ void main(void)
 	col.g *= iGreenMultiplier;
 	col.b *= iBlueMultiplier;
 
-	gl_FragColor = iAlpha * vec4( col, 1.0 );
+	fragColor = iAlpha * vec4( col, 1.0 );
 }
 
 // main end

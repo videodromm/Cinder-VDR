@@ -70,10 +70,10 @@ VDSessionFacadeRef VDSessionFacade::setupHttpClient() {
 	mVDSession->setupHttpClient();
 	return shared_from_this();
 }
-//VDSessionFacadeRef VDSessionFacade::loadShaderFromHttp(const std::string& url, unsigned int aFboIndex) {
-//	mVDSession->loadShaderFromHttp(url, aFboIndex);
-//	return shared_from_this();
-//}
+VDSessionFacadeRef VDSessionFacade::loadShaderFromHttp(const std::string& url, unsigned int aFboIndex) {
+	mVDSession->loadShaderFromHttp(url, aFboIndex);
+	return shared_from_this();
+}
 VDSessionFacadeRef VDSessionFacade::setupKeyboard() {
 	mVDMediator->setupKeyboard();
 	return shared_from_this();
@@ -181,9 +181,6 @@ std::string VDSessionFacade::getWSMsg() {
 };
 // Websockets end
 
-ci::gl::TextureRef VDSessionFacade::buildRenderedMixetteTexture(unsigned int aIndex) {
-	return mVDSession->getRenderedMixetteTexture(aIndex);
-}
 ci::gl::TextureRef VDSessionFacade::buildFboTexture(unsigned int aIndex) {
 	return mVDSession->getFboTexture(aIndex);;
 }
@@ -390,11 +387,11 @@ void VDSessionFacade::save()
 {
 	saveWarps();
 	// save in sessionPath
-	/* Json doc;
-	Json settings = Json::makeArray("settings");
-	settings.addChild(ci::Json("apiUrl", ""));
+	/* JsonTree doc;
+	JsonTree settings = JsonTree::makeArray("settings");
+	settings.addChild(ci::JsonTree("apiUrl", ""));
 	doc.pushBack(settings);
-	doc.write(writeFile(sessionPath), Json::WriteOptions());*/
+	doc.write(writeFile(sessionPath), JsonTree::WriteOptions());*/
 }
 
 void VDSessionFacade::restore()
@@ -405,10 +402,10 @@ void VDSessionFacade::restore()
 		return;
 	}
 
-	/*try {
-		Json doc(loadFile(sessionPath));
+	try {
+		JsonTree doc(loadFile(sessionPath));
 		if (doc.hasChild("settings")) {
-			Json settings(doc.getChild("settings"));
+			JsonTree settings(doc.getChild("settings"));
 			if (settings.hasChild("apiUrl")) mVDSession->setApiUrl(settings.getValueForKey<std::string>("apiUrl"));
 			if (settings.hasChild("preferredAudioInput")) mVDSession->setPreferredAudioInputDevice(settings.getValueForKey<string>("preferredAudioInput"));
 			if (settings.hasChild("preferredAudioOutput")) mVDSession->setPreferredAudioOutputDevice(settings.getValueForKey<string>("preferredAudioOutput"));
@@ -416,7 +413,7 @@ void VDSessionFacade::restore()
 
 		}
 	}
-	catch (const Json::ExcJsonParserError& exc) {
+	catch (const JsonTree::ExcJsonParserError& exc) {
 		CI_LOG_W(exc.what());
-	}*/
+	}
 }

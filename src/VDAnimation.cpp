@@ -43,46 +43,46 @@ VDAnimation::VDAnimation(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms) {
 }
 
 //! uniform to json
-Json VDAnimation::uniformToJson(int i)
+JsonTree VDAnimation::uniformToJson(int i)
 {
 	std::stringstream svec4;
-	Json		json;
+	JsonTree		json;
+	//string s = controlIndexes[i];
 
-
-	/*Json u = Json::makeArray("uniform");
+	JsonTree u = JsonTree::makeArray("uniform");
 	// common
 	int uniformType = mVDUniforms->getUniformType(i);//  shaderUniforms[i].uniformType;
-	u.addChild(ci::Json("type", uniformType));
-	u.addChild(ci::Json("name", mVDUniforms->getUniformName(i)));
-	u.addChild(ci::Json("id", i));
+	u.addChild(ci::JsonTree("type", uniformType));
+	u.addChild(ci::JsonTree("name", mVDUniforms->getUniformName(i)));
+	u.addChild(ci::JsonTree("id", i));
 	// type specific 
 	switch (uniformType) {
 	case 0:
 	case 5126:
 		//float
-		u.addChild(ci::Json("value", mVDUniforms->getDefaultUniformValue(i)));
-		u.addChild(ci::Json("defaultValue", mVDUniforms->getDefaultUniformValue(i)));
-		u.addChild(ci::Json("min", mVDUniforms->getMinUniformValue(i)));
-		u.addChild(ci::Json("max", mVDUniforms->getMaxUniformValue(i)));
-		u.addChild(ci::Json("color", "dark"));
+		u.addChild(ci::JsonTree("value", mVDUniforms->getDefaultUniformValue(i)));
+		u.addChild(ci::JsonTree("defaultValue", mVDUniforms->getDefaultUniformValue(i)));
+		u.addChild(ci::JsonTree("min", mVDUniforms->getMinUniformValue(i)));
+		u.addChild(ci::JsonTree("max", mVDUniforms->getMaxUniformValue(i)));
+		u.addChild(ci::JsonTree("color", "dark"));
 		break;
 	case 1:
 		// sampler2d
-		u.addChild(ci::Json("textureindex", mVDUniforms->getUniformTextureIndex(i)));
+		u.addChild(ci::JsonTree("textureindex", mVDUniforms->getUniformTextureIndex(i)));
 		break;
 	case 4:
 		// vec4
 		//svec4 << toString(shaderUniforms[i].vec4Value.x) << "," << toString(shaderUniforms[i].vec4Value.y);
 		//svec4 << "," << toString(shaderUniforms[i].vec4Value.z) << "," << toString(shaderUniforms[i].vec4Value.w);
-		u.addChild(ci::Json("value", mVDUniforms->getDefaultUniformValue(i)));
+		u.addChild(ci::JsonTree("value", mVDUniforms->getDefaultUniformValue(i)));
 		break;
 	case 5:
 		// int
-		u.addChild(ci::Json("value", mVDUniforms->getDefaultUniformValue(i)));
+		u.addChild(ci::JsonTree("value", mVDUniforms->getDefaultUniformValue(i)));
 		break;
 	case 6:
 		// boolean
-		u.addChild(ci::Json("value", mVDUniforms->getDefaultUniformValue(i)));
+		u.addChild(ci::JsonTree("value", mVDUniforms->getDefaultUniformValue(i)));
 		break;
 	default:
 		break;
@@ -93,8 +93,8 @@ Json VDAnimation::uniformToJson(int i)
 	std::string filename = mVDUniforms->getUniformName(i) + ".json";
 	fs::path fr = getAssetPath("") / "json" / filename;
 	if (!fs::exists(fr)) {
-		json.write(writeFile(fr), Json::WriteOptions());
-	}*/
+		json.write(writeFile(fr), JsonTree::WriteOptions());
+	}
 	return json;
 }
 
@@ -171,11 +171,11 @@ void  VDAnimation::initLineIn() {
 				inputDevices = ci::audio::Device::getInputDevices();
 				outputDevices = ci::audio::Device::getOutputDevices();
 				std::string preferredAudioDeviceKey = "";
-				/*  Json	doc;
-				Json audioinputs = Json::makeArray("audioinputs");
+				JsonTree doc;
+				JsonTree audioinputs = JsonTree::makeArray("audioinputs");
 				for (ci::audio::DeviceRef in : inputDevices) {
 					std::string currentInputName = in->getName();
-					audioinputs.addChild(ci::Json(in->getKey(), currentInputName));
+					audioinputs.addChild(ci::JsonTree(in->getKey(), currentInputName));
 
 					std::size_t nameIndex = currentInputName.find(mPreferredAudioInputDevice);
 					if (nameIndex != std::string::npos) {
@@ -189,10 +189,10 @@ void  VDAnimation::initLineIn() {
 				}
 				doc.pushBack(audioinputs);
 				// outputs
-				Json audiooutputs = Json::makeArray("audiooutputs");
+				JsonTree audiooutputs = JsonTree::makeArray("audiooutputs");
 				for (ci::audio::DeviceRef out : outputDevices) {
 					std::string currentOutputName = out->getName();
-					audiooutputs.addChild(ci::Json(out->getKey(), currentOutputName));
+					audiooutputs.addChild(ci::JsonTree(out->getKey(), currentOutputName));
 					
 					std::size_t nameIndex = currentOutputName.find(mPreferredAudioOutputDevice);
 					if (nameIndex != std::string::npos) {
@@ -204,8 +204,7 @@ void  VDAnimation::initLineIn() {
 					
 				}
 				doc.pushBack(audiooutputs);
-				doc.write( writeFile( getAssetPath( "" ) / "audio.json" ), Json::WriteOptions() );
-				*/
+				doc.write(writeFile(getAssetPath("") / "audio.json"), JsonTree::WriteOptions());
 				if (audioDeviceFound) {
 					auto device = ci::audio::Device::findDeviceByKey(preferredAudioDeviceKey);
 					CI_LOG_W("trying to open mic/line in, if no line follows in the log, the app crashed so put UseLineIn to false in the VDSettings.xml file");

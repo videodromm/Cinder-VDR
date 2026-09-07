@@ -33,23 +33,22 @@ std::string VDMidi::getMidiMsg() {
 
 
 void VDMidi::saveMidiPorts() {
-	int rfrf;
-	/*Json		json;
-	Json midiin = ci::Json::makeArray("midiin");
+	JsonTree		json;
+	JsonTree midiin = ci::JsonTree::makeArray("midiin");
 	for (int j = 0; j < mMidiInputs.size(); j++)
 	{
-		midiin.addChild(ci::Json("midiinname", mMidiInputs[j].portName));
+		midiin.addChild(ci::JsonTree("midiinname", mMidiInputs[j].portName));
 	}
 	json.addChild(midiin);
-	Json midiout = ci::Json::makeArray("midiout");
+	JsonTree midiout = ci::JsonTree::makeArray("midiout");
 	for (int j = 0; j < mMidiOutputs.size(); j++)
 	{
-		midiout.addChild(ci::Json("midioutname", mMidiOutputs[j].portName));
+		midiout.addChild(ci::JsonTree("midioutname", mMidiOutputs[j].portName));
 	}
 	json.addChild(midiout);
 	string jsonFileName = "midi.json";
 	fs::path jsonFile = getAssetPath("") / jsonFileName;
-	json.write(jsonFile);*/
+	json.write(jsonFile);
 }
 void VDMidi::setupMidi(VDMediatorObservableRef aVDMediator) {
 	mVDMediator = aVDMediator;

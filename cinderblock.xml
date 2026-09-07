@@ -16,12 +16,12 @@
 	<headerPattern>include/*.h</headerPattern>
 	<sourcePattern>src/*.cpp</sourcePattern>
 	<sourcePattern>src/*.c</sourcePattern>
+	<requires>com.wk.websocketpp</requires>
 	<requires>nl.cowlumbus.warping</requires>
-	
-	<platform os="msw">
-		<requires>fr.batchass.spout</requires>
+	<requires>org.libcinder.OSC</requires>
+	<requires>com.videodromm.vdr</requires>
 		<requires>mb.cinder.midi2</requires>
-	</platform>
+	
 </block>
 <template>templates/VD/template.xml</template>
 </cinder>

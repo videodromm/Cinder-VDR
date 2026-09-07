@@ -22,7 +22,7 @@
 #include "cinder/audio/NodeEffects.h"
 #include "cinder/Rand.h"
 //!  json
-//#include "cinder/Json.h"
+#include "cinder/JsonTree.h"
 //!  Settings
 #include "VDSettings.h"
 //!  Uniforms
@@ -171,7 +171,7 @@ namespace videodromm
 		//unsigned char					dTexture[256];// MUST be < mWindowSize
 
 		// shaders
-		ci::Json					uniformToJson(int i);
+		ci::JsonTree					uniformToJson(int i);
 
 		// time
 		ci::Timer						mTimer;

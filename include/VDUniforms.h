@@ -4,8 +4,8 @@
 #include "cinder/app/App.h"
 #include "cinder/gl/gl.h"
 //!  json
-#include "cinder/Json.h"
-#include "cinder/Utilities.h"
+#include "cinder/JsonTree.h"
+
 
 using namespace ci;
 using namespace ci::app;
@@ -13,16 +13,10 @@ using namespace ci::app;
 namespace videodromm
 {
 	enum VDTextureMode { UNKNOWN, IMAGE, SEQUENCE, MOVIE, CAMERA, SHARED, AUDIO, STREAM, PARTS, TEXT };
+	// FBO0, FBO1, FBO2, FBO3, FBO4, FBO5,
 	enum VDDisplayMode {
-		FBO0,
-		FBO1,
-		FBO2,
-		FBO3,
-		FBO4,
-		FBO5,
 		FX,
 		POST,
-		MIXETTE,
 		WARP
 	};
 	//enum class UniformTypes { FLOAT, SAMPLER2D, VEC2, VEC3, VEC4, INT, BOOL };
@@ -379,7 +373,6 @@ namespace videodromm
 		int getErrorCode() {
 			return mErrorCode;
 		}
-		int									stringToIndex(const std::string& key);
 
 	private:
 
@@ -389,13 +382,13 @@ namespace videodromm
 		void								loadUniforms(const ci::DataSourceRef& source);
 		int									mLastBeat = 0;
 
-		void								floatFromJson(const ci::Json& json);
-		void								sampler2dFromJson(const ci::Json& json);
-		void								vec2FromJson(const ci::Json& json);
-		void								vec3FromJson(const ci::Json& json);
-		void								vec4FromJson(const ci::Json& json);
-		//void								intFromJson(const ci::Json& json);
-		//void								boolFromJson(const ci::Json& json);
+		void								floatFromJson(const ci::JsonTree& json);
+		void								sampler2dFromJson(const ci::JsonTree& json);
+		void								vec2FromJson(const ci::JsonTree& json);
+		void								vec3FromJson(const ci::JsonTree& json);
+		void								vec4FromJson(const ci::JsonTree& json);
+		//void								intFromJson(const ci::JsonTree& json);
+		//void								boolFromJson(const ci::JsonTree& json);
 		// render windows
 		int									mRenderWidth;
 		int									mRenderHeight;
@@ -427,6 +420,7 @@ namespace videodromm
 		void setIBarBeat() {
 			shaderUniforms[IBARBEAT].floatValue = (shaderUniforms[IBAR].floatValue - shaderUniforms[IBARSTART].floatValue) * 4 + shaderUniforms[IBEAT].floatValue;
 		}
+		int									stringToIndex(const std::string& key);
 		int									mErrorCode = 0;
 		//float								mSavedBar = 0.0f;
 		//float								mSavedBeat = 0.0f;

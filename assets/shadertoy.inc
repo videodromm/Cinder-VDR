@@ -1,7 +1,7 @@
 #version 150
 // shadertoy specific
 uniform vec3      	iResolution; 			// viewport resolution (in pixels)
-uniform float     	iGlobalTime; 			// shader playback time (in seconds)
+uniform float     	iTime; 			// shader playback time (in seconds)
 uniform vec4      	iMouse; 				// mouse pixel coords. xy: current (if MLB down), zw: click
 uniform sampler2D 	iChannel0; 				// input channel 0
 uniform sampler2D 	iChannel1; 				// input channel 1
@@ -29,4 +29,4 @@ uniform float		iFps;
 
 out vec4 fragColor;
 vec2  fragCoord = gl_FragCoord.xy; // keep the 2 spaces between vec2 and fragCoord
-float time = iGlobalTime;
+float time = iTime;

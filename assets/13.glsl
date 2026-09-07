@@ -1,6 +1,6 @@
 // https://www.shadertoy.com/view/XdB3Dw
 #define USE_IQ_SMIN 0
-
+out vec4 fragColor;
 float PopularTime;
 
 float PopularWLen=15.0;
@@ -249,18 +249,16 @@ void main(void)
    vec2 uv =  (gl_FragCoord.xy / iResolution.xy);
    uv.x -= iRenderXY.x;
    uv.y -= iRenderXY.y;
-	PopularTime=iGlobalTime+1.0;
+	PopularTime=iTime+1.0;
 	PopularBob=cos(PopularTime*12.0)*0.05;
 	PopularScroll=-15.0+mod(PopularTime*PopularWc_Scale,PopularWLen)*2.0;
 
 	vec2 q=uv;
 	vec2 t=uv*2.0-vec2(1.0);
 	t.x*=iResolution.x/iResolution.y;
-	//gl_FragColor.rgb = PopularScene(t.xy) * 1.3;
 	vec3 col = PopularScene(t.xy) * 1.3;
 	
 	// vignet
-	//gl_FragColor.rgb *= 0.5 + 0.5*pow( 16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.1 );
 	col *= 0.5 + 0.5*pow( 16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.1 );
-	gl_FragColor = vec4(col, 1.0);
+	fragColor = vec4(col, 1.0);
 }

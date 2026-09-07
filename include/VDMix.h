@@ -11,7 +11,7 @@
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/GlslProg.h"
-#include "cinder/Json.h"
+#include "cinder/JsonTree.h"
 #include "cinder/Capture.h"
 #include "cinder/Log.h"
 #include "cinder/Timeline.h"
@@ -27,8 +27,8 @@
 // Params
 #include "VDParams.h"
 
-// Syphon
-#if defined( CINDER_MAC )
+// Syphon is optional; disabled by default for compatibility with modern macOS toolchains.
+#if defined( CINDER_MAC ) && defined( VD_ENABLE_SYPHON )
 #include "cinderSyphon.h"
 #endif
 
@@ -87,7 +87,7 @@ namespace videodromm
 		std::string						getAssetsPath() {
 			return mAssetsPath;
 		};
-		unsigned int					findAvailableIndex(unsigned int aFboShaderIndex, const Json &json);
+		unsigned int					findAvailableIndex(unsigned int aFboShaderIndex, const JsonTree &json);
 		bool							setFragmentShaderString(const string& aFragmentShaderString, const std::string& aName = "", unsigned int aFboShaderIndex = 0);
 
 		int								loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex);
@@ -151,7 +151,7 @@ namespace videodromm
 		float							getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex);
 		void							setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue);
 
-		unsigned int					createFboShaderTexture(const Json &json, unsigned int aFboIndex = 0, const std::string& aFolder = "");
+		unsigned int					createFboShaderTexture(const JsonTree &json, unsigned int aFboIndex = 0, const std::string& aFolder = "");
 		void							clearFboShaderList() {
 			mFboShaderList.clear();
 		}
@@ -209,8 +209,7 @@ namespace videodromm
 			}
 			return true;
 		}
-		ci::gl::TextureRef				getMixetteTexture(unsigned int aFboIndex);
-		ci::gl::TextureRef				getRenderedMixetteTexture(unsigned int aFboIndex) { return mMixetteTexture; };
+		
 		void							selectSenderPanel() {
 			if (mFboShaderList.size() == 0) return;
 			mFboShaderList[0]->selectSenderPanel();
@@ -244,10 +243,6 @@ namespace videodromm
 		bool							save();
 		gl::Texture::Format				fmt;
 		gl::Fbo::Format					fboFmt;
-		//! mixette
-		gl::FboRef						mMixetteFbo;
-		gl::GlslProgRef					mGlslMixette;
-		ci::gl::Texture2dRef			mMixetteTexture;
 		std::string						mError;
 		const unsigned int				MAXSHADERS = 8;
 		std::string						mAssetsPath = "";
