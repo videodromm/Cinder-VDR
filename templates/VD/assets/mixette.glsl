@@ -1,3 +1,4 @@
+#version 150
 uniform vec3      	iResolution;
 uniform sampler2D 	iChannel0;
 uniform sampler2D 	iChannel1;
@@ -19,6 +20,7 @@ uniform float       iWeight7;
 uniform float       iWeight8;
 uniform bool		iDebug;
 uniform int			iBlendmode;
+out vec4 fragColor;
 
 // left main lines begin
 vec3 shaderLeft(vec2 uv)
@@ -341,5 +343,5 @@ void main() {
    }
    
 
-	gl_FragColor = vec4(c.r, c.g, c.b, 1.0);	
+	fragColor = vec4(c.r, c.g, c.b, 1.0);
 }

@@ -664,7 +664,7 @@ vec3 mainFunction( vec2 uv )
 float BadTVResoRand(in float a, in float b) { return fract((cos(dot(vec2(a,b) ,vec2(12.9898,78.233))) * 43758.5453)); }
 
 // output
-out vec4 gl_FragColor;
+out vec4 fragColor;
 
 // main start
 void main(void)
@@ -805,7 +805,7 @@ void main(void)
 	col.g *= iGreenMultiplier;
 	col.b *= iBlueMultiplier;
 
-	gl_FragColor = iAlpha * vec4( col, 1.0 );
+	fragColor = iAlpha * vec4( col, 1.0 );
 }
 
 // main end

@@ -1,3 +1,4 @@
+#version 150
 uniform vec3 iResolution;uniform sampler2D iChannel0;uniform float iZoom;
 uniform float iTime;uniform float iTempoTime;uniform float iRatio;uniform float iVignette;uniform float iToggle;
 uniform float iExposure;uniform float iSobel;uniform float iChromatic;uniform float iGreyScale;
@@ -5,7 +6,8 @@ uniform float iFlipV;uniform float iFlipH;uniform float iInvert;uniform float iT
 uniform float iPixelate;uniform float iGlitch;
 uniform float       iRedMultiplier;			// red multiplier 
 uniform float       iGreenMultiplier;		// green multiplier 
-uniform float       iBlueMultiplier;		// blue multiplier 
+uniform float       iBlueMultiplier;		// blue multiplier
+out vec4 fragColor;
 vec2  fragCoord = gl_FragCoord.xy;
 float intensity(in vec4 c){return sqrt((c.x*c.x)+(c.y*c.y)+(c.z*c.z));}
 vec4 sobel(float stepx, float stepy, vec2 center) {
@@ -150,5 +152,5 @@ void main() {
 		p.x *= 2.0;
 		c -= pow(length(p), 500.0);
 	}
-   	gl_FragColor = c;
+   	fragColor = c;
 }
