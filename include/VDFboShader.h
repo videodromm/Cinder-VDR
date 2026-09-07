@@ -27,12 +27,23 @@
 // Params
 #include "VDParams.h"
 // video
-// WMF video disabled in Batchass migration`r`n//#include "ciWMFVideoPlayer.h"
-// Spout
+// WMFVideo (Windows only)
+#if defined( CINDER_MSW )
+#include "ciWMFVideoPlayer.h"
+#endif
+// Spout (Windows only)
+#if defined( CINDER_MSW )
 #include "CiSpoutIn.h"
+#endif
+// Syphon (Mac only)
+#if defined( CINDER_MAC )
+#include "cinderSyphon.h"
+#endif
 
 #include <atomic>
 #include <vector>
+#include <cstdio>
+#include <cctype>
 
 using namespace ci;
 using namespace ci::app;
@@ -144,7 +155,9 @@ namespace videodromm
 			return mInputTextureList[0].texture->getHeight();
 		};
 		void									selectSenderPanel() {
+#if defined( CINDER_MSW )
 			mSpoutIn.getSpoutReceiver().SelectSender();//Panel
+#endif
 		}
 		int										getInputTextureMode() {
 			return mTextureMode;
@@ -176,7 +189,12 @@ namespace videodromm
 		std::string						mCurrentFilename;
 		std::map<unsigned int, VDTextureStruct>		mInputTextureList;
 		unsigned int					mCacheImageIndex = 0;
+#if defined( CINDER_MSW )
 		SpoutIn							mSpoutIn;
+#endif
+#if defined( CINDER_MAC )
+		syphonClient					mClientSyphon;
+#endif
 		//unsigned int					mInputTextureIndex;
 		unsigned int					createInputTexture(const JsonTree &json);
 		bool							mLoadTopDown = false;
@@ -187,6 +205,11 @@ namespace videodromm
 		//string							mStatus = "";
 		string							mTypestr = "";
 		string							mExt = "jpg";
+		// image sequence auto-detection (ported from 2021SOSSeq VDTexture.cpp TextureImageSequence)
+		bool							mSeqDetected = false;
+		std::string						mSeqPrefix = "";
+		std::string						mSeqExt = "jpg";
+		int								mSeqDigits = 0;
 		int								mTextureMode = VDTextureMode::UNKNOWN;
 		int								mTextureCount = 1;
 		bool							mPreloadTextures = false;
@@ -223,6 +246,7 @@ namespace videodromm
 		ci::gl::Texture2dRef			mRenderedTexture;
 		ci::gl::Texture2dRef			getFboTexture();
 		void							loadNextTexture(unsigned int aCurrentIndex);
+		void							detectSequencePattern();
 		// messages
 		static const int				mFboMsgLength = 150;
 		std::string						mFboMsg;
@@ -230,8 +254,10 @@ namespace videodromm
 		std::string						mFboStatus = "";
 		std::string						mAssetsPath = "";
 		unsigned int					mFboIndex = 0;
-		// video
-		bool mVideoDisabled = false; // ciWMFVideoPlayer mVideo;
+		// video (Windows only, Windows Media Foundation)
+#if defined( CINDER_MSW )
+		ciWMFVideoPlayer				mVideo;
+#endif
 		float							mVideoPos = 0.0f;
 		float							mVideoDuration = 0.0f;
 		bool							mIsVideoLoaded = false;

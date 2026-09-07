@@ -71,6 +71,11 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation,
 	}
 }
 VDFboShader::~VDFboShader(void) {
+	if (mTextureMode == VDTextureMode::SHARED) {
+#if defined( CINDER_MSW )
+		mSpoutIn.getSpoutReceiver().ReleaseReceiver();
+#endif
+	}
 }
 unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	unsigned int rtn = 0;
@@ -91,6 +96,8 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	case VDTextureMode::SEQUENCE: // img seq loaded when ableton runs
 		// init with number 1 then getFboTexture will load next images
 		mInputTextureList[0].isValid = false; // remove audio texture
+		mSeqDetected = false;
+		detectSequencePattern();
 		loadNextTexture(1);
 		break;
 	case VDTextureMode::TEXT: // text
@@ -105,10 +112,18 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		}
 		break;
 	case VDTextureMode::SHARED: // shared
+#if defined( CINDER_MSW )
 		mInputTextureList[0].texture = mSpoutIn.receiveTexture();
 		// set name for UI
 		mInputTextureList[0].name = mSpoutIn.getSenderName();
 		mCurrentFilename = mTextureName = "spout in";// mSpoutIn.getSenderName();
+#endif
+#if defined( CINDER_MAC )
+		mClientSyphon.setup();
+		mClientSyphon.setServerName("Reymenta client");
+		mClientSyphon.bind();
+		mCurrentFilename = mTextureName = "syphon in";
+#endif
 		mInputTextureList[0].ms = 0;
 		mInputTextureList[0].isValid = true;
 		break;
@@ -190,10 +205,16 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 					mVDUniforms->setUniformValue(mVDUniforms->IMOUSEZ, 0.0f);
 					//mInputTextureRef = gl::Texture::create(, gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
 					}*/
-					mIsVideoLoaded = false; // mVideo.loadMovie disabled
-					
-					
-					
+#if defined( CINDER_MSW )
+					mIsVideoLoaded = mVideo.loadMovie(texFileOrPath);
+					mVideoDuration = mVideo.getDuration();
+					mVideoPos = mVideo.getPosition();
+					mVideo.play();
+#endif
+#if defined( CINDER_MAC )
+					// TODO: Mac video texture playback not implemented (WMFVideo is Windows Media Foundation-specific)
+					mIsVideoLoaded = false;
+#endif
 					mTypestr = "video";
 					mCurrentFilename = mTextureName;
 					mTextureMode = VDTextureMode::MOVIE;
@@ -360,38 +381,88 @@ void VDFboShader::loadImageFile(const std::string& aFile, unsigned int aCurrentI
 		mFboMsg = mInputTextureList[aCurrentIndex].name + " cached";
 	}
 }
+// scan the sequence folder once to auto-detect prefix / zero-padding width / extension,
+// e.g. "p0000.jpg" -> prefix "p", 4 digits, ext "jpg"
+// ported from 2021SOSSeq/Cinder-VDR/src/VDTexture.cpp TextureImageSequence::loadFromFullPath
+void VDFboShader::detectSequencePattern() {
+	fs::path seqFolder = getAssetPath("") / mTextureName;
+	mSeqDetected = false;
+	if (!fs::exists(seqFolder) || !fs::is_directory(seqFolder)) {
+		return;
+	}
+	try {
+		for (fs::directory_iterator it(seqFolder); it != fs::directory_iterator(); ++it) {
+			if (!fs::is_regular_file(*it)) continue;
+			std::string fileName = it->path().filename().string();
+			size_t dotIndex = fileName.find_last_of(".");
+			if (dotIndex == std::string::npos) continue;
+			std::string ext = fileName.substr(dotIndex + 1);
+			if (ext != "jpg" && ext != "png") continue;
+			size_t firstDigit = fileName.find_first_of("0123456789");
+			// only auto-detect when the digits run uninterrupted right up to the extension
+			// (excludes legacy "name (N).jpg" style, which falls back to the guess-based path below)
+			if (firstDigit == std::string::npos || firstDigit >= dotIndex) continue;
+			bool allDigits = true;
+			for (size_t i = firstDigit; i < dotIndex; i++) {
+				if (!isdigit((unsigned char)fileName[i])) { allDigits = false; break; }
+			}
+			if (!allDigits) continue;
+			mSeqPrefix = fileName.substr(0, firstDigit);
+			mSeqDigits = (int)(dotIndex - firstDigit);
+			mSeqExt = ext;
+			mSeqDetected = true;
+			break;
+		}
+	}
+	catch (const std::exception& ex) {
+		CI_LOG_E("<< detectSequencePattern >> " << ex.what());
+		mSeqDetected = false;
+	}
+}
 // next in sequence
 void VDFboShader::loadNextTexture(unsigned int aCurrentIndex) {
 	if (mCurrentImageSequenceIndex != aCurrentIndex) {
 		mCurrentImageSequenceIndex = aCurrentIndex;
-		// try with jpg (space) explorer
-		mCurrentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").jpg";
-		fs::path texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
-		fileExists = fs::exists(texFileOrPath);
+		fs::path texFileOrPath;
+		if (mSeqDetected) {
+			// zero-padded prefix + digits + ext, ported from 2021SOSSeq TextureImageSequence::loadNextImageFromDisk
+			char digitsBuf[16];
+			snprintf(digitsBuf, sizeof(digitsBuf), "%0*d", mSeqDigits, (int)mCurrentImageSequenceIndex);
+			mCurrentFilename = mSeqPrefix + digitsBuf + "." + mSeqExt;
+			texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
+			fileExists = fs::exists(texFileOrPath);
+		}
+		else {
+			// legacy naming (no auto-detected zero-padded pattern found): guess 4 known variants
+			// try with jpg (space) explorer
+			mCurrentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").jpg";
+			texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
+			fileExists = fs::exists(texFileOrPath);
 
-		if (!fileExists) {
-			// try with jpg (-) photoshop
-			mCurrentFilename = mTextureName + "-(" + toString(mCurrentImageSequenceIndex) + ").jpg";
-			texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
-			fileExists = fs::exists(texFileOrPath);
-		}
-		if (!fileExists) {
-			// try with png (space) explorer
-			mCurrentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").png";
-			texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
-			fileExists = fs::exists(texFileOrPath);
-		}
-		if (!fileExists) {
-			// try with png (-) photoshop
-			mCurrentFilename = mTextureName + "-(" + toString(mCurrentImageSequenceIndex) + ").png";
-			texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
-			fileExists = fs::exists(texFileOrPath);
+			if (!fileExists) {
+				// try with jpg (-) photoshop
+				mCurrentFilename = mTextureName + "-(" + toString(mCurrentImageSequenceIndex) + ").jpg";
+				texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
+				fileExists = fs::exists(texFileOrPath);
+			}
+			if (!fileExists) {
+				// try with png (space) explorer
+				mCurrentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").png";
+				texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
+				fileExists = fs::exists(texFileOrPath);
+			}
+			if (!fileExists) {
+				// try with png (-) photoshop
+				mCurrentFilename = mTextureName + "-(" + toString(mCurrentImageSequenceIndex) + ").png";
+				texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
+				fileExists = fs::exists(texFileOrPath);
+			}
 		}
 		if (fileExists) {
 			loadImageFile(texFileOrPath.string(), mCurrentImageSequenceIndex);
 		}
 	}
-	
+
 }
 ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 	std::string uniformName;
@@ -434,8 +505,13 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			break;
 		case VDTextureMode::SHARED:
 			if (mInputTextureList[0].isValid) {
+#if defined( CINDER_MSW )
 				mInputTextureList[0].texture = mSpoutIn.receiveTexture();
 				mInputTextureList[0].name = mSpoutIn.getSenderName();
+#endif
+#if defined( CINDER_MAC )
+				mClientSyphon.draw(vec2(0.f, 0.f));
+#endif
 				mInputTextureList[0].isValid = true;
 			}
 			break;
@@ -447,13 +523,17 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			gl::ScopedViewport scopedViewport(getWindowSize());
 			//gl::ScopedDepth scopedDepth(true);
 			if (mIsVideoLoaded) {
-				
-				
-				if (true || true) {
-					
-					
+#if defined( CINDER_MSW )
+				mVideo.update();
+				mVideoPos = mVideo.getPosition();
+				if (mVideo.isStopped() || mVideo.isPaused()) {
+					mVideo.setPosition(0.0);
+					mVideo.play();
 				}
+				vec2 videoSize = vec2(mVideo.getWidth(), mVideo.getHeight());
+#else
 				vec2 videoSize = vec2(0);
+#endif
 				/*mVDUniforms->setUniformValue(mVDUniforms->IRENDERXYX, mVideo.getWidth()*0.25);
 				mVDUniforms->setUniformValue(mVDUniforms->IRENDERXYY, mVideo.getHeight()*0.25);
 				mVDUniforms->setVec2UniformValueByIndex(mVDUniforms->IRENDERXY, vec2(mVideo.getWidth()*0.25, mVideo.getHeight()*0.25));*/
@@ -624,12 +704,14 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		gl::drawSolidRect(Rectf(0, 0, mVDParams->getFboWidth(), mVDParams->getFboHeight()));
 		// 20220421 TODO use with shader, not directly
 		if (mTextureMode == VDTextureMode::MOVIE)
-		{			
+		{
 			gl::ScopedColor scopedColor(Colorf::white());
 			gl::ScopedModelMatrix scopedModelMatrix;
-			// video disabled
+#if defined( CINDER_MSW )
+			ciWMFVideoPlayer::ScopedVideoTextureBind scopedVideoTex(mVideo, 0);
 			// 20220421 TODO for not 720p:  gl::scale(vec3(1.0f));
-			
+			mVideo.draw(0, 0);
+#endif
 		}
 		if (mTextureMode == VDTextureMode::TEXT)
 		{			
