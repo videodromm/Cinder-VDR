@@ -170,7 +170,7 @@ namespace videodromm {
 			}
 			return this;
 		}
-		void onSendError(asio::error_code error)
+		void VDOscObserver::onSendError(asio::error_code error)
 		{
 			if (error) {
 				CI_LOG_E("Error sending: " << error.message() << " val: " << error.value());

@@ -1,5 +1,3 @@
-#version 150
-out vec4 oFragColor;
 // https://www.shadertoy.com/view/4sfXRB
 void main(void)
 {
@@ -15,5 +13,5 @@ void main(void)
 	);
 
 	
-	oFragColor = vec4(-final*abs(sin(time)),(-final*sin(time)*2.0),(final),1.0)*1.5;
+	gl_FragColor = vec4(-final*abs(sin(time)),(-final*sin(time)*2.0),(final),1.0)*1.5;
 }

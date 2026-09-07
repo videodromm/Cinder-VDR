@@ -11,7 +11,6 @@
 	core="true"
 	>
 	<supports os="msw" />
-	<supports os="mac" />
 	<includePath>include</includePath>
 	<includePath>src</includePath>
 	<headerPattern>include/*.h</headerPattern>
@@ -25,11 +24,6 @@
 		<requires>mb.cinder.midi2</requires>
 		<requires>org.libcinder.HTTPS</requires>
 		<requires>org.libcinder.wmfvideo</requires>
-	</platform>
-	<platform os="mac">
-		<!-- id below assumes https://github.com/naychrist/Cinder-Syphon declares itself with this id;
-		     verify against that block's own cinderblock.xml and correct if different -->
-		<requires>info.v002.syphon</requires>
 	</platform>
 </block>
 <template>templates/VD/template.xml</template>

@@ -1,5 +1,3 @@
-#version 150
-out vec4 oFragColor;
 // https://www.shadertoy.com/view/XdB3Dw
 #define USE_IQ_SMIN 0
 
@@ -264,5 +262,5 @@ void main(void)
 	// vignet
 	//gl_FragColor.rgb *= 0.5 + 0.5*pow( 16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.1 );
 	col *= 0.5 + 0.5*pow( 16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.1 );
-	oFragColor = vec4(col, 1.0);
+	gl_FragColor = vec4(col, 1.0);
 }
