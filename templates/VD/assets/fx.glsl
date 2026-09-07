@@ -58,7 +58,7 @@ bool VideoHeightFieldIntersectBox(vec3 ro, vec3 rd, vec3 boxmin, vec3 boxmax, ou
 
 float VideoHeightFieldLuminance(sampler2D tex, vec2 uv)
 {
-	vec3 c = texture2D(tex, uv).xyz;
+	vec3 c = texture(tex, uv).xyz;
 	return dot(c, vec3(0.33, 0.33, 0.33));
 }
 
@@ -143,7 +143,7 @@ void main() {
 		hit = VideoHeightFieldTraceHeightField(ro, rd*stepSize, hitPos);
 		if (hit) {
 			vec2 uv = VideoHeightFieldWorldToTex(hitPos);
-			rgb = texture2D(iChannel0, uv).xyz;
+			rgb = texture(iChannel0, uv).xyz;
 		}
      }
 	

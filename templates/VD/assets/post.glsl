@@ -69,7 +69,7 @@ vec4 trixels( vec2 inUV, sampler2D tex )
             vec2 screenPos = vec2(startX+x*halfBase,startY+y*halfHeight);
             vec2 uv1 = screenPos / iResolution.xy;
 			uv1.y = 1.0 - uv1.y;
-			blend += texture2D(tex, uv1);         
+			blend += texture(tex, uv1);         
         }
     }
     rtn = (blend / 9.0);
