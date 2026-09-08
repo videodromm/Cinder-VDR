@@ -91,6 +91,7 @@ namespace videodromm
 
 		ci::gl::TextureRef		buildFboTexture(unsigned int aIndex);
 		ci::gl::TextureRef		buildFboRenderedTexture(unsigned int aFboIndex);
+		ci::gl::TextureRef		buildRenderedMixetteTexture(unsigned int aIndex);
 		ci::gl::TextureRef		getFboShaderTexture(unsigned int aIndex);
 		std::string				getFboShaderName(unsigned int aIndex);
 		unsigned int			getFboShaderListSize(); 

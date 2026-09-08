@@ -40,7 +40,16 @@ namespace videodromm {
 		// uncomment this to enable 4x antialiasing
 		//fboFmt.setSamples( 4 );
 		fboFmt.setColorTextureFormat(fmt);
-		
+
+		mMixetteTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown(false));
+		mMixetteFbo = gl::Fbo::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), fboFmt);
+		fs::path mixetteFilePath = getAssetPath("") / "mixette.glsl";
+		if (!fs::exists(mixetteFilePath)) {
+			mError = mixetteFilePath.string() + " does not exist";
+			CI_LOG_W(mError);
+		}
+		mGlslMixette = gl::GlslProg::create(mVDParams->getDefaultVertexString(), loadString(loadFile(mixetteFilePath)));
+
 	} // constructor
 
 	bool VDMix::save()
@@ -133,6 +142,38 @@ namespace videodromm {
 			rtn = (unsigned int)mFboShaderList.size() - 1;
 		}
 		return rtn;
+	}
+	ci::gl::TextureRef VDMix::getMixetteTexture(unsigned int aFboIndex) {
+
+		gl::ScopedFramebuffer fbScp(mMixetteFbo);
+		// clear out the FBO with black
+		gl::clear(Color::black());
+
+		// setup the viewport to match the dimensions of the FBO
+		gl::ScopedViewport scpVp(ivec2(0), mMixetteFbo->getSize());
+
+		int i = 0;
+		for (auto &fbo : mFboShaderList) {
+			if (fbo->isValid()) {
+				if (mVDUniforms->getUniformValue(mVDUniforms->IWEIGHT0 + i) > 0.01f) mFboShaderList[i]->getTexture()->bind(i);
+			}
+			i++;
+		}
+		gl::ScopedGlslProg prog(mGlslMixette);
+		mGlslMixette->uniform("iResolution", vec3(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY), 1.0));
+		mGlslMixette->uniform("iBlendmode", (int)mVDUniforms->getUniformValue(mVDUniforms->IBLENDMODE));
+		i = 0;
+		for (auto &fbo : mFboShaderList) {
+			if (fbo->isValid()) {
+				mGlslMixette->uniform("iChannel" + toString(i), i);
+				mGlslMixette->uniform("iWeight" + toString(i), mVDUniforms->getUniformValue(mVDUniforms->IWEIGHT0 + i));
+			}
+			i++;
+		}
+
+		gl::drawSolidRect(Rectf(0, 0, mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY)));
+		mMixetteTexture = mMixetteFbo->getColorTexture();
+		return mMixetteTexture;
 	}
 	std::vector<ci::gl::GlslProg::Uniform> VDMix::getFboShaderUniforms(unsigned int aFboShaderIndex) {
 		return mFboShaderList[aFboShaderIndex]->getUniforms();

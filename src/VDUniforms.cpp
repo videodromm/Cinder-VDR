@@ -212,7 +212,8 @@ VDUniforms::VDUniforms() {
 
 	// -300 rule
 	createVec3Uniform("iResolution", IRESOLUTION, vec3(getUniformValue(IRESOLUTIONX), getUniformValue(IRESOLUTIONY), 1.0)); // 421 
-	createVec2Uniform("iRenderXY", IRENDERXY, vec2(getUniformValue(IRENDERXYX), getUniformValue(IRENDERXYY))); // 424 
+	createVec2Uniform("iRenderXY", IRENDERXY, vec2(getUniformValue(IRENDERXYX), getUniformValue(IRENDERXYY))); // 424
+	createFloatUniform("iUIScale", IUISCALE, 1.0f, 0.5f, 4.0f); // 425 manual override for ImGui panel scaling, defaults to 1.0 until VDUI sets it from the real content scale
 	createVec3Uniform("iColor", ICOLOR, vec3(0.45, 0.0, 1.0)); // 301
 	createVec4Uniform("iDate", IDATE, vec4(2021.0f, 12.0f, 1.0f, 5.0f));// 363
 
@@ -823,6 +824,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	// iRender 424
 	else if (key == "iRenderXY") {
 	rtn = IRENDERXY;
+	}
+	// 425
+	else if (key == "iUIScale") {
+	rtn = IUISCALE;
 	}
 	// slitscan / matrix (or other) Param1 124 
 	else if (key == "iPixelX") {

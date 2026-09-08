@@ -264,7 +264,7 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 		}
 	}
 #if (defined( CINDER_MSW ) || defined( CINDER_MAC ))
-	if (getUseLineIn()) {
+	if (getUseLineIn() && mLineInInitialized && mMonitorLineInSpectralNode) {
 		mMagSpectrum = mMonitorLineInSpectralNode->getMagSpectrum();
 	}
 	else {

@@ -186,7 +186,9 @@ void VDSession::update() {
 
 	// fps calculated in main app
 	mVDAnimation->update();
-	
+
+	mVDMix->getMixetteTexture(0);
+
 	renderWarpsToFbo();
 	renderPostToFbo();
 	if (mVDUniforms->getUniformValue(mVDUniforms->IDISPLAYMODE) == VDDisplayMode::FX || getElapsedFrames() % 100 == 0) renderFxToFbo();
@@ -204,13 +206,13 @@ void VDSession::renderPostToFbo()
 
 		// texture binding must be before ScopedGlslProg
 		//mWarpsFbo->getColorTexture()
-		mWarpTexture->bind(0);
+		mWarpTexture->bind(10);
 		gl::ScopedGlslProg prog(mGlslPost);
 
 		// not used yet mGlslPost->uniform("TIME", getUniformValue(mVDUniforms->ITIME) - mVDSettings->iStart);;
 		mGlslPost->uniform("iResolution", vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
 		mGlslPost->uniform("iColor", vec3(mVDUniforms->getUniformValue(mVDUniforms->ICOLORX), mVDUniforms->getUniformValue(mVDUniforms->ICOLORY), mVDUniforms->getUniformValue(mVDUniforms->ICOLORZ)));
-		mGlslPost->uniform("iChannel0", 0); // texture 0
+		mGlslPost->uniform("iChannel0", 10); // texture unit 10 (post)
 		// tmp 20210102
 		float iz = mVDUniforms->getUniformValue(mVDUniforms->IZOOM);
 		mGlslPost->uniform("iTime", mVDUniforms->getUniformValue(mVDUniforms->ITIME));
@@ -253,12 +255,12 @@ void VDSession::renderFxToFbo()
 
 		// texture binding must be before ScopedGlslProg
 		//mWarpsFbo->getColorTexture()
-		mWarpTexture->bind(0);
+		mWarpTexture->bind(11);
 		gl::ScopedGlslProg prog(mGlslFx);
 
 		mGlslFx->uniform("iResolution", vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
-		mGlslFx->uniform("iChannel0", 0); // texture 0
-		mGlslFx->uniform("iChannel1", 0); // texture audio
+		mGlslFx->uniform("iChannel0", 11); // texture unit 11 (fx)
+		mGlslFx->uniform("iChannel1", 11); // texture audio (unused by fx.glsl; kept in range)
 		mGlslFx->uniform("iTime", mVDUniforms->getUniformValue(mVDUniforms->ITIME));
 		mGlslFx->uniform("iGreyScale", mVDUniforms->getUniformValue(mVDUniforms->IGREYSCALE));
 		mGlslFx->uniform("iGlitch", mVDUniforms->getUniformValue(mVDUniforms->IGLITCH));
@@ -303,7 +305,7 @@ void VDSession::renderWarpsToFbo()
 			a = warp->getAFboIndex();
 			if (a < 0) a = 0; // TODO 20200228 a could be negative if warps3.xml > warps01.json
 			i = math<int>::min(a, getFboShaderListSize() - 1);
-			warp->draw(mPostFbo->getColorTexture());
+			warp->draw(mVDMix->getRenderedMixetteTexture(0));
 		}
 		mWarpTexture = mWarpsFbo->getColorTexture();
 	}
@@ -577,6 +579,12 @@ ci::gl::TextureRef VDSession::getWarpFboTexture() {
 };
 ci::gl::TextureRef VDSession::getRenderedWarpFboTexture() {
 	return mWarpTexture;
+};
+ci::gl::TextureRef VDSession::getMixetteTexture(unsigned int aFboIndex) {
+	return mVDMix->getMixetteTexture(aFboIndex);
+};
+ci::gl::TextureRef VDSession::getRenderedMixetteTexture(unsigned int aFboIndex) {
+	return mVDMix->getRenderedMixetteTexture(aFboIndex);
 };
 void VDSession::resize() {
 	// tell the fbos our window has been resized, so they properly scale up or down

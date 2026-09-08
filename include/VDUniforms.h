@@ -220,7 +220,8 @@ namespace videodromm
 			IDATE = 373,
 			IBACKGROUNDCOLOR = 401,
 			IRESOLUTION = 421,
-			IRENDERXY = 424
+			IRENDERXY = 424,
+			IUISCALE = 425
 
 		};
 		bool							isExistingUniform(const std::string& aName);

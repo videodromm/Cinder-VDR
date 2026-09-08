@@ -152,6 +152,8 @@ namespace videodromm
 		void							setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue);
 
 		unsigned int					createFboShaderTexture(const JsonTree &json, unsigned int aFboIndex = 0, const std::string& aFolder = "");
+		ci::gl::TextureRef				getMixetteTexture(unsigned int aFboIndex);
+		ci::gl::TextureRef				getRenderedMixetteTexture(unsigned int aFboIndex) { return mMixetteTexture; };
 		void							clearFboShaderList() {
 			mFboShaderList.clear();
 		}
@@ -173,7 +175,7 @@ namespace videodromm
 			}			
 			return mFboShaderList[aFboIndex]->getRenderedTexture();
 			*/
-			return mFboShaderList[getValidFboIndex(aFboIndex)]->getRenderedTexture();
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->getTexture();
 
 		}
 		ci::gl::TextureRef				getFboTexture(unsigned int aFboIndex) {
@@ -251,5 +253,8 @@ namespace videodromm
 		unsigned int					mCurrentIndex = 0;
 		unsigned int					getValidFboIndex(unsigned int aFboIndex);
 		ci::gl::Texture2dRef			mDefaultTexture; //in case no fbos
+		gl::FboRef						mMixetteFbo;
+		gl::GlslProgRef					mGlslMixette;
+		ci::gl::Texture2dRef			mMixetteTexture;
 	};
 }

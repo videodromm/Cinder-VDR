@@ -2,7 +2,6 @@
 // srtuss, 2013
 // this pretty much was my first raymarching experience.
 // big thanks to iq for his awesome artices!
-out vec4 fragColor;
 float DataTransferSlices = cos(iTime * 0.8) * 0.3 + 0.4;
 
 vec2 DataTransferrotate(vec2 k,float t)

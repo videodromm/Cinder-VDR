@@ -1,6 +1,5 @@
 // https://www.shadertoy.com/view/XdB3Dw
 #define USE_IQ_SMIN 0
-out vec4 fragColor;
 float PopularTime;
 
 float PopularWLen=15.0;

@@ -184,6 +184,9 @@ std::string VDSessionFacade::getWSMsg() {
 ci::gl::TextureRef VDSessionFacade::buildFboTexture(unsigned int aIndex) {
 	return mVDSession->getFboTexture(aIndex);;
 }
+ci::gl::TextureRef VDSessionFacade::buildRenderedMixetteTexture(unsigned int aIndex) {
+	return mVDSession->getRenderedMixetteTexture(aIndex);
+}
 ci::gl::TextureRef VDSessionFacade::getFboShaderTexture(unsigned int aIndex) {
 	return mVDSession->getFboShaderTexture(aIndex);
 }

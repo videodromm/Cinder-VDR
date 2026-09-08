@@ -1,5 +1,4 @@
 // https://www.shadertoy.com/view/4sfXRB
-out vec4 fragColor;
 void main(void)
 {
 	vec2 uv =  gl_FragCoord.xy / iResolution.xy;

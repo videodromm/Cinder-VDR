@@ -64,6 +64,8 @@ namespace videodromm {
 		ci::gl::TextureRef				getFxFboTexture();
 		ci::gl::TextureRef				getWarpFboTexture();
 		ci::gl::TextureRef				getRenderedWarpFboTexture();
+		ci::gl::TextureRef				getMixetteTexture(unsigned int aFboIndex);
+		ci::gl::TextureRef				getRenderedMixetteTexture(unsigned int aFboIndex);
 		//!
 		void							reset();
 		void							resetSomeParams();
