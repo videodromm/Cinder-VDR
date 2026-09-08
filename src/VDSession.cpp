@@ -331,7 +331,11 @@ void VDSession::fileDrop(FileDropEvent event) {
 	std::string ext = "";
 	//string fileName = "";
 
-	unsigned int index = (unsigned int)((event.getX() - mVDParams->getUILargeW()) / (mVDParams->getUILargePreviewW() + mVDParams->getUIMargin()));
+	// drop position (event.getX/Y) comes straight from glfwGetCursorPos - logical points, same units as
+	// the VDUIParams layout constants below (unlike ImGui's own io.MousePos, this is never run through
+	// toPixels()/uiScale) - so this must match VDUIFbos.cpp's xPos formula in logical units, not device pixels
+	int index = (int)((event.getX() - (mVDParams->getUIMargin() + mVDParams->getUIXPosCol1())) / (mVDParams->getUILargePreviewW() + mVDParams->getUIMargin()));
+	if (index < 0) index = (int)mVDMix->getFboShaderListSize(); // dropped left of the fbo row - treat as "empty area"
 	//int y = (int)(event.getY());
 	//if (index < 2 || y < mVDSettings->uiYPosRow3 || y > mVDSettings->uiYPosRow3 + mVDSettings->uiPreviewH) index = 0;
 	ci::fs::path mPath = event.getFile(event.getNumFiles() - 1);

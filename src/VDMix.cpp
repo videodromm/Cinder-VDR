@@ -281,7 +281,6 @@ namespace videodromm {
 
 #pragma region textures
 	void VDMix::loadImageFile(const std::string& aFile, unsigned int aFboIndex) {
-		int rtn = math<int>::min(aFboIndex, mFboShaderList.size() - 1);
 		fs::path texFileOrPath = aFile;
 		if (fs::exists(texFileOrPath)) {
 
@@ -289,8 +288,8 @@ namespace videodromm {
 			int dotIndex = texFileOrPath.filename().string().find_last_of(".");
 			if (dotIndex != std::string::npos)  ext = texFileOrPath.filename().string().substr(dotIndex + 1);
 			if (ext == "jpg" || ext == "png") {
-				// 20220321  tmp if (mFboShaderList.size() < 1) {
-					// no fbos, create one
+				if (aFboIndex >= mFboShaderList.size()) {
+					// dropped beyond any existing fbo panel (empty area) - create a new inputImage.fs fbo
 					JsonTree		json;
 					JsonTree texture = ci::JsonTree::makeArray("texture");
 					texture.addChild(ci::JsonTree("texturename", aFile));
@@ -303,11 +302,11 @@ namespace videodromm {
 					shader.pushBack(ci::JsonTree("shadertype", "fs"));
 					json.addChild(shader);
 					createFboShaderTexture(json, aFboIndex);
-					/* 20220321 tmp }
+				}
 				else {
-					mFboShaderList[rtn]->loadImageFile(aFile);
-					// 20211227 was setInputTextureRef(mTextureList[mTextureList.size() - 1]->getTexture());
-				}*/
+					// dropped onto an existing fboshader - keep its shader, just swap the input texture
+					mFboShaderList[aFboIndex]->loadImageFile(aFile);
+				}
 			}
 		}
 	}

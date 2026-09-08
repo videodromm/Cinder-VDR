@@ -323,19 +323,19 @@ void _TBOX_PREFIX_App::draw()
 		}
 	}
 	else {
-		gl::setMatricesWindow(mVDParams->getFboWidth(), mVDParams->getFboHeight());
-		
+		gl::setMatricesWindow(getWindowSize());
+
 		int m = mVDSessionFacade->getUniformValue(mVDUniforms->IDISPLAYMODE);
 		if (m == VDDisplayMode::POST) {
-			gl::draw(mVDSessionFacade->buildPostFboTexture());
+			gl::draw(mVDSessionFacade->buildPostFboTexture(), getWindowBounds());
 			mSpoutOut.sendTexture(mVDSessionFacade->buildPostFboTexture());
 		}
 		else if (m == VDDisplayMode::FX) {
-			gl::draw(mVDSessionFacade->buildFxFboTexture());
+			gl::draw(mVDSessionFacade->buildFxFboTexture(), getWindowBounds());
 			mSpoutOut.sendTexture(mVDSessionFacade->buildFxFboTexture());
 		}
 		else if (m < mVDSessionFacade->getFboShaderListSize()) {
-				gl::draw(mVDSessionFacade->getFboShaderTexture(m));
+				gl::draw(mVDSessionFacade->getFboShaderTexture(m), getWindowBounds());
 				mSpoutOut.sendTexture(mVDSessionFacade->getFboShaderTexture(m));
 			}
 			
@@ -347,5 +347,6 @@ void _TBOX_PREFIX_App::draw()
 void prepareSettings(App::Settings *settings)
 {
 	settings->setWindowSize(1280, 720);
+	settings->setHighDensityDisplayEnabled(true);
 }
 CINDER_APP(_TBOX_PREFIX_App, RendererGl(RendererGl::Options().msaa(8)),  prepareSettings)

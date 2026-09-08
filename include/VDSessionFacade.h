@@ -184,6 +184,7 @@ namespace videodromm
 		std::vector<ci::gl::GlslProg::Uniform> getUniforms(unsigned int aFboIndex = 0);
 		ci::gl::Texture2dRef	buildFboInputTexture(unsigned int aFboIndex = 0);
 		ci::gl::Texture2dRef	getFboInputTextureListItem(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0);
+		void					setFboInputTexture(unsigned int aFboIndex, ci::gl::Texture2dRef aTextureRef, const std::string& aName = "");
 		void					resetAnim() { mVDSession->resetAnim(); }
 		std::string				getModeName(unsigned int aMode);
 		unsigned int			getModesCount();

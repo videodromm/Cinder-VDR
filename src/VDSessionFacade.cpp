@@ -277,6 +277,9 @@ ci::gl::Texture2dRef VDSessionFacade::buildFboInputTexture(unsigned int aFboInde
 ci::gl::Texture2dRef VDSessionFacade::getFboInputTextureListItem(unsigned int aFboIndex, unsigned int aTexIndex) {
 	return mVDSession->getFboInputTextureListItem(aFboIndex, aTexIndex);
 }
+void VDSessionFacade::setFboInputTexture(unsigned int aFboIndex, ci::gl::Texture2dRef aTextureRef, const std::string& aName) {
+	mVDSession->setFboInputTexture(aFboIndex, aTextureRef, aName);
+}
 /*ci::gl::Texture2dRef VDSessionFacade::getInputTexture(unsigned int aTexIndex) {
 	return mVDSession->getInputTexture(aTexIndex);
 }*/

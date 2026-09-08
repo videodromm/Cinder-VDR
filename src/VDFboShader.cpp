@@ -112,6 +112,29 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		mCurrentFilename = mTextureName = "spout in";// mSpoutIn.getSenderName();
 		mInputTextureList[0].ms = 0;
 		mInputTextureList[0].isValid = true;
+		#elif defined( CINDER_MAC )
+		if (!mSyphonInitialized) {
+			mClientSyphon.setup();
+			// texturename (if any, from the fbo*.json "texturename" field) selects which Syphon
+			// server to bind to; empty/"audio" (the default when not specified) means "any"
+			if (!mTextureName.empty() && mTextureName != "audio") {
+				mClientSyphon.setServerName(mTextureName);
+			}
+			try {
+				mGlslVideoTexture = gl::GlslProg::create(gl::GlslProg::Format()
+					.vertex(loadAsset("video_texture.vs.glsl"))
+					.fragment(loadAsset("video_texture.fs.glsl")));
+			}
+			catch (const std::exception& ex) {
+				CI_LOG_E("<< Syphon blit GlslProg error >> " << ex.what());
+			}
+			gl::Fbo::Format blitFmt;
+			mSyphonBlitFbo = gl::Fbo::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), blitFmt);
+			mSyphonInitialized = true;
+		}
+		mCurrentFilename = mTextureName = "syphon in";
+		mInputTextureList[0].ms = 0;
+		mInputTextureList[0].isValid = true;
 		#else
 		// Spout is Windows-only; fallback to audio texture on non-Windows builds.
 		setFboTextureAudioMode();
@@ -443,6 +466,27 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				mInputTextureList[0].texture = mSpoutIn.receiveTexture();
 				mInputTextureList[0].name = mSpoutIn.getSenderName();
 				mInputTextureList[0].isValid = true;
+			}
+			#elif defined( CINDER_MAC )
+			if (mSyphonInitialized) {
+				mClientSyphon.bind();
+				ci::gl::TextureRef rectTex = mClientSyphon.getTexture();
+				if (rectTex && mGlslVideoTexture && mSyphonBlitFbo) {
+					gl::ScopedFramebuffer blitFbScp(mSyphonBlitFbo);
+					gl::ScopedViewport blitVp(ivec2(0), mSyphonBlitFbo->getSize());
+					gl::ScopedMatrices blitMat;
+					gl::setMatricesWindow(mSyphonBlitFbo->getSize());
+					rectTex->bind(0);
+					gl::ScopedGlslProg blitShader(mGlslVideoTexture);
+					mGlslVideoTexture->uniform("uSampler", 0);
+					mGlslVideoTexture->uniform("uVideoSize", vec2((float)rectTex->getWidth(), (float)rectTex->getHeight()));
+					gl::drawSolidRect(Rectf(0, 0, (float)mSyphonBlitFbo->getWidth(), (float)mSyphonBlitFbo->getHeight()));
+					rectTex->unbind(0);
+					mInputTextureList[0].texture = mSyphonBlitFbo->getColorTexture();
+					mInputTextureList[0].name = "syphon: " + mClientSyphon.getServerName();
+					mInputTextureList[0].isValid = true;
+				}
+				mClientSyphon.unbind();
 			}
 			#else
 			setFboTextureAudioMode();

@@ -31,6 +31,10 @@
 #if defined( CINDER_MSW )
 #include "CiSpoutIn.h"
 #endif
+// Syphon (Mac-only)
+#if defined( CINDER_MAC )
+#include "cinderSyphon.h"
+#endif
 
 #include <atomic>
 #include <vector>
@@ -75,11 +79,11 @@ namespace videodromm
 			mUniformValueByLocation[aLocationIndex] = aValue;
 		};
 
-		/* 20220101 hydra check
-		void									setInputTextureRefByIndex(unsigned int aTexIndex, ci::gl::Texture2dRef aTextureRef) {
+		void									setInputTextureRefByIndex(unsigned int aTexIndex, ci::gl::Texture2dRef aTextureRef, const std::string& aName = "") {
 			mInputTextureList[aTexIndex].texture = aTextureRef;
-			mInputTextureList[aTexIndex].name = "setInputTextureRefByIndex " + toString(aTexIndex);
-		};*/
+			mInputTextureList[aTexIndex].name = aName.empty() ? ("texture " + toString(aTexIndex)) : aName;
+			mInputTextureList[aTexIndex].isValid = true;
+		};
 		void									setFboTextureAudioMode() {
 			mCurrentFilename = mTextureName = mVDAnimation->getAudioTextureName();// "audio";
 			mTextureMode = VDTextureMode::AUDIO;
@@ -181,6 +185,15 @@ namespace videodromm
 		unsigned int					mCacheImageIndex = 0;
 		#if defined( CINDER_MSW )
 		SpoutIn							mSpoutIn;
+		#endif
+		#if defined( CINDER_MAC )
+		syphonClient					mClientSyphon;
+		bool							mSyphonInitialized = false;
+		// received Syphon texture is GL_TEXTURE_RECTANGLE_ARB (non-normalized UVs); blit it into
+		// a normal GL_TEXTURE_2D each frame so it works with every shader unmodified (sampler2D,
+		// normalized UVs), same as every other input texture mode here
+		ci::gl::FboRef					mSyphonBlitFbo;
+		ci::gl::GlslProgRef				mGlslVideoTexture;
 		#endif
 		//unsigned int					mInputTextureIndex;
 		unsigned int					createInputTexture(const JsonTree &json);

@@ -101,12 +101,11 @@ namespace videodromm
 		unsigned int					getSelectedFbo() {
 			return mSelectedFbo;
 		};
-		/*void							setFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0) {
+		void							setFboInputTexture(unsigned int aFboIndex, ci::gl::Texture2dRef aTextureRef, const std::string& aName = "") {
 			if (mFboShaderList.size() > 0) {
-				mFboShaderList[getValidFboIndex(aFboIndex)]->setInputTextureIndex(aTexIndex);
-				// TODO 20211227 check if useless now mFboShaderList[getValidFboIndex(aFboIndex)]->setInputTextureRef(mTextureList[texIndex]->getTexture());
+				mFboShaderList[getValidFboIndex(aFboIndex)]->setInputTextureRefByIndex(0, aTextureRef, aName);
 			}
-		}*/
+		}
 	
 		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aTexIndex = 0) {
 			return mFboShaderList[getValidFboIndex(mSelectedFbo)]->getInputTexture(aTexIndex);
