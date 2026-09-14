@@ -114,7 +114,8 @@ void VDSession::makeRequest(http::UrlRef url, unsigned int aFboIndex)
 		if (found == 2) {
 			auto &titleObj = value["title"];
 			auto &contentObj = value["content"];
-			mVDMix->setFragmentShaderString(contentObj.asString(), titleObj.asString());
+			// aFboIndex was previously ignored here, so loadShaderFromHttp always landed on fbo 0
+			mVDMix->setFragmentShaderString(contentObj.asString(), titleObj.asString(), aFboIndex);
 		}
 	};
 	auto onError = [](asio::error_code ec, const http::UrlRef &url, http::ResponseRef response) {
@@ -125,13 +126,130 @@ void VDSession::makeRequest(http::UrlRef url, unsigned int aFboIndex)
 		}
 	};
 
-	if (url->port() == 80) {
+	// dispatch by protocol, not port: the folder/shader browser API runs on a non-standard
+	// port (e.g. http://localhost:40088/), which port()==80/443 would silently miss
+	if (url->protocol() == "https") {
+		sslSession = std::make_shared<http::SslSession>(request, onComplete, onError);
+		sslSession->start();
+	}
+	else {
 		session = std::make_shared<http::Session>(request, onComplete, onError);
 		session->start();
 	}
-	else if (url->port() == 443) {
+}
+namespace {
+	// both /api/folders and /api/folders/{folder}/{extension} return a plain JSON array of
+	// strings (folder names, and shader filenames with their extension, e.g. "BinarySerpents.glsl")
+	void parseStringArray(const ::Json::Value& aValue, std::vector<std::string>& aOut) {
+		aOut.clear();
+		for (::Json::ArrayIndex i = 0; i < aValue.size(); i++) {
+			if (aValue[i].isString()) {
+				aOut.push_back(aValue[i].asString());
+			}
+		}
+	}
+}
+void VDSession::listFolders() {
+	httpsUrl = std::make_shared<http::Url>(mApiurl + "api/folders");
+	makeFolderListRequest(httpsUrl);
+}
+void VDSession::listShaders(const std::string& aFolder, const std::string& aExtension) {
+	httpsUrl = std::make_shared<http::Url>(mApiurl + "api/folders/" + aFolder + "/" + aExtension);
+	makeShaderListRequest(httpsUrl);
+}
+void VDSession::loadShaderFromFolder(const std::string& aFolder, const std::string& aExtension, const std::string& aName) {
+	// pick a slot that's not currently mixed in, so loading it doesn't cause a sudden change in the rendering
+	unsigned int aFboIndex = mVDMix->findFirstZeroWeightFboIndex();
+	httpsUrl = std::make_shared<http::Url>(mApiurl + "api/folders/" + aFolder + "/" + aExtension + "/" + aName);
+	// aName is the listed filename (e.g. "BinarySerpents.glsl") - strip the extension for a cleaner display title
+	std::string title = aName;
+	std::size_t dotIndex = title.find_last_of('.');
+	if (dotIndex != std::string::npos) title = title.substr(0, dotIndex);
+	makeShaderContentRequest(httpsUrl, aFboIndex, title);
+}
+void VDSession::makeFolderListRequest(http::UrlRef url) {
+	auto request = std::make_shared<http::Request>(http::RequestMethod::GET, url);
+	request->appendHeader(http::Connection(http::Connection::Type::CLOSE));
+	request->appendHeader(http::Accept());
+
+	auto onComplete = [&](asio::error_code ec, http::ResponseRef response) {
+		auto content = response->getContent();
+		std::string jsonStr(static_cast<const char*>(content->getData()), content->getSize());
+		::Json::Features features;
+		features.allowComments_ = true;
+		features.strictRoot_ = false;
+		::Json::Reader reader(features);
+		::Json::Value value;
+		reader.parse(jsonStr, value, false);
+		parseStringArray(value, mFolderList);
+		CI_LOG_I("listFolders: " << mFolderList.size() << " folders");
+	};
+	auto onError = [](asio::error_code ec, const http::UrlRef &url, http::ResponseRef response) {
+		CI_LOG_E(ec.message() << " val: " << ec.value() << " Url: " << url->to_string());
+	};
+
+	if (url->protocol() == "https") {
 		sslSession = std::make_shared<http::SslSession>(request, onComplete, onError);
 		sslSession->start();
+	}
+	else {
+		session = std::make_shared<http::Session>(request, onComplete, onError);
+		session->start();
+	}
+}
+void VDSession::makeShaderListRequest(http::UrlRef url) {
+	auto request = std::make_shared<http::Request>(http::RequestMethod::GET, url);
+	request->appendHeader(http::Connection(http::Connection::Type::CLOSE));
+	request->appendHeader(http::Accept());
+
+	auto onComplete = [&](asio::error_code ec, http::ResponseRef response) {
+		auto content = response->getContent();
+		std::string jsonStr(static_cast<const char*>(content->getData()), content->getSize());
+		::Json::Features features;
+		features.allowComments_ = true;
+		features.strictRoot_ = false;
+		::Json::Reader reader(features);
+		::Json::Value value;
+		reader.parse(jsonStr, value, false);
+		parseStringArray(value, mShaderList);
+		CI_LOG_I("listShaders: " << mShaderList.size() << " shaders");
+	};
+	auto onError = [](asio::error_code ec, const http::UrlRef &url, http::ResponseRef response) {
+		CI_LOG_E(ec.message() << " val: " << ec.value() << " Url: " << url->to_string());
+	};
+
+	if (url->protocol() == "https") {
+		sslSession = std::make_shared<http::SslSession>(request, onComplete, onError);
+		sslSession->start();
+	}
+	else {
+		session = std::make_shared<http::Session>(request, onComplete, onError);
+		session->start();
+	}
+}
+void VDSession::makeShaderContentRequest(http::UrlRef url, unsigned int aFboIndex, const std::string& aName) {
+	auto request = std::make_shared<http::Request>(http::RequestMethod::GET, url);
+	request->appendHeader(http::Connection(http::Connection::Type::CLOSE));
+	request->appendHeader(http::Accept());
+
+	// unlike loadShaderFromHttp's endpoint (a {"title":...,"content":...} JSON wrapper), this one
+	// returns the raw GLSL fragment shader source directly as the response body
+	auto onComplete = [&, aFboIndex, aName](asio::error_code ec, http::ResponseRef response) {
+		auto content = response->getContent();
+		std::string shaderSource(static_cast<const char*>(content->getData()), content->getSize());
+		mVDMix->setFragmentShaderStringAtIndex(shaderSource, aName, aFboIndex);
+	};
+	auto onError = [](asio::error_code ec, const http::UrlRef &url, http::ResponseRef response) {
+		CI_LOG_E(ec.message() << " val: " << ec.value() << " Url: " << url->to_string());
+	};
+
+	if (url->protocol() == "https") {
+		sslSession = std::make_shared<http::SslSession>(request, onComplete, onError);
+		sslSession->start();
+	}
+	else {
+		session = std::make_shared<http::Session>(request, onComplete, onError);
+		session->start();
 	}
 }
 

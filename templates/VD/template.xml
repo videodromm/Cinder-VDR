@@ -6,7 +6,8 @@
 	<requires>com.wk.websocketpp</requires>
 	<requires>org.libcinder.OSC</requires>
 	<requires>mb.cinder.midi2</requires>
-	
+	<requires>org.libcinder.HTTPS</requires>
+
 	
 	<source replaceContents="true" replaceName="true">src/_TBOX_PREFIX_App.cpp</source>
 	<asset>assets/0.jpg</asset>
@@ -16,6 +17,7 @@
 	<asset>assets/fx.glsl</asset>
 	<asset>assets/passthrough.vs</asset>
 	<asset>assets/post.glsl</asset>
+	<asset>assets/session.json</asset>
 	<asset>assets/shadertoy.vd</asset>
 	<asset>assets/video_texture.fs.glsl</asset>
 	<asset>assets/video_texture.vs.glsl</asset>

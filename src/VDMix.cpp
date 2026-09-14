@@ -255,6 +255,21 @@ namespace videodromm {
 		mFboShaderList[rtn]->setFragmentShaderString(aFragmentShaderString, aName);
 		return rtn;
 	}
+	bool VDMix::setFragmentShaderStringAtIndex(const string& aFragmentShaderString, const std::string& aName, unsigned int aFboShaderIndex) {
+		if (mFboShaderList.size() == 0) return false;
+		unsigned int index = getValidFboIndex(aFboShaderIndex);
+		return mFboShaderList[index]->setFragmentShaderString(aFragmentShaderString, aName);
+	}
+	unsigned int VDMix::findFirstZeroWeightFboIndex() {
+		unsigned int count = (unsigned int)mFboShaderList.size();
+		if (count > MAXSHADERS) count = MAXSHADERS;
+		for (unsigned int f = 0; f < count; f++) {
+			if (mVDUniforms->getUniformValue(mVDUniforms->IWEIGHT0 + f) == 0.0f) {
+				return f;
+			}
+		}
+		return count > 0 ? count - 1 : 0;
+	}
 	int VDMix::loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex) {
 		JsonTree		json;
 		JsonTree shader = ci::JsonTree::makeArray("shader");

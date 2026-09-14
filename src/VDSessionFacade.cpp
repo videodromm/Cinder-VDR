@@ -74,6 +74,18 @@ VDSessionFacadeRef VDSessionFacade::loadShaderFromHttp(const std::string& url, u
 	mVDSession->loadShaderFromHttp(url, aFboIndex);
 	return shared_from_this();
 }
+VDSessionFacadeRef VDSessionFacade::listFolders() {
+	mVDSession->listFolders();
+	return shared_from_this();
+}
+VDSessionFacadeRef VDSessionFacade::listShaders(const std::string& aFolder, const std::string& aExtension) {
+	mVDSession->listShaders(aFolder, aExtension);
+	return shared_from_this();
+}
+VDSessionFacadeRef VDSessionFacade::loadShaderFromFolder(const std::string& aFolder, const std::string& aExtension, const std::string& aName) {
+	mVDSession->loadShaderFromFolder(aFolder, aExtension, aName);
+	return shared_from_this();
+}
 VDSessionFacadeRef VDSessionFacade::setupKeyboard() {
 	mVDMediator->setupKeyboard();
 	return shared_from_this();

@@ -53,6 +53,14 @@ namespace videodromm {
 		void							loadFromJsonFile(const fs::path& jsonFile);
 		void							setupHttpClient();
 		void							loadShaderFromHttp(const std::string& url, unsigned int aFboIndex);
+		// folder/shader browser: GET {apiUrl}api/folders, GET {apiUrl}api/folders/{folder}/{extension}
+		// and GET {apiUrl}api/folders/{folder}/{extension}/{name} (the last one returns {title, content}
+		// like loadShaderFromHttp's endpoint, and lands on the first fbo shader slot whose iWeight is 0)
+		void							listFolders();
+		void							listShaders(const std::string& aFolder, const std::string& aExtension);
+		void							loadShaderFromFolder(const std::string& aFolder, const std::string& aExtension, const std::string& aName);
+		std::vector<std::string>		getFolderList() { return mFolderList; };
+		std::vector<std::string>		getShaderList() { return mShaderList; };
 		unsigned int					fboFromJson(const JsonTree& json, unsigned int aFboIndex = 0, const std::string& aFolder = "") {
 			return mVDMix->createFboShaderTexture(json, aFboIndex, aFolder);
 		};
@@ -407,12 +415,17 @@ namespace videodromm {
 		bool							odd = false;
 		// http
 		void									makeRequest(http::UrlRef url, unsigned int aFboIndex);
+		void									makeFolderListRequest(http::UrlRef url);
+		void									makeShaderListRequest(http::UrlRef url);
+		void									makeShaderContentRequest(http::UrlRef url, unsigned int aFboIndex, const std::string& aName);
 
 		std::shared_ptr<ci::http::Session>		session;
 		std::shared_ptr<ci::http::SslSession>	sslSession;
 		ci::gl::TextureRef texture;
 		http::UrlRef							httpUrl, httpsUrl;
 		//bool useHttp = false;
+		std::vector<std::string>				mFolderList;
+		std::vector<std::string>				mShaderList;
 	};
 
 }

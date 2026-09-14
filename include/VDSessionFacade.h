@@ -45,6 +45,11 @@ namespace videodromm
 		VDSessionFacadeRef		setupWSClient();
 		VDSessionFacadeRef		setupHttpClient();
 		VDSessionFacadeRef		loadShaderFromHttp(const std::string& url, unsigned int aFboIndex);
+		VDSessionFacadeRef		listFolders();
+		VDSessionFacadeRef		listShaders(const std::string& aFolder, const std::string& aExtension);
+		VDSessionFacadeRef		loadShaderFromFolder(const std::string& aFolder, const std::string& aExtension, const std::string& aName);
+		std::vector<std::string> getFolderList() { return mVDSession->getFolderList(); };
+		std::vector<std::string> getShaderList() { return mVDSession->getShaderList(); };
 		VDSessionFacadeRef		setupKeyboard();
 		VDSessionFacadeRef		addOSCObserver(const std::string& host, unsigned int port);
 		VDSessionFacadeRef		addSocketIOObserver(const std::string& host, unsigned int port);

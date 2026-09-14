@@ -89,6 +89,13 @@ namespace videodromm
 		};
 		unsigned int					findAvailableIndex(unsigned int aFboShaderIndex, const JsonTree &json);
 		bool							setFragmentShaderString(const string& aFragmentShaderString, const std::string& aName = "", unsigned int aFboShaderIndex = 0);
+		// sets the fragment shader on exactly aFboShaderIndex, bypassing findAvailableIndex's
+		// hydra round-robin (which only triggers for setFragmentShaderString(..., 0)) - needed so
+		// callers that already picked a specific slot (e.g. the folder/shader browser UI) land there
+		bool							setFragmentShaderStringAtIndex(const string& aFragmentShaderString, const std::string& aName, unsigned int aFboShaderIndex);
+		// first fbo shader slot (0..7) whose iWeight uniform is 0.0f, i.e. not currently mixed in -
+		// used to load a new shader without a sudden change in the rendering
+		unsigned int					findFirstZeroWeightFboIndex();
 
 		int								loadFragmentShader(const std::string& aFilePath, unsigned int aFboShaderIndex);
 		std::vector<ci::gl::GlslProg::Uniform>			getUniforms(unsigned int aFboIndex = 0) {
