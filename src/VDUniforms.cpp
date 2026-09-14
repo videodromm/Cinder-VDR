@@ -907,6 +907,7 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	// 119 to 124 timefactor from midithor sos
 	// floats for warps
 	// srcArea 
+	/* limite du compilateur : blocs imbriqués trop profondément
 	else if (key == "srcXLeft") {
 		rtn = SRCXLEFT;
 	} // 160
@@ -918,7 +919,7 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	} // 162
 	else if (key == "srcYRight") {
 		rtn = SRCYRIGHT;
-	} // 163
+	} */ // 163
 	// iFreq0  
 	else if (key == "iFreq0") {
 		rtn = IFREQ0;
