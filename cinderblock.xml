@@ -20,9 +20,7 @@
 	<requires>com.wk.websocketpp</requires>
 	<requires>nl.cowlumbus.warping</requires>
 	<requires>org.libcinder.OSC</requires>
-	<requires>com.videodromm.vdr</requires>
 	<requires>mb.cinder.midi2</requires>
-	<requires>org.libcinder.HTTPS</requires>
 	<!-- VDSession/VDMix use cinder/http/http.hpp for the folder/shader browser API (listFolders/listShaders/loadShaderFromFolder) -->
 	<requires>org.libcinder.HTTPS</requires>
 	<platform os="msw">

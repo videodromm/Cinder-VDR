@@ -6,6 +6,11 @@
 // TODO recycle using object pool
 
 #pragma once
+#if defined( _WIN32 ) && ! defined( WIN32_LEAN_AND_MEAN )
+// must be defined before the first Windows header (pulled in by cinder/app/App.h) is seen,
+// otherwise asio/websocketpp later in the translation unit hits "WinSock.h has already been included"
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
