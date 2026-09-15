@@ -20,9 +20,9 @@
 	<requires>nl.cowlumbus.warping</requires>
 	<requires>org.libcinder.OSC</requires>
 	<requires>com.videodromm.vdr</requires>
-		<requires>mb.cinder.midi2</requires>
-		<!-- VDSession/VDMix use cinder/http/http.hpp for the folder/shader browser API (listFolders/listShaders/loadShaderFromFolder) -->
-		<requires>org.libcinder.HTTPS</requires>
+	<requires>mb.cinder.midi2</requires>
+	<!-- VDSession/VDMix use cinder/http/http.hpp for the folder/shader browser API (listFolders/listShaders/loadShaderFromFolder) -->
+	<requires>org.libcinder.HTTPS</requires>
 
 </block>
 <template>templates/VD/template.xml</template>
