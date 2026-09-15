@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <cinder>
-<template name="VD: Basic" parent="org.libcinder.apptemplates.basicopengl">
+<template name="VDR: Basic" parent="org.libcinder.apptemplates.basicopengl">
 	<requires>com.videodromm.vdr</requires>
 	<requires>nl.cowlumbus.warping</requires>
 	<requires>com.wk.websocketpp</requires>
 	<requires>org.libcinder.OSC</requires>
 	<requires>mb.cinder.midi2</requires>
 	<requires>org.libcinder.HTTPS</requires>
-
+	<requires>fr.batchass.spout</requires>
 	
 	<source replaceContents="true" replaceName="true">src/_TBOX_PREFIX_App.cpp</source>
 	<asset>assets/0.jpg</asset>

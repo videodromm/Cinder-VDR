@@ -5,12 +5,13 @@
 	id="com.videodromm.vdr"
 	author="Bruce Lane"
 	license="MIT"
-	summary=" block for Cinder 0.9: utilities for Spout, WebSockets, Shaders"
+	summary="VDR block for Cinder 0.9: utilities for Spout, WebSockets, Shaders"
 	url="https://github.com/videodromm/Cinder-VDR"
 	git="git://github.com/videodromm/Cinder-VDR.git"
 	core="true"
 	>
 	<supports os="msw" />
+	<supports os="macosx" />
 	<includePath>include</includePath>
 	<includePath>src</includePath>
 	<headerPattern>include/*.h</headerPattern>
@@ -21,9 +22,16 @@
 	<requires>org.libcinder.OSC</requires>
 	<requires>com.videodromm.vdr</requires>
 	<requires>mb.cinder.midi2</requires>
+	<requires>org.libcinder.HTTPS</requires>
 	<!-- VDSession/VDMix use cinder/http/http.hpp for the folder/shader browser API (listFolders/listShaders/loadShaderFromFolder) -->
 	<requires>org.libcinder.HTTPS</requires>
-
+	<platform os="msw">
+		<requires>fr.batchass.spout</requires>
+		<requires>org.libcinder.wmfvideo</requires>
+	</platform>
+	<platform os="macosx">
+		<requires>info.v002.syphon</requires>
+    </platform>
 </block>
-<template>templates/VD/template.xml</template>
+<template>templates/VDR/template.xml</template>
 </cinder>
