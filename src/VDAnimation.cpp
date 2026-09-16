@@ -193,6 +193,39 @@ bool VDAnimation::handleKeyUp(KeyEvent &event)
 
 	return event.isHandled();
 }
+bool VDAnimation::refreshAudioDevices() {
+#if defined( CINDER_MSW )
+	// see safeGetAudioDevices' comment above: this can crash with a raw AV that a normal
+	// try/catch can't stop, so it needs the __try/__except wrapper on Windows.
+	if( ! safeGetAudioDevices( &inputDevices, &outputDevices ) ) {
+		CI_LOG_E( "audio device enumeration crashed (access violation)" );
+		return false;
+	}
+	return true;
+#elif defined( CINDER_MAC )
+	inputDevices = ci::audio::Device::getInputDevices();
+	outputDevices = ci::audio::Device::getOutputDevices();
+	return true;
+#else
+	return false;
+#endif
+}
+std::vector<std::string> VDAnimation::getAudioInputDeviceNames() {
+	std::vector<std::string> names;
+	names.reserve( inputDevices.size() );
+	for( const auto &dev : inputDevices ) {
+		names.push_back( dev->getName() );
+	}
+	return names;
+}
+std::vector<std::string> VDAnimation::getAudioOutputDeviceNames() {
+	std::vector<std::string> names;
+	names.reserve( outputDevices.size() );
+	for( const auto &dev : outputDevices ) {
+		names.push_back( dev->getName() );
+	}
+	return names;
+}
 void  VDAnimation::initLineIn() {
 #if (defined( CINDER_MSW ) || defined( CINDER_MAC ))
 	bool audioDeviceFound = false;
@@ -204,18 +237,10 @@ void  VDAnimation::initLineIn() {
 			try
 			{
 				// inputs
-#if defined( CINDER_MSW )
-				// see safeGetAudioDevices' comment above: this can crash with a raw AV that a
-				// normal try/catch can't stop, so it needs the __try/__except wrapper on Windows.
-				if( ! safeGetAudioDevices( &inputDevices, &outputDevices ) ) {
-					CI_LOG_E( "audio device enumeration crashed (access violation), skipping mic/line in for this session" );
+				if( ! refreshAudioDevices() ) {
 					mVDSettings->setErrorMsg( "audio device enumeration crashed, line in disabled" );
 					return;
 				}
-#else
-				inputDevices = ci::audio::Device::getInputDevices();
-				outputDevices = ci::audio::Device::getOutputDevices();
-#endif
 				std::string preferredAudioDeviceKey = "";
 				JsonTree doc;
 				JsonTree audioinputs = JsonTree::makeArray("audioinputs");

@@ -404,12 +404,26 @@ VDSessionRef VDSessionFacade::getInstance() const {
 void VDSessionFacade::save()
 {
 	saveWarps();
-	// save in sessionPath
-	/* JsonTree doc;
-	JsonTree settings = JsonTree::makeArray("settings");
-	settings.addChild(ci::JsonTree("apiUrl", ""));
+	// save in sessionPath - settings must be an object (not an array, as an earlier draft of this
+	// had it), since restore() reads it back with hasChild()/getValueForKey() on named keys.
+	JsonTree doc;
+	JsonTree settings = JsonTree::makeObject("settings");
+	settings.addChild(ci::JsonTree("apiUrl", mVDSession->getApiUrl()));
+	settings.addChild(ci::JsonTree("preferredAudioInput", mVDSession->getPreferredAudioInputDevice()));
+	settings.addChild(ci::JsonTree("preferredAudioOutput", mVDSession->getPreferredAudioOutputDevice()));
+	settings.addChild(ci::JsonTree("preferredMidiInput", mVDMediator->getPreferredMidiInputDevice()));
 	doc.pushBack(settings);
-	doc.write(writeFile(sessionPath), JsonTree::WriteOptions());*/
+	doc.write(writeFile(sessionPath), JsonTree::WriteOptions());
+}
+void VDSessionFacade::selectAudioInputDevice(const std::string& aName)
+{
+	mVDSession->setPreferredAudioInputDevice(aName);
+	save();
+}
+void VDSessionFacade::selectAudioOutputDevice(const std::string& aName)
+{
+	mVDSession->setPreferredAudioOutputDevice(aName);
+	save();
 }
 
 void VDSessionFacade::restore()

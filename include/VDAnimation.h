@@ -111,6 +111,15 @@ namespace videodromm
 		void							setPreferredAudioOutputDevice(const std::string& aPreferredAudioOutputDevice) {
 			mPreferredAudioOutputDevice = aPreferredAudioOutputDevice;
 		};
+		std::string						getPreferredAudioInputDevice() { return mPreferredAudioInputDevice; };
+		std::string						getPreferredAudioOutputDevice() { return mPreferredAudioOutputDevice; };
+		// (re)enumerates the system's audio input/output devices into inputDevices/outputDevices,
+		// without opening any of them - lets the UI list devices before initLineIn() actually opens
+		// one. Returns false if enumeration isn't supported on this platform or crashed (Windows only,
+		// see safeGetAudioDevices' comment in VDAnimation.cpp).
+		bool							refreshAudioDevices();
+		std::vector<std::string>		getAudioInputDeviceNames();
+		std::vector<std::string>		getAudioOutputDeviceNames();
 		void							initLineIn();
 		void							setUseWaveMonitor(bool useWaveMonitor) {
 			mUseAudio = useWaveMonitor;

@@ -225,12 +225,18 @@ namespace videodromm {
 		void									setApiUrl(const std::string& apiUrl) {
 			mApiurl = apiUrl;
 		};
+		std::string								getApiUrl() { return mApiurl; };
 		void									setPreferredAudioInputDevice(const std::string& aDevice) {
 			mVDAnimation->setPreferredAudioInputDevice(aDevice);
 		}
 		void									setPreferredAudioOutputDevice(const std::string& aDevice) {
 			mVDAnimation->setPreferredAudioOutputDevice(aDevice);
 		}
+		std::string								getPreferredAudioInputDevice() { return mVDAnimation->getPreferredAudioInputDevice(); };
+		std::string								getPreferredAudioOutputDevice() { return mVDAnimation->getPreferredAudioOutputDevice(); };
+		bool									refreshAudioDevices() { return mVDAnimation->refreshAudioDevices(); };
+		std::vector<std::string>				getAudioInputDeviceNames() { return mVDAnimation->getAudioInputDeviceNames(); };
+		std::vector<std::string>				getAudioOutputDeviceNames() { return mVDAnimation->getAudioOutputDeviceNames(); };
 		unsigned int							getFboShaderListSize() { return mVDMix->getFboShaderListSize(); };
 		ci::gl::TextureRef						getFboShaderTexture(unsigned int aFboShaderIndex);
 

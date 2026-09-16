@@ -165,7 +165,16 @@ namespace videodromm
 		bool					getUseAudio() { return mVDSession->getUseAudio(); };
 		bool					getUseLineIn() { return mVDSession->getUseLineIn(); };
 		void					setUseLineIn(bool useLineIn = true) { mVDSession->setUseLineIn(useLineIn); };
-		
+		bool					refreshAudioDevices() { return mVDSession->refreshAudioDevices(); };
+		std::vector<std::string> getAudioInputDeviceNames() { return mVDSession->getAudioInputDeviceNames(); };
+		std::vector<std::string> getAudioOutputDeviceNames() { return mVDSession->getAudioOutputDeviceNames(); };
+		std::string				getPreferredAudioInputDevice() { return mVDSession->getPreferredAudioInputDevice(); };
+		std::string				getPreferredAudioOutputDevice() { return mVDSession->getPreferredAudioOutputDevice(); };
+		// selects the preferred device by name and persists it to sessionPath immediately, so it's
+		// still selected on the next launch even if the app isn't closed cleanly.
+		void					selectAudioInputDevice(const std::string& aName);
+		void					selectAudioOutputDevice(const std::string& aName);
+
 		bool					isAudioBuffered() { return mVDSession->isAudioBuffered(); };
 		void					toggleAudioBuffered() { mVDSession->toggleAudioBuffered(); };
 		bool					getUseWaveMonitor() { return mVDSession->getUseWaveMonitor(); };
