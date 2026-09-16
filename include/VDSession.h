@@ -355,6 +355,8 @@ namespace videodromm {
 		int								getPosition(unsigned int aFboIndex) { return mVDMix->getPosition(aFboIndex); }
 		void							setPlayheadPosition(unsigned int aFboIndex, int aPosition) { mVDMix->setPlayheadPosition(aFboIndex, aPosition); }
 		int								getMaxFrame(unsigned int aFboIndex) { return mVDMix->getMaxFrame(aFboIndex); }
+		void							setVideoVolume(unsigned int aFboIndex, float aVolume) { mVDMix->setVideoVolume(aFboIndex, aVolume); }
+		float							getVideoVolume(unsigned int aFboIndex) { return mVDMix->getVideoVolume(aFboIndex); }
 		/*
 		// blendmodes
 		unsigned int					getFboBlendCount() { return mBlendFbos.size(); };

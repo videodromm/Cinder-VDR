@@ -171,6 +171,8 @@ namespace videodromm
 		int								getPosition(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->getPosition(); }
 		void							setPlayheadPosition(unsigned int aFboIndex, int aPosition) { mFboShaderList[getValidFboIndex(aFboIndex)]->setPlayheadPosition(aPosition); }
 		int								getMaxFrame(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->getMaxFrame(); }
+		void							setVideoVolume(unsigned int aFboIndex, float aVolume) { mFboShaderList[getValidFboIndex(aFboIndex)]->setVideoVolume(aVolume); }
+		float							getVideoVolume(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->getVideoVolume(); }
 
 		std::string						getFboShaderName(unsigned int aFboIndex) {
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getShaderName();

@@ -237,6 +237,18 @@ namespace videodromm
 			mSequenceManualControl = true;
 			mSequenceSpeed = aSpeed;
 		}
+		// no-op outside MOVIE mode - only a playing video has anything to set the volume of
+		void									setVideoVolume(float aVolume) {
+#if defined( CINDER_MSW )
+			if (mTextureMode == VDTextureMode::MOVIE) mVideo.setVolume(aVolume);
+#endif
+		}
+		float									getVideoVolume() {
+#if defined( CINDER_MSW )
+			if (mTextureMode == VDTextureMode::MOVIE) return mVideo.getVolume();
+#endif
+			return 0.0f;
+		}
 		int										getPosition() {
 #if defined( CINDER_MSW )
 			if (mTextureMode == VDTextureMode::MOVIE) {
@@ -306,8 +318,16 @@ namespace videodromm
 		// a normal GL_TEXTURE_2D each frame so it works with every shader unmodified (sampler2D,
 		// normalized UVs), same as every other input texture mode here
 		ci::gl::FboRef					mSyphonBlitFbo;
-		ci::gl::GlslProgRef				mGlslVideoTexture;
 		#endif
+		#if defined( CINDER_MSW )
+		// ciWMFVideoPlayer's shared texture is also GL_TEXTURE_RECTANGLE (see its
+		// format.setTargetRect() call) - same problem as Syphon above, same fix: blit it into a
+		// normal GL_TEXTURE_2D via the same assets/video_texture.vs/fs.glsl (a generic
+		// sampler2DRect blit shader, not Syphon-specific) rather than binding it directly
+		ci::gl::FboRef					mVideoBlitFbo;
+		#endif
+		// shared by both blit paths above
+		ci::gl::GlslProgRef				mGlslVideoTexture;
 		unsigned int					mInputTextureIndex = 0;
 		unsigned int					createInputTexture(const JsonTree &json);
 		bool							mLoadTopDown = false;
@@ -376,6 +396,8 @@ namespace videodromm
 #endif
 		bool							mIsVideoLoaded = false;
 		bool							mVideoReversed = false;
+		// one-shot diagnostic guard, see loadVideoFile()/getFboTexture()'s MOVIE case
+		bool							mVideoTextureWarningLogged = false;
 		// mouse
 		float mx = 0.0f;
 		float my = 0.0f;

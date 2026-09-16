@@ -206,6 +206,8 @@ namespace videodromm
 		int						getPosition(unsigned int aFboIndex) { return mVDSession->getPosition(aFboIndex); }
 		void					setPlayheadPosition(unsigned int aFboIndex, int aPosition) { mVDSession->setPlayheadPosition(aFboIndex, aPosition); }
 		int						getMaxFrame(unsigned int aFboIndex) { return mVDSession->getMaxFrame(aFboIndex); }
+		void					setVideoVolume(unsigned int aFboIndex, float aVolume) { mVDSession->setVideoVolume(aFboIndex, aVolume); }
+		float					getVideoVolume(unsigned int aFboIndex) { return mVDSession->getVideoVolume(aFboIndex); }
 		// drag-and-drop, consumed by VDUIFbos.cpp - see VDSession.h for the full explanation
 		bool					consumePendingTextureDropIfInRect(unsigned int aFboIndex, ci::vec2 aRectMin, ci::vec2 aRectMax) {
 			return mVDSession->consumePendingTextureDropIfInRect(aFboIndex, aRectMin, aRectMax);

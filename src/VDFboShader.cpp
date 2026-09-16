@@ -365,9 +365,33 @@ bool VDFboShader::loadVideoFile(const std::string& aFile) {
 	// movie's audio lands on the device the user picked. Safe to call again on an already-playing
 	// mVideo - ciWMFVideoPlayer::loadMovie() just re-opens the player via OpenURL(), no close() needed.
 	mIsVideoLoaded = mVideo.loadMovie(aFile, mVDAnimation->getPreferredAudioOutputDevice());
+	// diagnostic: ciWMFVideoPlayer::loadMovie() returns true whenever mPlayer exists, regardless
+	// of whether OpenURL() actually succeeded internally or whether a usable video texture will
+	// ever appear - this is the one piece of ground truth available without a debugger attached,
+	// to tell "loaded but never got a texture" apart from "never actually loaded"
+	CI_LOG_I("loadVideoFile " << aFile << " loadMovie()=" << mIsVideoLoaded
+		<< " width=" << mVideo.getWidth() << " height=" << mVideo.getHeight()
+		<< " hasTexture()=" << mVideo.hasTexture());
+	mVideoTextureWarningLogged = false;
 	if (mIsVideoLoaded) {
 		mVideo.setLoop(true);
 		mVideo.play();
+		// ciWMFVideoPlayer's shared texture is GL_TEXTURE_RECTANGLE (see the comment on
+		// mVideoBlitFbo) - lazily set up the same rect-to-2D blit already used for Syphon on Mac
+		if (!mGlslVideoTexture) {
+			try {
+				mGlslVideoTexture = gl::GlslProg::create(gl::GlslProg::Format()
+					.vertex(loadAsset("video_texture.vs.glsl"))
+					.fragment(loadAsset("video_texture.fs.glsl")));
+			}
+			catch (const std::exception& ex) {
+				CI_LOG_E("<< video blit GlslProg error >> " << ex.what());
+			}
+		}
+		if (!mVideoBlitFbo) {
+			gl::Fbo::Format blitFmt;
+			mVideoBlitFbo = gl::Fbo::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), blitFmt);
+		}
 	}
 	else {
 		mFboError = "failed to load movie: " + aFile;
@@ -538,9 +562,33 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 						mVideo.setPosition(newPos);
 					}
 				}
-				if (mVideo.hasTexture()) {
-					mInputTextureList[0].texture = mVideo.getTexture();
+				if (mVideo.hasTexture() && mGlslVideoTexture && mVideoBlitFbo) {
+					// mVideo.getTexture() is GL_TEXTURE_RECTANGLE (see mVideoBlitFbo's comment in
+					// VDFboShader.h) - every shader in this codebase expects a normal sampler2D
+					// with normalized UVs, so blit it into a plain GL_TEXTURE_2D first, exactly
+					// like the Syphon case below does for its own GL_TEXTURE_RECTANGLE_ARB input
+					ci::gl::TextureRef rectTex = mVideo.getTexture();
+					gl::ScopedFramebuffer blitFbScp(mVideoBlitFbo);
+					gl::ScopedViewport blitVp(ivec2(0), mVideoBlitFbo->getSize());
+					gl::ScopedMatrices blitMat;
+					gl::setMatricesWindow(mVideoBlitFbo->getSize());
+					rectTex->bind(0);
+					gl::ScopedGlslProg blitShader(mGlslVideoTexture);
+					mGlslVideoTexture->uniform("uSampler", 0);
+					mGlslVideoTexture->uniform("uVideoSize", vec2((float)rectTex->getWidth(), (float)rectTex->getHeight()));
+					gl::drawSolidRect(Rectf(0, 0, (float)mVideoBlitFbo->getWidth(), (float)mVideoBlitFbo->getHeight()));
+					rectTex->unbind(0);
+					mInputTextureList[0].texture = mVideoBlitFbo->getColorTexture();
 					mInputTextureList[0].isValid = true;
+				}
+				else if (!mVideoTextureWarningLogged) {
+					// one-shot (not per-frame) so this is findable in the log without flooding it -
+					// if hasTexture() is still false here, ciWMFVideoPlayer never got a usable
+					// shared texture for this file, independently of anything in this block
+					mVideoTextureWarningLogged = true;
+					CI_LOG_W("MOVIE mode: no video texture after load - hasTexture()=" << mVideo.hasTexture()
+						<< " width=" << mVideo.getWidth() << " height=" << mVideo.getHeight()
+						<< " glslLoaded=" << (mGlslVideoTexture != nullptr) << " blitFboLoaded=" << (mVideoBlitFbo != nullptr));
 				}
 			}
 #endif
