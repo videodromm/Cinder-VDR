@@ -230,7 +230,16 @@ namespace videodromm
 		void									setSpeed(float aSpeed) {
 #if defined( CINDER_MSW )
 			if (mTextureMode == VDTextureMode::MOVIE) {
-				mVideo.setSpeed(aSpeed);
+				// plenty of codecs reject SetPlaybackRate() for a non-1.0 rate unless thinning
+				// (dropping delta frames) is enabled - retry with thinning before giving up,
+				// rather than silently doing nothing like before (the reported "speed slider has
+				// no visible effect" symptom)
+				if (!mVideo.setSpeed(aSpeed, false) && !mVideo.setSpeed(aSpeed, true)) {
+					if (!mVideoSpeedWarningLogged) {
+						mVideoSpeedWarningLogged = true;
+						CI_LOG_W("MOVIE mode: setSpeed(" << aSpeed << ") rejected by the codec, with and without thinning");
+					}
+				}
 				return;
 			}
 #endif
@@ -398,6 +407,9 @@ namespace videodromm
 		bool							mVideoReversed = false;
 		// one-shot diagnostic guard, see loadVideoFile()/getFboTexture()'s MOVIE case
 		bool							mVideoTextureWarningLogged = false;
+		// one-shot diagnostic guard, see setSpeed() - many codecs reject SetPlaybackRate()
+		// without thinning enabled, so a plain rate change can silently fail
+		bool							mVideoSpeedWarningLogged = false;
 		// mouse
 		float mx = 0.0f;
 		float my = 0.0f;

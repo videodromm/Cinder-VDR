@@ -344,13 +344,15 @@ namespace videodromm {
 					texture.pushBack(ci::JsonTree("texturecount", 1));
 					json.addChild(texture);
 					JsonTree shader = ci::JsonTree::makeArray("shader");
-					shader.addChild(ci::JsonTree("shadername", "inputVideo.fs"));
+					shader.addChild(ci::JsonTree("shadername", "inputImage.fs"));
 					shader.pushBack(ci::JsonTree("shadertype", "fs"));
 					json.addChild(shader);
 					createFboShaderTexture(json, aFboIndex);
 				}
 				else {
-					// dropped onto an existing fboshader - keep its shader, just swap the video
+					// dropped onto an existing fboshader - a video doesn't need an effect shader
+					// running on top of it, reset to the basic passthrough first
+					mFboShaderList[aFboIndex]->loadFragmentShaderFromFile("inputImage.fs");
 					mFboShaderList[aFboIndex]->loadVideoFile(aFile);
 				}
 			}
@@ -376,6 +378,10 @@ namespace videodromm {
 			return true;
 		}
 		if (ext == "mp4") {
+			// a video doesn't need an effect shader running on top of it - reset to the basic
+			// passthrough before swapping in the video, rather than keeping whatever complex
+			// shader happened to be on this fbo already
+			mFboShaderList[aFboIndex]->loadFragmentShaderFromFile("inputImage.fs");
 			return mFboShaderList[aFboIndex]->loadVideoFile(aFile);
 		}
 		return false;

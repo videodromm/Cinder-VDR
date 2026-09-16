@@ -566,8 +566,13 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 					// mVideo.getTexture() is GL_TEXTURE_RECTANGLE (see mVideoBlitFbo's comment in
 					// VDFboShader.h) - every shader in this codebase expects a normal sampler2D
 					// with normalized UVs, so blit it into a plain GL_TEXTURE_2D first, exactly
-					// like the Syphon case below does for its own GL_TEXTURE_RECTANGLE_ARB input
+					// like the Syphon case below does for its own GL_TEXTURE_RECTANGLE_ARB input.
+					// The DX/GL interop object backing this texture must be locked around any GL
+					// access to it (same as ciWMFVideoPlayer::draw() already does internally) -
+					// without this the GL side never observes the D3D-decoded frames and the
+					// texture stays black, even though hasTexture()/loadMovie() all report success.
 					ci::gl::TextureRef rectTex = mVideo.getTexture();
+					mVideo.lockSharedTexture();
 					gl::ScopedFramebuffer blitFbScp(mVideoBlitFbo);
 					gl::ScopedViewport blitVp(ivec2(0), mVideoBlitFbo->getSize());
 					gl::ScopedMatrices blitMat;
@@ -578,6 +583,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 					mGlslVideoTexture->uniform("uVideoSize", vec2((float)rectTex->getWidth(), (float)rectTex->getHeight()));
 					gl::drawSolidRect(Rectf(0, 0, (float)mVideoBlitFbo->getWidth(), (float)mVideoBlitFbo->getHeight()));
 					rectTex->unbind(0);
+					mVideo.unlockSharedTexture();
 					mInputTextureList[0].texture = mVideoBlitFbo->getColorTexture();
 					mInputTextureList[0].isValid = true;
 				}
