@@ -383,7 +383,7 @@ namespace videodromm {
 		// Mix
 		VDMixRef						mVDMix;
 		// apiurl
-		std::string						mApiurl = "http://localhost/";
+		std::string						mApiurl = "http://localhost:40088/";
 
 		// audio
 		bool							mFreqWSSend;
