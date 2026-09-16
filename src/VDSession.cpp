@@ -7,6 +7,26 @@
 
 using namespace videodromm;
 
+namespace {
+	// cinder::log::Entry's destructor (implicitly noexcept, see Cinder/src/cinder/Log.cpp) writes
+	// to every registered logger, including the always-on Windows Event Log logger, which runs
+	// codecvt_utf8_utf16::from_bytes() on the text unconditionally and throws std::range_error if
+	// it isn't valid UTF-8. That throw escapes the noexcept destructor straight into
+	// std::terminate(), bypassing any try/catch around the CI_LOG_E(...) call that triggered it -
+	// asio::error_code::message() returns OS error text in the system's ANSI codepage (e.g. on a
+	// French Windows install, common socket errors come back with accented characters), which is
+	// not valid UTF-8, so it must never be logged as-is. Strip anything non-ASCII before it can
+	// reach CI_LOG_E.
+	std::string sanitizeForLog(const std::string &in) {
+		std::string out;
+		out.reserve(in.size());
+		for (unsigned char c : in) {
+			out += (c < 0x80) ? static_cast<char>(c) : '?';
+		}
+		return out;
+	}
+}
+
 VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDUniformsRef aVDUniforms, VDMixRef aVDMix)
 {
 	CI_LOG_V("VDSession ctor");
@@ -87,42 +107,62 @@ void VDSession::makeRequest(http::UrlRef url, unsigned int aFboIndex)
 	request->appendHeader(http::Accept());
 
 	auto onComplete = [&](asio::error_code ec, http::ResponseRef response) {
-		//texture = ci::gl::Texture::create(loadImage(ci::DataSourceBuffer::create(response->getContent()),
-		//	ImageSource::Options(), ".jpg"));
-		app::console() << response->getHeaders() << std::endl;
-		app::console() << "Content: " << std::endl;
-		auto content = response->getContent();
-		std::string jsonStr(static_cast<const char*>(content->getData()), content->getSize());
-		::Json::Features features;
-		features.allowComments_ = true;
-		features.strictRoot_ = true;
-		::Json::Reader reader(features);
-		::Json::Value value;
-		reader.parse(jsonStr, value, false);
-		CI_LOG_I(value.toStyledString());
-		int found = 0;
-		auto types = value.getMemberNames();
-		for (auto &typeName : types) {
-			auto &typeObj = value[typeName];
-			if (typeName == "title") {
-				found++;
+		// asio's io_context::poll() has no exception safety net around handler dispatch: any
+		// exception escaping this lambda (bad JSON, formatting, logging, ...) reaches
+		// std::terminate() and takes down the whole app, so it must never propagate out.
+		try {
+			//texture = ci::gl::Texture::create(loadImage(ci::DataSourceBuffer::create(response->getContent()),
+			//	ImageSource::Options(), ".jpg"));
+			app::console() << response->getHeaders() << std::endl;
+			app::console() << "Content: " << std::endl;
+			auto content = response->getContent();
+			std::string jsonStr(static_cast<const char*>(content->getData()), content->getSize());
+			::Json::Features features;
+			features.allowComments_ = true;
+			features.strictRoot_ = true;
+			::Json::Reader reader(features);
+			::Json::Value value;
+			reader.parse(jsonStr, value, false);
+			CI_LOG_I(value.toStyledString());
+			int found = 0;
+			auto types = value.getMemberNames();
+			for (auto &typeName : types) {
+				auto &typeObj = value[typeName];
+				if (typeName == "title") {
+					found++;
+				}
+				if (typeName == "content") {
+					found++;
+				}
 			}
-			if (typeName == "content") {
-				found++;
+			if (found == 2) {
+				auto &titleObj = value["title"];
+				auto &contentObj = value["content"];
+				// aFboIndex was previously ignored here, so loadShaderFromHttp always landed on fbo 0
+				mVDMix->setFragmentShaderString(contentObj.asString(), titleObj.asString(), aFboIndex);
 			}
 		}
-		if (found == 2) {
-			auto &titleObj = value["title"];
-			auto &contentObj = value["content"];
-			// aFboIndex was previously ignored here, so loadShaderFromHttp always landed on fbo 0
-			mVDMix->setFragmentShaderString(contentObj.asString(), titleObj.asString(), aFboIndex);
+		catch (const std::exception &e) {
+			app::console() << "VDSession::makeRequest onComplete exception: " << e.what() << std::endl;
+		}
+		catch (...) {
+			app::console() << "VDSession::makeRequest onComplete: unknown exception" << std::endl;
 		}
 	};
 	auto onError = [](asio::error_code ec, const http::UrlRef &url, http::ResponseRef response) {
-		CI_LOG_E(ec.message() << " val: " << ec.value() << " Url: " << url->to_string());
-		if (response) {
-			app::console() << "Headers: " << std::endl;
-			app::console() << response->getHeaders() << std::endl;
+		try {
+			// see sanitizeForLog's comment above: ec.message() can be non-UTF-8 localized OS text
+			CI_LOG_E(sanitizeForLog(ec.message()) << " val: " << ec.value() << " Url: " << url->to_string());
+			if (response) {
+				app::console() << "Headers: " << std::endl;
+				app::console() << response->getHeaders() << std::endl;
+			}
+		}
+		catch (const std::exception &e) {
+			app::console() << "VDSession::makeRequest onError exception: " << e.what() << std::endl;
+		}
+		catch (...) {
+			app::console() << "VDSession::makeRequest onError: unknown exception" << std::endl;
 		}
 	};
 
@@ -168,24 +208,45 @@ void VDSession::loadShaderFromFolder(const std::string& aFolder, const std::stri
 	makeShaderContentRequest(httpsUrl, aFboIndex, title);
 }
 void VDSession::makeFolderListRequest(http::UrlRef url) {
+	app::console() << "VDSession::makeFolderListRequest url: " << url->to_string() << std::endl;
+
 	auto request = std::make_shared<http::Request>(http::RequestMethod::GET, url);
 	request->appendHeader(http::Connection(http::Connection::Type::CLOSE));
 	request->appendHeader(http::Accept());
 
 	auto onComplete = [&](asio::error_code ec, http::ResponseRef response) {
-		auto content = response->getContent();
-		std::string jsonStr(static_cast<const char*>(content->getData()), content->getSize());
-		::Json::Features features;
-		features.allowComments_ = true;
-		features.strictRoot_ = false;
-		::Json::Reader reader(features);
-		::Json::Value value;
-		reader.parse(jsonStr, value, false);
-		parseStringArray(value, mFolderList);
-		CI_LOG_I("listFolders: " << mFolderList.size() << " folders");
+		// see the comment in makeRequest's onComplete: never let an exception escape a
+		// handler dispatched from asio::io_context::poll(), or the app terminates.
+		try {
+			auto content = response->getContent();
+			std::string jsonStr(static_cast<const char*>(content->getData()), content->getSize());
+			::Json::Features features;
+			features.allowComments_ = true;
+			features.strictRoot_ = false;
+			::Json::Reader reader(features);
+			::Json::Value value;
+			reader.parse(jsonStr, value, false);
+			parseStringArray(value, mFolderList);
+			CI_LOG_I("listFolders: " << mFolderList.size() << " folders");
+		}
+		catch (const std::exception &e) {
+			app::console() << "VDSession::makeFolderListRequest onComplete exception: " << e.what() << std::endl;
+		}
+		catch (...) {
+			app::console() << "VDSession::makeFolderListRequest onComplete: unknown exception" << std::endl;
+		}
 	};
 	auto onError = [](asio::error_code ec, const http::UrlRef &url, http::ResponseRef response) {
-		CI_LOG_E(ec.message() << " val: " << ec.value() << " Url: " << url->to_string());
+		try {
+			// see sanitizeForLog's comment above: ec.message() can be non-UTF-8 localized OS text
+			CI_LOG_E(sanitizeForLog(ec.message()) << " val: " << ec.value() << " Url: " << url->to_string());
+		}
+		catch (const std::exception &e) {
+			app::console() << "VDSession::makeFolderListRequest onError exception: " << e.what() << std::endl;
+		}
+		catch (...) {
+			app::console() << "VDSession::makeFolderListRequest onError: unknown exception" << std::endl;
+		}
 	};
 
 	if (url->protocol() == "https") {
@@ -203,19 +264,38 @@ void VDSession::makeShaderListRequest(http::UrlRef url) {
 	request->appendHeader(http::Accept());
 
 	auto onComplete = [&](asio::error_code ec, http::ResponseRef response) {
-		auto content = response->getContent();
-		std::string jsonStr(static_cast<const char*>(content->getData()), content->getSize());
-		::Json::Features features;
-		features.allowComments_ = true;
-		features.strictRoot_ = false;
-		::Json::Reader reader(features);
-		::Json::Value value;
-		reader.parse(jsonStr, value, false);
-		parseStringArray(value, mShaderList);
-		CI_LOG_I("listShaders: " << mShaderList.size() << " shaders");
+		// see the comment in makeRequest's onComplete: never let an exception escape a
+		// handler dispatched from asio::io_context::poll(), or the app terminates.
+		try {
+			auto content = response->getContent();
+			std::string jsonStr(static_cast<const char*>(content->getData()), content->getSize());
+			::Json::Features features;
+			features.allowComments_ = true;
+			features.strictRoot_ = false;
+			::Json::Reader reader(features);
+			::Json::Value value;
+			reader.parse(jsonStr, value, false);
+			parseStringArray(value, mShaderList);
+			CI_LOG_I("listShaders: " << mShaderList.size() << " shaders");
+		}
+		catch (const std::exception &e) {
+			app::console() << "VDSession::makeShaderListRequest onComplete exception: " << e.what() << std::endl;
+		}
+		catch (...) {
+			app::console() << "VDSession::makeShaderListRequest onComplete: unknown exception" << std::endl;
+		}
 	};
 	auto onError = [](asio::error_code ec, const http::UrlRef &url, http::ResponseRef response) {
-		CI_LOG_E(ec.message() << " val: " << ec.value() << " Url: " << url->to_string());
+		try {
+			// see sanitizeForLog's comment above: ec.message() can be non-UTF-8 localized OS text
+			CI_LOG_E(sanitizeForLog(ec.message()) << " val: " << ec.value() << " Url: " << url->to_string());
+		}
+		catch (const std::exception &e) {
+			app::console() << "VDSession::makeShaderListRequest onError exception: " << e.what() << std::endl;
+		}
+		catch (...) {
+			app::console() << "VDSession::makeShaderListRequest onError: unknown exception" << std::endl;
+		}
 	};
 
 	if (url->protocol() == "https") {
@@ -235,12 +315,31 @@ void VDSession::makeShaderContentRequest(http::UrlRef url, unsigned int aFboInde
 	// unlike loadShaderFromHttp's endpoint (a {"title":...,"content":...} JSON wrapper), this one
 	// returns the raw GLSL fragment shader source directly as the response body
 	auto onComplete = [&, aFboIndex, aName](asio::error_code ec, http::ResponseRef response) {
-		auto content = response->getContent();
-		std::string shaderSource(static_cast<const char*>(content->getData()), content->getSize());
-		mVDMix->setFragmentShaderStringAtIndex(shaderSource, aName, aFboIndex);
+		// see the comment in makeRequest's onComplete: never let an exception escape a
+		// handler dispatched from asio::io_context::poll(), or the app terminates.
+		try {
+			auto content = response->getContent();
+			std::string shaderSource(static_cast<const char*>(content->getData()), content->getSize());
+			mVDMix->setFragmentShaderStringAtIndex(shaderSource, aName, aFboIndex);
+		}
+		catch (const std::exception &e) {
+			app::console() << "VDSession::makeShaderContentRequest onComplete exception: " << e.what() << std::endl;
+		}
+		catch (...) {
+			app::console() << "VDSession::makeShaderContentRequest onComplete: unknown exception" << std::endl;
+		}
 	};
 	auto onError = [](asio::error_code ec, const http::UrlRef &url, http::ResponseRef response) {
-		CI_LOG_E(ec.message() << " val: " << ec.value() << " Url: " << url->to_string());
+		try {
+			// see sanitizeForLog's comment above: ec.message() can be non-UTF-8 localized OS text
+			CI_LOG_E(sanitizeForLog(ec.message()) << " val: " << ec.value() << " Url: " << url->to_string());
+		}
+		catch (const std::exception &e) {
+			app::console() << "VDSession::makeShaderContentRequest onError exception: " << e.what() << std::endl;
+		}
+		catch (...) {
+			app::console() << "VDSession::makeShaderContentRequest onError: unknown exception" << std::endl;
+		}
 	};
 
 	if (url->protocol() == "https") {
