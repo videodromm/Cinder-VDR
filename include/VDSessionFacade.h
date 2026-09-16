@@ -206,6 +206,16 @@ namespace videodromm
 		int						getPosition(unsigned int aFboIndex) { return mVDSession->getPosition(aFboIndex); }
 		void					setPlayheadPosition(unsigned int aFboIndex, int aPosition) { mVDSession->setPlayheadPosition(aFboIndex, aPosition); }
 		int						getMaxFrame(unsigned int aFboIndex) { return mVDSession->getMaxFrame(aFboIndex); }
+		// drag-and-drop, consumed by VDUIFbos.cpp - see VDSession.h for the full explanation
+		bool					consumePendingTextureDropIfInRect(unsigned int aFboIndex, ci::vec2 aRectMin, ci::vec2 aRectMax) {
+			return mVDSession->consumePendingTextureDropIfInRect(aFboIndex, aRectMin, aRectMax);
+		}
+		void					flushPendingTextureDrop() { mVDSession->flushPendingTextureDrop(); }
+		void					registerFboActiveTextureInGlobalPool(unsigned int aFboIndex) { mVDSession->registerFboActiveTextureInGlobalPool(aFboIndex); }
+		int						getInputTextureMode(unsigned int aFboIndex) { return mVDSession->getInputTextureMode(aFboIndex); }
+		unsigned int			getLoadedTextureCount() { return mVDSession->getLoadedTextureCount(); }
+		ci::gl::Texture2dRef	getLoadedTexture(unsigned int aIndex) { return mVDSession->getLoadedTexture(aIndex); }
+		std::string				getLoadedTextureName(unsigned int aIndex) { return mVDSession->getLoadedTextureName(aIndex); }
 		int						getFFTWindowSize();
 		float*					getFreqs();
 		float					getFreq(unsigned int aFreqIndex) { return mVDSession->getFreq(aFreqIndex); };

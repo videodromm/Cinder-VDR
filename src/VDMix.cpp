@@ -326,7 +326,6 @@ namespace videodromm {
 		}
 	}
 	void VDMix::loadVideoFile(const std::string& aFile, unsigned int aFboIndex) {
-		int rtn = math<int>::min(aFboIndex, mFboShaderList.size() - 1);
 		fs::path texFileOrPath = aFile;
 		if (fs::exists(texFileOrPath)) {
 
@@ -334,8 +333,9 @@ namespace videodromm {
 			int dotIndex = texFileOrPath.filename().string().find_last_of(".");
 			if (dotIndex != std::string::npos)  ext = texFileOrPath.filename().string().substr(dotIndex + 1);
 			if (ext == "mp4") {
-				// 20220321  tmp if (mFboShaderList.size() < 1) {
-					// no fbos, create one
+				if (aFboIndex >= mFboShaderList.size()) {
+					// dropped beyond any existing fbo panel (empty area) - create a new fbo, same
+					// pattern as loadImageFile()'s equivalent branch above
 					JsonTree		json;
 					JsonTree texture = ci::JsonTree::makeArray("texture");
 					texture.addChild(ci::JsonTree("texturename", aFile));
@@ -348,12 +348,73 @@ namespace videodromm {
 					shader.pushBack(ci::JsonTree("shadertype", "fs"));
 					json.addChild(shader);
 					createFboShaderTexture(json, aFboIndex);
-					/* 20220321 tmp }
+				}
 				else {
-					mFboShaderList[rtn]->loadImageFile(aFile);
-					// 20211227 was setInputTextureRef(mTextureList[mTextureList.size() - 1]->getTexture());
-				}*/
+					// dropped onto an existing fboshader - keep its shader, just swap the video
+					mFboShaderList[aFboIndex]->loadVideoFile(aFile);
+				}
 			}
+		}
+	}
+
+	namespace {
+		std::string getExtensionLower(const fs::path& aPath) {
+			std::string ext;
+			std::string filename = aPath.filename().string();
+			std::size_t dotIndex = filename.find_last_of(".");
+			if (dotIndex != std::string::npos) ext = filename.substr(dotIndex + 1);
+			for (auto& c : ext) c = (char)std::tolower((unsigned char)c);
+			return ext;
+		}
+	}
+
+	bool VDMix::loadTextureIntoFboActiveSlot(unsigned int aFboIndex, const std::string& aFile) {
+		if (aFboIndex >= mFboShaderList.size()) return false;
+		std::string ext = getExtensionLower(fs::path(aFile));
+		if (ext == "jpg" || ext == "png") {
+			mFboShaderList[aFboIndex]->loadImageFile(aFile);
+			return true;
+		}
+		if (ext == "mp4") {
+			return mFboShaderList[aFboIndex]->loadVideoFile(aFile);
+		}
+		return false;
+	}
+
+	void VDMix::registerLoadedTexture(const std::string& aName, ci::gl::Texture2dRef aTexture) {
+		if (!aTexture) return;
+		for (auto& entry : mLoadedTextures) {
+			if (entry.name == aName) {
+				// same name already in the pool - update in place (e.g. a movie's shared texture
+				// whose content changes live) rather than adding a duplicate
+				entry.texture = aTexture;
+				entry.isValid = true;
+				return;
+			}
+		}
+		VDTextureStruct newEntry;
+		newEntry.name = aName;
+		newEntry.texture = aTexture;
+		newEntry.ms = 0;
+		newEntry.isValid = true;
+		mLoadedTextures.push_back(newEntry);
+	}
+
+	bool VDMix::addStandaloneTexture(const std::string& aFile) {
+		fs::path texFileOrPath = aFile;
+		if (!fs::exists(texFileOrPath)) return false;
+		std::string ext = getExtensionLower(texFileOrPath);
+		// no standalone equivalent for video - a movie needs its own ciWMFVideoPlayer, which only
+		// exists per-fbo today (see VDFboShader::loadVideoFile())
+		if (ext != "jpg" && ext != "png") return false;
+		try {
+			ci::gl::Texture2dRef tex = gl::Texture::create(loadImage(texFileOrPath), gl::Texture2d::Format().loadTopDown(false).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+			registerLoadedTexture(texFileOrPath.filename().string(), tex);
+			return true;
+		}
+		catch (const std::exception& ex) {
+			CI_LOG_E("<< addStandaloneTexture >> " << aFile << " error: " << ex.what());
+			return false;
 		}
 	}
 

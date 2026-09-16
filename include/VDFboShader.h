@@ -122,6 +122,9 @@ namespace videodromm
 		};
 		// full path (dnd)
 		void									loadImageFile(const std::string& aFile, unsigned int aCurrentIndex = 0);
+		// swaps this fbo's active video, keeping its shader (drag-and-drop onto an existing fbo) -
+		// Windows only, mirrors createInputTexture()'s MOVIE-loading logic
+		bool									loadVideoFile(const std::string& aFile);
 		unsigned int							getInputTexturesCount() {
 			return mInputTextureList.size();
 		}

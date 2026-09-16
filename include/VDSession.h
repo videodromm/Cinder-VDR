@@ -165,6 +165,37 @@ namespace videodromm {
 		// utils
 		void							blendRenderEnable(bool render);
 		void							fileDrop(FileDropEvent event);
+		// drag-and-drop: consumed by VDUIFbos.cpp, which is the only place that knows each fbo's
+		// actual current ImGui window rect (these can be dragged/resized independently, so a
+		// static position formula can't reliably target one). Called once per fbo, per frame, with
+		// that window's current rect (in the same device-pixel space as the stored drop position -
+		// see fileDrop()'s use of ci::app::toPixels()); returns true once some fbo claims it.
+		bool							consumePendingTextureDropIfInRect(unsigned int aFboIndex, ci::vec2 aRectMin, ci::vec2 aRectMax) {
+			if (!mPendingTextureDrop.active) return false;
+			if (mPendingTextureDrop.pos.x < aRectMin.x || mPendingTextureDrop.pos.x > aRectMax.x ||
+				mPendingTextureDrop.pos.y < aRectMin.y || mPendingTextureDrop.pos.y > aRectMax.y) return false;
+			bool loaded = mVDMix->loadTextureIntoFboActiveSlot(aFboIndex, mPendingTextureDrop.path);
+			mPendingTextureDrop.active = false;
+			return loaded;
+		}
+		// called once per frame, after every fbo has had a chance to claim the drop above - if
+		// still pending (dropped somewhere that isn't any fbo's window), loads it standalone into
+		// the shared texture pool instead, pickable afterward by any fbo
+		void							flushPendingTextureDrop() {
+			if (!mPendingTextureDrop.active) return;
+			mVDMix->addStandaloneTexture(mPendingTextureDrop.path);
+			mPendingTextureDrop.active = false;
+		}
+		// called once per fbo, per frame, from VDUIFbos.cpp, so every fbo's own active texture
+		// (json-loaded or drag-and-dropped directly onto it) stays available in the shared pool for
+		// every other fbo to pick too - see VDMix::registerLoadedTexture()
+		void							registerFboActiveTextureInGlobalPool(unsigned int aFboIndex) {
+			mVDMix->registerLoadedTexture(mVDMix->getInputTextureName(aFboIndex, 0), mVDMix->getFboInputTextureListItem(aFboIndex, 0));
+		}
+		int								getInputTextureMode(unsigned int aFboIndex) { return mVDMix->getInputTextureMode(aFboIndex); }
+		unsigned int					getLoadedTextureCount() { return mVDMix->getLoadedTextureCount(); }
+		ci::gl::Texture2dRef			getLoadedTexture(unsigned int aIndex) { return mVDMix->getLoadedTexture(aIndex); }
+		std::string						getLoadedTextureName(unsigned int aIndex) { return mVDMix->getLoadedTextureName(aIndex); }
 
 		// utils
 		int								getWindowsResolution() {
@@ -372,6 +403,14 @@ namespace videodromm {
 		VDMixRef						mVDMix;
 		// apiurl
 		std::string						mApiurl = "http://localhost:40088/";
+		// drag-and-drop: a .jpg/.png/.mp4 drop waiting for VDUIFbos.cpp to hit-test against each
+		// fbo's actual current window rect - see consumePendingTextureDropIfInRect()/flushPendingTextureDrop()
+		struct PendingTextureDrop {
+			bool		active = false;
+			std::string	path;
+			ci::vec2	pos;
+		};
+		PendingTextureDrop				mPendingTextureDrop;
 
 		// audio
 		bool							mFreqWSSend;

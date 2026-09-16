@@ -194,26 +194,8 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 					}*/
 				}
 				if (fileExists) {
-#if defined( CINDER_MSW )
-					// reuses the preferred audio output device (see VDAnimation's audio device
-					// selection) so the movie's audio lands on the device the user picked
-					mIsVideoLoaded = mVideo.loadMovie(texFileOrPath, mVDAnimation->getPreferredAudioOutputDevice());
-					if (mIsVideoLoaded) {
-						mVideo.setLoop(true);
-						mVideo.play();
-					}
-					else {
-						mFboError = "failed to load movie: " + texFileOrPath.string();
-						CI_LOG_E(mFboError);
-					}
-#else
-					// TODO: Mac movie playback not implemented yet (ciWMFVideoPlayer is Windows-only)
-					mIsVideoLoaded = false;
-					mFboError = "movie playback not available on this platform: " + texFileOrPath.string();
-#endif
+					loadVideoFile(texFileOrPath.string());
 					mTypestr = "video";
-					mCurrentFilename = mTextureName;
-					mTextureMode = VDTextureMode::MOVIE;
 				}
 				else {
 					// default to audio
@@ -376,6 +358,29 @@ void VDFboShader::loadImageFile(const std::string& aFile, unsigned int aCurrentI
 		// in cache
 		mFboMsg = mInputTextureList[aCurrentIndex].name + " cached";
 	}
+}
+bool VDFboShader::loadVideoFile(const std::string& aFile) {
+#if defined( CINDER_MSW )
+	// reuses the preferred audio output device (see VDAnimation's audio device selection) so the
+	// movie's audio lands on the device the user picked. Safe to call again on an already-playing
+	// mVideo - ciWMFVideoPlayer::loadMovie() just re-opens the player via OpenURL(), no close() needed.
+	mIsVideoLoaded = mVideo.loadMovie(aFile, mVDAnimation->getPreferredAudioOutputDevice());
+	if (mIsVideoLoaded) {
+		mVideo.setLoop(true);
+		mVideo.play();
+	}
+	else {
+		mFboError = "failed to load movie: " + aFile;
+		CI_LOG_E(mFboError);
+	}
+#else
+	// TODO: Mac movie playback not implemented yet (ciWMFVideoPlayer is Windows-only)
+	mIsVideoLoaded = false;
+	mFboError = "movie playback not available on this platform: " + aFile;
+#endif
+	mCurrentFilename = mTextureName = aFile;
+	mTextureMode = VDTextureMode::MOVIE;
+	return mIsVideoLoaded;
 }
 // next in sequence
 void VDFboShader::loadNextTexture(unsigned int aCurrentIndex) {

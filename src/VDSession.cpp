@@ -563,6 +563,10 @@ void VDSession::fileDrop(FileDropEvent event) {
 
 	if (dotIndex != std::string::npos && dotIndex > slashIndex) {
 		ext = absolutePath.substr(dotIndex + 1);
+		// files commonly arrive with an uppercase extension (phones, cameras, exports) - every
+		// comparison below is against a lowercase literal, so without this an "IMG.JPG"/"Video.MP4"
+		// would silently match nothing at all
+		for (auto& c : ext) c = (char)std::tolower((unsigned char)c);
 		//fileName = absolutePath.substr(slashIndex + 1, dotIndex - slashIndex - 1);
 		if (ext == "json") {
 			JsonTree json(loadFile(absolutePath));
@@ -572,14 +576,13 @@ void VDSession::fileDrop(FileDropEvent event) {
 		else if (ext == "glsl" || ext == "frag" || ext == "fs") {
 			loadFragmentShader(absolutePath, index);
 		}
-		else if (ext == "png" || ext == "jpg") {
-			if (index < 1) index = 1;
-			// 20211227 useless? if (index > 3) index = 3;
-			loadImageFile(absolutePath, index);
-		}
-		else if (ext == "mp4" ) {
-			if (index < 1) index = 1;
-			loadVideoFile(absolutePath, index);
+		else if (ext == "png" || ext == "jpg" || ext == "mp4") {
+			// don't dispatch by the (stale, purely positional) index above - VDUIFbos.cpp hit-tests
+			// this against each fbo's actual current ImGui window rect once per frame, and falls
+			// back to loading it standalone into the shared texture pool if it doesn't land on any of them
+			mPendingTextureDrop.active = true;
+			mPendingTextureDrop.path = absolutePath;
+			mPendingTextureDrop.pos = ci::app::toPixels(event.getPos());
 		}
 		else if (ext == "wav" || ext == "mp3") {
 			loadAudioFile(absolutePath);

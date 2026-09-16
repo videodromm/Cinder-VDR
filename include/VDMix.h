@@ -125,6 +125,9 @@ namespace videodromm
 		unsigned int					getFboInputTextureIndex(unsigned int aFboIndex) {
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureIndex();
 		}
+		int								getInputTextureMode(unsigned int aFboIndex) {
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureMode();
+		}
 
 		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aTexIndex = 0) {
 			return mFboShaderList[getValidFboIndex(mSelectedFbo)]->getInputTexture(aTexIndex);
@@ -174,6 +177,20 @@ namespace videodromm
 		};
 		void							loadImageFile(const std::string& aFile, unsigned int aFboIndex = 0);
 		void							loadVideoFile(const std::string& aFile, unsigned int aFboIndex = 0);
+		// drag-and-drop onto an existing fbo's own window - dispatches by extension to
+		// loadImageFile/loadVideoFile at that fbo's active slot (0)
+		bool							loadTextureIntoFboActiveSlot(unsigned int aFboIndex, const std::string& aFile);
+		// shared, deduplicated-by-name pool of every loaded texture (any fbo's own, or dropped
+		// standalone) - lets any fbo pick any of them, not just the ones it loaded itself
+		void							registerLoadedTexture(const std::string& aName, ci::gl::Texture2dRef aTexture);
+		unsigned int					getLoadedTextureCount() { return (unsigned int)mLoadedTextures.size(); }
+		ci::gl::Texture2dRef			getLoadedTexture(unsigned int aIndex) { return mLoadedTextures[aIndex].texture; }
+		std::string						getLoadedTextureName(unsigned int aIndex) { return mLoadedTextures[aIndex].name; }
+		// drag-and-drop that didn't land on any specific fbo window - loads the image standalone
+		// and registers it in the pool above, unattached to any fbo until manually assigned via
+		// setFboInputTexture(); returns false if the file isn't an image (video needs its own
+		// ciWMFVideoPlayer, tied to a specific fbo - no standalone equivalent)
+		bool							addStandaloneTexture(const std::string& aFile);
 
 		std::vector<ci::gl::GlslProg::Uniform>	getFboShaderUniforms(unsigned int aFboShaderIndex);
 		float							getUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex);
@@ -269,6 +286,8 @@ namespace videodromm
 		// maintain a list of fbos specific to this mix
 		VDFboShaderList					mFboShaderList;
 		unsigned int					mSelectedFbo = 0;
+		// shared, deduplicated-by-name pool of every loaded texture - see registerLoadedTexture()
+		std::vector<VDTextureStruct>	mLoadedTextures;
 		// textures
 		bool							save();
 		gl::Texture::Format				fmt;
