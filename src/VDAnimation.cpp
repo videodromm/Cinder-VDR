@@ -2,6 +2,42 @@
 
 using namespace videodromm;
 
+#if defined( CINDER_MSW )
+#include <excpt.h>
+namespace {
+	// ci::audio::Device::getInputDevices()/getOutputDevices() enumerate WASAPI devices through
+	// Device::getNumInputChannels()/getNumOutputChannels(), which call shared_from_this() on each
+	// enumerated cinder::audio::Device. On at least one machine this has been observed to crash
+	// with a raw access violation deep inside that call (reading through a bad weak_ptr) instead of
+	// throwing a catchable C++ exception - a normal try/catch around the call (see initLineIn()
+	// below) does nothing, since a hardware access violation isn't a C++ exception. Structured
+	// exception handling (__try/__except) is the only thing that can stop a raw AV from taking the
+	// whole app down.
+
+	// MSVC refuses to mix __try with a C++ object that needs unwinding in the SAME function
+	// (error C2712) - the vector<DeviceRef> temporaries/assignments below count, even via a
+	// pointer parameter, so the actual work has to live in its own ordinary function...
+	void doGetAudioDevices( std::vector<ci::audio::DeviceRef> *inputDevices, std::vector<ci::audio::DeviceRef> *outputDevices )
+	{
+		*inputDevices = ci::audio::Device::getInputDevices();
+		*outputDevices = ci::audio::Device::getOutputDevices();
+	}
+
+	// ...leaving this wrapper's own body free of any C++ objects, so __try/__except is legal here -
+	// it still guards the crash, since SEH scope covers the whole call subtree, not just this frame.
+	bool safeGetAudioDevices( std::vector<ci::audio::DeviceRef> *inputDevices, std::vector<ci::audio::DeviceRef> *outputDevices )
+	{
+		__try {
+			doGetAudioDevices( inputDevices, outputDevices );
+			return true;
+		}
+		__except( EXCEPTION_EXECUTE_HANDLER ) {
+			return false;
+		}
+	}
+}
+#endif
+
 VDAnimation::VDAnimation(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms) {
 	mVDSettings = aVDSettings;
 	mVDUniforms = aVDUniforms;
@@ -168,8 +204,18 @@ void  VDAnimation::initLineIn() {
 			try
 			{
 				// inputs
+#if defined( CINDER_MSW )
+				// see safeGetAudioDevices' comment above: this can crash with a raw AV that a
+				// normal try/catch can't stop, so it needs the __try/__except wrapper on Windows.
+				if( ! safeGetAudioDevices( &inputDevices, &outputDevices ) ) {
+					CI_LOG_E( "audio device enumeration crashed (access violation), skipping mic/line in for this session" );
+					mVDSettings->setErrorMsg( "audio device enumeration crashed, line in disabled" );
+					return;
+				}
+#else
 				inputDevices = ci::audio::Device::getInputDevices();
 				outputDevices = ci::audio::Device::getOutputDevices();
+#endif
 				std::string preferredAudioDeviceKey = "";
 				JsonTree doc;
 				JsonTree audioinputs = JsonTree::makeArray("audioinputs");
