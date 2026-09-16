@@ -299,17 +299,31 @@ namespace videodromm {
 		void							setFboInputTexture(unsigned int aFboIndex, ci::gl::Texture2dRef aTextureRef, const std::string& aName = "") {
 			mVDMix->setFboInputTexture(aFboIndex, aTextureRef, aName);
 		}
-		/*unsigned int			getFboInputTextureIndex(unsigned int aFboIndex = 0) {
+		void							setFboInputTexture(unsigned int aFboIndex, unsigned int aTexIndex) {
+			mVDMix->setFboInputTexture(aFboIndex, aTexIndex);
+		}
+		unsigned int					getFboInputTextureIndex(unsigned int aFboIndex) {
 			return mVDMix->getFboInputTextureIndex(aFboIndex);
 		}
-		
-		}*/
 		unsigned int					getInputTexturesCount(unsigned int aFboIndex = 0) {
 			return mVDMix->getInputTexturesCount(aFboIndex);
 		}
-		std::string						getInputTextureName(unsigned int aTexIndex) {
-			return mVDMix->getInputTextureName(aTexIndex);
+		std::string						getInputTextureName(unsigned int aFboIndex, unsigned int aTexIndex = 0) {
+			return mVDMix->getInputTextureName(aFboIndex, aTexIndex);
 		}
+		// playback controls (sequence/movie)
+		bool							isSequence(unsigned int aFboIndex) { return mVDMix->isSequence(aFboIndex); }
+		bool							isMovie(unsigned int aFboIndex) { return mVDMix->isMovie(aFboIndex); }
+		void							togglePlayPause(unsigned int aFboIndex) { mVDMix->togglePlayPause(aFboIndex); }
+		void							syncToBeat(unsigned int aFboIndex) { mVDMix->syncToBeat(aFboIndex); }
+		void							reverse(unsigned int aFboIndex) { mVDMix->reverse(aFboIndex); }
+		bool							isLoadingFromDisk(unsigned int aFboIndex) { return mVDMix->isLoadingFromDisk(aFboIndex); }
+		void							toggleLoadingFromDisk(unsigned int aFboIndex) { mVDMix->toggleLoadingFromDisk(aFboIndex); }
+		float							getSpeed(unsigned int aFboIndex) { return mVDMix->getSpeed(aFboIndex); }
+		void							setSpeed(unsigned int aFboIndex, float aSpeed) { mVDMix->setSpeed(aFboIndex, aSpeed); }
+		int								getPosition(unsigned int aFboIndex) { return mVDMix->getPosition(aFboIndex); }
+		void							setPlayheadPosition(unsigned int aFboIndex, int aPosition) { mVDMix->setPlayheadPosition(aFboIndex, aPosition); }
+		int								getMaxFrame(unsigned int aFboIndex) { return mVDMix->getMaxFrame(aFboIndex); }
 		/*
 		// blendmodes
 		unsigned int					getFboBlendCount() { return mBlendFbos.size(); };
@@ -329,38 +343,6 @@ namespace videodromm {
 		void							loadAudioFile(const string& aFile);
 
 
-		/*float							getSpeed(unsigned int aTextureIndex) {
-			return mTextureList[math<int>::min(aTextureIndex, mTextureList.size() - 1)]->getSpeed();
-		};
-		void							setSpeed(unsigned int aTextureIndex, float aSpeed) {
-			//if (aTextureIndex > mTextureList.size() - 1) aTextureIndex = mTextureList.size() - 1;
-			//mTextureList[aTextureIndex]->setSpeed(aSpeed);
-			for (int i = 0; i < mTextureList.size() - 1; i++)
-			{
-				mTextureList[i]->setSpeed(aSpeed);
-			}
-		};
-		void							incrementSequencePosition() {
-			for (unsigned int i = 0; i < mTextureList.size() - 1; i++)
-			{
-				setPlayheadPosition(i, getPosition(i) + 1);
-			}
-		}
-		void							decrementSequencePosition() {
-			for (unsigned int i = 0; i < mTextureList.size() - 1; i++)
-			{
-				setPlayheadPosition(i, getPosition(i) - 1);
-			}
-		}
-		int								getPosition(unsigned int aTextureIndex) {
-			return mTextureList[math<int>::min(aTextureIndex, mTextureList.size() - 1)]->getPosition();
-		};
-		void							setPlayheadPosition(unsigned int aTextureIndex, int aPosition) {
-			mTextureList[math<int>::min(aTextureIndex, mTextureList.size() - 1)]->setPlayheadPosition(aPosition);
-		};
-		int								getMaxFrame(unsigned int aTextureIndex) {
-			return mTextureList[math<int>::min(aTextureIndex, mTextureList.size() - 1)]->getMaxFrame();
-		};*/
 
 		/*void							sendFragmentShader(unsigned int aShaderIndex);*/
 		

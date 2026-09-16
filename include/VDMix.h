@@ -118,12 +118,19 @@ namespace videodromm
 				mFboShaderList[getValidFboIndex(aFboIndex)]->setInputTextureRefByIndex(0, aTextureRef, aName);
 			}
 		}
-	
+		// selects which already-loaded input texture slot is the active one for this fbo
+		void							setFboInputTexture(unsigned int aFboIndex, unsigned int aTexIndex) {
+			mFboShaderList[getValidFboIndex(aFboIndex)]->setInputTextureIndex(aTexIndex);
+		}
+		unsigned int					getFboInputTextureIndex(unsigned int aFboIndex) {
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureIndex();
+		}
+
 		ci::gl::Texture2dRef			getFboInputTexture(unsigned int aTexIndex = 0) {
 			return mFboShaderList[getValidFboIndex(mSelectedFbo)]->getInputTexture(aTexIndex);
 		}
-		std::string						getInputTextureName(unsigned int aTexIndex = 0) {
-			return mFboShaderList[getValidFboIndex(mSelectedFbo)]->getTextureName(aTexIndex);
+		std::string						getInputTextureName(unsigned int aFboIndex, unsigned int aTexIndex = 0) {
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->getTextureName(aTexIndex);
 		}
 		std::string						getFboTextureName(unsigned int aFboIndex) {
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getTextureName(); // useless or duplic
@@ -145,12 +152,22 @@ namespace videodromm
 		ci::gl::Texture2dRef			getFboInputTextureListItem(unsigned int aFboIndex, unsigned int aTexIndex) {
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getFboInputTextureListItem(aTexIndex);
 		}
-		/*unsigned int					getFboInputTextureIndex(unsigned int aFboIndex) {
-			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTextureIndex();
-		}*/
 		unsigned int					getInputTexturesCount(unsigned int aFboIndex = 0) {
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getInputTexturesCount();
 		}
+		// playback controls (sequence/movie), forwarded straight to the fbo - see VDFboShader.h
+		bool							isSequence(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->isSequence(); }
+		bool							isMovie(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->isMovie(); }
+		void							togglePlayPause(unsigned int aFboIndex) { mFboShaderList[getValidFboIndex(aFboIndex)]->togglePlayPause(); }
+		void							syncToBeat(unsigned int aFboIndex) { mFboShaderList[getValidFboIndex(aFboIndex)]->syncToBeat(); }
+		void							reverse(unsigned int aFboIndex) { mFboShaderList[getValidFboIndex(aFboIndex)]->reverse(); }
+		bool							isLoadingFromDisk(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->isLoadingFromDisk(); }
+		void							toggleLoadingFromDisk(unsigned int aFboIndex) { mFboShaderList[getValidFboIndex(aFboIndex)]->toggleLoadingFromDisk(); }
+		float							getSpeed(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->getSpeed(); }
+		void							setSpeed(unsigned int aFboIndex, float aSpeed) { mFboShaderList[getValidFboIndex(aFboIndex)]->setSpeed(aSpeed); }
+		int								getPosition(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->getPosition(); }
+		void							setPlayheadPosition(unsigned int aFboIndex, int aPosition) { mFboShaderList[getValidFboIndex(aFboIndex)]->setPlayheadPosition(aPosition); }
+		int								getMaxFrame(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->getMaxFrame(); }
 
 		std::string						getFboShaderName(unsigned int aFboIndex) {
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getShaderName();

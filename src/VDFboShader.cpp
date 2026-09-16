@@ -104,6 +104,24 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 			loadNextTexture(i);
 		}
 		break;
+	case VDTextureMode::NDI: // video streamed over the network via NDI (Windows only)
+		mInputTextureList[0].isValid = false; // remove audio texture
+#if defined( CINDER_MSW )
+		{
+			// "texturename" (if present) is the preferred NDI sender name to connect to; absent
+			// means connect to the first source found (see CinderNDIReceiver::setup()'s own
+			// behavior for an empty name) - re-checked directly against json rather than
+			// mTextureName, since that member already defaulted to the generic "0.jpg" sentinel
+			// above when no texturename was given, which isn't a real NDI sender name
+			std::string preferredSender = json.hasChild("texturename") ? json.getValueForKey<string>("texturename") : "";
+			mNdiReceiver.setup(preferredSender);
+			mCurrentFilename = mTextureName = "ndi in";
+		}
+#else
+		// TODO: NDI is Windows-only (Cinder-NDI's vendored SDK ships no Mac binaries)
+		mFboError = "NDI input not available on this platform";
+#endif
+		break;
 	case VDTextureMode::SHARED: // shared
 		#if defined( CINDER_MSW )
 		mInputTextureList[0].texture = mSpoutIn.receiveTexture();
@@ -176,52 +194,23 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 					}*/
 				}
 				if (fileExists) {
-					/* 20220322 try {
-						mGlslVideoTexture = gl::GlslProg::create(gl::GlslProg::Format()
-							.vertex(loadAsset("video_texture.vs.glsl"))
-							.fragment(loadAsset("video_texture.fs.glsl")));
+#if defined( CINDER_MSW )
+					// reuses the preferred audio output device (see VDAnimation's audio device
+					// selection) so the movie's audio lands on the device the user picked
+					mIsVideoLoaded = mVideo.loadMovie(texFileOrPath, mVDAnimation->getPreferredAudioOutputDevice());
+					if (mIsVideoLoaded) {
+						mVideo.setLoop(true);
+						mVideo.play();
 					}
-					catch (gl::GlslProgCompileExc ex) {
-						CI_LOG_E("<< GlslProg Compile Error >>\n" << ex.what());
+					else {
+						mFboError = "failed to load movie: " + texFileOrPath.string();
+						CI_LOG_E(mFboError);
 					}
-					catch (gl::GlslProgLinkExc ex) {
-						CI_LOG_E("<< GlslProg Link Error >>\n" << ex.what());
-					}
-					catch (gl::GlslProgExc ex) {
-						CI_LOG_E("<< GlslProg Error >> " << ex.what());
-					}
-					catch (AssetLoadExc ex) {
-						CI_LOG_E("<< Asset Load Error >> " << ex.what());
-					}
-					mBatchPlaneVideo = gl::Batch::create(geom::Plane().normal(vec3(0, 0, 1)), mGlslVideoTexture);
-					if (mBatchPlaneVideo) {
-						mBatchPlaneVideo->replaceGlslProg(mGlslVideoTexture);
-					}
-
-					for debug if (!true) {
-						mVideo.stop();
-						std::string videoPath = getAssetPath("sos17avril2022.mp4").string();
-						//std::string videoPath = getAssetPath("spidermoon.mov").string();
-						mVideo1.loadMovie(videoPath, "Haut-parleurs (Realtek(R) Audio)");
-						mVideo1.play();
-						mVideo1.getPresentationEndedSignal().connect([]() {
-							ci::app::console() << "Video finished playing!" << std::endl;
-						});
-
-					mCam.setPerspective(60.0f, getWindowAspectRatio(), 0.01f, 10000.0f);
-					mCam.lookAt(vec3(0, 0, 500), vec3(), vec3(0, 1, 0));
-					mCam.setAspectRatio(getWindowAspectRatio());
-					mCamUi.setCamera(&mCam);
-					mCamUi.setMouseWheelMultiplier(-mCamUi.getMouseWheelMultiplier());
-					mVDUniforms->setUniformValue(mVDUniforms->IMOUSEX, 0.0f);
-					mVDUniforms->setUniformValue(mVDUniforms->IMOUSEY, 0.0f);
-					mVDUniforms->setUniformValue(mVDUniforms->IMOUSEZ, 0.0f);
-					//mInputTextureRef = gl::Texture::create(, gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
-					}*/
-					mIsVideoLoaded = false; // mVideo.loadMovie disabled
-					
-					
-					
+#else
+					// TODO: Mac movie playback not implemented yet (ciWMFVideoPlayer is Windows-only)
+					mIsVideoLoaded = false;
+					mFboError = "movie playback not available on this platform: " + texFileOrPath.string();
+#endif
 					mTypestr = "video";
 					mCurrentFilename = mTextureName;
 					mTextureMode = VDTextureMode::MOVIE;
@@ -442,23 +431,58 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			setFboTextureAudioMode();
 			break;
 		case VDTextureMode::SEQUENCE:
-			// image at IBARBEAT must be loaded before bind()
-			loadNextTexture((int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT));
-			if (mPreloadTextures) {
-				//CI_LOG_E("IBARBEAT " << (unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT) << " IBEAT " << (unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
-				if (mVDUniforms->getUniformValue(mVDUniforms->IBEAT) > 1) {
-					// try to load next images
-					if (mCacheImageIndex < mTextureCount) {
-						mCacheImageIndex++;
-						mFboStatus = " " + toString(mCacheImageIndex) + "/" + toString(mTextureCount);
-						loadNextTexture(mCacheImageIndex);
+			if (mSequenceManualControl) {
+				// independent playback, driven by the UI's play/pause/speed/reverse/scrub
+				// controls instead of the shared IBARBEAT uniform
+				double now = ci::app::getElapsedSeconds();
+				double dt = now - mLastSequenceUpdateTime;
+				mLastSequenceUpdateTime = now;
+				if (mSequencePlaying && mTextureCount > 0 && dt > 0.0 && dt < 1.0) {
+					const float kBaseFps = 15.0f; // speed == 1.0 maps to this frame rate
+					mSequenceAccumulator += (float)dt * kBaseFps * mSequenceSpeed * (mSequenceReversed ? -1.0f : 1.0f);
+					while (mSequenceAccumulator >= 1.0f) {
+						mSequenceAccumulator -= 1.0f;
+						loadNextTexture((mCurrentImageSequenceIndex + 1) % mTextureCount);
+					}
+					while (mSequenceAccumulator <= -1.0f) {
+						mSequenceAccumulator += 1.0f;
+						loadNextTexture((mCurrentImageSequenceIndex - 1 + mTextureCount) % mTextureCount);
 					}
 				}
-				else {
-					mFboStatus = toString(mCacheImageIndex) + "/" + toString(mTextureCount) + " loaded in " + toString(msTotal) + "ms";
+			}
+			else {
+				// image at IBARBEAT must be loaded before bind()
+				loadNextTexture((int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT));
+				if (mPreloadTextures) {
+					//CI_LOG_E("IBARBEAT " << (unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT) << " IBEAT " << (unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBEAT));
+					if (mVDUniforms->getUniformValue(mVDUniforms->IBEAT) > 1) {
+						// try to load next images
+						if (mCacheImageIndex < mTextureCount) {
+							mCacheImageIndex++;
+							mFboStatus = " " + toString(mCacheImageIndex) + "/" + toString(mTextureCount);
+							loadNextTexture(mCacheImageIndex);
+						}
+					}
+					else {
+						mFboStatus = toString(mCacheImageIndex) + "/" + toString(mTextureCount) + " loaded in " + toString(msTotal) + "ms";
+					}
 				}
 			}
 
+			break;
+		case VDTextureMode::NDI:
+			mFboMsg = "ndi";
+#if defined( CINDER_MSW )
+			mNdiReceiver.update();
+			if (mNdiReceiver.isReady()) {
+				auto videoTexture = mNdiReceiver.getVideoTexture();
+				if (videoTexture.first) {
+					mInputTextureList[0].texture = videoTexture.first;
+					mInputTextureList[0].name = mNdiReceiver.getCurrentSenderName();
+					mInputTextureList[0].isValid = true;
+				}
+			}
+#endif
 			break;
 		case VDTextureMode::SHARED:
 			#if defined( CINDER_MSW )
@@ -493,39 +517,28 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			#endif
 			break;
 		case VDTextureMode::MOVIE:
-			// video
 			mFboMsg = "video";
-			//gl::pushMatrices();
-			//gl::setMatrices(mCam);
-			gl::ScopedViewport scopedViewport(getWindowSize());
-			//gl::ScopedDepth scopedDepth(true);
+#if defined( CINDER_MSW )
 			if (mIsVideoLoaded) {
-				
-				
-				if (true || true) {
-					
-					
+				mVideo.update();
+				if (mVideoReversed) {
+					// see reverse()'s comment: native negative-rate playback isn't reliable here,
+					// so reverse is simulated by manually stepping the position backward
+					float fps = mVideo.getFrameRate();
+					if (fps > 0.0f) {
+						float newPos = mVideo.getPosition() - (1.0f / fps);
+						if (newPos < 0.0f) {
+							newPos = mVideo.isLooping() ? (mVideo.getDuration() + newPos) : 0.0f;
+						}
+						mVideo.setPosition(newPos);
+					}
 				}
-				vec2 videoSize = vec2(0);
-				/*mVDUniforms->setUniformValue(mVDUniforms->IRENDERXYX, mVideo.getWidth()*0.25);
-				mVDUniforms->setUniformValue(mVDUniforms->IRENDERXYY, mVideo.getHeight()*0.25);
-				mVDUniforms->setVec2UniformValueByIndex(mVDUniforms->IRENDERXY, vec2(mVideo.getWidth()*0.25, mVideo.getHeight()*0.25));*/
-				/* mGlslVideoTexture->uniform("uVideoSize", videoSize);
-				videoSize *= 0.5f;
-				 {
-					gl::ScopedColor scopedColor(Colorf::white());
-					gl::ScopedModelMatrix scopedModelMatrix;
-
-					// video disabled
-					gl::translate(vec3(mVDUniforms->getUniformValue(mVDUniforms->IMOUSEX)*100.0f, mVDUniforms->getUniformValue(mVDUniforms->IMOUSEY)*100.0f, mVDUniforms->getUniformValue(mVDUniforms->IMOUSEZ)*100.0f));
-
-					gl::scale(vec3(videoSize, 1.0f));
-					mBatchPlaneVideo->draw();
-				} */
+				if (mVideo.hasTexture()) {
+					mInputTextureList[0].texture = mVideo.getTexture();
+					mInputTextureList[0].isValid = true;
+				}
 			}
-			// restore matrices
-			//gl::popMatrices();
-				
+#endif
 			break;
 		}
 		gl::ScopedFramebuffer fbScp(mFbo);
@@ -538,25 +551,22 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		case VDTextureMode::TEXT:
 			// nothing
 			break;
-		case VDTextureMode::MOVIE:
-			// nothing
-			break;
 		case VDTextureMode::PARTS:
 			for (size_t i{ 0 }; i < mInputTextureList.size(); i++)
 			{
 				if (mInputTextureList[i].texture) mInputTextureList[i].texture->bind(i);
 			}
 			break;
-
-			//if (mInputTextureList[0].texture) mInputTextureList[0].texture->bind(0);
-			break;
-		case VDTextureMode::SEQUENCE:
-			if (mInputTextureList[(unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)].isValid &&
-				mInputTextureList[(unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)].texture) {
-				mInputTextureList[(unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT)].texture->bind(0);
+		case VDTextureMode::SEQUENCE: {
+			unsigned int seqIdx = mSequenceManualControl ? (unsigned int)mCurrentImageSequenceIndex : (unsigned int)mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT);
+			if (mInputTextureList[seqIdx].isValid && mInputTextureList[seqIdx].texture) {
+				mInputTextureList[seqIdx].texture->bind(0);
 			}
 			break;
+		}
 		default:
+			// MOVIE falls through to here too - it populates mInputTextureList[0] above like
+			// every other mode in this branch, so no special-casing needed at bind time
 			if (mIsHydraTex) {
 				mInputTextureList[0].texture->bind(253);
 				for (size_t i{ 0 }; i < 4; i++)
@@ -564,9 +574,10 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 					mInputTextureList[i].texture->bind(254 + i);
 				}
 			}
-			else {// case VDTextureMode::SHARED, AUDIO,..
-				if (mInputTextureList[0].isValid && mInputTextureList[0].texture) {
-					mInputTextureList[0].texture->bind(0);
+			else {// case VDTextureMode::SHARED, AUDIO, MOVIE,..
+				unsigned int activeIdx = getValidTexIndex(mInputTextureIndex);
+				if (mInputTextureList[activeIdx].isValid && mInputTextureList[activeIdx].texture) {
+					mInputTextureList[activeIdx].texture->bind(0);
 				}
 			}
 			break;

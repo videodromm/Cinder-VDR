@@ -181,15 +181,31 @@ namespace videodromm
 		void					toggleUseWaveMonitor() { mVDSession->toggleUseWaveMonitor(); };
 		bool					getUseRandom() { return mVDSession->getUseRandom(); };
 		void					toggleUseRandom() { mVDSession->toggleUseRandom(); };
-		/*void					setFboInputTexture(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0) {
+		void					setFboInputTexture(unsigned int aFboIndex, unsigned int aTexIndex) {
 			mVDSession->setFboInputTexture(aFboIndex, aTexIndex);
-		}*/
+		}
+		unsigned int			getFboInputTextureIndex(unsigned int aFboIndex) {
+			return mVDSession->getFboInputTextureIndex(aFboIndex);
+		}
 		unsigned int			getInputTexturesCount(unsigned int aFboIndex = 0) {
 			return mVDSession->getInputTexturesCount(aFboIndex);
 		}
-		std::string				getInputTextureName(unsigned int aTexIndex) {
-			return mVDSession->getInputTextureName(aTexIndex);
+		std::string				getInputTextureName(unsigned int aFboIndex, unsigned int aTexIndex = 0) {
+			return mVDSession->getInputTextureName(aFboIndex, aTexIndex);
 		}
+		// playback controls (sequence/movie)
+		bool					isSequence(unsigned int aFboIndex) { return mVDSession->isSequence(aFboIndex); }
+		bool					isMovie(unsigned int aFboIndex) { return mVDSession->isMovie(aFboIndex); }
+		void					togglePlayPause(unsigned int aFboIndex) { mVDSession->togglePlayPause(aFboIndex); }
+		void					syncToBeat(unsigned int aFboIndex) { mVDSession->syncToBeat(aFboIndex); }
+		void					reverse(unsigned int aFboIndex) { mVDSession->reverse(aFboIndex); }
+		bool					isLoadingFromDisk(unsigned int aFboIndex) { return mVDSession->isLoadingFromDisk(aFboIndex); }
+		void					toggleLoadingFromDisk(unsigned int aFboIndex) { mVDSession->toggleLoadingFromDisk(aFboIndex); }
+		float					getSpeed(unsigned int aFboIndex) { return mVDSession->getSpeed(aFboIndex); }
+		void					setSpeed(unsigned int aFboIndex, float aSpeed) { mVDSession->setSpeed(aFboIndex, aSpeed); }
+		int						getPosition(unsigned int aFboIndex) { return mVDSession->getPosition(aFboIndex); }
+		void					setPlayheadPosition(unsigned int aFboIndex, int aPosition) { mVDSession->setPlayheadPosition(aFboIndex, aPosition); }
+		int						getMaxFrame(unsigned int aFboIndex) { return mVDSession->getMaxFrame(aFboIndex); }
 		int						getFFTWindowSize();
 		float*					getFreqs();
 		float					getFreq(unsigned int aFreqIndex) { return mVDSession->getFreq(aFreqIndex); };

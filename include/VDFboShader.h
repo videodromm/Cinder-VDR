@@ -30,11 +30,17 @@
 #include "VDAnimation.h"
 // Params
 #include "VDParams.h"
-// video
-// WMF video disabled in Batchass migration`r`n//#include "ciWMFVideoPlayer.h"
+// video (Windows-only, see Cinder-WMFVideo/cinderblock.xml's <supports os="msw" />)
+#if defined( CINDER_MSW )
+#include "ciWMFVideoPlayer.h"
+#endif
 // Spout (Windows-only)
 #if defined( CINDER_MSW )
 #include "CiSpoutIn.h"
+#endif
+// NDI (Windows-only, see Cinder-NDI/cinderblock.xml's <supports os="msw"/>)
+#if defined( CINDER_MSW )
+#include "CinderNDIReceiver.h"
 #endif
 // Syphon (Mac-only)
 #if defined( CINDER_MAC )
@@ -129,12 +135,12 @@ namespace videodromm
 			return mFboStatus;
 		};
 		bool									loadFragmentShaderFromFile(const string& aFileOrPath, bool isAudio = false);
-		/*void									setInputTextureIndex(unsigned int aTexIndex = 0) {
+		void									setInputTextureIndex(unsigned int aTexIndex = 0) {
 			mInputTextureIndex = getValidTexIndex(aTexIndex);
 		};
 		unsigned int							getInputTextureIndex() {
 			return mInputTextureIndex;
-		};*/
+		};
 		bool									isHydraTex() {
 			return mIsHydraTex;
 		}
@@ -160,6 +166,104 @@ namespace videodromm
 		}
 		int										getInputTextureMode() {
 			return mTextureMode;
+		}
+		// playback controls - for SEQUENCE these drive mSequence* below (independent of the
+		// app-wide IBARBEAT-synced default, only once one of these is actually used); for MOVIE
+		// (Windows only) these drive mVideo directly. On any other mode, or MOVIE on a platform
+		// without a player, these are safe no-ops.
+		bool									isSequence() {
+			return mTextureMode == VDTextureMode::SEQUENCE;
+		}
+		bool									isMovie() {
+			return mTextureMode == VDTextureMode::MOVIE;
+		}
+		bool									isLoadingFromDisk() {
+			return mPreloadTextures && mCacheImageIndex < mTextureCount;
+		}
+		void									toggleLoadingFromDisk() {
+			mPreloadTextures = !mPreloadTextures;
+		}
+		// stops manual sequence control, reverting to the app-wide IBARBEAT-synced default
+		void									syncToBeat() {
+			mSequenceManualControl = false;
+		}
+		void									togglePlayPause() {
+#if defined( CINDER_MSW )
+			if (mTextureMode == VDTextureMode::MOVIE) {
+				mVideo.isPlaying() ? mVideo.pause() : mVideo.play();
+				return;
+			}
+#else
+			if (mTextureMode == VDTextureMode::MOVIE) return; // movie playback unavailable on this platform
+#endif
+			if (mTextureMode == VDTextureMode::SEQUENCE) {
+				mSequenceManualControl = true;
+				mSequencePlaying = !mSequencePlaying;
+			}
+		}
+		void									reverse() {
+#if defined( CINDER_MSW )
+			if (mTextureMode == VDTextureMode::MOVIE) {
+				// native negative-rate playback is unreliable on this backend (see setSpeed()'s
+				// own comments in ciWMFVideoPlayer.cpp), so reverse is simulated by manually
+				// stepping the position backward each frame in getFboTexture() instead.
+				mVideoReversed = !mVideoReversed;
+				return;
+			}
+#else
+			if (mTextureMode == VDTextureMode::MOVIE) return;
+#endif
+			if (mTextureMode == VDTextureMode::SEQUENCE) {
+				mSequenceManualControl = true;
+				mSequenceReversed = !mSequenceReversed;
+			}
+		}
+		float									getSpeed() {
+#if defined( CINDER_MSW )
+			if (mTextureMode == VDTextureMode::MOVIE) return mVideo.getSpeed();
+#endif
+			return mSequenceSpeed;
+		}
+		void									setSpeed(float aSpeed) {
+#if defined( CINDER_MSW )
+			if (mTextureMode == VDTextureMode::MOVIE) {
+				mVideo.setSpeed(aSpeed);
+				return;
+			}
+#endif
+			mSequenceManualControl = true;
+			mSequenceSpeed = aSpeed;
+		}
+		int										getPosition() {
+#if defined( CINDER_MSW )
+			if (mTextureMode == VDTextureMode::MOVIE) {
+				float fps = mVideo.getFrameRate();
+				return fps > 0.0f ? (int)(mVideo.getPosition() * fps + 0.5f) : 0;
+			}
+#endif
+			return mCurrentImageSequenceIndex;
+		}
+		void									setPlayheadPosition(int aPosition) {
+#if defined( CINDER_MSW )
+			if (mTextureMode == VDTextureMode::MOVIE) {
+				float fps = mVideo.getFrameRate();
+				if (fps > 0.0f) mVideo.setPosition(aPosition / fps);
+				return;
+			}
+#endif
+			mSequenceManualControl = true;
+			if (aPosition < 0) aPosition = 0;
+			if (mTextureCount > 0 && aPosition > mTextureCount - 1) aPosition = mTextureCount - 1;
+			loadNextTexture((unsigned int)aPosition);
+		}
+		int										getMaxFrame() {
+#if defined( CINDER_MSW )
+			if (mTextureMode == VDTextureMode::MOVIE) {
+				float fps = mVideo.getFrameRate();
+				return fps > 0.0f ? (int)(mVideo.getDuration() * fps + 0.5f) : 0;
+			}
+#endif
+			return mTextureCount > 0 ? mTextureCount - 1 : 0;
 		}
 		bool handleMouseDown(MouseEvent event)
 		{
@@ -190,6 +294,7 @@ namespace videodromm
 		unsigned int					mCacheImageIndex = 0;
 		#if defined( CINDER_MSW )
 		SpoutIn							mSpoutIn;
+		CinderNDIReceiver				mNdiReceiver;
 		#endif
 		#if defined( CINDER_MAC )
 		syphonClient					mClientSyphon;
@@ -200,7 +305,7 @@ namespace videodromm
 		ci::gl::FboRef					mSyphonBlitFbo;
 		ci::gl::GlslProgRef				mGlslVideoTexture;
 		#endif
-		//unsigned int					mInputTextureIndex;
+		unsigned int					mInputTextureIndex = 0;
 		unsigned int					createInputTexture(const JsonTree &json);
 		bool							mLoadTopDown = false;
 		// 20211115
@@ -214,6 +319,15 @@ namespace videodromm
 		int								mTextureCount = 1;
 		bool							mPreloadTextures = false;
 		unsigned int					msTotal = 0;
+		// independent per-fbo sequence playback state, only used once mSequenceManualControl is
+		// set (by touching one of the playback controls) - false keeps today's exact IBARBEAT-
+		// synced behavior unchanged for every fbo that never touches these
+		bool							mSequenceManualControl = false;
+		bool							mSequencePlaying = true;
+		bool							mSequenceReversed = false;
+		float							mSequenceSpeed = 1.0f;
+		float							mSequenceAccumulator = 0.0f;
+		double							mLastSequenceUpdateTime = 0.0;
 		int								dotIndex = std::string::npos;
 		int								colonIndex = std::string::npos;
 		// hydra
@@ -253,11 +367,12 @@ namespace videodromm
 		std::string						mFboStatus = "";
 		std::string						mAssetsPath = "";
 		unsigned int					mFboIndex = 0;
-		// video
-		bool mVideoDisabled = false; // ciWMFVideoPlayer mVideo;
-		float							mVideoPos = 0.0f;
-		float							mVideoDuration = 0.0f;
+		// video (Windows only)
+#if defined( CINDER_MSW )
+		ciWMFVideoPlayer				mVideo;
+#endif
 		bool							mIsVideoLoaded = false;
+		bool							mVideoReversed = false;
 		// mouse
 		float mx = 0.0f;
 		float my = 0.0f;

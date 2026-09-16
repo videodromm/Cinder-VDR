@@ -17,7 +17,9 @@ using namespace ci::app;
 
 namespace videodromm
 {
-	enum VDTextureMode { UNKNOWN, IMAGE, SEQUENCE, MOVIE, CAMERA, SHARED, AUDIO, STREAM, PARTS, TEXT };
+	// NDI appended at the end, not inserted - these values are persisted as raw ints in fbo*.json's
+	// "texturemode" field, so existing saved configs must keep resolving to the same mode
+	enum VDTextureMode { UNKNOWN, IMAGE, SEQUENCE, MOVIE, CAMERA, SHARED, AUDIO, STREAM, PARTS, TEXT, NDI };
 	// FBO0, FBO1, FBO2, FBO3, FBO4, FBO5,
 	enum VDDisplayMode {
 		FX,

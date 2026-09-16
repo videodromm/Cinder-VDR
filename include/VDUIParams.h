@@ -18,7 +18,7 @@ namespace videodromm {
 		// imgui positions and sizes
 		const unsigned	uiYPosRow1{ 4 }; 
 		unsigned	uiLargeW = (previewFboWidth + uiMargin) * 3;
-		unsigned	uiLargeH = (previewFboHeight + uiMargin) * 5;
+		unsigned	uiLargeH = (previewFboHeight + uiMargin) * 3;
 		unsigned	uiLargePreviewW = (unsigned)(previewFboWidth * 1.7);
 		unsigned	uiLargePreviewH = (unsigned)(previewHeight * 2.8);
 		unsigned	uiPreviewH = previewHeight + uiMargin;
@@ -26,7 +26,7 @@ namespace videodromm {
 		unsigned	uiXPosCol2 = uiXPosCol1 + uiMargin * 2 + previewFboWidth;
 		unsigned	uiXPosCol3 = (unsigned)(uiXPosCol2 * 3.17 + uiMargin);
 		unsigned	uiYPosRow2 = uiYPosRow1 + uiLargePreviewH + uiMargin; // details, textures
-		unsigned	uiYPosRow3 = uiYPosRow2 + uiLargeH + uiLargePreviewH + 40;// 60;
+		unsigned		uiYPosRow3 = uiYPosRow2 + uiLargeH + uiLargePreviewH; // + 40; 60;
 		unsigned	uiYPosRow4 = uiYPosRow3 + uiLargePreviewH + uiMargin;
 		unsigned	uiYPosRow5 = uiYPosRow4 + uiLargePreviewH + uiMargin;
 		unsigned	uiYPosRow6 = uiYPosRow5 + uiLargePreviewH + uiMargin;
