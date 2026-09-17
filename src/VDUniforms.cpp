@@ -236,7 +236,7 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iFlipH", IFLIPH, 0.0f); // 131
 	createFloatUniform("iFlipV", IFLIPV, 0.0f); // 132
 	createFloatUniform("iFlipPostH", IFLIPPOSTH, 0.0f); // 133
-	createFloatUniform("iFlipPostV", IFLIPPOSTV, 0.0f); // 134
+	createFloatUniform("iFlipPostV", IFLIPPOSTV, 1.0f); // 134 - 1.0 = no flip; this is the value confirmed to render correctly in post mode (now also respected by fx/warp, see fx.glsl / VDSession::drawWarpWithInput())
 
 	// 119 to 124 timefactor from midithor sos
 	// floats for warps

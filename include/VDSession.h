@@ -95,6 +95,10 @@ namespace videodromm {
 		void							setWarpBFboIndex(unsigned int aWarpIndex, unsigned int aWarpFboIndex);
 
 		void							createWarp();
+		void							removeWarp(unsigned int aWarpIndex);
+		// one warp's own small rendered preview (after warping, not the raw fbo) - see
+		// VDUIWarps.cpp
+		ci::gl::TextureRef				getWarpPreviewTexture(unsigned int aWarpIndex);
 		std::string						getFboShaderName(unsigned int aFboIndex);
 		//std::string							getFboShaderName(unsigned int aFboShaderIndex);
 		std::string						getFboTextureName(unsigned int aFboIndex);
@@ -440,10 +444,14 @@ namespace videodromm {
 		void							renderPostToFbo();
 		void							renderFxToFbo();
 		void							renderWarpsToFbo();
+		ci::gl::TextureRef				resolveWarpInputTexture(const WarpRef& aWarp);
+		void							drawWarpWithInput(const WarpRef& aWarp, const ci::gl::TextureRef& aInputTex);
 		ci::gl::Texture2dRef			mWarpTexture;
 		// warps
 
 		WarpList						mWarpList;
+		// one small preview fbo per warp, lazily created - see getWarpPreviewTexture()
+		std::vector<ci::gl::FboRef>	mWarpPreviewFbos;
 		fs::path						mSettings;
 
 		bool							odd = false;

@@ -154,6 +154,8 @@ namespace videodromm
 		int						getFboTextureHeight(unsigned int aFboIndex);
 		unsigned int			getWarpCount();
 		void					createWarp();
+		void					removeWarp(unsigned int aWarpIndex) { mVDSession->removeWarp(aWarpIndex); }
+		ci::gl::TextureRef		getWarpPreviewTexture(unsigned int aWarpIndex) { return mVDSession->getWarpPreviewTexture(aWarpIndex); }
 		void					saveWarps() {
 			mVDSession->saveWarps();
 		};

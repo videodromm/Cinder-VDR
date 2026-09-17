@@ -54,7 +54,6 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 	mWarpsFbo = gl::Fbo::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), format.depthTexture());
 	mPostFbo = gl::Fbo::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), format.depthTexture());
 	mFxFbo = gl::Fbo::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), format.depthTexture());
-	// 20210103 mGlslPost = gl::GlslProg::create(gl::GlslProg::Format().vertex(loadAsset("passthrough.vs")).fragment(loadAsset("post.glsl")));
 	mGlslPost = gl::GlslProg::create(gl::GlslProg::Format().vertex(mVDParams->getDefaultVertexString()).fragment(loadAsset("post.glsl")));
 	mGlslFx = gl::GlslProg::create(gl::GlslProg::Format().vertex(mVDParams->getDefaultVertexString()).fragment(loadAsset("fx.glsl")));
 	mWarpTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown());
@@ -422,8 +421,15 @@ void VDSession::renderPostToFbo()
 		gl::ScopedViewport scpVp(ivec2(0), mPostFbo->getSize());
 
 		// texture binding must be before ScopedGlslProg
-		//mWarpsFbo->getColorTexture()
-		mWarpTexture->bind(10);
+		//
+		// the flat, un-warped mixette - not mWarpTexture (renderWarpsToFbo()'s output). Post/Fx
+		// used to look correct before any warp had actually been reshaped, purely because the
+		// default warp mesh happened to be an undistorted full-frame rectangle - so sampling the
+		// warped output here was invisible until a warp was genuinely resized/reshaped ("post/fx
+		// mode worked fine until you started with warp mode"). Post/Fx are meant to preview the
+		// flat composited content regardless of how it's physically projected; the warped/
+		// distorted result belongs only to the dedicated Warp display mode.
+		mVDMix->getRenderedMixetteTexture(0)->bind(10);
 		gl::ScopedGlslProg prog(mGlslPost);
 
 		// not used yet mGlslPost->uniform("TIME", getUniformValue(mVDUniforms->ITIME) - mVDSettings->iStart);;
@@ -471,8 +477,9 @@ void VDSession::renderFxToFbo()
 		gl::ScopedViewport scpVp(ivec2(0), mFxFbo->getSize());
 
 		// texture binding must be before ScopedGlslProg
-		//mWarpsFbo->getColorTexture()
-		mWarpTexture->bind(11);
+		//
+		// same reasoning as renderPostToFbo(): the flat mixette, not the warped mWarpTexture
+		mVDMix->getRenderedMixetteTexture(0)->bind(11);
 		gl::ScopedGlslProg prog(mGlslFx);
 
 		mGlslFx->uniform("iResolution", vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
@@ -506,6 +513,45 @@ void VDSession::renderFxToFbo()
 		gl::drawSolidRect(Rectf(0, 0, mVDParams->getFboWidth(), mVDParams->getFboHeight()));
 	}
 }
+// shared by renderWarpsToFbo() (the real, composited output) and getWarpPreviewTexture() (one
+// warp's own small preview in VDUIWarps.cpp) so both resolve "what should this warp show" the
+// same way
+ci::gl::TextureRef VDSession::resolveWarpInputTexture(const WarpRef& aWarp) {
+	unsigned int fboIndex = aWarp->getAFboIndex();
+	if (fboIndex == Warp::NO_FBO_INDEX || fboIndex >= getFboShaderListSize()) {
+		// no specific fbo chosen for this warp (the sentinel value set by VDUIWarps.cpp's
+		// "Post/Fx" button, the new default for a fresh/legacy-missing-data warp - see
+		// Warp.h/.cpp - or simply an out-of-range index) - show the full weighted blend
+		// of every active fboshader (the mixette, already computed above by
+		// VDMix::getMixetteTexture()) instead of one single fbo's raw output.
+		//
+		// deliberately NOT VDSession::getPostFboTexture()/getFxFboTexture() here, even
+		// though that's closer to the reporter's own words ("post/fx rendered image"):
+		// renderPostToFbo()/renderFxToFbo() run *after* renderWarpsToFbo() each frame and
+		// sample its output (mWarpTexture) as their input - feeding a warp from post/fx would
+		// be a circular, one-frame-stale dependency. The mixette has no such issue and *is*
+		// "the weighted mix of fboshaders" the reporter meant.
+		return mVDMix->getRenderedMixetteTexture(0);
+	}
+	// a specific fbo was explicitly chosen (VDUIWarps.cpp's per-fbo buttons) - show just that
+	// fbo's own output, bypassing the mix entirely, as intended
+	return mVDMix->getFboRenderedTexture(fboIndex);
+}
+
+// Warp::draw(texture) maps the whole texture to plain top-to-bottom (0,0)-(1,1) UVs with no
+// notion of iFlipV (WarpBilinear::draw(Texture,Area,Rect) just divides area.y1/y2 by height,
+// no inversion) - post.glsl/fx.glsl instead flip conditionally on iFlipV==0.0 (IFLIPPOSTV).
+// Without this, Warp mode shows the same content upside-down relative to Post/Fx whenever the
+// flip is active. Swapping the source Area's y1/y2 - the same trick WarpBilinear::draw(bool)
+// already uses internally for its own fbo - flips without needing any change to Warp's shaders.
+void VDSession::drawWarpWithInput(const WarpRef& aWarp, const ci::gl::TextureRef& aInputTex) {
+	ci::Area srcArea = aInputTex->getBounds();
+	if (mVDUniforms->getUniformValue(mVDUniforms->IFLIPPOSTV) == 0.0f) {
+		std::swap(srcArea.y1, srcArea.y2);
+	}
+	aWarp->draw(aInputTex, srcArea);
+}
+
 void VDSession::renderWarpsToFbo()
 {
 	{
@@ -515,19 +561,41 @@ void VDSession::renderWarpsToFbo()
 		// setup the viewport to match the dimensions of the FBO
 		gl::ScopedViewport scpVp(ivec2(0), mWarpsFbo->getSize());
 		// iterate over the warps and draw their content
-		int i = 0;
-		int a = 0;
-
 		for (auto& warp : mWarpList) {
-			a = warp->getAFboIndex();
-			if (a < 0) a = 0; // TODO 20200228 a could be negative if warps3.xml > warps01.json
-			i = math<int>::min(a, getFboShaderListSize() - 1);
-			// each warp now shows its own chosen fbo (set via VDUIWarps.cpp's per-warp buttons /
-			// setWarpAFboIndex()), not always the same final mixette composite - i/a were already
-			// being computed here and then silently discarded, per the TODO right above
-			warp->draw(mVDMix->getFboRenderedTexture(i));
+			drawWarpWithInput(warp, resolveWarpInputTexture(warp));
 		}
 		mWarpTexture = mWarpsFbo->getColorTexture();
+	}
+}
+
+ci::gl::TextureRef VDSession::getWarpPreviewTexture(unsigned int aWarpIndex) {
+	if (aWarpIndex >= mWarpList.size()) return nullptr;
+	// one small, lazily-created fbo per warp slot, reused/overwritten every call - cheap enough
+	// for a UI thumbnail, and indices staying valid after removeWarp() doesn't matter since
+	// nothing here is stateful between calls (always redrawn from the warp's current state)
+	if (mWarpPreviewFbos.size() <= aWarpIndex) mWarpPreviewFbos.resize(aWarpIndex + 1);
+	if (!mWarpPreviewFbos[aWarpIndex]) {
+		mWarpPreviewFbos[aWarpIndex] = gl::Fbo::create(mVDParams->getPreviewFboWidth(), mVDParams->getPreviewFboHeight(), gl::Fbo::Format());
+	}
+	auto& warp = mWarpList[aWarpIndex];
+	ci::gl::TextureRef inputTex = resolveWarpInputTexture(warp);
+	{
+		gl::ScopedFramebuffer fbScp(mWarpPreviewFbos[aWarpIndex]);
+		gl::clear(Color::black());
+		gl::ScopedViewport scpVp(ivec2(0), mWarpPreviewFbos[aWarpIndex]->getSize());
+		// setMatricesWindow(warp's own, larger mWidth/mHeight) rendering into this smaller
+		// viewport scales down correctly (the ortho projection's logical extent and the actual
+		// viewport pixel size are independent - the rasterizer stretches NDC to fit whatever
+		// viewport is bound), same as how the whole app already scales its fixed-resolution
+		// output to an arbitrary on-screen window size elsewhere.
+		drawWarpWithInput(warp, inputTex);
+	}
+	return mWarpPreviewFbos[aWarpIndex]->getColorTexture();
+}
+
+void VDSession::removeWarp(unsigned int aWarpIndex) {
+	if (aWarpIndex < mWarpList.size()) {
+		mWarpList.erase(mWarpList.begin() + aWarpIndex);
 	}
 }
 

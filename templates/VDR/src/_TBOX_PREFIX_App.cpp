@@ -346,6 +346,15 @@ void _TBOX_PREFIX_App::draw()
 			mSpoutOut.sendTexture(mVDSessionFacade->buildFxFboTexture());
 #endif
 		}
+		else if (m == VDDisplayMode::WARP) {
+			// was missing entirely - VDDisplayMode::WARP (2) fell through to the "show fbo
+			// index m" branch below, silently showing fbo #2 instead of the actual warped
+			// output whenever "Warp" mode was selected and 3+ fbos were loaded.
+			gl::draw(mVDSessionFacade->buildRenderedWarpFboTexture(), getWindowBounds());
+#if defined( CINDER_MSW )
+			mSpoutOut.sendTexture(mVDSessionFacade->buildRenderedWarpFboTexture());
+#endif
+		}
 		else if (m < mVDSessionFacade->getFboShaderListSize()) {
 				gl::draw(mVDSessionFacade->getFboShaderTexture(m), getWindowBounds());
 #if defined( CINDER_MSW )
