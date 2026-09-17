@@ -77,6 +77,11 @@ namespace videodromm
 
 		ci::gl::Texture2dRef					getTexture(); //TODO 20200610; = 0
 		ci::gl::Texture2dRef					getRenderedTexture();
+		// lets a caller that already has this fbo's weight decide whether a fresh render is
+		// worth it at all (see VDMix::getFboRenderedTexture()) - getTexture() always re-renders,
+		// getRenderedTexture() never does (just returns whatever was last rendered); this says
+		// whether that "whatever was last rendered" is actually valid content yet
+		bool									hasRenderedOnce() { return isReady; }
 		void									saveThumbnail(bool overwrite = true);
 		bool									isValid();
 		std::string								getShaderName();

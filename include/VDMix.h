@@ -207,7 +207,7 @@ namespace videodromm
 		ci::gl::TextureRef				getFboRenderedTexture(unsigned int aFboIndex) {
 			if (mFboShaderList.size() == 0) return mDefaultTexture;
 			/* 20220101 hydra check
-			
+
 			if (aFboIndex > mFboShaderList.size() - 1) aFboIndex = 0;
 
 			if (mFboShaderList[aFboIndex]->isHydraTex()) {
@@ -219,10 +219,22 @@ namespace videodromm
 			}
 			else {
 				// 20211227 useless? mFboShaderList[aFboIndex]->setInputTextureRef(mFboShaderList[aFboIndex]->getTexture());
-			}			
+			}
 			return mFboShaderList[aFboIndex]->getRenderedTexture();
 			*/
-			return mFboShaderList[getValidFboIndex(aFboIndex)]->getTexture();
+			unsigned int idx = getValidFboIndex(aFboIndex);
+			// this is called every frame per fbo just for its own small UI preview thumbnail
+			// (VDUIFbos.cpp's buildFboRenderedTexture()), regardless of whether that fbo actually
+			// contributes anything to the final mix - getTexture() always fully re-renders, which
+			// is wasted work once a fbo's weight is 0 (invisible either way). One render is enough
+			// to have valid content ready for whenever the weight comes back up; every frame after
+			// that while weight stays at 0 just reuses the same cached texture instead of paying
+			// for another full shader pass. getMixetteTexture() already has its own, separate
+			// weight>0 gate for the actual composited output - this covers the other render path.
+			if (mVDUniforms->getUniformValue(mVDUniforms->IWEIGHT0 + idx) <= 0.01f && mFboShaderList[idx]->hasRenderedOnce()) {
+				return mFboShaderList[idx]->getRenderedTexture();
+			}
+			return mFboShaderList[idx]->getTexture();
 
 		}
 		ci::gl::TextureRef				getFboTexture(unsigned int aFboIndex) {

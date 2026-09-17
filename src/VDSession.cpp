@@ -522,7 +522,10 @@ void VDSession::renderWarpsToFbo()
 			a = warp->getAFboIndex();
 			if (a < 0) a = 0; // TODO 20200228 a could be negative if warps3.xml > warps01.json
 			i = math<int>::min(a, getFboShaderListSize() - 1);
-			warp->draw(mVDMix->getRenderedMixetteTexture(0));
+			// each warp now shows its own chosen fbo (set via VDUIWarps.cpp's per-warp buttons /
+			// setWarpAFboIndex()), not always the same final mixette composite - i/a were already
+			// being computed here and then silently discarded, per the TODO right above
+			warp->draw(mVDMix->getFboRenderedTexture(i));
 		}
 		mWarpTexture = mWarpsFbo->getColorTexture();
 	}

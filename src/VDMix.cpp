@@ -178,16 +178,6 @@ namespace videodromm {
 			if (tex) tex->bind(i);
 			i++;
 		}
-		// throttled diagnostic that helped pin down the above - kept in case a similar report
-		// ("fbo N only renders if others are X") ever recurs for a different reason
-		static int sMixetteLogThrottle = 0;
-		if ((sMixetteLogThrottle++ % 120) == 0) {
-			std::stringstream ss;
-			for (unsigned int j = 0; j < mFboShaderList.size(); j++) {
-				ss << " [" << j << " valid=" << mFboShaderList[j]->isValid() << " w=" << mVDUniforms->getUniformValue(mVDUniforms->IWEIGHT0 + j) << "]";
-			}
-			CI_LOG_V("getMixetteTexture fbo states:" << ss.str());
-		}
 		gl::ScopedGlslProg prog(mGlslMixette);
 		mGlslMixette->uniform("iResolution", vec3(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY), 1.0));
 		mGlslMixette->uniform("iBlendmode", (int)mVDUniforms->getUniformValue(mVDUniforms->IBLENDMODE));

@@ -365,11 +365,10 @@ bool VDFboShader::loadVideoFile(const std::string& aFile) {
 	// movie's audio lands on the device the user picked. Safe to call again on an already-playing
 	// mVideo - ciWMFVideoPlayer::loadMovie() just re-opens the player via OpenURL(), no close() needed.
 	mIsVideoLoaded = mVideo.loadMovie(aFile, mVDAnimation->getPreferredAudioOutputDevice());
-	// diagnostic: ciWMFVideoPlayer::loadMovie() returns true whenever mPlayer exists, regardless
-	// of whether OpenURL() actually succeeded internally or whether a usable video texture will
-	// ever appear - this is the one piece of ground truth available without a debugger attached,
-	// to tell "loaded but never got a texture" apart from "never actually loaded"
-	CI_LOG_I("loadVideoFile " << aFile << " loadMovie()=" << mIsVideoLoaded
+	// was CI_LOG_I while diagnosing the missing-DX/GL-interop-lock bug (now fixed, see CLAUDE.md)
+	// - downgraded to verbose since that's resolved and this doesn't need to cost anything in a
+	// release build (CI_LOG_V compiles away entirely there, CI_LOG_I would not have)
+	CI_LOG_V("loadVideoFile " << aFile << " loadMovie()=" << mIsVideoLoaded
 		<< " width=" << mVideo.getWidth() << " height=" << mVideo.getHeight()
 		<< " hasTexture()=" << mVideo.hasTexture());
 	mVideoTextureWarningLogged = false;

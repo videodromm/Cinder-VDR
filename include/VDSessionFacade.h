@@ -145,6 +145,7 @@ namespace videodromm
 		ci::gl::TextureRef		buildWarpFboTexture();
 		ci::gl::TextureRef		buildRenderedWarpFboTexture();
 		unsigned int			getWarpAFboIndex(unsigned int aWarpIndex);
+		void					setWarpAFboIndex(unsigned int aWarpIndex, unsigned int aWarpFboIndex) { mVDSession->setWarpAFboIndex(aWarpIndex, aWarpFboIndex); }
 		unsigned int			getWarpBFboIndex(unsigned int aWarpIndex);
 		float					getMinUniformValue(unsigned int aIndex);
 		float					getMaxUniformValue(unsigned int aIndex);
