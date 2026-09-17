@@ -89,6 +89,15 @@ namespace videodromm {
 		void								closeMidiOutPort(int i);
 		void								setPreferredMidiInputDevice(const std::string& aDevice);
 		std::string							getPreferredMidiInputDevice();
+		// midi learn
+		void								setMidiLearnMode(bool aEnabled);
+		bool								isMidiLearnMode();
+		void								armMidiLearn(int aUniformIndex);
+		int									getMidiLearnTarget();
+		int									getMidiLearnMappingsCount();
+		bool								getMidiLearnMappingAt(int aIndex, int& aCc, int& aUniform);
+		void								removeMidiLearnMapping(int aCc);
+		void								clearMidiLearnMap();
 		// ws
 		VDMediatorObservableRef				setupWSClient();
 		int									getWSClientPort();

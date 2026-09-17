@@ -18,11 +18,9 @@ VDMidi::VDMidi(VDUniformsRef aVDUniforms) {
 }
 VDMidi::~VDMidi(void) {
 	mMidiIn0.closePort();
-	mMidiIn1.closePort();
-	mMidiIn2.closePort();
+	for (auto& port : mMidiInPorts) { if (port) port->closePort(); }
 	mMidiOut0.closePort();
-	mMidiOut1.closePort();
-	mMidiOut2.closePort();
+	for (auto& port : mMidiOutPorts) { if (port) port->closePort(); }
 }
 void VDMidi::setMidiMsg(const std::string& aMsg) {
 	mMidiMsg = aMsg;
@@ -52,7 +50,57 @@ void VDMidi::saveMidiPorts() {
 }
 void VDMidi::setupMidi(VDMediatorObservableRef aVDMediator) {
 	mVDMediator = aVDMediator;
+	loadMidiLearnMapIfNeeded();
 	midiSetup();
+}
+void VDMidi::saveMidiLearnMap() {
+	JsonTree json;
+	JsonTree mappings = ci::JsonTree::makeArray("mappings");
+	for (auto& kv : mMidiLearnMap) {
+		JsonTree entry = ci::JsonTree::makeObject();
+		entry.addChild(ci::JsonTree("cc", kv.first));
+		entry.addChild(ci::JsonTree("uniform", kv.second));
+		mappings.pushBack(entry);
+	}
+	json.addChild(mappings);
+	fs::path jsonFile = getAssetPath("") / "midilearn.json";
+	json.write(jsonFile);
+}
+void VDMidi::loadMidiLearnMapIfNeeded() {
+	if (mMidiLearnMapLoaded) return;
+	mMidiLearnMapLoaded = true;
+	fs::path jsonFile = getAssetPath("") / "midilearn.json";
+	if (!fs::exists(jsonFile)) return;
+	try {
+		JsonTree json(loadFile(jsonFile));
+		if (json.hasChild("mappings")) {
+			for (auto& entry : json.getChild("mappings").getChildren()) {
+				if (entry.hasChild("cc") && entry.hasChild("uniform")) {
+					mMidiLearnMap[entry.getValueForKey<int>("cc")] = entry.getValueForKey<int>("uniform");
+				}
+			}
+		}
+	}
+	catch (const std::exception& ex) {
+		CI_LOG_E("loadMidiLearnMapIfNeeded error: " << ex.what());
+	}
+}
+bool VDMidi::getMidiLearnMappingAt(int aIndex, int& aCc, int& aUniform) {
+	if (aIndex < 0 || (size_t)aIndex >= mMidiLearnMap.size()) return false;
+	int i = 0;
+	for (auto& kv : mMidiLearnMap) {
+		if (i == aIndex) {
+			aCc = kv.first;
+			aUniform = kv.second;
+			return true;
+		}
+		i++;
+	}
+	return false;
+}
+void VDMidi::removeMidiLearnMapping(int aCc) {
+	mMidiLearnMap.erase(aCc);
+	saveMidiLearnMap();
 }
 void VDMidi::midiSetup() {
 	std::stringstream ss;
@@ -74,8 +122,9 @@ void VDMidi::midiSetup() {
 				mMidiInputs.push_back(mIn);
 				std::size_t nameIndex = mMidiInputs[i].portName.find(mVDMediator->getPreferredMidiInputDevice());
 				if (nameIndex != std::string::npos) {
+					// openMidiInPort() already sets isConnected based on whether the open actually
+					// succeeded - don't stomp that with an unconditional true right after
 					openMidiInPort(i);
-					mMidiInputs[i].isConnected = true;
 					ss << "Opening MIDI in port " << i << " " << mMidiInputs[i].portName;
 				}
 				else {
@@ -125,22 +174,24 @@ void VDMidi::midiSetup() {
 void VDMidi::openMidiInPort(unsigned int i) {
 	CI_LOG_V("openMidiInPort: " + toString(i));
 	std::stringstream ss;
+	// most of RtMidi's own openPort()/midiInStart() failures (device already claimed by another
+	// application, a driver error) don't throw - see RtMidiErrorLogCallback - so hadOpenError()
+	// (set by that callback) is the only reliable way to know the open actually worked; this used
+	// to mark isConnected = true unconditionally, which claimed success even when the underlying
+	// Windows MM port never opened and would therefore never deliver a single MIDI message
+	bool opened = false;
 	if (i < mMidiIn0.getNumPorts()) {
-		if (i == 0) {
-			mMidiIn0.openPort(i);
-			mMidiIn0.midiSignal.connect(std::bind(&VDMidi::midiListener, this, std::placeholders::_1));
-		}
-		if (i == 1) {
-			mMidiIn1.openPort(i);
-			mMidiIn1.midiSignal.connect(std::bind(&VDMidi::midiListener, this, std::placeholders::_1));
-		}
-		if (i == 2) {
-			mMidiIn2.openPort(i);
-			mMidiIn2.midiSignal.connect(std::bind(&VDMidi::midiListener, this, std::placeholders::_1));
-		}
+		// a real Input, opened directly at index i, created the first time this specific port is
+		// connected - see mMidiInPorts' declaration for why this replaced 3 fixed named members
+		// (mMidiIn0..2, capped at 3 simultaneous ports and silently unable to open port 3+ at all)
+		if (mMidiInPorts.size() <= i) mMidiInPorts.resize(i + 1);
+		if (!mMidiInPorts[i]) mMidiInPorts[i] = std::make_unique<midi::Input>();
+		mMidiInPorts[i]->openPort(i);
+		opened = !mMidiInPorts[i]->hadOpenError();
+		if (opened) mMidiInPorts[i]->midiSignal.connect(std::bind(&VDMidi::midiListener, this, std::placeholders::_1));
 	}
-	mMidiInputs[i].isConnected = true;
-	ss << "Opening MIDI in port " << i << " " << mMidiInputs[i].portName << std::endl;
+	mMidiInputs[i].isConnected = opened;
+	ss << (opened ? "Opened" : "Failed to open") << " MIDI in port " << i << " " << mMidiInputs[i].portName << std::endl;
 
 	mMidiMsg = ss.str() + "\n";
 
@@ -148,34 +199,17 @@ void VDMidi::openMidiInPort(unsigned int i) {
 }
 void VDMidi::closeMidiInPort(int i) {
 
-	if (i == 0)
-	{
-		mMidiIn0.closePort();
+	if (i >= 0 && (size_t)i < mMidiInPorts.size() && mMidiInPorts[i]) {
+		mMidiInPorts[i]->closePort();
 	}
-	if (i == 1)
-	{
-		mMidiIn1.closePort();
-	}
-	if (i == 2)
-	{
-		mMidiIn2.closePort();
-	}
-	mMidiInputs[i].isConnected = false;
+	if (i >= 0 && (size_t)i < mMidiInputs.size()) mMidiInputs[i].isConnected = false;
 
 }
 void VDMidi::midiOutSendNoteOn(int i, int channel, int pitch, int velocity) {
 
-	if (i == 0)
-	{
-		if (mMidiOutputs[i].isConnected) mMidiOut0.sendNoteOn(channel, pitch, velocity);
-	}
-	if (i == 1)
-	{
-		if (mMidiOutputs[i].isConnected) mMidiOut1.sendNoteOn(channel, pitch, velocity);
-	}
-	if (i == 2)
-	{
-		if (mMidiOutputs[i].isConnected) mMidiOut2.sendNoteOn(channel, pitch, velocity);
+	if (i >= 0 && (size_t)i < mMidiOutputs.size() && mMidiOutputs[i].isConnected
+		&& (size_t)i < mMidiOutPorts.size() && mMidiOutPorts[i]) {
+		mMidiOutPorts[i]->sendNoteOn(channel, pitch, velocity);
 	}
 
 }
@@ -183,36 +217,19 @@ void VDMidi::openMidiOutPort(int i) {
 
 	std::stringstream ss;
 	ss << "Port " << i;
-	if (i < mMidiOutputs.size()) {
-		if (i == 0) {
-			if (mMidiOut0.openPort(i)) {
-				mMidiOutputs[i].isConnected = true;
-				ss << " Opened MIDI out port " << i << " " << mMidiOutputs[i].portName;
-				mMidiOut0.sendNoteOn(1, 40, 64);
-			}
-			else {
-				ss << " Can't open MIDI out port " << i << " " << mMidiOutputs[i].portName;
-			}
+	if (i >= 0 && (size_t)i < mMidiOutputs.size()) {
+		// same reasoning as openMidiInPort() above - a real MidiOut per index, created on demand,
+		// instead of 3 fixed named members that silently couldn't open port 3+ at all
+		if (mMidiOutPorts.size() <= (size_t)i) mMidiOutPorts.resize(i + 1);
+		if (!mMidiOutPorts[i]) mMidiOutPorts[i] = std::make_unique<midi::MidiOut>();
+		if (mMidiOutPorts[i]->openPort(i)) {
+			mMidiOutputs[i].isConnected = true;
+			ss << " Opened MIDI out port " << i << " " << mMidiOutputs[i].portName;
+			mMidiOutPorts[i]->sendNoteOn(1, 40, 64);
 		}
-		if (i == 1) {
-			if (mMidiOut1.openPort(i)) {
-				mMidiOutputs[i].isConnected = true;
-				ss << " Opened MIDI out port " << i << " " << mMidiOutputs[i].portName;
-				mMidiOut1.sendNoteOn(1, 40, 64);
-			}
-			else {
-				ss << " Can't open MIDI out port " << i << " " << mMidiOutputs[i].portName;
-			}
-		}
-		if (i == 2) {
-			if (mMidiOut2.openPort(i)) {
-				mMidiOutputs[i].isConnected = true;
-				ss << " Opened MIDI out port " << i << " " << mMidiOutputs[i].portName;
-				mMidiOut2.sendNoteOn(1, 40, 64);
-			}
-			else {
-				ss << " Can't open MIDI out port " << i << " " << mMidiOutputs[i].portName;
-			}
+		else {
+			mMidiOutputs[i].isConnected = false;
+			ss << " Can't open MIDI out port " << i << " " << mMidiOutputs[i].portName;
 		}
 	}
 	ss << std::endl;
@@ -221,23 +238,18 @@ void VDMidi::openMidiOutPort(int i) {
 }
 void VDMidi::closeMidiOutPort(int i) {
 
-	if (i == 0)
-	{
-		mMidiOut0.closePort();
+	if (i >= 0 && (size_t)i < mMidiOutPorts.size() && mMidiOutPorts[i]) {
+		mMidiOutPorts[i]->closePort();
 	}
-	if (i == 1)
-	{
-		mMidiOut1.closePort();
-	}
-	if (i == 2)
-	{
-		mMidiOut2.closePort();
-	}
-	mMidiOutputs[i].isConnected = false;
+	if (i >= 0 && (size_t)i < mMidiOutputs.size()) mMidiOutputs[i].isConnected = false;
 
 }
 
 void VDMidi::midiListener(midi::Message msg) {
+	// unconditional, not just the MIDI_CONTROL_CHANGE case below - previously a Note On/Off (or
+	// any other status) produced no log line at all, which could look identical to "no message
+	// is ever received" even when messages were arriving and being processed correctly
+	CI_LOG_V("midiListener: port=" << msg.port << " status=" << (int)msg.status << " channel=" << msg.channel);
 	std::stringstream ss;
 	ss << "MIDI port: " << mMidiIn0.getPortName(msg.port) << "\n";
 	midiChannel = msg.channel;
@@ -250,6 +262,26 @@ void VDMidi::midiListener(midi::Message msg) {
 		midiNormalizedValue = lmap<float>(midiValue, 0.0, 127.0, 0.0, 1.0);
 		ss << " U:" << mVDUniforms->getUniformName(midiControl) << " cc Chn:" << midiChannel << " CC:" << midiControl << " Val:" << midiValue << " NVal:" << midiNormalizedValue;
 		CI_LOG_V("Midi: " + ss.str());
+		if (mMidiLearnMode && mMidiLearnTargetUniform >= 0) {
+			// bind this CC to the armed uniform and stop - don't also apply it as a live value
+			// change on the same message, and don't fall through to the nanoKONTROL2-specific
+			// remap/blendmode hacks below, which only make sense for the implicit convention
+			mMidiLearnMap[midiControl] = mMidiLearnTargetUniform;
+			saveMidiLearnMap();
+			CI_LOG_I("Midi learn: bound CC " << midiControl << " to uniform " << mMidiLearnTargetUniform << " (" << mVDUniforms->getUniformName(mMidiLearnTargetUniform) << ")");
+			mMidiLearnTargetUniform = -1;
+			break;
+		}
+		{
+			// an explicitly learned mapping always wins and is applied directly, bypassing the
+			// nanoKONTROL2-specific remap/blendmode special-casing below (that only exists for
+			// the older, implicit "CC number == uniform index" convention)
+			auto learned = mMidiLearnMap.find(midiControl);
+			if (learned != mMidiLearnMap.end()) {
+				mVDMediator->setUniformValue(learned->second, midiNormalizedValue);
+				break;
+			}
+		}
 		if (midiWeights) {
 			if (midiControl > 0 && midiControl < 9) {
 				midiControl += 30;

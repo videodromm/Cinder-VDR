@@ -50,6 +50,14 @@ string VDMediatorObservable::getMidiOutPortName(int i) { return mVDMidi->getMidi
 bool VDMediatorObservable::isMidiOutConnected(int i) { return mVDMidi->isMidiOutConnected(i); };
 void VDMediatorObservable::openMidiOutPort(int i) { mVDMidi->openMidiOutPort(i); };
 void VDMediatorObservable::closeMidiOutPort(int i) { mVDMidi->closeMidiOutPort(i); };
+void VDMediatorObservable::setMidiLearnMode(bool aEnabled) { mVDMidi->setMidiLearnMode(aEnabled); };
+bool VDMediatorObservable::isMidiLearnMode() { return mVDMidi->isMidiLearnMode(); };
+void VDMediatorObservable::armMidiLearn(int aUniformIndex) { mVDMidi->armMidiLearn(aUniformIndex); };
+int VDMediatorObservable::getMidiLearnTarget() { return mVDMidi->getMidiLearnTarget(); };
+int VDMediatorObservable::getMidiLearnMappingsCount() { return mVDMidi->getMidiLearnMappingsCount(); };
+bool VDMediatorObservable::getMidiLearnMappingAt(int aIndex, int& aCc, int& aUniform) { return mVDMidi->getMidiLearnMappingAt(aIndex, aCc, aUniform); };
+void VDMediatorObservable::removeMidiLearnMapping(int aCc) { mVDMidi->removeMidiLearnMapping(aCc); };
+void VDMediatorObservable::clearMidiLearnMap() { mVDMidi->clearMidiLearnMap(); };
 
 std::string VDMediatorObservable::getMidiMsg() {
 	return mVDMidi ? mVDMidi->getMidiMsg() : "Disabled";

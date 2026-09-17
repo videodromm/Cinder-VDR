@@ -90,6 +90,15 @@ namespace videodromm
 		void					closeMidiOutPort(int i) { mVDMediator->closeMidiOutPort(i); };
 		std::string				getMidiMsg() { return mVDMediator->getMidiMsg(); }
 		bool					isMidiSetup();
+		// midi learn
+		void					setMidiLearnMode(bool aEnabled) { mVDMediator->setMidiLearnMode(aEnabled); }
+		bool					isMidiLearnMode() { return mVDMediator->isMidiLearnMode(); }
+		void					armMidiLearn(int aUniformIndex) { mVDMediator->armMidiLearn(aUniformIndex); }
+		int						getMidiLearnTarget() { return mVDMediator->getMidiLearnTarget(); }
+		int						getMidiLearnMappingsCount() { return mVDMediator->getMidiLearnMappingsCount(); }
+		bool					getMidiLearnMappingAt(int aIndex, int& aCc, int& aUniform) { return mVDMediator->getMidiLearnMappingAt(aIndex, aCc, aUniform); }
+		void					removeMidiLearnMapping(int aCc) { mVDMediator->removeMidiLearnMapping(aCc); }
+		void					clearMidiLearnMap() { mVDMediator->clearMidiLearnMap(); }
 		// websockets
 		bool					isWSClientConnected();
 		int						getWSClientPort();

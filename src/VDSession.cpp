@@ -34,7 +34,7 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 		GLint maxTexUnits = 0, maxCombined = 0;
 		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTexUnits);
 		glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxCombined);
-		CI_LOG_V("GL_MAX_TEXTURE_IMAGE_UNITS=" << maxTexUnits << " GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS=" << maxCombined);
+		CI_LOG_V( "GL_MAX_TEXTURE_IMAGE_UNITS=" << maxTexUnits << " GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS=" << maxCombined ); // 32 on my machine, 16 on Mac
 	}
 	mVDSettings = aVDSettings;
 	mVDAnimation = aVDAnimation;

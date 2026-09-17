@@ -60,6 +60,21 @@ namespace videodromm
 		void						closeMidiInPort(int i);
 		void						openMidiOutPort(int i);
 		void						closeMidiOutPort(int i);
+		// midi learn: bind an arbitrary MIDI CC to any uniform index, instead of relying on the
+		// fixed "CC number == uniform index" convention midiListener()'s fallback path already
+		// uses. While learn mode is on and a target uniform is armed, the next incoming CC binds
+		// to it (persisted to midilearn.json so mappings survive a restart); learn mode itself
+		// stays on afterward so several controls can be learned one after another.
+		void						setMidiLearnMode(bool aEnabled) { mMidiLearnMode = aEnabled; }
+		bool						isMidiLearnMode() { return mMidiLearnMode; }
+		void						armMidiLearn(int aUniformIndex) { mMidiLearnTargetUniform = aUniformIndex; }
+		int							getMidiLearnTarget() { return mMidiLearnTargetUniform; }
+		int							getMidiLearnMappingsCount() { return (int)mMidiLearnMap.size(); }
+		// aIndex-th learned mapping, ordered by CC number (std::map<int,int> is already sorted by
+		// key) - lets the UI list what's bound without exposing the map type itself
+		bool						getMidiLearnMappingAt(int aIndex, int& aCc, int& aUniform);
+		void						removeMidiLearnMapping(int aCc);
+		void						clearMidiLearnMap() { mMidiLearnMap.clear(); saveMidiLearnMap(); }
 		~VDMidi(void);
 	private:
 		// Uniforms
@@ -69,19 +84,25 @@ namespace videodromm
 
 		// MIDI
 		std::vector<midiInput>		mMidiInputs;
-		// midi inputs: couldn't make a vector
+		// mMidiIn0 is used only for enumeration (midiSetup()'s listPorts()/getPortName() calls) -
+		// actually opening a port for real (any index, including 0) goes through mMidiInPorts
+		// below instead. This used to be 4 fixed named members (mMidiIn0..mMidiIn3, "couldn't make
+		// a vector" per the comment that was here) capping simultaneous connections at 4 - worse,
+		// openMidiInPort()/closeMidiInPort() only ever handled indices 0-2, so port 3 (the fourth
+		// declared-but-dead member) and anything beyond it (a 5-6 port audio interface/controller
+		// setup is common) silently could never be opened at all. midi::Input isn't safely
+		// copyable (a raw, non-refcounted RtMidiIn* member) so a plain vector<Input> can't be
+		// resized directly - vector<unique_ptr<Input>> sidesteps that (move-only, no copies) and
+		// scales to however many ports actually exist, one real Input created lazily per port
+		// index the first time it's opened.
 		midi::Input					mMidiIn0;
-		midi::Input					mMidiIn1;
-		midi::Input					mMidiIn2;
-		midi::Input					mMidiIn3;
+		std::vector<std::unique_ptr<midi::Input>>	mMidiInPorts;
 		void						midiSetup();
 		void						midiListener(midi::Message msg);
 		std::string					mMidiMsg;
-		// midi output
+		// midi output - same reasoning as mMidiInPorts above, same previous 3-index limitation
 		midi::MidiOut				mMidiOut0;
-		midi::MidiOut				mMidiOut1;
-		midi::MidiOut				mMidiOut2;
-		midi::MidiOut				mMidiOut3;
+		std::vector<std::unique_ptr<midi::MidiOut>>	mMidiOutPorts;
 		std::vector<midiOutput>		mMidiOutputs;
 		std::string					midiControlType;
 		int							midiControl;
@@ -94,9 +115,17 @@ namespace videodromm
 		bool						midiSticky;
 		bool						midiStickyPrevValue;
 		int							midiStickyPrevIndex;
-		// toggles 
+		// toggles
 		bool						midiWeights = true; // nano mix weights
-		
+
+		// midi learn - see the public methods above
+		bool						mMidiLearnMode = false;
+		int							mMidiLearnTargetUniform = -1;
+		bool						mMidiLearnMapLoaded = false;
+		std::map<int, int>			mMidiLearnMap; // MIDI CC number -> uniform index
+		void						saveMidiLearnMap();
+		void						loadMidiLearnMapIfNeeded();
+
 	};
 }
 
