@@ -402,7 +402,12 @@ bool VDFboShader::loadVideoFile(const std::string& aFile) {
 	mIsVideoLoaded = false;
 	mFboError = "movie playback not available on this platform: " + aFile;
 #endif
-	mCurrentFilename = mTextureName = aFile;
+	// basename only, matching loadImageFile()'s convention - also what registerFboActiveTextureInGlobalPool()
+	// reads via getTextureName(0), so the shared pool/Textures-panel title reflects the video, not
+	// whatever this slot's name was left at before (e.g. a previous image on the same fbo)
+	int slashIndex = aFile.find_last_of("\\");
+	mCurrentFilename = mTextureName = (slashIndex != std::string::npos) ? aFile.substr(slashIndex + 1) : aFile;
+	mInputTextureList[0].name = mCurrentFilename;
 	mTextureMode = VDTextureMode::MOVIE;
 	return mIsVideoLoaded;
 }
@@ -581,7 +586,13 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 					gl::ScopedGlslProg blitShader(mGlslVideoTexture);
 					mGlslVideoTexture->uniform("uSampler", 0);
 					mGlslVideoTexture->uniform("uVideoSize", vec2((float)rectTex->getWidth(), (float)rectTex->getHeight()));
-					gl::drawSolidRect(Rectf(0, 0, (float)mVideoBlitFbo->getWidth(), (float)mVideoBlitFbo->getHeight()));
+					// destination rect drawn with its Y span swapped (height->0 instead of 0->height):
+					// the decoded video frame comes out top-down (ciWMFVideoPlayer sets loadTopDown(true)
+					// on mTex), the opposite of Syphon's own input to this same shader/blit-FBO pattern -
+					// this is the one difference between the two call sites, and correcting it here
+					// (not in the shared video_texture.fs.glsl, which Syphon also uses and is already
+					// correct) keeps Syphon/images/post/fx.glsl untouched while fixing video specifically
+					gl::drawSolidRect(Rectf(0, (float)mVideoBlitFbo->getHeight(), (float)mVideoBlitFbo->getWidth(), 0));
 					rectTex->unbind(0);
 					mVideo.unlockSharedTexture();
 					mInputTextureList[0].texture = mVideoBlitFbo->getColorTexture();
