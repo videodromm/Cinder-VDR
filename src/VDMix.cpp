@@ -152,12 +152,41 @@ namespace videodromm {
 		// setup the viewport to match the dimensions of the FBO
 		gl::ScopedViewport scpVp(ivec2(0), mMixetteFbo->getSize());
 
+		// VDFboShader::getTexture() doesn't just return a cached texture ref - it actively
+		// re-renders that fbo's own shader every time it's called (calls getFboTexture()
+		// unconditionally), and that render binds *this fbo's own input texture* to GL texture
+		// unit 0 internally, as part of its normal single-input-texture draw. Interleaving that
+		// with binding each fbo's *output* to its mixette channel (as this loop used to do,
+		// getTexture() immediately followed by ->bind(i)) meant every fbo rendered *after* fbo 0
+		// stomped fbo 0's unit-0 binding via its own internal render, before the mixette shader
+		// ever ran - so channel 0 ended up sampling whatever the *last* fbo to render had bound
+		// for its own purposes, not fbo 0's output. Confirmed via the throttled diagnostic below:
+		// fbo 0 was always isValid()=1, weight=1 (correct), so the bug was never the C++ state
+		// here - it was this ordering. Fixed by rendering every fbo first (collecting the
+		// resulting texture refs) and only binding them to their mixette channel afterward, once
+		// no further fbo render can still clobber unit 0.
+		std::vector<ci::gl::Texture2dRef> renderedTextures(mFboShaderList.size());
 		int i = 0;
 		for (auto &fbo : mFboShaderList) {
-			if (fbo->isValid()) {
-				if (mVDUniforms->getUniformValue(mVDUniforms->IWEIGHT0 + i) > 0.01f) mFboShaderList[i]->getTexture()->bind(i);
+			if (fbo->isValid() && mVDUniforms->getUniformValue(mVDUniforms->IWEIGHT0 + i) > 0.01f) {
+				renderedTextures[i] = fbo->getTexture();
 			}
 			i++;
+		}
+		i = 0;
+		for (auto &tex : renderedTextures) {
+			if (tex) tex->bind(i);
+			i++;
+		}
+		// throttled diagnostic that helped pin down the above - kept in case a similar report
+		// ("fbo N only renders if others are X") ever recurs for a different reason
+		static int sMixetteLogThrottle = 0;
+		if ((sMixetteLogThrottle++ % 120) == 0) {
+			std::stringstream ss;
+			for (unsigned int j = 0; j < mFboShaderList.size(); j++) {
+				ss << " [" << j << " valid=" << mFboShaderList[j]->isValid() << " w=" << mVDUniforms->getUniformValue(mVDUniforms->IWEIGHT0 + j) << "]";
+			}
+			CI_LOG_V("getMixetteTexture fbo states:" << ss.str());
 		}
 		gl::ScopedGlslProg prog(mGlslMixette);
 		mGlslMixette->uniform("iResolution", vec3(mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY), 1.0));

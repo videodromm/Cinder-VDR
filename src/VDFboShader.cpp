@@ -483,6 +483,13 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 						loadNextTexture((mCurrentImageSequenceIndex - 1 + mTextureCount) % mTextureCount);
 					}
 				}
+				// manual control never runs the mPreloadTextures progress-tracking branch below
+				// (that one only updates mFboStatus while !mSequenceManualControl) - without this,
+				// mFboStatus stays frozen forever at whatever preload progress string it last had
+				// before manual control was engaged (e.g. play/pause/speed/scrub touched), even
+				// though the sequence keeps advancing correctly - "always shows 0/522 ... although
+				// images are loaded" was this: the images were fine, only the status text was stale
+				mFboStatus = toString(mCurrentImageSequenceIndex) + "/" + toString(mTextureCount);
 			}
 			else {
 				// image at IBARBEAT must be loaded before bind()
