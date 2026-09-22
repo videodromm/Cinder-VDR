@@ -168,6 +168,8 @@ namespace videodromm
 		void					saveThumbnail(unsigned int aFboIndex = 0);
 		void					setSelectedFbo(unsigned int aFboIndex = 0);
 		unsigned int			getSelectedFbo();
+		void					setWebAppUrl(const std::string& aUrl);
+		std::string				getWebAppUrl();
 		//unsigned int			getFboInputTextureIndex(unsigned int aFboIndex = 0);
 
 		std::string				getFboName(unsigned int aFboIndex);

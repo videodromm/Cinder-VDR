@@ -271,9 +271,15 @@ void VDSessionFacade::saveThumbnail(unsigned int aFboIndex) {
 void VDSessionFacade::setSelectedFbo(unsigned int aFboIndex) {
 	mVDSession->setSelectedFbo(aFboIndex);
 }
-unsigned int VDSessionFacade::getSelectedFbo() { 
+unsigned int VDSessionFacade::getSelectedFbo() {
 	return mVDSession->getSelectedFbo();
 };
+void VDSessionFacade::setWebAppUrl(const std::string& aUrl) {
+	mVDSession->setWebAppUrl(aUrl);
+}
+std::string VDSessionFacade::getWebAppUrl() {
+	return mVDSession->getWebAppUrl();
+}
 /*unsigned int VDSessionFacade::getFboInputTextureIndex(unsigned int aFboIndex) {
 	return mVDSession->getFboInputTextureIndex(aFboIndex);
 }*/
@@ -409,6 +415,7 @@ void VDSessionFacade::save()
 	JsonTree doc;
 	JsonTree settings = JsonTree::makeObject("settings");
 	settings.addChild(ci::JsonTree("apiUrl", mVDSession->getApiUrl()));
+	settings.addChild(ci::JsonTree("webAppUrl", mVDSession->getWebAppUrl()));
 	settings.addChild(ci::JsonTree("preferredAudioInput", mVDSession->getPreferredAudioInputDevice()));
 	settings.addChild(ci::JsonTree("preferredAudioOutput", mVDSession->getPreferredAudioOutputDevice()));
 	settings.addChild(ci::JsonTree("preferredMidiInput", mVDMediator->getPreferredMidiInputDevice()));
@@ -439,6 +446,7 @@ void VDSessionFacade::restore()
 		if (doc.hasChild("settings")) {
 			JsonTree settings(doc.getChild("settings"));
 			if (settings.hasChild("apiUrl")) mVDSession->setApiUrl(settings.getValueForKey<std::string>("apiUrl"));
+			if (settings.hasChild("webAppUrl")) mVDSession->setWebAppUrl(settings.getValueForKey<std::string>("webAppUrl"));
 			if (settings.hasChild("preferredAudioInput")) mVDSession->setPreferredAudioInputDevice(settings.getValueForKey<string>("preferredAudioInput"));
 			if (settings.hasChild("preferredAudioOutput")) mVDSession->setPreferredAudioOutputDevice(settings.getValueForKey<string>("preferredAudioOutput"));
 			if (settings.hasChild("preferredMidiInput")) mVDMediator->setPreferredMidiInputDevice(settings.getValueForKey<string>("preferredMidiInput"));

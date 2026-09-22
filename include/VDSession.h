@@ -261,6 +261,10 @@ namespace videodromm {
 			mApiurl = apiUrl;
 		};
 		std::string								getApiUrl() { return mApiurl; };
+		void									setWebAppUrl(const std::string& webAppUrl) {
+			mWebAppUrl = webAppUrl;
+		};
+		std::string								getWebAppUrl() { return mWebAppUrl; };
 		void									setPreferredAudioInputDevice(const std::string& aDevice) {
 			mVDAnimation->setPreferredAudioInputDevice(aDevice);
 		}
@@ -409,6 +413,8 @@ namespace videodromm {
 		VDMixRef						mVDMix;
 		// apiurl
 		std::string						mApiurl = "http://localhost:40088/";
+		// url of the Videodromm WebApp (Vite dev server), docked in VDUIHtmlPage via WebView2
+		std::string						mWebAppUrl = "http://localhost:5173/";
 		// drag-and-drop: a .jpg/.png/.mp4 drop waiting for VDUIFbos.cpp to hit-test against each
 		// fbo's actual current window rect - see consumePendingTextureDropIfInRect()/flushPendingTextureDrop()
 		struct PendingTextureDrop {
