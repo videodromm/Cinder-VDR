@@ -191,6 +191,12 @@ void					VDSessionFacade::setWSMsg(const std::string& aMsg) {
 std::string VDSessionFacade::getWSMsg() {
 	return (mVDMediator->isWSConnected()) ? mVDMediator->getWSMsg() : "";
 };
+VDCodeViewRef VDSessionFacade::getCodeView() {
+	return mVDMediator->getCodeView();
+}
+ci::gl::Texture2dRef VDSessionFacade::buildCodeViewTexture(const ci::ivec2& aSize) {
+	return mVDMediator->getCodeView()->render(aSize);
+}
 // Websockets end
 
 ci::gl::TextureRef VDSessionFacade::buildFboTexture(unsigned int aIndex) {

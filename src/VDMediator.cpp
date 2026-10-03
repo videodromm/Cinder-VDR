@@ -13,6 +13,7 @@ VDMediatorObservable::VDMediatorObservable(VDSettingsRef aVDSettings, VDAnimatio
 	mVDAnimation = aVDAnimation;
 	mVDUniforms = aVDUniforms;
 	mVDMix = aVDMix;
+	mVDCodeView = VDCodeView::create();
 	mOSCReceiverPort = OSC_DEFAULT_PORT;
 	mWSHost = WS_DEFAULT_HOST;
 	mWSPort = WS_DEFAULT_PORT;
@@ -197,6 +198,9 @@ void VDMediatorObservable::setWSMsg(const std::string& aMsg) {
 };
 std::string VDMediatorObservable::getWSMsg() {
 	return mVDWebsocket->getWSMsg();
+}
+void VDMediatorObservable::setCodeViewState(const std::string& aText, int aLine, int aCol, const std::vector<int>& aErrorLines, bool aActive) {
+	mVDCodeView->setState(aText, aLine, aCol, aErrorLines, aActive);
 }
 void VDMediatorObservable::wsPing() {
 	mVDWebsocket->wsPing();

@@ -107,6 +107,9 @@ namespace videodromm
 		void					setWSClientPort(int aPort);
 		void					setWSMsg(const std::string& aMsg);
 		std::string				getWSMsg();
+		// live code view: the WebApp editor's text rendered into a transparent texture (for Spout)
+		VDCodeViewRef			getCodeView();
+		ci::gl::Texture2dRef	buildCodeViewTexture(const ci::ivec2& aSize);
 
 		ci::gl::TextureRef		buildFboTexture(unsigned int aIndex);
 		ci::gl::TextureRef		buildFboRenderedTexture(unsigned int aFboIndex);

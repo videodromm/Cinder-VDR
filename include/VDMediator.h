@@ -27,6 +27,8 @@
 #include "VDMix.h"
 // Websocket client
 #include "VDWebsocket.h"
+// live code view (Spout overlay of the WebApp editor)
+#include "VDCodeView.h"
 #include <memory>
 #include <vector>
 
@@ -108,6 +110,9 @@ namespace videodromm {
 		void								wsPing();
 		void								update();
 		bool								isWSConnected();
+		// live code view, fed by the websocket "codeview" event
+		void								setCodeViewState(const std::string& aText, int aLine, int aCol, const std::vector<int>& aErrorLines, bool aActive);
+		VDCodeViewRef						getCodeView() { return mVDCodeView; }
 
 		VDMediatorObservableRef				setupKeyboard();
 		float								getUniformValue(unsigned int aIndex);
@@ -136,6 +141,7 @@ namespace videodromm {
 		std::string							mPreferredMidiInputDevice = "none";
 		// Websockets
 		VDWebsocketRef						mVDWebsocket;
+		VDCodeViewRef						mVDCodeView;
 		// Mix
 		VDMixRef							mVDMix;
 		//! OSC

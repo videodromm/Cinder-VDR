@@ -67,7 +67,8 @@ std::string * VDWebsocket::getBase64Image() {
 void VDWebsocket::parseMessage(std::string msg) {
 
 	if (!msg.empty()) {
-		mWebSocketsMsg = msg;
+		// the live code view streams the whole editor text while typing: keep it out of the status line
+		if (msg.compare(0, 19, "{\"event\":\"codeview\"") != 0) mWebSocketsMsg = msg;
 		std::string first = msg.substr(0, 1);
 		if (first == "{") {
 			// json
@@ -157,6 +158,17 @@ void VDWebsocket::parseMessage(std::string msg) {
 							// force to display
 							//mVDAnimation->setIntUniformValueByIndex(mVDUniforms->IFBOA, 0);
 							//mVDAnimation->setIntUniformValueByIndex(mVDUniforms->IFBOB, 1);
+						}
+						else if (val == "codeview") {
+							// live code view: {"event":"codeview","message":<editor text>,"line":1,"col":0,"errors":[3],"active":true}
+							int line = json.hasChild("line") ? json.getChild("line").getValue<int>() : 1;
+							int col = json.hasChild("col") ? json.getChild("col").getValue<int>() : 0;
+							bool active = json.hasChild("active") ? json.getChild("active").getValue<bool>() : true;
+							std::vector<int> errorLines;
+							if (json.hasChild("errors")) {
+								for (const JsonTree& e : json.getChild("errors")) errorLines.push_back(e.getValue<int>());
+							}
+							mVDMediator->setCodeViewState(json.getChild("message").getValue<std::string>(), line, col, errorLines, active);
 						}
 						else {
 							// unknown event
