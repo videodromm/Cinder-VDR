@@ -593,6 +593,20 @@ ci::gl::TextureRef VDSession::getWarpPreviewTexture(unsigned int aWarpIndex) {
 	return mWarpPreviewFbos[aWarpIndex]->getColorTexture();
 }
 
+void VDSession::drawWarpsToCurrentTarget(const ci::gl::TextureRef& aComposite) {
+	// fbo-sized logical extent over whatever viewport is bound: same scaling trick as
+	// getWarpPreviewTexture(), here scaling up to the projector(s) resolution
+	gl::ScopedMatrices scpMtx;
+	gl::setMatricesWindow(mVDParams->getFboWidth(), mVDParams->getFboHeight());
+	for (auto& warp : mWarpList) {
+		unsigned int fboIndex = warp->getAFboIndex();
+		bool composite = (fboIndex == Warp::NO_FBO_INDEX || fboIndex >= getFboShaderListSize());
+		// Post/Fx sample the mixette directly now (not mWarpTexture), so feeding them back into
+		// a warp is no longer circular - the caveat in resolveWarpInputTexture() predates that
+		drawWarpWithInput(warp, (composite && aComposite) ? aComposite : resolveWarpInputTexture(warp));
+	}
+}
+
 void VDSession::removeWarp(unsigned int aWarpIndex) {
 	if (aWarpIndex < mWarpList.size()) {
 		mWarpList.erase(mWarpList.begin() + aWarpIndex);

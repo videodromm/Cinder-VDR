@@ -99,6 +99,12 @@ namespace videodromm {
 		// one warp's own small rendered preview (after warping, not the raw fbo) - see
 		// VDUIWarps.cpp
 		ci::gl::TextureRef				getWarpPreviewTexture(unsigned int aWarpIndex);
+		// draws every warp into the currently bound framebuffer/viewport (any pixel size), in the
+		// same fbo-sized logical coordinates renderWarpsToFbo() uses - VDOutputWindow renders the
+		// projector output at its own resolution this way. Warps with no specific fbo show
+		// aComposite when given (Post/Fx), the mixette otherwise. Main-window GL context only:
+		// the warps' Batch VAOs belong to it.
+		void							drawWarpsToCurrentTarget(const ci::gl::TextureRef& aComposite);
 		std::string						getFboShaderName(unsigned int aFboIndex);
 		//std::string							getFboShaderName(unsigned int aFboShaderIndex);
 		std::string						getFboTextureName(unsigned int aFboIndex);

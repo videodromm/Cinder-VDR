@@ -159,6 +159,7 @@ namespace videodromm
 		void					createWarp();
 		void					removeWarp(unsigned int aWarpIndex) { mVDSession->removeWarp(aWarpIndex); }
 		ci::gl::TextureRef		getWarpPreviewTexture(unsigned int aWarpIndex) { return mVDSession->getWarpPreviewTexture(aWarpIndex); }
+		void					drawWarpsToCurrentTarget(const ci::gl::TextureRef& aComposite) { mVDSession->drawWarpsToCurrentTarget(aComposite); }
 		void					saveWarps() {
 			mVDSession->saveWarps();
 		};
