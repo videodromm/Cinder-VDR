@@ -425,9 +425,10 @@ void VDSession::update() {
 
 	mVDMix->getMixetteTexture(0);
 
-	renderWarpsToFbo();
+	// Post/Fx sample the mixette (not the warps), and warps can show Post or Fx: those first
 	renderPostToFbo();
-	if (mVDUniforms->getUniformValue(mVDUniforms->IDISPLAYMODE) == VDDisplayMode::FX || getElapsedFrames() % 100 == 0) renderFxToFbo();
+	if (mVDUniforms->getUniformValue(mVDUniforms->IDISPLAYMODE) == VDDisplayMode::FX || isWarpUsingFx() || getElapsedFrames() % 100 == 0) renderFxToFbo();
+	renderWarpsToFbo();
 }
 void VDSession::renderPostToFbo()
 {
@@ -542,25 +543,20 @@ void VDSession::renderFxToFbo()
 // shared by renderWarpsToFbo() (the real, composited output) and getWarpPreviewTexture() (one
 // warp's own small preview in VDUIWarps.cpp) so both resolve "what should this warp show" the
 // same way
+bool VDSession::isWarpUsingFx() {
+	for (auto& warp : mWarpList) if (warp->getAFboIndex() == WARP_INPUT_FX) return true;
+	return false;
+}
+
 ci::gl::TextureRef VDSession::resolveWarpInputTexture(const WarpRef& aWarp) {
 	unsigned int fboIndex = aWarp->getAFboIndex();
-	if (fboIndex == Warp::NO_FBO_INDEX || fboIndex >= getFboShaderListSize()) {
-		// no specific fbo chosen for this warp (the sentinel value set by VDUIWarps.cpp's
-		// "Post/Fx" button, the new default for a fresh/legacy-missing-data warp - see
-		// Warp.h/.cpp - or simply an out-of-range index) - show the full weighted blend
-		// of every active fboshader (the mixette, already computed above by
-		// VDMix::getMixetteTexture()) instead of one single fbo's raw output.
-		//
-		// deliberately NOT VDSession::getPostFboTexture()/getFxFboTexture() here, even
-		// though that's closer to the reporter's own words ("post/fx rendered image"):
-		// renderPostToFbo()/renderFxToFbo() run *after* renderWarpsToFbo() each frame and
-		// sample its output (mWarpTexture) as their input - feeding a warp from post/fx would
-		// be a circular, one-frame-stale dependency. The mixette has no such issue and *is*
-		// "the weighted mix of fboshaders" the reporter meant.
-		return mVDMix->getRenderedMixetteTexture(0);
-	}
-	// a specific fbo was explicitly chosen (VDUIWarps.cpp's per-fbo buttons) - show just that
-	// fbo's own output, bypassing the mix entirely, as intended
+	// Post/Fx sample the mixette directly (not mWarpTexture), so a warp showing them isn't circular
+	if (fboIndex == WARP_INPUT_POST) return getPostFboTexture();
+	if (fboIndex == WARP_INPUT_FX) return getFxFboTexture();
+	// WARP_INPUT_MIX (Warp::NO_FBO_INDEX, the default) or an fbo that no longer exists: the
+	// weighted mix of every active fboshader
+	if (fboIndex >= getFboShaderListSize()) return mVDMix->getRenderedMixetteTexture(0);
+	// a specific fbo (VDUIWarps.cpp's per-fbo buttons): just that fbo's own output
 	return mVDMix->getFboRenderedTexture(fboIndex);
 }
 
@@ -627,12 +623,9 @@ void VDSession::drawWarpsToCurrentTarget(const ci::gl::TextureRef& aComposite) {
 	// getWarpPreviewTexture(), here scaling up to the projector(s) resolution
 	gl::ScopedMatrices scpMtx;
 	gl::setMatricesWindow(mVDParams->getFboWidth(), mVDParams->getFboHeight());
+	// each warp shows its own input (Mix / Post / Fx / an fbo); aComposite is no longer used
 	for (auto& warp : mWarpList) {
-		unsigned int fboIndex = warp->getAFboIndex();
-		bool composite = (fboIndex == Warp::NO_FBO_INDEX || fboIndex >= getFboShaderListSize());
-		// Post/Fx sample the mixette directly now (not mWarpTexture), so feeding them back into
-		// a warp is no longer circular - the caveat in resolveWarpInputTexture() predates that
-		drawWarpWithInput(warp, (composite && aComposite) ? aComposite : resolveWarpInputTexture(warp));
+		drawWarpWithInput(warp, resolveWarpInputTexture(warp));
 	}
 }
 

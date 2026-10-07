@@ -73,6 +73,12 @@ namespace videodromm {
 		//! Mix
 		ci::gl::TextureRef				getFboRenderedTexture(unsigned int aFboIndex);
 		ci::gl::TextureRef				getFboTexture(unsigned int aFboIndex);
+		// a warp's input when it isn't a specific fbo (Warp::getAFboIndex() sentinels, saved with the
+		// warp): the mix of the fbos (also the default), Post, or Fx
+		static const unsigned int		WARP_INPUT_MIX = 0xFFFFFFFFu;	// Warp::NO_FBO_INDEX
+		static const unsigned int		WARP_INPUT_POST = 0xFFFFFFFEu;
+		static const unsigned int		WARP_INPUT_FX = 0xFFFFFFFDu;
+		bool							isWarpUsingFx();
 		ci::gl::TextureRef				getPostFboTexture();
 		ci::gl::TextureRef				getFxFboTexture();
 		ci::gl::TextureRef				getWarpFboTexture();

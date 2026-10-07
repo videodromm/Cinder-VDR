@@ -45,6 +45,18 @@ namespace videodromm
 		void update() {
 #if defined( CINDER_MSW )
 			mVideo.update();
+			// not autoplaying: once the video is open (a folder load opens it asynchronously, and a
+			// play()/pause() issued before that is turned into a delayed play by the player), play
+			// it muted until its first frame is decoded, then pause
+			if (mCue == CUE_WAIT && mVideo.isStopped()) {
+				mVideo.setVolume(0.0f);
+				mVideo.play();
+				mCue = CUE_PLAYING;
+			}
+			else if (mCue == CUE_PLAYING && mVideo.isPlaying() && mVideo.hasTexture()) {
+				mVideo.pause();
+				endCue();
+			}
 			if (mReversed && mVideo.isPlaying()) {
 				// native negative-rate playback isn't reliable on this backend: step backward by hand
 				float fps = mVideo.getFrameRate();
@@ -59,7 +71,8 @@ namespace videodromm
 			// every shader (sampler2D, normalized UVs). The DX/GL interop object must be locked
 			// around any GL access, or the GL side never sees the decoded frames (black texture)
 			ci::gl::TextureRef rectTex = mVideo.getTexture();
-			mVideo.lockSharedTexture();
+			// fails once the player is closed (app quit: the window's close signal shuts it down)
+			if (!mVideo.lockSharedTexture()) return;
 			{
 				ci::gl::ScopedFramebuffer scopedFbo(mBlitFbo);
 				ci::gl::ScopedViewport scopedViewport(ci::ivec2(0), mBlitFbo->getSize());
@@ -85,6 +98,7 @@ namespace videodromm
 #endif
 		}
 		void play() {
+			endCue();
 #if defined( CINDER_MSW )
 			// a non-looping video pauses on its last frame: play it again from the start
 			if (mVideo.getDuration() > 0.0f && mVideo.getPosition() >= mVideo.getDuration() - 0.05f) mVideo.setPosition(0.0f);
@@ -92,6 +106,7 @@ namespace videodromm
 #endif
 		}
 		void pause() {
+			endCue();
 #if defined( CINDER_MSW )
 			if (mVideo.isPlaying()) mVideo.pause();
 #endif
@@ -126,10 +141,25 @@ namespace videodromm
 		// fbos showing it, 0 while scrubbing
 		float getVolumeLevel() const { return mVolumeLevel; }
 		void setVolumeLevel(float aLevel) { mVolumeLevel = ci::math<float>::clamp(aLevel, 0.0f, 1.0f); }
-		void setScrubbing(bool aScrubbing) { mScrubbing = aScrubbing; }
+		// pauses while the scrub slider is held (a seek restarts the session, so muting alone still
+		// let sound through), resumes on release if it was playing
+		void setScrubbing(bool aScrubbing) {
+			if (aScrubbing == mScrubbing) return;
+			mScrubbing = aScrubbing;
+			if (aScrubbing) {
+				mResumeAfterScrub = isPlaying();
+				if (mResumeAfterScrub) pause();
+			}
+			else if (mResumeAfterScrub) {
+				mResumeAfterScrub = false;
+				play();
+			}
+		}
 		bool isScrubbing() const { return mScrubbing; }
 		void setOutputVolume(float aVolume) {
 #if defined( CINDER_MSW )
+			// silent while cueing the first frame
+			if (mCue != CUE_DONE) return;
 			// only on change: every frame otherwise
 			if (aVolume != mOutputVolume) {
 				mOutputVolume = aVolume;
@@ -171,10 +201,10 @@ namespace videodromm
 				return false;
 			}
 			mVideo.setLoop(mLoop);
-			// WMF only presents a frame once the session has started: start, then pause right
-			// away when not autoplaying, so the texture shows the first frame instead of black
-			mVideo.play();
-			if (!aAutoPlay) mVideo.pause();
+			// WMF only presents a frame once the session has started: when not autoplaying, update()
+			// cues the first frame (muted play, pause on the first decoded frame)
+			if (aAutoPlay) mVideo.play();
+			else mCue = CUE_WAIT;
 			try {
 				mBlitShader = ci::gl::GlslProg::create(ci::gl::GlslProg::Format()
 					.vertex(ci::app::loadAsset("video_texture.vs.glsl"))
@@ -195,8 +225,16 @@ namespace videodromm
 		bool					mLoop = false;
 		bool					mReversed = false;
 		bool					mScrubbing = false;
+		bool					mResumeAfterScrub = false;
 		float					mVolumeLevel = 1.0f;
 		float					mOutputVolume = -1.0f;
 		bool					mSpeedWarningLogged = false;
+		enum Cue { CUE_DONE, CUE_WAIT, CUE_PLAYING };
+		Cue						mCue = CUE_DONE;
+		// back to normal volume handling (setOutputVolume re-applies the level on its next call)
+		void endCue() {
+			mCue = CUE_DONE;
+			mOutputVolume = -1.0f;
+		}
 	};
 }
