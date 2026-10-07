@@ -74,6 +74,8 @@ namespace videodromm
 		audio::InputDeviceNodeRef		mLineIn;
 		audio::MonitorSpectralNodeRef	mMonitorLineInSpectralNode;
 		audio::MonitorSpectralNodeRef	mMonitorWaveSpectralNode;
+		// file player volume, after the wave monitor so the audio texture isn't affected
+		audio::GainNodeRef				mAudioFileGain;
 		audio::SamplePlayerNodeRef		mSamplePlayerNode;
 		audio::SourceFileRef			mSourceFile;
 		std::string						mLoadedAudioFile;
@@ -141,6 +143,7 @@ namespace videodromm
 		// so the audio texture and iFreq* uniforms follow it; reloading the file already loaded is a no-op
 		bool							loadAudioFile(const std::string& aPath);
 		bool							isAudioFileLoaded() { return (bool)mSamplePlayerNode; };
+		void							setAudioFileVolume(float aVolume) { if (mAudioFileGain) mAudioFileGain->setValue(aVolume); }
 		bool							isAudioFilePlaying() { return mSamplePlayerNode && mSamplePlayerNode->isEnabled(); };
 		// pauses, resumes, or restarts from the beginning once the file has played to its end
 		void							toggleAudioFilePlayPause();

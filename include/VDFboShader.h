@@ -300,11 +300,20 @@ namespace videodromm
 			mSequenceSpeed = aSpeed;
 		}
 		// no-op outside MOVIE mode - only a playing video has anything to set the volume of
+		// actual output volume: the video's, or the audio file player's for an audio-file fbo
 		void									setVideoVolume(float aVolume) {
 #if defined( CINDER_MSW )
 			if (mTextureMode == VDTextureMode::MOVIE) mVideo.setVolume(aVolume);
 #endif
+			if (isAudioFile()) mVDAnimation->setAudioFileVolume(aVolume);
 		}
+		// per-fbo volume level (the pane's volume slider); the UI applies level x weight
+		float									getVolumeLevel() const { return mVolumeLevel; }
+		void									setVolumeLevel(float aLevel) { mVolumeLevel = ci::math<float>::clamp(aLevel, 0.0f, 1.0f); }
+		// decodes/blits this fbo's video, if any (see VDFboShader.cpp)
+		void									updateVideo();
+		// assigns a shared-pool texture as this fbo's input (see VDFboShader.cpp)
+		void									assignInputTexture(ci::gl::Texture2dRef aTextureRef, const std::string& aName);
 		float									getVideoVolume() {
 #if defined( CINDER_MSW )
 			if (mTextureMode == VDTextureMode::MOVIE) return mVideo.getVolume();
@@ -461,6 +470,9 @@ namespace videodromm
 		bool							mVideoReversed = false;
 		// movies play once by default; kept across reloads of this fbo's movie
 		bool							mVideoLoop = false;
+		float									mVolumeLevel = 1.0f;
+		// basename of the loaded video, to recognise it in the shared pool (assignInputTexture)
+		std::string								mVideoName;
 		// one-shot diagnostic guard, see loadVideoFile()/getFboTexture()'s MOVIE case
 		bool							mVideoTextureWarningLogged = false;
 		// one-shot diagnostic guard, see setSpeed() - many codecs reject SetPlaybackRate()

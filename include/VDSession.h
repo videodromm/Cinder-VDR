@@ -363,6 +363,8 @@ namespace videodromm {
 		// playback controls (sequence/movie)
 		bool							isSequence(unsigned int aFboIndex) { return mVDMix->isSequence(aFboIndex); }
 		bool							isMovie(unsigned int aFboIndex) { return mVDMix->isMovie(aFboIndex); }
+		float							getVolumeLevel(unsigned int aFboIndex) { return mVDMix->getVolumeLevel(aFboIndex); }
+		void							setVolumeLevel(unsigned int aFboIndex, float aLevel) { mVDMix->setVolumeLevel(aFboIndex, aLevel); }
 		void							togglePlayPause(unsigned int aFboIndex) { mVDMix->togglePlayPause(aFboIndex); }
 		bool							isAudioFile(unsigned int aFboIndex) { return mVDMix->isAudioFile(aFboIndex); }
 		bool							isPlaying(unsigned int aFboIndex) { return mVDMix->isPlaying(aFboIndex); }

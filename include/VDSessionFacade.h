@@ -221,6 +221,8 @@ namespace videodromm
 		// playback controls (sequence/movie)
 		bool					isSequence(unsigned int aFboIndex) { return mVDSession->isSequence(aFboIndex); }
 		bool					isMovie(unsigned int aFboIndex) { return mVDSession->isMovie(aFboIndex); }
+		float					getVolumeLevel(unsigned int aFboIndex) { return mVDSession->getVolumeLevel(aFboIndex); }
+		void					setVolumeLevel(unsigned int aFboIndex, float aLevel) { mVDSession->setVolumeLevel(aFboIndex, aLevel); }
 		void					togglePlayPause(unsigned int aFboIndex) { mVDSession->togglePlayPause(aFboIndex); }
 		bool					isAudioFile(unsigned int aFboIndex) { return mVDSession->isAudioFile(aFboIndex); }
 		bool					isPlaying(unsigned int aFboIndex) { return mVDSession->isPlaying(aFboIndex); }

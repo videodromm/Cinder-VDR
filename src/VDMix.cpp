@@ -57,7 +57,17 @@ namespace videodromm {
 		JsonTree doc;
 
 		JsonTree settings = JsonTree::makeArray("settings");
-		settings.addChild(ci::JsonTree("assetspath", mAssetsPath));
+		// "assetspath" stays the bare folder name, readable by the vs2017 apps; the parent folder
+		// (e.g. "glsl") goes to "assetsfolder", which they ignore
+		std::string assetsPath = mAssetsPath;
+		std::string assetsFolder;
+		std::size_t slash = assetsPath.find_last_of("/\\");
+		if (slash != std::string::npos) {
+			assetsFolder = assetsPath.substr(0, slash);
+			assetsPath = assetsPath.substr(slash + 1);
+		}
+		settings.addChild(ci::JsonTree("assetspath", assetsPath));
+		if (!assetsFolder.empty()) settings.addChild(ci::JsonTree("assetsfolder", assetsFolder));
 		doc.pushBack(settings);
 		doc.write(writeFile(mixPath), JsonTree::WriteOptions());
 		return true;
@@ -75,6 +85,12 @@ namespace videodromm {
 			if (doc.hasChild("settings")) {
 				JsonTree settings(doc.getChild("settings"));
 				if (settings.hasChild("assetspath")) mAssetsPath = settings.getValueForKey<string>("assetspath");
+				// optional parent folder under assets (e.g. "glsl"); without it, VDSession::resolveFolder()
+				// still finds a bare name under assets/glsl or the assets root
+				if (settings.hasChild("assetsfolder") && !mAssetsPath.empty()) {
+					std::string assetsFolder = settings.getValueForKey<string>("assetsfolder");
+					if (!assetsFolder.empty()) mAssetsPath = assetsFolder + "/" + mAssetsPath;
+				}
 			}
 			if (doc.hasChild("uniforms")) {
 				JsonTree uniforms(doc.getChild("uniforms"));

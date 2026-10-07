@@ -685,9 +685,9 @@ void VDAnimation::applyPreferredAudioOutput() {
 	ctx->disable();
 	try {
 		ctx->setOutput(ctx->createOutputDeviceNode(device));
-		if (mSamplePlayerNode && mMonitorWaveSpectralNode) {
-			mMonitorWaveSpectralNode->disconnectAllOutputs();
-			mMonitorWaveSpectralNode >> ctx->getOutput();
+		if (mSamplePlayerNode && mAudioFileGain) {
+			mAudioFileGain->disconnectAllOutputs();
+			mAudioFileGain >> ctx->getOutput();
 		}
 		CI_LOG_I("audio output device: " << device->getName());
 	}
@@ -791,10 +791,15 @@ bool VDAnimation::loadAudioFile(const std::string& aPath) {
 		mSamplePlayerNode = ctx->makeNode(new audio::FilePlayerNode(mSourceFile, false));
 		mSamplePlayerNode->setLoopEnabled(mAudioFileLoop);
 		mSamplePlayerNode >> mMonitorWaveSpectralNode;
+		if (!mAudioFileGain) {
+			mAudioFileGain = ctx->makeNode(new audio::GainNode(1.0f));
+			mMonitorWaveSpectralNode->disconnectAllOutputs();
+			mMonitorWaveSpectralNode >> mAudioFileGain;
+		}
 		// the selected output device, not the system default (movies already use it)
 		applyPreferredAudioOutput();
-		if (!mMonitorWaveSpectralNode->isConnectedToOutput(ctx->getOutput())) {
-			mMonitorWaveSpectralNode >> ctx->getOutput();
+		if (!mAudioFileGain->isConnectedToOutput(ctx->getOutput())) {
+			mAudioFileGain >> ctx->getOutput();
 		}
 		mSamplePlayerNode->start();
 		ctx->enable();

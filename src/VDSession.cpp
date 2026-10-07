@@ -419,6 +419,9 @@ void VDSession::update() {
 
 	// fps calculated in main app
 	mVDAnimation->update();
+	// video frames first, so every fbo rendering below (and every fbo using a video from the
+	// shared pool) sees this frame's image
+	mVDMix->updateVideoSources();
 
 	mVDMix->getMixetteTexture(0);
 

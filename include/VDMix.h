@@ -115,7 +115,7 @@ namespace videodromm
 		};
 		void							setFboInputTexture(unsigned int aFboIndex, ci::gl::Texture2dRef aTextureRef, const std::string& aName = "") {
 			if (mFboShaderList.size() > 0) {
-				mFboShaderList[getValidFboIndex(aFboIndex)]->setInputTextureRefByIndex(0, aTextureRef, aName);
+				mFboShaderList[getValidFboIndex(aFboIndex)]->assignInputTexture(aTextureRef, aName);
 			}
 		}
 		// selects which already-loaded input texture slot is the active one for this fbo
@@ -161,6 +161,10 @@ namespace videodromm
 		// playback controls (sequence/movie), forwarded straight to the fbo - see VDFboShader.h
 		bool							isSequence(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->isSequence(); }
 		bool							isMovie(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->isMovie(); }
+		float							getVolumeLevel(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->getVolumeLevel(); }
+		void							setVolumeLevel(unsigned int aFboIndex, float aLevel) { mFboShaderList[getValidFboIndex(aFboIndex)]->setVolumeLevel(aLevel); }
+		// every frame, before any fbo renders (VDSession::update)
+		void							updateVideoSources() { for (auto& fbo : mFboShaderList) fbo->updateVideo(); }
 		void							togglePlayPause(unsigned int aFboIndex) { mFboShaderList[getValidFboIndex(aFboIndex)]->togglePlayPause(); }
 		bool							isAudioFile(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->isAudioFile(); }
 		bool							isPlaying(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->isPlaying(); }
