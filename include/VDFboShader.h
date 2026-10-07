@@ -195,10 +195,52 @@ namespace videodromm
 		void									syncToBeat() {
 			mSequenceManualControl = false;
 		}
-		void									togglePlayPause() {
+		// audio fbo whose "texturename" is a wav/mp3 (played by VDAnimation's file player)
+		bool									isAudioFile() {
+			return mTextureMode == VDTextureMode::AUDIO && mPlaysAudioFile;
+		}
+		bool									isPlaying() {
+#if defined( CINDER_MSW )
+			if (mTextureMode == VDTextureMode::MOVIE) return mIsVideoLoaded && mVideo.isPlaying();
+#endif
+			if (isAudioFile()) return mVDAnimation->isAudioFilePlaying();
+			// a sequence follows IBARBEAT (always running) until its manual controls are touched
+			if (mTextureMode == VDTextureMode::SEQUENCE) return !mSequenceManualControl || mSequencePlaying;
+			return false;
+		}
+		bool									isLooping() {
+#if defined( CINDER_MSW )
+			if (mTextureMode == VDTextureMode::MOVIE) return mVideoLoop;
+#endif
+			if (isAudioFile()) return mVDAnimation->isAudioFileLooping();
+			return false;
+		}
+		void									toggleLoop() {
 #if defined( CINDER_MSW )
 			if (mTextureMode == VDTextureMode::MOVIE) {
-				mVideo.isPlaying() ? mVideo.pause() : mVideo.play();
+				mVideoLoop = !mVideoLoop;
+				if (mIsVideoLoaded) mVideo.setLoop(mVideoLoop);
+				return;
+			}
+#endif
+			if (isAudioFile()) mVDAnimation->setAudioFileLoop(!mVDAnimation->isAudioFileLooping());
+		}
+		void									togglePlayPause() {
+			if (isAudioFile()) {
+				mVDAnimation->toggleAudioFilePlayPause();
+				return;
+			}
+#if defined( CINDER_MSW )
+			if (mTextureMode == VDTextureMode::MOVIE) {
+				if (!mIsVideoLoaded) return;
+				if (mVideo.isPlaying()) {
+					mVideo.pause();
+				}
+				else {
+					// a non-looping movie pauses on its last frame: play it again from the start
+					if (mVideo.getDuration() > 0.0f && mVideo.getPosition() >= mVideo.getDuration() - 0.05f) mVideo.setPosition(0.0f);
+					mVideo.play();
+				}
 				return;
 			}
 #else
@@ -361,6 +403,7 @@ namespace videodromm
 		// synced behavior unchanged for every fbo that never touches these
 		bool							mSequenceManualControl = false;
 		bool							mSequencePlaying = true;
+		bool							mPlaysAudioFile = false;
 		bool							mSequenceReversed = false;
 		float							mSequenceSpeed = 1.0f;
 		float							mSequenceAccumulator = 0.0f;
@@ -410,6 +453,8 @@ namespace videodromm
 #endif
 		bool							mIsVideoLoaded = false;
 		bool							mVideoReversed = false;
+		// movies play once by default; kept across reloads of this fbo's movie
+		bool							mVideoLoop = false;
 		// one-shot diagnostic guard, see loadVideoFile()/getFboTexture()'s MOVIE case
 		bool							mVideoTextureWarningLogged = false;
 		// one-shot diagnostic guard, see setSpeed() - many codecs reject SetPlaybackRate()

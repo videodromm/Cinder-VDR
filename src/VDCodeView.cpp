@@ -315,9 +315,25 @@ void VDCodeView::draw() {
 					gl::color(ColorA(1.0f, 0.25f, 0.25f, 0.95f));
 					gl::drawSolidRect(Rectf(textX - mCharWidth * 0.5f, top, textX - mCharWidth * 0.5f + 3.0f, top + mLineHeight));
 				}
-				else if (l == mCursorLine) {
-					gl::color(ColorA(1, 1, 1, 0.07f));
-					gl::drawSolidRect(Rectf(textX - mCharWidth * 0.5f, top, (float)size.x - pad, top + mLineHeight));
+				else if (l == mCursorLine && mCurrentLineStyle != LINE_CURSOR_ONLY) {
+					const Rectf lineRect(textX - mCharWidth * 0.5f, top, (float)size.x - pad, top + mLineHeight);
+					// a faint fill colour (default alpha 0.07) would be invisible as a thin outline
+					// or a small gutter box: those two styles use at least half opacity
+					ColorA strongColor = mCurrentLineColor;
+					strongColor.a = std::max(strongColor.a, 0.5f);
+					if (mCurrentLineStyle == LINE_BORDER) {
+						gl::color(strongColor);
+						gl::drawStrokedRect(lineRect, std::max(1.0f, std::round(mFontSize / 20.0f)));
+					}
+					else if (mCurrentLineStyle == LINE_NUMBER_FILL && mLineNumbers) {
+						gl::color(strongColor);
+						gl::drawSolidRect(Rectf(pad - mCharWidth * 0.25f, top, pad + digits * mCharWidth + mCharWidth * 0.25f, top + mLineHeight));
+					}
+					else {
+						// LINE_FILL, or LINE_NUMBER_FILL with line numbers hidden
+						gl::color(mCurrentLineColor);
+						gl::drawSolidRect(lineRect);
+					}
 				}
 				if (mLineNumbers) {
 					const std::string number = std::to_string(l + 1);

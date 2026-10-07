@@ -162,6 +162,10 @@ namespace videodromm
 		bool							isSequence(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->isSequence(); }
 		bool							isMovie(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->isMovie(); }
 		void							togglePlayPause(unsigned int aFboIndex) { mFboShaderList[getValidFboIndex(aFboIndex)]->togglePlayPause(); }
+		bool							isAudioFile(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->isAudioFile(); }
+		bool							isPlaying(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->isPlaying(); }
+		bool							isLooping(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->isLooping(); }
+		void							toggleLoop(unsigned int aFboIndex) { mFboShaderList[getValidFboIndex(aFboIndex)]->toggleLoop(); }
 		void							syncToBeat(unsigned int aFboIndex) { mFboShaderList[getValidFboIndex(aFboIndex)]->syncToBeat(); }
 		void							reverse(unsigned int aFboIndex) { mFboShaderList[getValidFboIndex(aFboIndex)]->reverse(); }
 		bool							isLoadingFromDisk(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->isLoadingFromDisk(); }

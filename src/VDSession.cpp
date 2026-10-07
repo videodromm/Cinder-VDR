@@ -62,7 +62,7 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 	// TODO 20200305 if (getFboRenderedTexture(0)) Warp::setSize(mWarpList, getFboRenderedTexture(0)->getSize());
 	Warp::setSize(mWarpList, ivec2(mVDParams->getFboWidth(), mVDParams->getFboHeight())); //
 	// initialize warps
-	mSettings = getAssetPath("") / mVDMix->getAssetsPath() / "warps.xml";
+	mSettings = getAssetPath("") / resolveFolder(mVDMix->getAssetsPath()) / "warps.xml";
 	if (fs::exists(mSettings)) {
 		// load warp settings from file if one exists
 		mWarpList = Warp::readSettings(loadFile(mSettings));
@@ -351,11 +351,28 @@ void VDSession::makeShaderContentRequest(http::UrlRef url, unsigned int aFboInde
 	}
 }
 
-bool VDSession::loadFolder(const string& aFolder) {
+std::string VDSession::resolveFolder(const string& aFolder) {
+	if (aFolder.empty()) return aFolder;
+	const fs::path assets = getAssetPath("");
+	// assets/glsl first (where TSWebsocketServer's /api/folders lists them), then the assets root.
+	// A name present in both (e.g. "audio") goes to whichever holds a mix.json or fbo0.json.
+	const std::string candidates[2] = { "glsl/" + aFolder, aFolder };
+	for (const auto& c : candidates) {
+		if (fs::exists(assets / c / "mix.json") || fs::exists(assets / c / "fbo0.json")) return c;
+	}
+	for (const auto& c : candidates) {
+		if (fs::is_directory(assets / c)) return c;
+	}
+	return aFolder;
+}
+
+bool VDSession::loadFolder(const string& aFolderName) {
+	// already-resolved paths ("glsl/boomer", e.g. a saved mix.json assetspath) resolve to themselves
+	const std::string aFolder = resolveFolder(aFolderName);
 	unsigned int f = 0;
 	bool found = true;
 	mVDSettings->setMsg(aFolder);
-	if (aFolder != mVDMix->getAssetsPath()) {
+	if (aFolder != resolveFolder(mVDMix->getAssetsPath())) {
 		// find mix.json
 		std::string mixFileName = "mix.json";
 		fs::path mixFile = getAssetPath("") / aFolder / mixFileName;
@@ -702,7 +719,7 @@ void VDSession::fileDrop(FileDropEvent event) {
 	return mVDMix->loadImageSequence(aFolder, aTextureIndex);
 }*/
 void VDSession::loadAudioFile(const string& aFile) {
-	//mTextureList[0]->loadFromFullPath(aFile);
+	mVDAnimation->loadAudioFile(aFile);
 }
 #pragma region events
 bool VDSession::handleMouseMove(MouseEvent& event)

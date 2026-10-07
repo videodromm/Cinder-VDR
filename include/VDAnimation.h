@@ -76,6 +76,8 @@ namespace videodromm
 		audio::MonitorSpectralNodeRef	mMonitorWaveSpectralNode;
 		audio::SamplePlayerNodeRef		mSamplePlayerNode;
 		audio::SourceFileRef			mSourceFile;
+		std::string						mLoadedAudioFile;
+		bool							mAudioFileLoop = false;
 		audio::MonitorSpectralNodeRef	mScopeLineInFmt;
 		audio::BufferPlayerNodeRef		mBufferPlayerNode;
 
@@ -125,6 +127,15 @@ namespace videodromm
 			mUseAudio = useWaveMonitor;
 		};
 		bool							getUseWaveMonitor() { return mUseAudio; };
+		// plays a wav/mp3 file once (or looping, see setAudioFileLoop) through the wave monitor,
+		// so the audio texture and iFreq* uniforms follow it; reloading the file already loaded is a no-op
+		bool							loadAudioFile(const std::string& aPath);
+		bool							isAudioFileLoaded() { return (bool)mSamplePlayerNode; };
+		bool							isAudioFilePlaying() { return mSamplePlayerNode && mSamplePlayerNode->isEnabled(); };
+		// pauses, resumes, or restarts from the beginning once the file has played to its end
+		void							toggleAudioFilePlayPause();
+		bool							isAudioFileLooping() { return mAudioFileLoop; };
+		void							setAudioFileLoop(bool aLoop);
 		void							toggleUseWaveMonitor() { mUseAudio = !mUseAudio; };
 
 

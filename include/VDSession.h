@@ -360,6 +360,10 @@ namespace videodromm {
 		bool							isSequence(unsigned int aFboIndex) { return mVDMix->isSequence(aFboIndex); }
 		bool							isMovie(unsigned int aFboIndex) { return mVDMix->isMovie(aFboIndex); }
 		void							togglePlayPause(unsigned int aFboIndex) { mVDMix->togglePlayPause(aFboIndex); }
+		bool							isAudioFile(unsigned int aFboIndex) { return mVDMix->isAudioFile(aFboIndex); }
+		bool							isPlaying(unsigned int aFboIndex) { return mVDMix->isPlaying(aFboIndex); }
+		bool							isLooping(unsigned int aFboIndex) { return mVDMix->isLooping(aFboIndex); }
+		void							toggleLoop(unsigned int aFboIndex) { mVDMix->toggleLoop(aFboIndex); }
 		void							syncToBeat(unsigned int aFboIndex) { mVDMix->syncToBeat(aFboIndex); }
 		void							reverse(unsigned int aFboIndex) { mVDMix->reverse(aFboIndex); }
 		bool							isLoadingFromDisk(unsigned int aFboIndex) { return mVDMix->isLoadingFromDisk(aFboIndex); }
@@ -387,6 +391,9 @@ namespace videodromm {
 		};		
 		//bool							loadImageSequence(const string& aFolder, unsigned int aTextureIndex);
 		bool							loadFolder(const string& aFolder);
+		// shader folders (fbo*.json + glsl) live in assets/glsl/<name>, older ones in assets/<name>:
+		// returns the path relative to assets/ ("glsl/boomer" or "particlez")
+		static std::string				resolveFolder(const string& aFolder);
 		void							loadAudioFile(const string& aFile);
 
 

@@ -77,6 +77,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	//unsigned int listIndex = 0;
 	mCurrentFilename = mTextureName = (json.hasChild("texturename")) ? json.getValueForKey<string>("texturename") : "0.jpg";
 	mTypestr = (json.hasChild("texturetype")) ? json.getValueForKey<string>("texturetype") : "UNKNOWN";
+	mPlaysAudioFile = false;
 	mTextureMode = (json.hasChild("texturemode")) ? json.getValueForKey<int>("texturemode") : VDTextureMode::UNKNOWN;
 	mTextureCount = (json.hasChild("texturecount")) ? json.getValueForKey<int>("texturecount") : 1;
 	mPreloadTextures = (json.hasChild("preloadtextures")) ? json.getValueForKey<bool>("preloadtextures") : false;
@@ -86,6 +87,17 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	switch (mTextureMode)
 	{
 	case VDTextureMode::AUDIO: // audio
+		{
+			// a "texturename" naming a wav/mp3 (next to the fbo json, or at the assets root)
+			// is played and drives the audio texture; any other name keeps the current source
+			std::string ext = fs::path(mTextureName).extension().string();
+			std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c) { return (char)std::tolower(c); });
+			if (ext == ".wav" || ext == ".mp3") {
+				fs::path audioFile = getAssetPath("") / mAssetsPath / mTextureName;
+				if (!fs::exists(audioFile)) audioFile = getAssetPath("") / mTextureName;
+				mPlaysAudioFile = mVDAnimation->loadAudioFile(audioFile.string());
+			}
+		}
 		setFboTextureAudioMode();
 		break;
 	case VDTextureMode::SEQUENCE: // img seq loaded when ableton runs
@@ -373,7 +385,7 @@ bool VDFboShader::loadVideoFile(const std::string& aFile) {
 		<< " hasTexture()=" << mVideo.hasTexture());
 	mVideoTextureWarningLogged = false;
 	if (mIsVideoLoaded) {
-		mVideo.setLoop(true);
+		mVideo.setLoop(mVideoLoop);
 		mVideo.play();
 		// ciWMFVideoPlayer's shared texture is GL_TEXTURE_RECTANGLE (see the comment on
 		// mVideoBlitFbo) - lazily set up the same rect-to-2D blit already used for Syphon on Mac

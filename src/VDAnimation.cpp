@@ -654,6 +654,63 @@ void VDAnimation::calculateTempo()
 	mVDUniforms->setUniformValue(mVDUniforms->IBPM, (float)(60.0 / averageTime));
 }
 
+bool VDAnimation::loadAudioFile(const std::string& aPath) {
+	// several fbos can name the same file: don't reload it
+	if (aPath == mLoadedAudioFile && mSamplePlayerNode) return true;
+	try {
+		if (!fs::exists(aPath)) {
+			CI_LOG_W("loadAudioFile: file not found " << aPath);
+			return false;
+		}
+		mSourceFile = audio::load(loadFile(aPath), ctx->getSampleRate());
+		if (!mMonitorWaveSpectralNode) {
+			auto scopeWaveFmt = audio::MonitorSpectralNode::Format().fftSize(mFFTWindowSize * 2).windowSize(mFFTWindowSize);
+			mMonitorWaveSpectralNode = ctx->makeNode(new audio::MonitorSpectralNode(scopeWaveFmt));
+		}
+		if (mSamplePlayerNode) {
+			mSamplePlayerNode->stop();
+			mSamplePlayerNode->disconnectAll();
+		}
+		mSamplePlayerNode = ctx->makeNode(new audio::FilePlayerNode(mSourceFile, false));
+		mSamplePlayerNode->setLoopEnabled(mAudioFileLoop);
+		mSamplePlayerNode >> mMonitorWaveSpectralNode;
+		if (!mMonitorWaveSpectralNode->isConnectedToOutput(ctx->getOutput())) {
+			mMonitorWaveSpectralNode >> ctx->getOutput();
+		}
+		mSamplePlayerNode->start();
+		ctx->enable();
+		// getAudioTexture() reads the wave monitor only when the line in is off and the
+		// player isn't buffered; mWaveInitialized keeps it from replacing the monitor node
+		mAudioBuffered = false;
+		mUseAudio = true;
+		mWaveInitialized = true;
+		setUseLineIn(false);
+		mAudioName = fs::path(aPath).filename().string();
+		mLoadedAudioFile = aPath;
+		CI_LOG_I("loadAudioFile: playing " << aPath);
+		return true;
+	}
+	catch (const std::exception& ex) {
+		CI_LOG_E("loadAudioFile: could not open " << aPath << ": " << ex.what());
+	}
+	return false;
+}
+
+void VDAnimation::toggleAudioFilePlayPause() {
+	if (!mSamplePlayerNode) return;
+	if (mSamplePlayerNode->isEnabled()) {
+		mSamplePlayerNode->stop();
+	}
+	else {
+		// a non-looping file stops by itself at its end: play it again from the start
+		if (mSamplePlayerNode->isEof()) mSamplePlayerNode->seek(0);
+		mSamplePlayerNode->start();
+	}
+}
+void VDAnimation::setAudioFileLoop(bool aLoop) {
+	mAudioFileLoop = aLoop;
+	if (mSamplePlayerNode) mSamplePlayerNode->setLoopEnabled(aLoop);
+}
 void VDAnimation::preventLineInCrash() {
 	setUseLineIn(false);
 	//mVDSettings->save();

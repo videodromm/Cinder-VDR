@@ -215,6 +215,10 @@ namespace videodromm
 		bool					isSequence(unsigned int aFboIndex) { return mVDSession->isSequence(aFboIndex); }
 		bool					isMovie(unsigned int aFboIndex) { return mVDSession->isMovie(aFboIndex); }
 		void					togglePlayPause(unsigned int aFboIndex) { mVDSession->togglePlayPause(aFboIndex); }
+		bool					isAudioFile(unsigned int aFboIndex) { return mVDSession->isAudioFile(aFboIndex); }
+		bool					isPlaying(unsigned int aFboIndex) { return mVDSession->isPlaying(aFboIndex); }
+		bool					isLooping(unsigned int aFboIndex) { return mVDSession->isLooping(aFboIndex); }
+		void					toggleLoop(unsigned int aFboIndex) { mVDSession->toggleLoop(aFboIndex); }
 		void					syncToBeat(unsigned int aFboIndex) { mVDSession->syncToBeat(aFboIndex); }
 		void					reverse(unsigned int aFboIndex) { mVDSession->reverse(aFboIndex); }
 		bool					isLoadingFromDisk(unsigned int aFboIndex) { return mVDSession->isLoadingFromDisk(aFboIndex); }

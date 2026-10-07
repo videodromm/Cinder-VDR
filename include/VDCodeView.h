@@ -48,6 +48,13 @@ namespace videodromm
 		void					setLineNumbers(bool aLineNumbers) { mLineNumbers = aLineNumbers; mDirty = true; }
 		// Spout carries 8-bit RGBA either way; whether the receiver expects premultiplied or straight
 		// alpha decides whether anti-aliased glyph edges get dark or bright fringes
+		// how the cursor's line is marked (error lines are always tinted red instead)
+		enum CurrentLineStyle { LINE_FILL = 0, LINE_BORDER = 1, LINE_CURSOR_ONLY = 2, LINE_NUMBER_FILL = 3 };
+		int						getCurrentLineStyle() const { return mCurrentLineStyle; }
+		void					setCurrentLineStyle(int aStyle) { mCurrentLineStyle = aStyle; mDirty = true; }
+		// highlight colour, for every style except cursor-only
+		ci::ColorA				getCurrentLineColor() const { return mCurrentLineColor; }
+		void					setCurrentLineColor(const ci::ColorA& aColor) { mCurrentLineColor = aColor; mDirty = true; }
 		bool					getPremultiplied() const { return mPremultiplied; }
 		void					setPremultiplied(bool aPremultiplied) { mPremultiplied = aPremultiplied; mDirty = true; }
 
@@ -80,6 +87,8 @@ namespace videodromm
 		bool								mShadow = true;
 		bool								mLineNumbers = true;
 		bool								mPremultiplied = false;
+		ci::ColorA							mCurrentLineColor = ci::ColorA(1.0f, 1.0f, 1.0f, 0.07f);
+		int									mCurrentLineStyle = LINE_FILL;
 
 		// rendering
 		bool								mDirty = true;
