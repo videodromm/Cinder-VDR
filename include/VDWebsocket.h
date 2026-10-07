@@ -42,6 +42,8 @@ namespace videodromm
 		// WebSockets
 		//void						wsWriteBinary(const void *data, int size);
 		void						wsWrite(const std::string& msg);
+		// sends as is (wsWrite() is disabled to avoid echo loops): MIDI learn bindings
+		void						wsSend(const std::string& msg) { if (clientConnected) mClient.write(msg); }
 		void						wsConnect();
 		void						wsPing();
 		// Auto-reconnect control

@@ -340,6 +340,12 @@ namespace videodromm
 		float							getUniformValue(unsigned int aIndex) {
 			return shaderUniforms[aIndex].floatValue;
 		}
+		// ITIME back to 0 (VDAnimation computes it every frame as (elapsed - ISTART) x speed x factor):
+		// ISTART written directly, its 1..4200 range would reject an uptime over 70 minutes
+		void							resetTime() {
+			shaderUniforms[ISTART].floatValue = (float)ci::app::getElapsedSeconds();
+			shaderUniforms[ITIME].floatValue = 0.0f;
+		}
 		int								getUniformAnim(unsigned int aIndex) {
 			return shaderUniforms[aIndex].anim;
 		}

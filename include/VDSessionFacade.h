@@ -99,6 +99,12 @@ namespace videodromm
 		bool					getMidiLearnMappingAt(int aIndex, int& aCc, int& aUniform) { return mVDMediator->getMidiLearnMappingAt(aIndex, aCc, aUniform); }
 		void					removeMidiLearnMapping(int aCc) { mVDMediator->removeMidiLearnMapping(aCc); }
 		void					clearMidiLearnMap() { mVDMediator->clearMidiLearnMap(); }
+		// shared MIDI bindings (assets/actions, see VDMidiActions.h)
+		std::string				getMidiBindingLabel(int aUniform) { return mVDMediator->getMidiBindingLabel(aUniform); }
+		std::vector<VDMidiActions::Binding>	getMidiUniformBindings() { return mVDMediator->getMidiUniformBindings(); }
+		void					removeMidiBinding(const std::string& aId) { mVDMediator->removeMidiBinding(aId); }
+		void					reloadMidiBindings() { mVDMediator->reloadMidiBindings(); }
+		std::string				getMidiLearnStatus() { return mVDMediator->getMidiLearnStatus(); }
 		// websockets
 		bool					isWSClientConnected();
 		int						getWSClientPort();

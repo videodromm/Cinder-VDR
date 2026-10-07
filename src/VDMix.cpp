@@ -409,11 +409,12 @@ namespace videodromm {
 	}
 
 	void VDMix::updateVideoSources() {
-		// videos named by fbo jsons (a loaded mix): into the pool, playing like before, then assigned
+		// videos named by fbo jsons (a loaded folder): into the pool paused (the shaders may not be
+		// loaded yet; started by hand, which also resets ITIME for sync), then assigned
 		for (auto& fbo : mFboShaderList) {
 			std::string pending = fbo->takePendingVideoFile();
 			if (pending.empty()) continue;
-			std::string name = addVideoSource(pending, true);
+			std::string name = addVideoSource(pending, false);
 			if (!name.empty()) fbo->assignVideoInput(getVideoSource(name)->getTexture(), name);
 			else fbo->setFboTextureAudioMode();
 		}
@@ -438,6 +439,8 @@ namespace videodromm {
 		if (!video->isPlaying()) {
 			for (auto& other : mVideoSources) if (other != video) other->pause();
 			if (mVDAnimation->isAudioFilePlaying()) mVDAnimation->toggleAudioFilePlayPause();
+			// every Play restarts ITIME at 0, so the shaders are in sync with the video
+			mVDUniforms->resetTime();
 		}
 		video->togglePlayPause();
 	}
@@ -449,9 +452,11 @@ namespace videodromm {
 			return;
 		}
 		VDFboShaderRef fbo = mFboShaderList[getValidFboIndex(aFboIndex)];
-		// starting the audio file pauses every playing video (one sound at a time)
-		if (fbo->isAudioFile() && !fbo->isPlaying()) {
-			for (auto& source : mVideoSources) source->pause();
+		if (!fbo->isPlaying()) {
+			// starting the audio file pauses every playing video (one sound at a time)
+			if (fbo->isAudioFile()) for (auto& source : mVideoSources) source->pause();
+			// every Play (audio file, sequence) restarts ITIME at 0, for sync
+			mVDUniforms->resetTime();
 		}
 		fbo->togglePlayPause();
 	}

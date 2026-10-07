@@ -35,7 +35,7 @@ VDMediatorObservableRef VDMediatorObservable::setupOSCReceiver() {
 // midi
 VDMediatorObservableRef VDMediatorObservable::setupMidi() {
 	// Midi in
-	mVDMidi = VDMidi::create(mVDUniforms);
+	midi();
 	mVDMidi->setupMidi(shared_from_this());
 	return shared_from_this();
 }
@@ -51,14 +51,26 @@ string VDMediatorObservable::getMidiOutPortName(int i) { return mVDMidi->getMidi
 bool VDMediatorObservable::isMidiOutConnected(int i) { return mVDMidi->isMidiOutConnected(i); };
 void VDMediatorObservable::openMidiOutPort(int i) { mVDMidi->openMidiOutPort(i); };
 void VDMediatorObservable::closeMidiOutPort(int i) { mVDMidi->closeMidiOutPort(i); };
-void VDMediatorObservable::setMidiLearnMode(bool aEnabled) { mVDMidi->setMidiLearnMode(aEnabled); };
-bool VDMediatorObservable::isMidiLearnMode() { return mVDMidi->isMidiLearnMode(); };
-void VDMediatorObservable::armMidiLearn(int aUniformIndex) { mVDMidi->armMidiLearn(aUniformIndex); };
-int VDMediatorObservable::getMidiLearnTarget() { return mVDMidi->getMidiLearnTarget(); };
-int VDMediatorObservable::getMidiLearnMappingsCount() { return mVDMidi->getMidiLearnMappingsCount(); };
-bool VDMediatorObservable::getMidiLearnMappingAt(int aIndex, int& aCc, int& aUniform) { return mVDMidi->getMidiLearnMappingAt(aIndex, aCc, aUniform); };
-void VDMediatorObservable::removeMidiLearnMapping(int aCc) { mVDMidi->removeMidiLearnMapping(aCc); };
-void VDMediatorObservable::clearMidiLearnMap() { mVDMidi->clearMidiLearnMap(); };
+void VDMediatorObservable::setMidiLearnMode(bool aEnabled) { midi()->setMidiLearnMode(aEnabled); };
+bool VDMediatorObservable::isMidiLearnMode() { return midi()->isMidiLearnMode(); };
+void VDMediatorObservable::armMidiLearn(int aUniformIndex) { midi()->armMidiLearn(aUniformIndex); };
+int VDMediatorObservable::getMidiLearnTarget() { return midi()->getMidiLearnTarget(); };
+int VDMediatorObservable::getMidiLearnMappingsCount() { return midi()->getMidiLearnMappingsCount(); };
+bool VDMediatorObservable::getMidiLearnMappingAt(int aIndex, int& aCc, int& aUniform) { return midi()->getMidiLearnMappingAt(aIndex, aCc, aUniform); };
+void VDMediatorObservable::removeMidiLearnMapping(int aCc) { midi()->removeMidiLearnMapping(aCc); };
+void VDMediatorObservable::clearMidiLearnMap() { midi()->clearMidiLearnMap(); };
+VDMidiRef VDMediatorObservable::midi() {
+	if (!mVDMidi) mVDMidi = VDMidi::create(mVDUniforms);
+	mVDMidi->setMediator(shared_from_this());
+	return mVDMidi;
+}
+void VDMediatorObservable::onRemoteMidi(const std::string& aId, int aChannel) { midi()->onRemoteMidi(aId, aChannel); }
+std::string VDMediatorObservable::getMidiBindingLabel(int aUniform) { return midi()->getMidiBindingLabel(aUniform); }
+std::vector<VDMidiActions::Binding> VDMediatorObservable::getMidiUniformBindings() { return midi()->getMidiUniformBindings(); }
+void VDMediatorObservable::removeMidiBinding(const std::string& aId) { midi()->removeMidiBinding(aId); }
+void VDMediatorObservable::reloadMidiBindings() { midi()->reloadMidiBindings(); }
+std::string VDMediatorObservable::getMidiLearnStatus() { return midi()->getMidiLearnStatus(); }
+void VDMediatorObservable::wsSend(const std::string& aMsg) { if (isWSConnected()) mVDWebsocket->wsSend(aMsg); }
 
 std::string VDMediatorObservable::getMidiMsg() {
 	return mVDMidi ? mVDMidi->getMidiMsg() : "Disabled";

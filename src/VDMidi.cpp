@@ -51,7 +51,71 @@ void VDMidi::saveMidiPorts() {
 void VDMidi::setupMidi(VDMediatorObservableRef aVDMediator) {
 	mVDMediator = aVDMediator;
 	loadMidiLearnMapIfNeeded();
+	mActions.ensureLoaded();
 	midiSetup();
+}
+bool VDMidi::isConnectedToServer() {
+	return mVDMediator && mVDMediator->isWSConnected();
+}
+void VDMidi::onRemoteMidi(const std::string& aId, int aChannel) {
+	if (mMidiLearnMode && mMidiLearnTargetUniform >= 0) learn(aId, aChannel);
+}
+void VDMidi::learn(const std::string& aId, int aChannel) {
+	mActions.ensureLoaded();
+	int uniform = mMidiLearnTargetUniform;
+	mMidiLearnTargetUniform = -1;
+	std::string type = aId.substr(0, aId.find('_'));
+	std::vector<VDMidiActions::Binding> bindings;
+	if (type == "on" || type == "of") {
+		// a pad/key: on -> 1, off -> 0 (momentary); either message learns both
+		std::string rest = aId.substr(2);
+		bindings.push_back({ "on" + rest, aChannel, "won_" + std::to_string(uniform) + "_1" });
+		bindings.push_back({ "of" + rest, aChannel, "wof_" + std::to_string(uniform) + "_0" });
+	}
+	else {
+		// cc / pa / nr: the value (0..1) goes straight to the uniform, like TSWebsocketServer's wsp
+		bindings.push_back({ aId, aChannel, "wsp_" + std::to_string(uniform) + "_1" });
+	}
+	for (const auto& b : bindings) {
+		mActions.set(b.id, b.channel, b.action);
+		persistBinding(b);
+	}
+	mMidiLearnStatus = aId + " -> " + std::to_string(uniform) + " " + mVDUniforms->getUniformName(uniform);
+	CI_LOG_I("Midi learn: " << mMidiLearnStatus);
+}
+void VDMidi::persistBinding(const VDMidiActions::Binding& aBinding) {
+	if (isConnectedToServer()) {
+		// TSWebsocketServer owns the files while it runs (it keeps them in memory)
+		JsonTree payload = JsonTree::makeObject("payload");
+		payload.addChild(JsonTree("id", aBinding.id));
+		payload.addChild(JsonTree("channel", aBinding.channel));
+		payload.addChild(JsonTree("value", 0));
+		payload.addChild(JsonTree("action", aBinding.action));
+		JsonTree msg = JsonTree::makeObject();
+		msg.addChild(JsonTree("command", aBinding.action.empty() ? "delete_action" : "set_action"));
+		msg.addChild(payload);
+		mVDMediator->wsSend(msg.serialize());
+	}
+	else {
+		mActions.saveFile(aBinding.channel, VDMidiActions::deviceOfId(aBinding.id));
+	}
+}
+void VDMidi::removeMidiBinding(const std::string& aId) {
+	VDMidiActions::Binding removed;
+	if (!mActions.remove(aId, removed)) return;
+	// an empty action means "delete" for persistBinding()
+	removed.action = "";
+	persistBinding(removed);
+}
+bool VDMidi::runAction(const std::string& aAction, float aValue) {
+	std::string cmd;
+	int uniform = VDMidiActions::uniformOfAction(aAction, &cmd);
+	if (uniform < 0 || !mVDMediator) return false;
+	float value = (cmd == "won") ? 1.0f : (cmd == "wof") ? 0.0f : aValue;
+	// same as TSWebsocketServer: the uniform also becomes the selected one
+	mVDMediator->setUniformValue(mVDUniforms->ISELECTED, (float)uniform);
+	mVDMediator->setUniformValue(uniform, value);
+	return true;
 }
 void VDMidi::saveMidiLearnMap() {
 	JsonTree json;
@@ -253,6 +317,37 @@ void VDMidi::midiListener(midi::Message msg) {
 	std::stringstream ss;
 	ss << "MIDI port: " << mMidiIn0.getPortName(msg.port) << "\n";
 	midiChannel = msg.channel;
+	// shared bindings: the TSWebsocketServer id of this message (0-based channel, device from
+	// assets/hardware), then learn it, run its action, or fall back to the older conventions below
+	{
+		std::string type;
+		int number = 0;
+		float value = 0.0f;
+		switch (msg.status) {
+		case MIDI_CONTROL_CHANGE: type = "cc"; number = msg.control; value = msg.value / 127.0f; break;
+		case MIDI_NOTE_ON: type = msg.velocity > 0 ? "on" : "of"; number = msg.pitch; value = msg.velocity / 127.0f; break;
+		case MIDI_NOTE_OFF: type = "of"; number = msg.pitch; value = msg.velocity / 127.0f; break;
+		case MIDI_POLY_AFTERTOUCH: type = "pa"; number = msg.pitch; value = msg.value / 127.0f; break;
+		default: break;
+		}
+		if (!type.empty()) {
+			// connected: TSWebsocketServer handles MIDI (and learning uses its events), so this
+			// app's own ports would only double every message
+			if (isConnectedToServer()) return;
+			mActions.ensureLoaded();
+			int channel = msg.channel - 1;
+			std::string id = VDMidiActions::makeId(type, channel, number, mActions.deviceForPort(mMidiIn0.getPortName(msg.port)));
+			if (mMidiLearnMode && mMidiLearnTargetUniform >= 0) {
+				learn(id, channel);
+				return;
+			}
+			std::string action = mActions.actionFor(id);
+			if (!action.empty() && runAction(action, value)) {
+				mMidiMsg = "MIDI " + id + " -> " + action + "\n";
+				return;
+			}
+		}
+	}
 	switch (msg.status)
 	{
 	case MIDI_CONTROL_CHANGE:
@@ -262,16 +357,6 @@ void VDMidi::midiListener(midi::Message msg) {
 		midiNormalizedValue = lmap<float>(midiValue, 0.0, 127.0, 0.0, 1.0);
 		ss << " U:" << mVDUniforms->getUniformName(midiControl) << " cc Chn:" << midiChannel << " CC:" << midiControl << " Val:" << midiValue << " NVal:" << midiNormalizedValue;
 		CI_LOG_V("Midi: " + ss.str());
-		if (mMidiLearnMode && mMidiLearnTargetUniform >= 0) {
-			// bind this CC to the armed uniform and stop - don't also apply it as a live value
-			// change on the same message, and don't fall through to the nanoKONTROL2-specific
-			// remap/blendmode hacks below, which only make sense for the implicit convention
-			mMidiLearnMap[midiControl] = mMidiLearnTargetUniform;
-			saveMidiLearnMap();
-			CI_LOG_I("Midi learn: bound CC " << midiControl << " to uniform " << mMidiLearnTargetUniform << " (" << mVDUniforms->getUniformName(mMidiLearnTargetUniform) << ")");
-			mMidiLearnTargetUniform = -1;
-			break;
-		}
 		{
 			// an explicitly learned mapping always wins and is applied directly, bypassing the
 			// nanoKONTROL2-specific remap/blendmode special-casing below (that only exists for

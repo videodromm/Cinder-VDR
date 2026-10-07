@@ -17,6 +17,8 @@
 #include "VDMediator.h"
 // Midi
 #include "MidiIn.h"
+// bindings shared with TSWebsocketServer (assets/actions, assets/hardware)
+#include "VDMidiActions.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -60,15 +62,28 @@ namespace videodromm
 		void						closeMidiInPort(int i);
 		void						openMidiOutPort(int i);
 		void						closeMidiOutPort(int i);
-		// midi learn: bind an arbitrary MIDI CC to any uniform index, instead of relying on the
-		// fixed "CC number == uniform index" convention midiListener()'s fallback path already
-		// uses. While learn mode is on and a target uniform is armed, the next incoming CC binds
-		// to it (persisted to midilearn.json so mappings survive a restart); learn mode itself
-		// stays on afterward so several controls can be learned one after another.
-		void						setMidiLearnMode(bool aEnabled) { mMidiLearnMode = aEnabled; }
+		void						setMediator(VDMediatorObservableRef aVDMediator) { mVDMediator = aVDMediator; }
+		// midi learn, shared with TSWebsocketServer: while learn mode is on and a uniform is armed,
+		// the next note / CC / poly aftertouch binds to it, as an action in assets/actions/*.json
+		// (TSWebsocketServer's ids and action strings, see VDMidiActions.h). Learn mode stays on so
+		// several controls can be learned one after another.
+		// - standalone: from this app's own MIDI ports; Cinder runs the actions and writes the file
+		// - connected to TSWebsocketServer: it handles the MIDI (own ports ignored here, no double
+		//   triggers); learning uses its "midi" websocket events and sends the binding to it
+		//   ("set_action" command), which saves the file
+		void						setMidiLearnMode(bool aEnabled) { mMidiLearnMode = aEnabled; mActions.ensureLoaded(); }
 		bool						isMidiLearnMode() { return mMidiLearnMode; }
 		void						armMidiLearn(int aUniformIndex) { mMidiLearnTargetUniform = aUniformIndex; }
 		int							getMidiLearnTarget() { return mMidiLearnTargetUniform; }
+		// a "midi" event relayed by TSWebsocketServer (connected mode): learning only
+		void						onRemoteMidi(const std::string& aId, int aChannel);
+		// "cc_14_30_VSN1, ..." bound to this uniform, "" if none
+		std::string					getMidiBindingLabel(int aUniform) { mActions.ensureLoaded(); return mActions.idsForUniform(aUniform); }
+		std::vector<VDMidiActions::Binding>	getMidiUniformBindings() { mActions.ensureLoaded(); return mActions.uniformBindings(); }
+		void						removeMidiBinding(const std::string& aId);
+		void						reloadMidiBindings() { mActions.reload(); }
+		std::string					getMidiLearnStatus() { return mMidiLearnStatus; }
+		// legacy midilearn.json (CC number -> uniform, any device): still applied, no longer written
 		int							getMidiLearnMappingsCount() { return (int)mMidiLearnMap.size(); }
 		// aIndex-th learned mapping, ordered by CC number (std::map<int,int> is already sorted by
 		// key) - lets the UI list what's bound without exposing the map type itself
@@ -125,6 +140,15 @@ namespace videodromm
 		std::map<int, int>			mMidiLearnMap; // MIDI CC number -> uniform index
 		void						saveMidiLearnMap();
 		void						loadMidiLearnMapIfNeeded();
+		// shared bindings (see setMidiLearnMode)
+		VDMidiActions				mActions;
+		std::string					mMidiLearnStatus;
+		bool						isConnectedToServer();
+		// binds the armed uniform to a message id ("on" also binds the matching "of", momentary)
+		void						learn(const std::string& aId, int aChannel);
+		void						persistBinding(const VDMidiActions::Binding& aBinding);
+		// runs a uniform action (wsp/won/wof) with a 0..1 MIDI value; false if not a uniform action
+		bool						runAction(const std::string& aAction, float aValue);
 
 	};
 }

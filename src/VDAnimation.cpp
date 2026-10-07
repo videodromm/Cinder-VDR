@@ -826,17 +826,17 @@ bool VDAnimation::loadAudioFile(const std::string& aPath) {
 		if (!mAudioFileGain->isConnectedToOutput(ctx->getOutput())) {
 			mAudioFileGain >> ctx->getOutput();
 		}
-		mSamplePlayerNode->start();
+		// not started: a folder's shaders may not be loaded yet, the fbo's Play button starts it
+		// (and resets ITIME). The FFT source switches to the file when it plays (update())
 		ctx->enable();
 		// getAudioTexture() reads the wave monitor only when the line in is off and the
 		// player isn't buffered; mWaveInitialized keeps it from replacing the monitor node
 		mAudioBuffered = false;
 		mUseAudio = true;
 		mWaveInitialized = true;
-		setUseLineIn(false);
 		mAudioName = fs::path(aPath).filename().string();
 		mLoadedAudioFile = aPath;
-		CI_LOG_I("loadAudioFile: playing " << aPath);
+		CI_LOG_I("loadAudioFile: loaded (paused) " << aPath);
 		return true;
 	}
 	catch (const std::exception& ex) {

@@ -22,6 +22,8 @@
 // Osc
 #include "VDOscReceiver.h"
 // Midi
+// MIDI bindings (also used by VDMidi.h, which includes this header back)
+#include "VDMidiActions.h"
 #include "VDMidi.h"
 // Mix
 #include "VDMix.h"
@@ -100,6 +102,14 @@ namespace videodromm {
 		bool								getMidiLearnMappingAt(int aIndex, int& aCc, int& aUniform);
 		void								removeMidiLearnMapping(int aCc);
 		void								clearMidiLearnMap();
+		void								onRemoteMidi(const std::string& aId, int aChannel);
+		std::string							getMidiBindingLabel(int aUniform);
+		std::vector<VDMidiActions::Binding>	getMidiUniformBindings();
+		void								removeMidiBinding(const std::string& aId);
+		void								reloadMidiBindings();
+		std::string							getMidiLearnStatus();
+		// raw message to TSWebsocketServer (nothing if not connected)
+		void								wsSend(const std::string& aMsg);
 		// ws
 		VDMediatorObservableRef				setupWSClient();
 		int									getWSClientPort();
@@ -138,6 +148,8 @@ namespace videodromm {
 		VDOscReceiverRef					mVDOscReceiver;
 		// Midi
 		VDMidiRef							mVDMidi;
+		// created on first use (MIDI learn/bindings work before MIDI is enabled), mediator set
+		VDMidiRef							midi();
 		std::string							mPreferredMidiInputDevice = "none";
 		// Websockets
 		VDWebsocketRef						mVDWebsocket;

@@ -68,7 +68,7 @@ void VDWebsocket::parseMessage(std::string msg) {
 
 	if (!msg.empty()) {
 		// the live code view streams the whole editor text while typing: keep it out of the status line
-		if (msg.compare(0, 19, "{\"event\":\"codeview\"") != 0) mWebSocketsMsg = msg;
+		if (msg.compare(0, 19, "{\"event\":\"codeview\"") != 0 && msg.compare(0, 8, "{\"midi\":") != 0) mWebSocketsMsg = msg;
 		std::string first = msg.substr(0, 1);
 		if (first == "{") {
 			// json
@@ -90,6 +90,15 @@ void VDWebsocket::parseMessage(std::string msg) {
 
 						mVDMediator->setUniformValue(name, value);
 						//}
+					}
+				}
+				// a MIDI message TSWebsocketServer received and handled ({"midi":{id, channel, ...}}):
+				// only used here for MIDI learn
+				if (json.hasChild("midi")) {
+					JsonTree midiEvent = json.getChild("midi");
+					if (midiEvent.hasChild("id")) {
+						mVDMediator->onRemoteMidi(midiEvent.getValueForKey<std::string>("id"),
+							midiEvent.hasChild("channel") ? midiEvent.getValueForKey<int>("channel") : 0);
 					}
 				}
 				if (json.hasChild("anim")) {

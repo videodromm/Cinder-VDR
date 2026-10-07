@@ -26,7 +26,6 @@ VDUniforms::VDUniforms() {
 	}
 	else {*/
 	// global time in seconds
-	// TODO 20200301 get rid of iTime createFloatUniform("iTime", ITIME, 0.0f); // 0
 	createFloatUniform("TIME", ITIME, 0.0f); // 0
 	// sliders
 	// red
