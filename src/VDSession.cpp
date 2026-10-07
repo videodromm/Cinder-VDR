@@ -197,8 +197,8 @@ void VDSession::listShaders(const std::string& aFolder, const std::string& aExte
 	makeShaderListRequest(httpsUrl);
 }
 void VDSession::loadShaderFromFolder(const std::string& aFolder, const std::string& aExtension, const std::string& aName) {
-	// pick a slot that's not currently mixed in, so loading it doesn't cause a sudden change in the rendering
-	unsigned int aFboIndex = mVDMix->findFirstZeroWeightFboIndex();
+	// into the selected fbo (the last fbo pane clicked, highlighted in purple)
+	unsigned int aFboIndex = mVDMix->getSelectedFbo();
 	httpsUrl = std::make_shared<http::Url>(mApiurl + "api/folders/" + aFolder + "/" + aExtension + "/" + aName);
 	// aName is the listed filename (e.g. "BinarySerpents.glsl") - strip the extension for a cleaner display title
 	std::string title = aName;
@@ -939,7 +939,9 @@ void VDSession::setWarpHeight(unsigned int aWarpIndex, int aHeight) {
 unsigned int VDSession::getWarpAFboIndex(unsigned int aWarpIndex) { return mWarpList[math<int>::min(aWarpIndex, mWarpList.size() - 1)]->getAFboIndex(); };
 unsigned int VDSession::getWarpBFboIndex(unsigned int aWarpIndex) { return mWarpList[math<int>::min(aWarpIndex, mWarpList.size() - 1)]->getBFboIndex(); };
 void VDSession::setWarpAFboIndex(unsigned int aWarpIndex, unsigned int aWarpFboIndex) {
-	if (aWarpIndex < mWarpList.size() && aWarpFboIndex < mVDMix->getFboShaderListSize()) {
+	// a real fbo, or one of the Mix / Post / Fx sentinels (VDUIWarps.cpp's buttons)
+	const bool sentinel = aWarpFboIndex == WARP_INPUT_MIX || aWarpFboIndex == WARP_INPUT_POST || aWarpFboIndex == WARP_INPUT_FX;
+	if (aWarpIndex < mWarpList.size() && (sentinel || aWarpFboIndex < mVDMix->getFboShaderListSize())) {
 		mWarpList[aWarpIndex]->setAFboIndex(aWarpFboIndex);
 	}
 }
