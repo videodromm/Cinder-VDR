@@ -183,6 +183,8 @@ namespace videodromm
 		};
 		void							loadImageFile(const std::string& aFile, unsigned int aFboIndex = 0);
 		void							loadVideoFile(const std::string& aFile, unsigned int aFboIndex = 0);
+		// a drop that landed on no fbo pane: image -> shared texture pool, video -> new fbo (paused)
+		bool							addDroppedTextureOutsideFbos(const std::string& aFile);
 		// drag-and-drop onto an existing fbo's own window - dispatches by extension to
 		// loadImageFile/loadVideoFile at that fbo's active slot (0)
 		bool							loadTextureIntoFboActiveSlot(unsigned int aFboIndex, const std::string& aFile);

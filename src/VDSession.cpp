@@ -436,6 +436,9 @@ void VDSession::renderPostToFbo()
 
 		// setup the viewport to match the dimensions of the FBO
 		gl::ScopedViewport scpVp(ivec2(0), mPostFbo->getSize());
+		// fbo-sized matrices, not the window's (a resized window truncated the output)
+		gl::ScopedMatrices scpMtx;
+		gl::setMatricesWindow(mPostFbo->getSize());
 
 		// texture binding must be before ScopedGlslProg
 		//
@@ -492,6 +495,9 @@ void VDSession::renderFxToFbo()
 
 		// setup the viewport to match the dimensions of the FBO
 		gl::ScopedViewport scpVp(ivec2(0), mFxFbo->getSize());
+		// fbo-sized matrices, not the window's (a resized window truncated the output)
+		gl::ScopedMatrices scpMtx;
+		gl::setMatricesWindow(mFxFbo->getSize());
 
 		// texture binding must be before ScopedGlslProg
 		//
@@ -577,6 +583,9 @@ void VDSession::renderWarpsToFbo()
 		gl::clear(Color::black());
 		// setup the viewport to match the dimensions of the FBO
 		gl::ScopedViewport scpVp(ivec2(0), mWarpsFbo->getSize());
+		// fbo-sized matrices, not the window's (a resized window truncated the output)
+		gl::ScopedMatrices scpMtx;
+		gl::setMatricesWindow(mWarpsFbo->getSize());
 		// iterate over the warps and draw their content
 		for (auto& warp : mWarpList) {
 			drawWarpWithInput(warp, resolveWarpInputTexture(warp));
@@ -678,7 +687,7 @@ void VDSession::fileDrop(FileDropEvent event) {
 		else if (ext == "glsl" || ext == "frag" || ext == "fs") {
 			loadFragmentShader(absolutePath, index);
 		}
-		else if (ext == "png" || ext == "jpg" || ext == "mp4") {
+		else if (ext == "png" || ext == "jpg" || ext == "mp4" || ext == "mov") {
 			// don't dispatch by the (stale, purely positional) index above - VDUIFbos.cpp hit-tests
 			// this against each fbo's actual current ImGui window rect once per frame, and falls
 			// back to loading it standalone into the shared texture pool if it doesn't land on any of them

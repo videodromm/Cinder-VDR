@@ -129,7 +129,13 @@ namespace videodromm
 		void									loadImageFile(const std::string& aFile, unsigned int aCurrentIndex = 0);
 		// swaps this fbo's active video, keeping its shader (drag-and-drop onto an existing fbo) -
 		// Windows only, mirrors createInputTexture()'s MOVIE-loading logic
-		bool									loadVideoFile(const std::string& aFile);
+		// aAutoPlay false (drag-and-drop): starts then pauses at once, so the first frame shows
+		bool									loadVideoFile(const std::string& aFile, bool aAutoPlay = true);
+		void									pauseVideo() {
+#if defined( CINDER_MSW )
+			if (mIsVideoLoaded && mVideo.isPlaying()) mVideo.pause();
+#endif
+		}
 		unsigned int							getInputTexturesCount() {
 			return mInputTextureList.size();
 		}

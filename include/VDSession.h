@@ -175,25 +175,22 @@ namespace videodromm {
 		// utils
 		void							blendRenderEnable(bool render);
 		void							fileDrop(FileDropEvent event);
-		// drag-and-drop: consumed by VDUIFbos.cpp, which is the only place that knows each fbo's
-		// actual current ImGui window rect (these can be dragged/resized independently, so a
-		// static position formula can't reliably target one). Called once per fbo, per frame, with
-		// that window's current rect (in the same device-pixel space as the stored drop position -
-		// see fileDrop()'s use of ci::app::toPixels()); returns true once some fbo claims it.
-		bool							consumePendingTextureDropIfInRect(unsigned int aFboIndex, ci::vec2 aRectMin, ci::vec2 aRectMax) {
+		// drag-and-drop of an image/video: VDUIFbos.cpp finds the topmost ImGui window under the
+		// drop position (same device-pixel space, see fileDrop()'s use of ci::app::toPixels()) and,
+		// if it's an fbo pane, claims the drop for that fbo. A dropped video is cued paused.
+		bool							hasPendingTextureDrop() const { return mPendingTextureDrop.active; }
+		ci::vec2						getPendingTextureDropPos() const { return mPendingTextureDrop.pos; }
+		bool							consumePendingTextureDrop(unsigned int aFboIndex) {
 			if (!mPendingTextureDrop.active) return false;
-			if (mPendingTextureDrop.pos.x < aRectMin.x || mPendingTextureDrop.pos.x > aRectMax.x ||
-				mPendingTextureDrop.pos.y < aRectMin.y || mPendingTextureDrop.pos.y > aRectMax.y) return false;
 			bool loaded = mVDMix->loadTextureIntoFboActiveSlot(aFboIndex, mPendingTextureDrop.path);
 			mPendingTextureDrop.active = false;
 			return loaded;
 		}
-		// called once per frame, after every fbo has had a chance to claim the drop above - if
-		// still pending (dropped somewhere that isn't any fbo's window), loads it standalone into
-		// the shared texture pool instead, pickable afterward by any fbo
+		// called once per frame by VDUI after every panel (also when the Fbos panel is hidden): a
+		// drop no fbo pane claimed goes to the shared texture pool (image) or a new fbo (video)
 		void							flushPendingTextureDrop() {
 			if (!mPendingTextureDrop.active) return;
-			mVDMix->addStandaloneTexture(mPendingTextureDrop.path);
+			mVDMix->addDroppedTextureOutsideFbos(mPendingTextureDrop.path);
 			mPendingTextureDrop.active = false;
 		}
 		// called once per fbo, per frame, from VDUIFbos.cpp, so every fbo's own active texture
@@ -278,6 +275,13 @@ namespace videodromm {
 			mVDAnimation->setPreferredAudioOutputDevice(aDevice);
 		}
 		std::string								getPreferredAudioInputDevice() { return mVDAnimation->getPreferredAudioInputDevice(); };
+		void									loadAudioDefaults() { mVDAnimation->loadAudioDefaults(); }
+		std::string								getDefaultAudioInputDevice() { return mVDAnimation->getDefaultAudioInputDevice(); }
+		std::string								getDefaultAudioOutputDevice() { return mVDAnimation->getDefaultAudioOutputDevice(); }
+		void									setDefaultAudioInputDevice(const std::string& aName) { mVDAnimation->setDefaultAudioInputDevice(aName); }
+		void									setDefaultAudioOutputDevice(const std::string& aName) { mVDAnimation->setDefaultAudioOutputDevice(aName); }
+		std::string								getMachineName() { return mVDAnimation->getMachineName(); }
+		std::string								getMachineId() { return mVDAnimation->getMachineId(); }
 		std::string								getPreferredAudioOutputDevice() { return mVDAnimation->getPreferredAudioOutputDevice(); };
 		bool									refreshAudioDevices() { return mVDAnimation->refreshAudioDevices(); };
 		std::vector<std::string>				getAudioInputDeviceNames() { return mVDAnimation->getAudioInputDeviceNames(); };
@@ -428,7 +432,7 @@ namespace videodromm {
 		std::string						mApiurl = "http://localhost:40088/";
 		// url of the Videodromm WebApp (Vite dev server), docked in VDUIHtmlPage via WebView2
 		std::string						mWebAppUrl = "http://localhost:5173/";
-		// drag-and-drop: a .jpg/.png/.mp4 drop waiting for VDUIFbos.cpp to hit-test against each
+		// drag-and-drop: a .jpg/.png/.mp4/.mov drop waiting for VDUIFbos.cpp to hit-test against each
 		// fbo's actual current window rect - see consumePendingTextureDropIfInRect()/flushPendingTextureDrop()
 		struct PendingTextureDrop {
 			bool		active = false;

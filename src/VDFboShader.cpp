@@ -193,7 +193,7 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		}
 		else {
 			// video
-			if (mExt == "mp4") {
+			if (mExt == "mp4" || mExt == "mov") {
 				bool fileExists = fs::exists(texFileOrPath);
 				if (!fileExists) {
 					mFboError = texFileOrPath.string() + " video does not exist, trying with parent folder";
@@ -371,7 +371,7 @@ void VDFboShader::loadImageFile(const std::string& aFile, unsigned int aCurrentI
 		mFboMsg = mInputTextureList[aCurrentIndex].name + " cached";
 	}
 }
-bool VDFboShader::loadVideoFile(const std::string& aFile) {
+bool VDFboShader::loadVideoFile(const std::string& aFile, bool aAutoPlay) {
 #if defined( CINDER_MSW )
 	// reuses the preferred audio output device (see VDAnimation's audio device selection) so the
 	// movie's audio lands on the device the user picked. Safe to call again on an already-playing
@@ -386,7 +386,10 @@ bool VDFboShader::loadVideoFile(const std::string& aFile) {
 	mVideoTextureWarningLogged = false;
 	if (mIsVideoLoaded) {
 		mVideo.setLoop(mVideoLoop);
+		// WMF only presents a frame once the session has started: start, then pause right away
+		// when not autoplaying, so the fbo shows the first frame instead of black
 		mVideo.play();
+		if (!aAutoPlay) mVideo.pause();
 		// ciWMFVideoPlayer's shared texture is GL_TEXTURE_RECTANGLE (see the comment on
 		// mVideoBlitFbo) - lazily set up the same rect-to-2D blit already used for Syphon on Mac
 		if (!mGlslVideoTexture) {
@@ -630,6 +633,11 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			break;
 		}
 		gl::ScopedFramebuffer fbScp(mFbo);
+		// own viewport + matrices: otherwise this inherits the window's (set in the app's draw()),
+		// and the fbo-sized quad below only covers part of the fbo once the window is resized
+		gl::ScopedViewport scpVp(ivec2(0), mFbo->getSize());
+		gl::ScopedMatrices scpMtx;
+		gl::setMatricesWindow(mFbo->getSize());
 		if (mVDUniforms->getUniformValue(mVDUniforms->ICLEAR)) {
 			gl::clear(Color::black());
 		}

@@ -110,9 +110,19 @@ namespace videodromm
 		void							setPreferredAudioInputDevice(const std::string& aPreferredAudioInputDevice) {
 			mPreferredAudioInputDevice = aPreferredAudioInputDevice;
 		};
-		void							setPreferredAudioOutputDevice(const std::string& aPreferredAudioOutputDevice) {
-			mPreferredAudioOutputDevice = aPreferredAudioOutputDevice;
-		};
+		// also moves an audio file that's already playing to that device
+		void							setPreferredAudioOutputDevice(const std::string& aPreferredAudioOutputDevice);
+		// per-PC default devices, kept in assets/audio.json under this machine's id (VDMachine.h),
+		// since the assets folder is shared between PCs whose devices differ. Applied at startup,
+		// over session.json's last selection.
+		void							loadAudioDefaults();
+		std::string						getDefaultAudioInputDevice() const { return mDefaultAudioInputDevice; }
+		std::string						getDefaultAudioOutputDevice() const { return mDefaultAudioOutputDevice; }
+		// empty clears the default; a non-empty name also selects it
+		void							setDefaultAudioInputDevice(const std::string& aName);
+		void							setDefaultAudioOutputDevice(const std::string& aName);
+		std::string						getMachineName() const { return mMachineName; }
+		std::string						getMachineId() const { return mMachineId; }
 		std::string						getPreferredAudioInputDevice() { return mPreferredAudioInputDevice; };
 		std::string						getPreferredAudioOutputDevice() { return mPreferredAudioOutputDevice; };
 		// (re)enumerates the system's audio input/output devices into inputDevices/outputDevices,
@@ -186,6 +196,14 @@ namespace videodromm
 		std::vector<ci::audio::DeviceRef> outputDevices;
 		std::string						mPreferredAudioInputDevice;
 		std::string						mPreferredAudioOutputDevice;
+		std::string						mDefaultAudioInputDevice;
+		std::string						mDefaultAudioOutputDevice;
+		std::string						mMachineId;
+		std::string						mMachineName;
+		void							saveAudioDefaults();
+		// routes the audio context's output (the audio file player) to mPreferredAudioOutputDevice,
+		// as movies already are (ciWMFVideoPlayer gets the device name directly)
+		void							applyPreferredAudioOutput();
 		bool							mUseAudio = true;
 		bool							mUseRandom = false;
 		bool							mUseLineIn = false;

@@ -151,6 +151,9 @@ namespace videodromm {
 
 		// setup the viewport to match the dimensions of the FBO
 		gl::ScopedViewport scpVp(ivec2(0), mMixetteFbo->getSize());
+		// fbo-sized matrices, not the window's (a resized window truncated the mix)
+		gl::ScopedMatrices scpMtx;
+		gl::setMatricesWindow(mMixetteFbo->getSize());
 
 		// VDFboShader::getTexture() doesn't just return a cached texture ref - it actively
 		// re-renders that fbo's own shader every time it's called (calls getFboTexture()
@@ -351,7 +354,8 @@ namespace videodromm {
 			std::string ext = "";
 			int dotIndex = texFileOrPath.filename().string().find_last_of(".");
 			if (dotIndex != std::string::npos)  ext = texFileOrPath.filename().string().substr(dotIndex + 1);
-			if (ext == "mp4") {
+			for (auto& c : ext) c = (char)std::tolower((unsigned char)c);
+			if( ext == "mp4" || ext == "mov" ) {
 				if (aFboIndex >= mFboShaderList.size()) {
 					// dropped beyond any existing fbo panel (empty area) - create a new fbo, same
 					// pattern as loadImageFile()'s equivalent branch above
@@ -396,14 +400,28 @@ namespace videodromm {
 			mFboShaderList[aFboIndex]->loadImageFile(aFile);
 			return true;
 		}
-		if (ext == "mp4") {
+		if (ext == "mp4" || ext == "mov") {
 			// a video doesn't need an effect shader running on top of it - reset to the basic
 			// passthrough before swapping in the video, rather than keeping whatever complex
 			// shader happened to be on this fbo already
 			mFboShaderList[aFboIndex]->loadFragmentShaderFromFile("inputImage.fs");
-			return mFboShaderList[aFboIndex]->loadVideoFile(aFile);
+			// dropped: cued on its first frame, started with the fbo's Play button
+			return mFboShaderList[aFboIndex]->loadVideoFile(aFile, false);
 		}
 		return false;
+	}
+
+	bool VDMix::addDroppedTextureOutsideFbos(const std::string& aFile) {
+		std::string ext = getExtensionLower(fs::path(aFile));
+		if (ext == "mp4" || ext == "mov") {
+			unsigned int count = (unsigned int)mFboShaderList.size();
+			loadVideoFile(aFile, count);
+			if (mFboShaderList.size() <= count) return false;
+			// created from json (which autoplays, like videos in a saved mix): cue it paused instead
+			mFboShaderList[count]->pauseVideo();
+			return true;
+		}
+		return addStandaloneTexture(aFile);
 	}
 
 	void VDMix::registerLoadedTexture(const std::string& aName, ci::gl::Texture2dRef aTexture) {

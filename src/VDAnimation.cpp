@@ -1,4 +1,5 @@
 #include "VDAnimation.h"
+#include "VDMachine.h"
 
 using namespace videodromm;
 
@@ -275,7 +276,8 @@ void  VDAnimation::initLineIn() {
 					
 				}
 				doc.pushBack(audiooutputs);
-				doc.write(writeFile(getAssetPath("") / "audio.json"), JsonTree::WriteOptions());
+				// device list, for reference only (audio.json holds the per-PC default devices)
+				doc.write(writeFile(getAssetPath("") / "audiodevices.json"), JsonTree::WriteOptions());
 				if (audioDeviceFound) {
 					auto device = ci::audio::Device::findDeviceByKey(preferredAudioDeviceKey);
 					CI_LOG_W("trying to open mic/line in, if no line follows in the log, the app crashed so put UseLineIn to false in the VDSettings.xml file");
@@ -654,6 +656,121 @@ void VDAnimation::calculateTempo()
 	mVDUniforms->setUniformValue(mVDUniforms->IBPM, (float)(60.0 / averageTime));
 }
 
+void VDAnimation::setPreferredAudioOutputDevice(const std::string& aPreferredAudioOutputDevice) {
+	mPreferredAudioOutputDevice = aPreferredAudioOutputDevice;
+	if (mSamplePlayerNode) applyPreferredAudioOutput();
+}
+
+void VDAnimation::applyPreferredAudioOutput() {
+#if (defined( CINDER_MSW ) || defined( CINDER_MAC ))
+	if (mPreferredAudioOutputDevice.empty()) return;
+	if (outputDevices.empty() && !refreshAudioDevices()) return;
+	ci::audio::DeviceRef device;
+	for (auto& out : outputDevices) {
+		if (out->getName() == mPreferredAudioOutputDevice) { device = out; break; }
+	}
+	// older session.json values can be a partial name: same substring match as initLineIn()
+	if (!device) {
+		for (auto& out : outputDevices) {
+			if (out->getName().find(mPreferredAudioOutputDevice) != std::string::npos) { device = out; break; }
+		}
+	}
+	if (!device) {
+		CI_LOG_W("audio output device not found: " << mPreferredAudioOutputDevice << ", using the default");
+		return;
+	}
+	auto current = std::dynamic_pointer_cast<audio::OutputDeviceNode>(ctx->getOutput());
+	if (current && current->getDevice() == device) return;
+	bool wasEnabled = ctx->isEnabled();
+	ctx->disable();
+	try {
+		ctx->setOutput(ctx->createOutputDeviceNode(device));
+		if (mSamplePlayerNode && mMonitorWaveSpectralNode) {
+			mMonitorWaveSpectralNode->disconnectAllOutputs();
+			mMonitorWaveSpectralNode >> ctx->getOutput();
+		}
+		CI_LOG_I("audio output device: " << device->getName());
+	}
+	catch (const std::exception& ex) {
+		CI_LOG_E("could not open audio output device " << device->getName() << ": " << ex.what());
+	}
+	if (wasEnabled) ctx->enable();
+#endif
+}
+
+void VDAnimation::loadAudioDefaults() {
+	if (mMachineId.empty()) {
+		mMachineId = machine::getId();
+		mMachineName = machine::getName();
+	}
+	fs::path jsonFile = getAssetPath("") / "audio.json";
+	if (!fs::exists(jsonFile)) return;
+	try {
+		JsonTree json(loadFile(jsonFile));
+		if (!json.hasChild("machines")) return;
+		for (const auto& m : json.getChild("machines")) {
+			if (!m.hasChild("id") || m.getValueForKey<std::string>("id") != mMachineId) continue;
+			if (m.hasChild("input")) mDefaultAudioInputDevice = m.getValueForKey<std::string>("input");
+			if (m.hasChild("output")) mDefaultAudioOutputDevice = m.getValueForKey<std::string>("output");
+		}
+	}
+	catch (const std::exception& ex) {
+		CI_LOG_E("audio.json: " << ex.what());
+	}
+	if (!mDefaultAudioInputDevice.empty()) setPreferredAudioInputDevice(mDefaultAudioInputDevice);
+	if (!mDefaultAudioOutputDevice.empty()) setPreferredAudioOutputDevice(mDefaultAudioOutputDevice);
+}
+
+void VDAnimation::setDefaultAudioInputDevice(const std::string& aName) {
+	mDefaultAudioInputDevice = aName;
+	if (!aName.empty()) setPreferredAudioInputDevice(aName);
+	saveAudioDefaults();
+}
+
+void VDAnimation::setDefaultAudioOutputDevice(const std::string& aName) {
+	mDefaultAudioOutputDevice = aName;
+	if (!aName.empty()) setPreferredAudioOutputDevice(aName);
+	saveAudioDefaults();
+}
+
+// rewrites only this machine's entry, keeping the other PCs'
+void VDAnimation::saveAudioDefaults() {
+	if (mMachineId.empty()) {
+		mMachineId = machine::getId();
+		mMachineName = machine::getName();
+	}
+	fs::path jsonFile = getAssetPath("") / "audio.json";
+	JsonTree machines = JsonTree::makeArray("machines");
+	try {
+		if (fs::exists(jsonFile)) {
+			JsonTree json(loadFile(jsonFile));
+			if (json.hasChild("machines")) {
+				for (const auto& m : json.getChild("machines")) {
+					if (m.hasChild("id") && m.getValueForKey<std::string>("id") == mMachineId) continue;
+					machines.pushBack(m);
+				}
+			}
+		}
+	}
+	catch (const std::exception& ex) {
+		CI_LOG_W("audio.json unreadable, rewriting it: " << ex.what());
+	}
+	JsonTree entry;
+	entry.addChild(JsonTree("id", mMachineId));
+	entry.addChild(JsonTree("name", mMachineName));
+	entry.addChild(JsonTree("input", mDefaultAudioInputDevice));
+	entry.addChild(JsonTree("output", mDefaultAudioOutputDevice));
+	machines.pushBack(entry);
+	try {
+		JsonTree doc;
+		doc.addChild(machines);
+		doc.write(writeFile(jsonFile), JsonTree::WriteOptions());
+	}
+	catch (const std::exception& ex) {
+		CI_LOG_E("audio.json save: " << ex.what());
+	}
+}
+
 bool VDAnimation::loadAudioFile(const std::string& aPath) {
 	// several fbos can name the same file: don't reload it
 	if (aPath == mLoadedAudioFile && mSamplePlayerNode) return true;
@@ -674,6 +791,8 @@ bool VDAnimation::loadAudioFile(const std::string& aPath) {
 		mSamplePlayerNode = ctx->makeNode(new audio::FilePlayerNode(mSourceFile, false));
 		mSamplePlayerNode->setLoopEnabled(mAudioFileLoop);
 		mSamplePlayerNode >> mMonitorWaveSpectralNode;
+		// the selected output device, not the system default (movies already use it)
+		applyPreferredAudioOutput();
 		if (!mMonitorWaveSpectralNode->isConnectedToOutput(ctx->getOutput())) {
 			mMonitorWaveSpectralNode >> ctx->getOutput();
 		}

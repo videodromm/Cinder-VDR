@@ -187,6 +187,13 @@ namespace videodromm
 		std::vector<std::string> getAudioInputDeviceNames() { return mVDSession->getAudioInputDeviceNames(); };
 		std::vector<std::string> getAudioOutputDeviceNames() { return mVDSession->getAudioOutputDeviceNames(); };
 		std::string				getPreferredAudioInputDevice() { return mVDSession->getPreferredAudioInputDevice(); };
+		// per-PC default devices (assets/audio.json, keyed by machine id - see VDMachine.h)
+		std::string				getDefaultAudioInputDevice() { return mVDSession->getDefaultAudioInputDevice(); }
+		std::string				getDefaultAudioOutputDevice() { return mVDSession->getDefaultAudioOutputDevice(); }
+		void					setDefaultAudioInputDevice(const std::string& aName) { mVDSession->setDefaultAudioInputDevice(aName); }
+		void					setDefaultAudioOutputDevice(const std::string& aName) { mVDSession->setDefaultAudioOutputDevice(aName); }
+		std::string				getMachineName() { return mVDSession->getMachineName(); }
+		std::string				getMachineId() { return mVDSession->getMachineId(); }
 		std::string				getPreferredAudioOutputDevice() { return mVDSession->getPreferredAudioOutputDevice(); };
 		// selects the preferred device by name and persists it to sessionPath immediately, so it's
 		// still selected on the next launch even if the app isn't closed cleanly.
@@ -231,9 +238,9 @@ namespace videodromm
 		void					setVideoVolume(unsigned int aFboIndex, float aVolume) { mVDSession->setVideoVolume(aFboIndex, aVolume); }
 		float					getVideoVolume(unsigned int aFboIndex) { return mVDSession->getVideoVolume(aFboIndex); }
 		// drag-and-drop, consumed by VDUIFbos.cpp - see VDSession.h for the full explanation
-		bool					consumePendingTextureDropIfInRect(unsigned int aFboIndex, ci::vec2 aRectMin, ci::vec2 aRectMax) {
-			return mVDSession->consumePendingTextureDropIfInRect(aFboIndex, aRectMin, aRectMax);
-		}
+		bool					hasPendingTextureDrop() const { return mVDSession->hasPendingTextureDrop(); }
+		ci::vec2				getPendingTextureDropPos() const { return mVDSession->getPendingTextureDropPos(); }
+		bool					consumePendingTextureDrop(unsigned int aFboIndex) { return mVDSession->consumePendingTextureDrop(aFboIndex); }
 		void					flushPendingTextureDrop() { mVDSession->flushPendingTextureDrop(); }
 		void					registerFboActiveTextureInGlobalPool(unsigned int aFboIndex) { mVDSession->registerFboActiveTextureInGlobalPool(aFboIndex); }
 		int						getInputTextureMode(unsigned int aFboIndex) { return mVDSession->getInputTextureMode(aFboIndex); }

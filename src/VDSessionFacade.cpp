@@ -57,6 +57,8 @@ VDSessionFacadeRef VDSessionFacade::setupSession() {
 		oStream.close();
 		save();
 	}
+	// this PC's default audio devices win over session.json's last selection (shared between PCs)
+	mVDSession->loadAudioDefaults();
 	return shared_from_this();
 }
 VDSessionFacadeRef VDSessionFacade::setupWSClient() {
