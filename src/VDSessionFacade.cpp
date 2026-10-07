@@ -59,6 +59,8 @@ VDSessionFacadeRef VDSessionFacade::setupSession() {
 	}
 	// this PC's default audio devices win over session.json's last selection (shared between PCs)
 	mVDSession->loadAudioDefaults();
+	// mic/line in from the default (or this PC's default) input, open from startup
+	mVDSession->startLineIn();
 	return shared_from_this();
 }
 VDSessionFacadeRef VDSessionFacade::setupWSClient() {

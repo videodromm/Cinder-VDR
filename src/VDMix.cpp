@@ -342,57 +342,17 @@ namespace videodromm {
 			if (dotIndex != std::string::npos)  ext = texFileOrPath.filename().string().substr(dotIndex + 1);
 			if (ext == "jpg" || ext == "png") {
 				if (aFboIndex >= mFboShaderList.size()) {
-					// dropped beyond any existing fbo panel (empty area) - create a new inputImage.fs fbo
-					JsonTree		json;
-					JsonTree texture = ci::JsonTree::makeArray("texture");
-					texture.addChild(ci::JsonTree("texturename", aFile));
-					texture.pushBack(ci::JsonTree("texturetype", "image"));
-					texture.pushBack(ci::JsonTree("texturemode", 1));
-					texture.pushBack(ci::JsonTree("texturecount", 1));
-					json.addChild(texture);
-					JsonTree shader = ci::JsonTree::makeArray("shader");
-					shader.addChild(ci::JsonTree("shadername", "inputImage.fs"));
-					shader.pushBack(ci::JsonTree("shadertype", "fs"));
-					json.addChild(shader);
-					createFboShaderTexture(json, aFboIndex);
+					// beyond any existing fbo: into the pool only, paused (any fbo can pick it)
+					addVideoSource(aFile, false);
 				}
 				else {
-					// dropped onto an existing fboshader - keep its shader, just swap the input texture
-					mFboShaderList[aFboIndex]->loadImageFile(aFile);
-				}
-			}
-		}
-	}
-	void VDMix::loadVideoFile(const std::string& aFile, unsigned int aFboIndex) {
-		fs::path texFileOrPath = aFile;
-		if (fs::exists(texFileOrPath)) {
-
-			std::string ext = "";
-			int dotIndex = texFileOrPath.filename().string().find_last_of(".");
-			if (dotIndex != std::string::npos)  ext = texFileOrPath.filename().string().substr(dotIndex + 1);
-			for (auto& c : ext) c = (char)std::tolower((unsigned char)c);
-			if( ext == "mp4" || ext == "mov" ) {
-				if (aFboIndex >= mFboShaderList.size()) {
-					// dropped beyond any existing fbo panel (empty area) - create a new fbo, same
-					// pattern as loadImageFile()'s equivalent branch above
-					JsonTree		json;
-					JsonTree texture = ci::JsonTree::makeArray("texture");
-					texture.addChild(ci::JsonTree("texturename", aFile));
-					texture.pushBack(ci::JsonTree("texturetype", "video"));
-					texture.pushBack(ci::JsonTree("texturemode", 3));
-					texture.pushBack(ci::JsonTree("texturecount", 1));
-					json.addChild(texture);
-					JsonTree shader = ci::JsonTree::makeArray("shader");
-					shader.addChild(ci::JsonTree("shadername", "inputImage.fs"));
-					shader.pushBack(ci::JsonTree("shadertype", "fs"));
-					json.addChild(shader);
-					createFboShaderTexture(json, aFboIndex);
-				}
-				else {
-					// dropped onto an existing fboshader - a video doesn't need an effect shader
-					// running on top of it, reset to the basic passthrough first
-					mFboShaderList[aFboIndex]->loadFragmentShaderFromFile("inputImage.fs");
-					mFboShaderList[aFboIndex]->loadVideoFile(aFile);
+					// dropped onto an existing fboshader: replaced by the inputImage.fs passthrough,
+					// which shows the video as it is
+					std::string name = addVideoSource(aFile, false);
+					if (!name.empty()) {
+						mFboShaderList[aFboIndex]->loadFragmentShaderFromFile("inputImage.fs");
+						mFboShaderList[aFboIndex]->assignVideoInput(getVideoSource(name)->getTexture(), name);
+					}
 				}
 			}
 		}
@@ -414,30 +374,86 @@ namespace videodromm {
 		std::string ext = getExtensionLower(fs::path(aFile));
 		if (ext == "jpg" || ext == "png") {
 			mFboShaderList[aFboIndex]->loadImageFile(aFile);
+			// IMAGE mode: an AUDIO/MOVIE/... mode would keep its own source in slot 0
+			mFboShaderList[aFboIndex]->setImageMode();
 			return true;
 		}
 		if (ext == "mp4" || ext == "mov") {
-			// a video doesn't need an effect shader running on top of it - reset to the basic
-			// passthrough before swapping in the video, rather than keeping whatever complex
-			// shader happened to be on this fbo already
+			// into the pool, paused on its first frame (the Play button starts it); the fbo's shader
+			// is replaced by the inputImage.fs passthrough, which shows the video as it is
+			std::string name = addVideoSource(aFile, false);
+			if (name.empty()) return false;
 			mFboShaderList[aFboIndex]->loadFragmentShaderFromFile("inputImage.fs");
-			// dropped: cued on its first frame, started with the fbo's Play button
-			return mFboShaderList[aFboIndex]->loadVideoFile(aFile, false);
+			mFboShaderList[aFboIndex]->assignVideoInput(getVideoSource(name)->getTexture(), name);
+			return true;
 		}
 		return false;
 	}
 
 	bool VDMix::addDroppedTextureOutsideFbos(const std::string& aFile) {
 		std::string ext = getExtensionLower(fs::path(aFile));
-		if (ext == "mp4" || ext == "mov") {
-			unsigned int count = (unsigned int)mFboShaderList.size();
-			loadVideoFile(aFile, count);
-			if (mFboShaderList.size() <= count) return false;
-			// created from json (which autoplays, like videos in a saved mix): cue it paused instead
-			mFboShaderList[count]->pauseVideo();
-			return true;
-		}
+		// a video gets a pool entry of its own, paused: any fbo can then pick it
+		if (ext == "mp4" || ext == "mov") return !addVideoSource(aFile, false).empty();
 		return addStandaloneTexture(aFile);
+	}
+
+	std::string VDMix::addVideoSource(const std::string& aPath, bool aAutoPlay) {
+		std::string name = fs::path(aPath).filename().string();
+		if (getVideoSource(name)) return name;
+		VDVideoSourceRef source = VDVideoSource::create(aPath, mVDAnimation->getPreferredAudioOutputDevice(),
+			ivec2(mVDParams->getFboWidth(), mVDParams->getFboHeight()), aAutoPlay);
+		if (!source) return "";
+		mVideoSources.push_back(source);
+		registerLoadedTexture(name, source->getTexture());
+		return name;
+	}
+
+	void VDMix::updateVideoSources() {
+		// videos named by fbo jsons (a loaded mix): into the pool, playing like before, then assigned
+		for (auto& fbo : mFboShaderList) {
+			std::string pending = fbo->takePendingVideoFile();
+			if (pending.empty()) continue;
+			std::string name = addVideoSource(pending, true);
+			if (!name.empty()) fbo->assignVideoInput(getVideoSource(name)->getTexture(), name);
+			else fbo->setFboTextureAudioMode();
+		}
+		for (auto& source : mVideoSources) {
+			source->update();
+			// volume: level x the highest weight of the fbos showing it (the level alone when none
+			// does, it keeps playing in the pool), 0 while scrubbing
+			float maxWeight = -1.0f;
+			for (unsigned int i = 0; i < mFboShaderList.size(); i++) {
+				if (!mFboShaderList[i]->isMovie() || mFboShaderList[i]->getTextureName(0) != source->getName()) continue;
+				float weight = (i <= 8) ? mVDUniforms->getUniformValue(mVDUniforms->IWEIGHT0 + i) : 1.0f;
+				maxWeight = std::max(maxWeight, weight);
+			}
+			float volume = source->getVolumeLevel() * (maxWeight < 0.0f ? 1.0f : maxWeight);
+			source->setOutputVolume(source->isScrubbing() ? 0.0f : volume);
+		}
+	}
+
+	void VDMix::togglePlayPauseSource(const std::string& aName) {
+		VDVideoSourceRef video = getVideoSource(aName);
+		if (!video) return;
+		if (!video->isPlaying()) {
+			for (auto& other : mVideoSources) if (other != video) other->pause();
+			if (mVDAnimation->isAudioFilePlaying()) mVDAnimation->toggleAudioFilePlayPause();
+		}
+		video->togglePlayPause();
+	}
+
+	void VDMix::togglePlayPause(unsigned int aFboIndex) {
+		if (mFboShaderList.empty()) return;
+		if (VDVideoSourceRef video = videoFor(aFboIndex)) {
+			togglePlayPauseSource(video->getName());
+			return;
+		}
+		VDFboShaderRef fbo = mFboShaderList[getValidFboIndex(aFboIndex)];
+		// starting the audio file pauses every playing video (one sound at a time)
+		if (fbo->isAudioFile() && !fbo->isPlaying()) {
+			for (auto& source : mVideoSources) source->pause();
+		}
+		fbo->togglePlayPause();
 	}
 
 	void VDMix::registerLoadedTexture(const std::string& aName, ci::gl::Texture2dRef aTexture) {

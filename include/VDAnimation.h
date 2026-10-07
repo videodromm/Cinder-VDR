@@ -79,6 +79,7 @@ namespace videodromm
 		audio::SamplePlayerNodeRef		mSamplePlayerNode;
 		audio::SourceFileRef			mSourceFile;
 		std::string						mLoadedAudioFile;
+		std::string						mLineInDeviceName;
 		bool							mAudioFileLoop = false;
 		audio::MonitorSpectralNodeRef	mScopeLineInFmt;
 		audio::BufferPlayerNodeRef		mBufferPlayerNode;
@@ -135,6 +136,15 @@ namespace videodromm
 		std::vector<std::string>		getAudioInputDeviceNames();
 		std::vector<std::string>		getAudioOutputDeviceNames();
 		void							initLineIn();
+		// opens the mic/line in (preferred input, else the system default) at startup; it becomes
+		// the FFT source unless an audio file is already playing
+		void							startLineIn();
+		// what the audio texture / iFreq* currently analyse: "mic: <device>", "file: <name>" or "silent"
+		std::string						getAudioSourceLabel() {
+			if (getUseLineIn() && mLineInInitialized) return "mic: " + mLineInDeviceName;
+			if (mSamplePlayerNode && mSamplePlayerNode->isEnabled()) return "file: " + ci::fs::path(mLoadedAudioFile).filename().string();
+			return "silent";
+		}
 		void							setUseWaveMonitor(bool useWaveMonitor) {
 			mUseAudio = useWaveMonitor;
 		};
@@ -210,6 +220,8 @@ namespace videodromm
 		bool							mUseAudio = true;
 		bool							mUseRandom = false;
 		bool							mUseLineIn = false;
+		// FFT source follows the audio file: file playing -> file, file ended/paused -> mic (update())
+		bool							mAudioFileWasPlaying = false;
 		std::map<int, int>				freqIndexes;
 		bool							mAudioBuffered = false;
 		ci::gl::TextureRef				mAudioTexture;

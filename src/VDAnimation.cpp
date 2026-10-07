@@ -283,10 +283,12 @@ void  VDAnimation::initLineIn() {
 					CI_LOG_W("trying to open mic/line in, if no line follows in the log, the app crashed so put UseLineIn to false in the VDSettings.xml file");
 					mLineIn = ctx->createInputDeviceNode(device); //crashes if linein is present but disabled, doesn't go to catch block
 					mAudioName = mPreferredAudioInputDevice;
+					mLineInDeviceName = device ? device->getName() : mPreferredAudioInputDevice;
 				}
 				else {
 					mLineIn = ctx->createInputDeviceNode();
 					mAudioName = mLineIn->getDevice()->getName();
+					mLineInDeviceName = mAudioName;
 				}
 
 				CI_LOG_V("mic/line in opened");
@@ -431,7 +433,30 @@ void VDAnimation::resetAnim() {
 	}
 }
 
+void VDAnimation::startLineIn() {
+#if (defined( CINDER_MSW ) || defined( CINDER_MAC ))
+	if (mLineInInitialized) return;
+	bool filePlaying = mSamplePlayerNode && mSamplePlayerNode->isEnabled();
+	setUseLineIn(true);
+	initLineIn();
+	// opened either way; an audio file already playing stays the FFT source
+	if (filePlaying) setUseLineIn(false);
+	ctx->enable();
+#endif
+}
+
 void VDAnimation::update() {
+	// FFT source: an audio file while it plays, the mic once it has ended or been paused (the mic
+	// toggle is only overridden on those two transitions, so it can still be switched off by hand).
+	// Video audio (Media Foundation) isn't analysed: the mic stays the source while a video plays.
+	bool filePlaying = mSamplePlayerNode && mSamplePlayerNode->isEnabled();
+	if (filePlaying && !mAudioFileWasPlaying) {
+		setUseLineIn(false);
+	}
+	else if (!filePlaying && mAudioFileWasPlaying && mLineInInitialized) {
+		setUseLineIn(true);
+	}
+	mAudioFileWasPlaying = filePlaying;
 
 	if (mBadTV[getElapsedFrames()] == 0) {
 		// TODO check shaderUniforms["iBadTv"].floatValue = 0.0f;

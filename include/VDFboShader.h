@@ -32,7 +32,6 @@
 #include "VDParams.h"
 // video (Windows-only, see Cinder-WMFVideo/cinderblock.xml's <supports os="msw" />)
 #if defined( CINDER_MSW )
-#include "ciWMFVideoPlayer.h"
 #endif
 // Spout (Windows-only)
 #if defined( CINDER_MSW )
@@ -127,15 +126,19 @@ namespace videodromm
 		};
 		// full path (dnd)
 		void									loadImageFile(const std::string& aFile, unsigned int aCurrentIndex = 0);
-		// swaps this fbo's active video, keeping its shader (drag-and-drop onto an existing fbo) -
-		// Windows only, mirrors createInputTexture()'s MOVIE-loading logic
-		// aAutoPlay false (drag-and-drop): starts then pauses at once, so the first frame shows
-		bool									loadVideoFile(const std::string& aFile, bool aAutoPlay = true);
-		void									pauseVideo() {
-#if defined( CINDER_MSW )
-			if (mIsVideoLoaded && mVideo.isPlaying()) mVideo.pause();
-#endif
+		// videos are pool sources (VDVideoSource, owned by VDMix): an fbo json naming a video only
+		// records it here; VDMix::updateVideoSources() loads it into the pool and assigns it
+		std::string								takePendingVideoFile() { std::string file = mPendingVideoFile; mPendingVideoFile.clear(); return file; }
+		// input = a pool video's texture (stable for the source's lifetime): MOVIE mode
+		void									assignVideoInput(ci::gl::Texture2dRef aTextureRef, const std::string& aName) {
+			mTextureMode = VDTextureMode::MOVIE;
+			mTypestr = "video";
+			mCurrentFilename = mTextureName = aName;
+			setInputTextureRefByIndex(0, aTextureRef, aName);
 		}
+		// an image file loaded into slot 0 (drag-and-drop): IMAGE mode, so a previous AUDIO/MOVIE/...
+		// mode doesn't keep overwriting it
+		void									setImageMode() { mTextureMode = VDTextureMode::IMAGE; mTypestr = "image"; }
 		unsigned int							getInputTexturesCount() {
 			return mInputTextureList.size();
 		}
@@ -205,30 +208,19 @@ namespace videodromm
 		bool									isAudioFile() {
 			return mTextureMode == VDTextureMode::AUDIO && mPlaysAudioFile;
 		}
+		// playback controls for sequences and audio-file fbos; a video input (MOVIE) is a pool source,
+		// controlled through VDMix (which checks for one first)
 		bool									isPlaying() {
-#if defined( CINDER_MSW )
-			if (mTextureMode == VDTextureMode::MOVIE) return mIsVideoLoaded && mVideo.isPlaying();
-#endif
 			if (isAudioFile()) return mVDAnimation->isAudioFilePlaying();
 			// a sequence follows IBARBEAT (always running) until its manual controls are touched
 			if (mTextureMode == VDTextureMode::SEQUENCE) return !mSequenceManualControl || mSequencePlaying;
 			return false;
 		}
 		bool									isLooping() {
-#if defined( CINDER_MSW )
-			if (mTextureMode == VDTextureMode::MOVIE) return mVideoLoop;
-#endif
 			if (isAudioFile()) return mVDAnimation->isAudioFileLooping();
 			return false;
 		}
 		void									toggleLoop() {
-#if defined( CINDER_MSW )
-			if (mTextureMode == VDTextureMode::MOVIE) {
-				mVideoLoop = !mVideoLoop;
-				if (mIsVideoLoaded) mVideo.setLoop(mVideoLoop);
-				return;
-			}
-#endif
 			if (isAudioFile()) mVDAnimation->setAudioFileLoop(!mVDAnimation->isAudioFileLooping());
 		}
 		void									togglePlayPause() {
@@ -236,119 +228,54 @@ namespace videodromm
 				mVDAnimation->toggleAudioFilePlayPause();
 				return;
 			}
-#if defined( CINDER_MSW )
-			if (mTextureMode == VDTextureMode::MOVIE) {
-				if (!mIsVideoLoaded) return;
-				if (mVideo.isPlaying()) {
-					mVideo.pause();
-				}
-				else {
-					// a non-looping movie pauses on its last frame: play it again from the start
-					if (mVideo.getDuration() > 0.0f && mVideo.getPosition() >= mVideo.getDuration() - 0.05f) mVideo.setPosition(0.0f);
-					mVideo.play();
-				}
-				return;
-			}
-#else
-			if (mTextureMode == VDTextureMode::MOVIE) return; // movie playback unavailable on this platform
-#endif
 			if (mTextureMode == VDTextureMode::SEQUENCE) {
 				mSequenceManualControl = true;
 				mSequencePlaying = !mSequencePlaying;
 			}
 		}
 		void									reverse() {
-#if defined( CINDER_MSW )
-			if (mTextureMode == VDTextureMode::MOVIE) {
-				// native negative-rate playback is unreliable on this backend (see setSpeed()'s
-				// own comments in ciWMFVideoPlayer.cpp), so reverse is simulated by manually
-				// stepping the position backward each frame in getFboTexture() instead.
-				mVideoReversed = !mVideoReversed;
-				return;
-			}
-#else
-			if (mTextureMode == VDTextureMode::MOVIE) return;
-#endif
 			if (mTextureMode == VDTextureMode::SEQUENCE) {
 				mSequenceManualControl = true;
 				mSequenceReversed = !mSequenceReversed;
 			}
 		}
 		float									getSpeed() {
-#if defined( CINDER_MSW )
-			if (mTextureMode == VDTextureMode::MOVIE) return mVideo.getSpeed();
-#endif
 			return mSequenceSpeed;
 		}
 		void									setSpeed(float aSpeed) {
-#if defined( CINDER_MSW )
-			if (mTextureMode == VDTextureMode::MOVIE) {
-				// plenty of codecs reject SetPlaybackRate() for a non-1.0 rate unless thinning
-				// (dropping delta frames) is enabled - retry with thinning before giving up,
-				// rather than silently doing nothing like before (the reported "speed slider has
-				// no visible effect" symptom)
-				if (!mVideo.setSpeed(aSpeed, false) && !mVideo.setSpeed(aSpeed, true)) {
-					if (!mVideoSpeedWarningLogged) {
-						mVideoSpeedWarningLogged = true;
-						CI_LOG_W("MOVIE mode: setSpeed(" << aSpeed << ") rejected by the codec, with and without thinning");
-					}
-				}
-				return;
-			}
-#endif
 			mSequenceManualControl = true;
 			mSequenceSpeed = aSpeed;
 		}
-		// no-op outside MOVIE mode - only a playing video has anything to set the volume of
-		// actual output volume: the video's, or the audio file player's for an audio-file fbo
+		// actual output volume of an audio-file fbo (the audio file player's)
 		void									setVideoVolume(float aVolume) {
-#if defined( CINDER_MSW )
-			if (mTextureMode == VDTextureMode::MOVIE) mVideo.setVolume(aVolume);
-#endif
 			if (isAudioFile()) mVDAnimation->setAudioFileVolume(aVolume);
 		}
-		// per-fbo volume level (the pane's volume slider); the UI applies level x weight
+		// per-fbo volume level of an audio-file fbo (the pane's volume slider); the UI applies level x weight
 		float									getVolumeLevel() const { return mVolumeLevel; }
 		void									setVolumeLevel(float aLevel) { mVolumeLevel = ci::math<float>::clamp(aLevel, 0.0f, 1.0f); }
-		// decodes/blits this fbo's video, if any (see VDFboShader.cpp)
-		void									updateVideo();
-		// assigns a shared-pool texture as this fbo's input (see VDFboShader.cpp)
+		// true when the shader samples its input texture (iChannel0, or ISF's inputImage)
+		bool									usesInputTexture() {
+			if (!mShader) return false;
+			for (const auto& uniform : mShader->getActiveUniforms()) {
+				if (uniform.getName() == "iChannel0" || uniform.getName() == "inputImage") return true;
+			}
+			return false;
+		}
+		// assigns a non-video pool texture as this fbo's input (see VDFboShader.cpp)
 		void									assignInputTexture(ci::gl::Texture2dRef aTextureRef, const std::string& aName);
 		float									getVideoVolume() {
-#if defined( CINDER_MSW )
-			if (mTextureMode == VDTextureMode::MOVIE) return mVideo.getVolume();
-#endif
 			return 0.0f;
 		}
 		int										getPosition() {
-#if defined( CINDER_MSW )
-			if (mTextureMode == VDTextureMode::MOVIE) {
-				float fps = mVideo.getFrameRate();
-				return fps > 0.0f ? (int)(mVideo.getPosition() * fps + 0.5f) : 0;
-			}
-#endif
 			return mCurrentImageSequenceIndex;
 		}
 		void									setPlayheadPosition(int aPosition) {
-#if defined( CINDER_MSW )
-			if (mTextureMode == VDTextureMode::MOVIE) {
-				float fps = mVideo.getFrameRate();
-				if (fps > 0.0f) mVideo.setPosition(aPosition / fps);
-				return;
-			}
-#endif
 			mSequenceManualControl = true;
 			if (aPosition < 0) aPosition = 0;
 			if (mTextureCount > 0 && aPosition > mTextureCount - 1) aPosition = mTextureCount - 1;
 			loadNextTexture((unsigned int)aPosition);
 		}
 		int										getMaxFrame() {
-#if defined( CINDER_MSW )
-			if (mTextureMode == VDTextureMode::MOVIE) {
-				float fps = mVideo.getFrameRate();
-				return fps > 0.0f ? (int)(mVideo.getDuration() * fps + 0.5f) : 0;
-			}
-#endif
 			return mTextureCount > 0 ? mTextureCount - 1 : 0;
 		}
 		bool handleMouseDown(MouseEvent event)
@@ -390,14 +317,7 @@ namespace videodromm
 		// normalized UVs), same as every other input texture mode here
 		ci::gl::FboRef					mSyphonBlitFbo;
 		#endif
-		#if defined( CINDER_MSW )
-		// ciWMFVideoPlayer's shared texture is also GL_TEXTURE_RECTANGLE (see its
-		// format.setTargetRect() call) - same problem as Syphon above, same fix: blit it into a
-		// normal GL_TEXTURE_2D via the same assets/video_texture.vs/fs.glsl (a generic
-		// sampler2DRect blit shader, not Syphon-specific) rather than binding it directly
-		ci::gl::FboRef					mVideoBlitFbo;
-		#endif
-		// shared by both blit paths above
+		// Syphon blit shader (videos are blitted by VDVideoSource)
 		ci::gl::GlslProgRef				mGlslVideoTexture;
 		unsigned int					mInputTextureIndex = 0;
 		unsigned int					createInputTexture(const JsonTree &json);
@@ -462,22 +382,10 @@ namespace videodromm
 		std::string						mFboStatus = "";
 		std::string						mAssetsPath = "";
 		unsigned int					mFboIndex = 0;
-		// video (Windows only)
-#if defined( CINDER_MSW )
-		ciWMFVideoPlayer				mVideo;
-#endif
-		bool							mIsVideoLoaded = false;
-		bool							mVideoReversed = false;
-		// movies play once by default; kept across reloads of this fbo's movie
-		bool							mVideoLoop = false;
-		float									mVolumeLevel = 1.0f;
-		// basename of the loaded video, to recognise it in the shared pool (assignInputTexture)
-		std::string								mVideoName;
-		// one-shot diagnostic guard, see loadVideoFile()/getFboTexture()'s MOVIE case
-		bool							mVideoTextureWarningLogged = false;
-		// one-shot diagnostic guard, see setSpeed() - many codecs reject SetPlaybackRate()
-		// without thinning enabled, so a plain rate change can silently fail
-		bool							mVideoSpeedWarningLogged = false;
+		// audio-file fbo volume level
+		float							mVolumeLevel = 1.0f;
+		// video named by the fbo json, waiting for VDMix to load it into the pool
+		std::string						mPendingVideoFile;
 		// mouse
 		float mx = 0.0f;
 		float my = 0.0f;

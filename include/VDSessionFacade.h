@@ -221,6 +221,11 @@ namespace videodromm
 		// playback controls (sequence/movie)
 		bool					isSequence(unsigned int aFboIndex) { return mVDSession->isSequence(aFboIndex); }
 		bool					isMovie(unsigned int aFboIndex) { return mVDSession->isMovie(aFboIndex); }
+		// a video in the texture pool, by its pool name (nullptr if that entry isn't a video)
+		VDVideoSourceRef		getVideoSource(const std::string& aName) { return mVDSession->getVideoSource(aName); }
+		// starting it pauses every other playing video/audio file
+		void					togglePlayPauseSource(const std::string& aName) { mVDSession->togglePlayPauseSource(aName); }
+		void					setScrubbing(unsigned int aFboIndex, bool aScrubbing) { mVDSession->setScrubbing(aFboIndex, aScrubbing); }
 		float					getVolumeLevel(unsigned int aFboIndex) { return mVDSession->getVolumeLevel(aFboIndex); }
 		void					setVolumeLevel(unsigned int aFboIndex, float aLevel) { mVDSession->setVolumeLevel(aFboIndex, aLevel); }
 		void					togglePlayPause(unsigned int aFboIndex) { mVDSession->togglePlayPause(aFboIndex); }
@@ -241,6 +246,13 @@ namespace videodromm
 		float					getVideoVolume(unsigned int aFboIndex) { return mVDSession->getVideoVolume(aFboIndex); }
 		// drag-and-drop, consumed by VDUIFbos.cpp - see VDSession.h for the full explanation
 		bool					hasPendingTextureDrop() const { return mVDSession->hasPendingTextureDrop(); }
+		void					setExternalDrag(bool aActive, const ci::vec2& aPos) { mVDSession->setExternalDrag(aActive, aPos); }
+		bool					isExternalDragActive() const { return mVDSession->isExternalDragActive(); }
+		ci::vec2				getExternalDragPos() const { return mVDSession->getExternalDragPos(); }
+		void					registerPoolTexture(const std::string& aName, ci::gl::Texture2dRef aTexture) { mVDSession->registerPoolTexture(aName, aTexture); }
+		void					unregisterPoolTexture(const std::string& aName) { mVDSession->unregisterPoolTexture(aName); }
+		std::string				getAudioTextureName() { return mVDSession->getAudioTextureName(); }
+		std::string				getAudioSourceLabel() { return mVDSession->getAudioSourceLabel(); }
 		ci::vec2				getPendingTextureDropPos() const { return mVDSession->getPendingTextureDropPos(); }
 		bool					consumePendingTextureDrop(unsigned int aFboIndex) { return mVDSession->consumePendingTextureDrop(aFboIndex); }
 		void					flushPendingTextureDrop() { mVDSession->flushPendingTextureDrop(); }

@@ -223,7 +223,9 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 					}*/
 				}
 				if (fileExists) {
-					loadVideoFile(texFileOrPath.string());
+					// loaded into the texture pool and assigned by VDMix::updateVideoSources()
+					mPendingVideoFile = texFileOrPath.string();
+					mTextureMode = VDTextureMode::MOVIE;
 					mTypestr = "video";
 				}
 				else {
@@ -388,61 +390,6 @@ void VDFboShader::loadImageFile(const std::string& aFile, unsigned int aCurrentI
 		mFboMsg = mInputTextureList[aCurrentIndex].name + " cached";
 	}
 }
-bool VDFboShader::loadVideoFile(const std::string& aFile, bool aAutoPlay) {
-#if defined( CINDER_MSW )
-	// reuses the preferred audio output device (see VDAnimation's audio device selection) so the
-	// movie's audio lands on the device the user picked. Safe to call again on an already-playing
-	// mVideo - ciWMFVideoPlayer::loadMovie() just re-opens the player via OpenURL(), no close() needed.
-	mIsVideoLoaded = mVideo.loadMovie(aFile, mVDAnimation->getPreferredAudioOutputDevice());
-	// was CI_LOG_I while diagnosing the missing-DX/GL-interop-lock bug (now fixed, see CLAUDE.md)
-	// - downgraded to verbose since that's resolved and this doesn't need to cost anything in a
-	// release build (CI_LOG_V compiles away entirely there, CI_LOG_I would not have)
-	CI_LOG_V("loadVideoFile " << aFile << " loadMovie()=" << mIsVideoLoaded
-		<< " width=" << mVideo.getWidth() << " height=" << mVideo.getHeight()
-		<< " hasTexture()=" << mVideo.hasTexture());
-	mVideoTextureWarningLogged = false;
-	if (mIsVideoLoaded) {
-		mVideo.setLoop(mVideoLoop);
-		// WMF only presents a frame once the session has started: start, then pause right away
-		// when not autoplaying, so the fbo shows the first frame instead of black
-		mVideo.play();
-		if (!aAutoPlay) mVideo.pause();
-		// ciWMFVideoPlayer's shared texture is GL_TEXTURE_RECTANGLE (see the comment on
-		// mVideoBlitFbo) - lazily set up the same rect-to-2D blit already used for Syphon on Mac
-		if (!mGlslVideoTexture) {
-			try {
-				mGlslVideoTexture = gl::GlslProg::create(gl::GlslProg::Format()
-					.vertex(loadAsset("video_texture.vs.glsl"))
-					.fragment(loadAsset("video_texture.fs.glsl")));
-			}
-			catch (const std::exception& ex) {
-				CI_LOG_E("<< video blit GlslProg error >> " << ex.what());
-			}
-		}
-		if (!mVideoBlitFbo) {
-			gl::Fbo::Format blitFmt;
-			mVideoBlitFbo = gl::Fbo::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), blitFmt);
-		}
-	}
-	else {
-		mFboError = "failed to load movie: " + aFile;
-		CI_LOG_E(mFboError);
-	}
-#else
-	// TODO: Mac movie playback not implemented yet (ciWMFVideoPlayer is Windows-only)
-	mIsVideoLoaded = false;
-	mFboError = "movie playback not available on this platform: " + aFile;
-#endif
-	// basename only, matching loadImageFile()'s convention - also what registerFboActiveTextureInGlobalPool()
-	// reads via getTextureName(0), so the shared pool/Textures-panel title reflects the video, not
-	// whatever this slot's name was left at before (e.g. a previous image on the same fbo)
-	int slashIndex = aFile.find_last_of("\\");
-	mCurrentFilename = mTextureName = (slashIndex != std::string::npos) ? aFile.substr(slashIndex + 1) : aFile;
-	mInputTextureList[0].name = mCurrentFilename;
-	mVideoName = mCurrentFilename;
-	mTextureMode = VDTextureMode::MOVIE;
-	return mIsVideoLoaded;
-}
 // next in sequence
 void VDFboShader::loadNextTexture(unsigned int aCurrentIndex) {
 	if (mCurrentImageSequenceIndex != aCurrentIndex) {
@@ -590,7 +537,7 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			#endif
 			break;
 		case VDTextureMode::MOVIE:
-			// frames are decoded and blitted by updateVideo(), every frame for every video fbo
+			// slot 0 holds a pool video source's texture (VDVideoSource, decoded by VDMix::updateVideoSources)
 			mFboMsg = "video";
 			break;
 		}
@@ -815,92 +762,16 @@ std::vector<ci::gl::GlslProg::Uniform>	VDFboShader::getUniforms() {
 	return mUniforms;
 };
 
-// Called every frame for every fbo (VDMix::updateVideoSources, from VDSession::update), not only
-// when this fbo renders: a video assigned to other fbos from the shared pool stays live even when
-// its own fbo's weight is 0 and that fbo isn't rendered.
-void VDFboShader::updateVideo() {
-#if defined( CINDER_MSW )
-	if (mIsVideoLoaded) {
-		mVideo.update();
-		if (mVideoReversed) {
-			// see reverse()'s comment: native negative-rate playback isn't reliable here,
-			// so reverse is simulated by manually stepping the position backward
-			float fps = mVideo.getFrameRate();
-			if (fps > 0.0f) {
-				float newPos = mVideo.getPosition() - (1.0f / fps);
-				if (newPos < 0.0f) {
-					newPos = mVideo.isLooping() ? (mVideo.getDuration() + newPos) : 0.0f;
-				}
-				mVideo.setPosition(newPos);
-			}
-		}
-		if (mVideo.hasTexture() && mGlslVideoTexture && mVideoBlitFbo) {
-			// mVideo.getTexture() is GL_TEXTURE_RECTANGLE (see mVideoBlitFbo's comment in
-			// VDFboShader.h) - every shader in this codebase expects a normal sampler2D
-			// with normalized UVs, so blit it into a plain GL_TEXTURE_2D first, exactly
-			// like the Syphon case below does for its own GL_TEXTURE_RECTANGLE_ARB input.
-			// The DX/GL interop object backing this texture must be locked around any GL
-			// access to it (same as ciWMFVideoPlayer::draw() already does internally) -
-			// without this the GL side never observes the D3D-decoded frames and the
-			// texture stays black, even though hasTexture()/loadMovie() all report success.
-			ci::gl::TextureRef rectTex = mVideo.getTexture();
-			mVideo.lockSharedTexture();
-			gl::ScopedFramebuffer blitFbScp(mVideoBlitFbo);
-			gl::ScopedViewport blitVp(ivec2(0), mVideoBlitFbo->getSize());
-			gl::ScopedMatrices blitMat;
-			gl::setMatricesWindow(mVideoBlitFbo->getSize());
-			rectTex->bind(0);
-			gl::ScopedGlslProg blitShader(mGlslVideoTexture);
-			mGlslVideoTexture->uniform("uSampler", 0);
-			mGlslVideoTexture->uniform("uVideoSize", vec2((float)rectTex->getWidth(), (float)rectTex->getHeight()));
-			// destination rect drawn with its Y span swapped (height->0 instead of 0->height):
-			// the decoded video frame comes out top-down (ciWMFVideoPlayer sets loadTopDown(true)
-			// on mTex), the opposite of Syphon's own input to this same shader/blit-FBO pattern -
-			// this is the one difference between the two call sites, and correcting it here
-			// (not in the shared video_texture.fs.glsl, which Syphon also uses and is already
-			// correct) keeps Syphon/images/post/fx.glsl untouched while fixing video specifically
-			gl::drawSolidRect(Rectf(0, (float)mVideoBlitFbo->getHeight(), (float)mVideoBlitFbo->getWidth(), 0));
-			rectTex->unbind(0);
-			mVideo.unlockSharedTexture();
-			// only while this fbo shows its own video: once another pool texture is assigned
-			// (assignInputTexture), the blit still runs so that other fbos using it stay live
-			if (mTextureMode == VDTextureMode::MOVIE) {
-				mInputTextureList[0].texture = mVideoBlitFbo->getColorTexture();
-				mInputTextureList[0].isValid = true;
-			}
-		}
-		else if (!mVideoTextureWarningLogged) {
-			// one-shot (not per-frame) so this is findable in the log without flooding it -
-			// if hasTexture() is still false here, ciWMFVideoPlayer never got a usable
-			// shared texture for this file, independently of anything in this block
-			mVideoTextureWarningLogged = true;
-			CI_LOG_W("MOVIE mode: no video texture after load - hasTexture()=" << mVideo.hasTexture()
-				<< " width=" << mVideo.getWidth() << " height=" << mVideo.getHeight()
-				<< " glslLoaded=" << (mGlslVideoTexture != nullptr) << " blitFboLoaded=" << (mVideoBlitFbo != nullptr));
-		}
-	}
-#endif
-}
-
 void VDFboShader::assignInputTexture(ci::gl::Texture2dRef aTextureRef, const std::string& aName) {
-#if defined( CINDER_MSW )
-	// this fbo's own video, picked again: back to it (its frames resume on the next updateVideo())
-	if (mIsVideoLoaded && !mVideoName.empty() && aName == mVideoName) {
-		mTextureMode = VDTextureMode::MOVIE;
-		mInputTextureList[0].name = mVideoName;
-		if (mVideoBlitFbo) mInputTextureList[0].texture = mVideoBlitFbo->getColorTexture();
-		mInputTextureList[0].isValid = true;
-		return;
-	}
-#endif
-	// the live audio texture (AUDIO mode refreshes it every frame)
-	if (aName == mVDAnimation->getAudioTextureName()) {
+	// the live audio texture (AUDIO mode refreshes it every frame); "audio" is its pool entry
+	if (aName == "audio" || aName == mVDAnimation->getAudioTextureName()) {
 		setFboTextureAudioMode();
 		return;
 	}
-	// any other texture: stop this fbo's own source from overwriting slot 0 every frame
-	// (MOVIE/AUDIO/SHARED/NDI/SEQUENCE all do), and pause its video so it isn't heard unseen
-	if (mTextureMode == VDTextureMode::MOVIE) pauseVideo();
+	// any other texture: IMAGE mode, so this fbo's own source (AUDIO/SHARED/NDI/SEQUENCE refresh
+	// slot 0 every frame) doesn't overwrite it. A video it showed keeps playing in the pool
 	if (mTextureMode != VDTextureMode::IMAGE && mTextureMode != VDTextureMode::PARTS) mTextureMode = VDTextureMode::IMAGE;
+	mTypestr = "image";
+	mCurrentFilename = mTextureName = aName;
 	setInputTextureRefByIndex(0, aTextureRef, aName);
 }

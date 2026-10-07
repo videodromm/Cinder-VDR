@@ -179,6 +179,14 @@ namespace videodromm {
 		// drop position (same device-pixel space, see fileDrop()'s use of ci::app::toPixels()) and,
 		// if it's an fbo pane, claims the drop for that fbo. A dropped video is cued paused.
 		bool							hasPendingTextureDrop() const { return mPendingTextureDrop.active; }
+		// files dragged from Explorer and hovering the window (VDUI's OLE drop target), so the
+		// fbo/texture panes can highlight where they'd land; position in ImGui (client pixel) space
+		void							setExternalDrag(bool aActive, const ci::vec2& aPos) { mExternalDragActive = aActive; mExternalDragPos = aPos; }
+		bool							isExternalDragActive() const { return mExternalDragActive; }
+		ci::vec2						getExternalDragPos() const { return mExternalDragPos; }
+		// a texture from outside the fbos (Spout outputs, audio) offered in the shared pool
+		void							registerPoolTexture(const std::string& aName, ci::gl::Texture2dRef aTexture) { mVDMix->registerLoadedTexture(aName, aTexture); }
+		void							unregisterPoolTexture(const std::string& aName) { mVDMix->unregisterLoadedTexture(aName); }
 		ci::vec2						getPendingTextureDropPos() const { return mPendingTextureDrop.pos; }
 		bool							consumePendingTextureDrop(unsigned int aFboIndex) {
 			if (!mPendingTextureDrop.active) return false;
@@ -276,6 +284,8 @@ namespace videodromm {
 		}
 		std::string								getPreferredAudioInputDevice() { return mVDAnimation->getPreferredAudioInputDevice(); };
 		void									loadAudioDefaults() { mVDAnimation->loadAudioDefaults(); }
+		void									startLineIn() { mVDAnimation->startLineIn(); }
+		std::string								getAudioSourceLabel() { return mVDAnimation->getAudioSourceLabel(); }
 		std::string								getDefaultAudioInputDevice() { return mVDAnimation->getDefaultAudioInputDevice(); }
 		std::string								getDefaultAudioOutputDevice() { return mVDAnimation->getDefaultAudioOutputDevice(); }
 		void									setDefaultAudioInputDevice(const std::string& aName) { mVDAnimation->setDefaultAudioInputDevice(aName); }
@@ -363,6 +373,9 @@ namespace videodromm {
 		// playback controls (sequence/movie)
 		bool							isSequence(unsigned int aFboIndex) { return mVDMix->isSequence(aFboIndex); }
 		bool							isMovie(unsigned int aFboIndex) { return mVDMix->isMovie(aFboIndex); }
+		VDVideoSourceRef				getVideoSource(const std::string& aName) { return mVDMix->getVideoSource(aName); }
+		void							togglePlayPauseSource(const std::string& aName) { mVDMix->togglePlayPauseSource(aName); }
+		void							setScrubbing(unsigned int aFboIndex, bool aScrubbing) { mVDMix->setScrubbing(aFboIndex, aScrubbing); }
 		float							getVolumeLevel(unsigned int aFboIndex) { return mVDMix->getVolumeLevel(aFboIndex); }
 		void							setVolumeLevel(unsigned int aFboIndex, float aLevel) { mVDMix->setVolumeLevel(aFboIndex, aLevel); }
 		void							togglePlayPause(unsigned int aFboIndex) { mVDMix->togglePlayPause(aFboIndex); }
@@ -400,6 +413,8 @@ namespace videodromm {
 		// shader folders (fbo*.json + glsl) live in assets/glsl/<name>, older ones in assets/<name>:
 		// returns the path relative to assets/ ("glsl/boomer" or "particlez")
 		static std::string				resolveFolder(const string& aFolder);
+		bool							mExternalDragActive = false;
+		ci::vec2						mExternalDragPos;
 		void							loadAudioFile(const string& aFile);
 
 

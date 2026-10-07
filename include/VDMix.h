@@ -29,6 +29,8 @@
 #include "VDUniforms.h"
 // Fbos
 #include "VDFboShader.h"
+// videos in the texture pool
+#include "VDVideoSource.h"
 // Params
 #include "VDParams.h"
 
@@ -115,7 +117,9 @@ namespace videodromm
 		};
 		void							setFboInputTexture(unsigned int aFboIndex, ci::gl::Texture2dRef aTextureRef, const std::string& aName = "") {
 			if (mFboShaderList.size() > 0) {
-				mFboShaderList[getValidFboIndex(aFboIndex)]->assignInputTexture(aTextureRef, aName);
+				VDVideoSourceRef video = getVideoSource(aName);
+				if (video) mFboShaderList[getValidFboIndex(aFboIndex)]->assignVideoInput(video->getTexture(), aName);
+				else mFboShaderList[getValidFboIndex(aFboIndex)]->assignInputTexture(aTextureRef, aName);
 			}
 		}
 		// selects which already-loaded input texture slot is the active one for this fbo
@@ -161,34 +165,94 @@ namespace videodromm
 		// playback controls (sequence/movie), forwarded straight to the fbo - see VDFboShader.h
 		bool							isSequence(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->isSequence(); }
 		bool							isMovie(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->isMovie(); }
-		float							getVolumeLevel(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->getVolumeLevel(); }
-		void							setVolumeLevel(unsigned int aFboIndex, float aLevel) { mFboShaderList[getValidFboIndex(aFboIndex)]->setVolumeLevel(aLevel); }
-		// every frame, before any fbo renders (VDSession::update)
-		void							updateVideoSources() { for (auto& fbo : mFboShaderList) fbo->updateVideo(); }
-		void							togglePlayPause(unsigned int aFboIndex) { mFboShaderList[getValidFboIndex(aFboIndex)]->togglePlayPause(); }
+		// ---- videos: pool sources (VDVideoSource), any fbo can show one (MOVIE mode, input named
+		// after the source). The fbo-index playback API below acts on the fbo's video source when it
+		// shows one, else on the fbo itself (sequence, audio file)
+		VDVideoSourceRef				getVideoSource(const std::string& aName) {
+			for (auto& source : mVideoSources) if (source->getName() == aName) return source;
+			return nullptr;
+		}
+		unsigned int					getVideoSourceCount() const { return (unsigned int)mVideoSources.size(); }
+		VDVideoSourceRef				getVideoSourceByIndex(unsigned int aIndex) { return aIndex < mVideoSources.size() ? mVideoSources[aIndex] : nullptr; }
+		// loads a video into the pool (deduplicated by file name); returns its name, "" on failure
+		std::string						addVideoSource(const std::string& aPath, bool aAutoPlay);
+		// every frame, before any fbo renders (VDSession::update): loads videos named by fbo jsons,
+		// decodes every source, sets each one's volume
+		void							updateVideoSources();
+		// starting a video/audio file pauses every other playing video/audio file (one sound at a time)
+		void							togglePlayPauseSource(const std::string& aName);
+		float							getVolumeLevel(unsigned int aFboIndex) {
+			if (VDVideoSourceRef video = videoFor(aFboIndex)) return video->getVolumeLevel();
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->getVolumeLevel();
+		}
+		void							setVolumeLevel(unsigned int aFboIndex, float aLevel) {
+			if (VDVideoSourceRef video = videoFor(aFboIndex)) video->setVolumeLevel(aLevel);
+			else mFboShaderList[getValidFboIndex(aFboIndex)]->setVolumeLevel(aLevel);
+		}
+		void							togglePlayPause(unsigned int aFboIndex);
 		bool							isAudioFile(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->isAudioFile(); }
-		bool							isPlaying(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->isPlaying(); }
-		bool							isLooping(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->isLooping(); }
-		void							toggleLoop(unsigned int aFboIndex) { mFboShaderList[getValidFboIndex(aFboIndex)]->toggleLoop(); }
+		bool							isPlaying(unsigned int aFboIndex) {
+			if (VDVideoSourceRef video = videoFor(aFboIndex)) return video->isPlaying();
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->isPlaying();
+		}
+		bool							isLooping(unsigned int aFboIndex) {
+			if (VDVideoSourceRef video = videoFor(aFboIndex)) return video->isLooping();
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->isLooping();
+		}
+		void							toggleLoop(unsigned int aFboIndex) {
+			if (VDVideoSourceRef video = videoFor(aFboIndex)) video->toggleLoop();
+			else mFboShaderList[getValidFboIndex(aFboIndex)]->toggleLoop();
+		}
 		void							syncToBeat(unsigned int aFboIndex) { mFboShaderList[getValidFboIndex(aFboIndex)]->syncToBeat(); }
-		void							reverse(unsigned int aFboIndex) { mFboShaderList[getValidFboIndex(aFboIndex)]->reverse(); }
+		void							reverse(unsigned int aFboIndex) {
+			if (VDVideoSourceRef video = videoFor(aFboIndex)) video->toggleReverse();
+			else mFboShaderList[getValidFboIndex(aFboIndex)]->reverse();
+		}
 		bool							isLoadingFromDisk(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->isLoadingFromDisk(); }
 		void							toggleLoadingFromDisk(unsigned int aFboIndex) { mFboShaderList[getValidFboIndex(aFboIndex)]->toggleLoadingFromDisk(); }
-		float							getSpeed(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->getSpeed(); }
-		void							setSpeed(unsigned int aFboIndex, float aSpeed) { mFboShaderList[getValidFboIndex(aFboIndex)]->setSpeed(aSpeed); }
-		int								getPosition(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->getPosition(); }
-		void							setPlayheadPosition(unsigned int aFboIndex, int aPosition) { mFboShaderList[getValidFboIndex(aFboIndex)]->setPlayheadPosition(aPosition); }
-		int								getMaxFrame(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->getMaxFrame(); }
-		void							setVideoVolume(unsigned int aFboIndex, float aVolume) { mFboShaderList[getValidFboIndex(aFboIndex)]->setVideoVolume(aVolume); }
+		float							getSpeed(unsigned int aFboIndex) {
+			if (VDVideoSourceRef video = videoFor(aFboIndex)) return video->getSpeed();
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->getSpeed();
+		}
+		void							setSpeed(unsigned int aFboIndex, float aSpeed) {
+			if (VDVideoSourceRef video = videoFor(aFboIndex)) video->setSpeed(aSpeed);
+			else mFboShaderList[getValidFboIndex(aFboIndex)]->setSpeed(aSpeed);
+		}
+		int								getPosition(unsigned int aFboIndex) {
+			if (VDVideoSourceRef video = videoFor(aFboIndex)) return video->getPosition();
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->getPosition();
+		}
+		void							setPlayheadPosition(unsigned int aFboIndex, int aPosition) {
+			if (VDVideoSourceRef video = videoFor(aFboIndex)) video->setPlayheadPosition(aPosition);
+			else mFboShaderList[getValidFboIndex(aFboIndex)]->setPlayheadPosition(aPosition);
+		}
+		int								getMaxFrame(unsigned int aFboIndex) {
+			if (VDVideoSourceRef video = videoFor(aFboIndex)) return video->getMaxFrame();
+			return mFboShaderList[getValidFboIndex(aFboIndex)]->getMaxFrame();
+		}
+		// audio-file fbos only: a video's output volume is set by updateVideoSources()
+		void							setVideoVolume(unsigned int aFboIndex, float aVolume) {
+			if (!videoFor(aFboIndex)) mFboShaderList[getValidFboIndex(aFboIndex)]->setVideoVolume(aVolume);
+		}
 		float							getVideoVolume(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->getVideoVolume(); }
+		// muted while its scrub slider is dragged
+		void							setScrubbing(unsigned int aFboIndex, bool aScrubbing) {
+			if (VDVideoSourceRef video = videoFor(aFboIndex)) video->setScrubbing(aScrubbing);
+		}
 
 		std::string						getFboShaderName(unsigned int aFboIndex) {
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getShaderName();
 		};
 		void							loadImageFile(const std::string& aFile, unsigned int aFboIndex = 0);
 		void							loadVideoFile(const std::string& aFile, unsigned int aFboIndex = 0);
-		// a drop that landed on no fbo pane: image -> shared texture pool, video -> new fbo (paused)
+		// a drop that landed on no fbo pane: image or video -> shared texture pool (a video paused)
 		bool							addDroppedTextureOutsideFbos(const std::string& aFile);
+		// removes a pool entry (e.g. a Spout sender that went away); fbos using it keep their ref
+		void							unregisterLoadedTexture(const std::string& aName) {
+			for (auto it = mLoadedTextures.begin(); it != mLoadedTextures.end(); ++it) {
+				if (it->name == aName) { mLoadedTextures.erase(it); return; }
+			}
+		}
 		// drag-and-drop onto an existing fbo's own window - dispatches by extension to
 		// loadImageFile/loadVideoFile at that fbo's active slot (0)
 		bool							loadTextureIntoFboActiveSlot(unsigned int aFboIndex, const std::string& aFile);
@@ -312,6 +376,14 @@ namespace videodromm
 		unsigned int					mSelectedFbo = 0;
 		// shared, deduplicated-by-name pool of every loaded texture - see registerLoadedTexture()
 		std::vector<VDTextureStruct>	mLoadedTextures;
+		// videos in the pool (see VDVideoSource.h)
+		std::vector<VDVideoSourceRef>	mVideoSources;
+		// the video source an fbo shows, if it shows one
+		VDVideoSourceRef				videoFor(unsigned int aFboIndex) {
+			if (mFboShaderList.empty()) return nullptr;
+			VDFboShaderRef fbo = mFboShaderList[getValidFboIndex(aFboIndex)];
+			return fbo->isMovie() ? getVideoSource(fbo->getTextureName(0)) : nullptr;
+		}
 		// textures
 		bool							save();
 		gl::Texture::Format				fmt;
