@@ -169,7 +169,8 @@ void VDWebsocket::parseMessage(std::string msg) {
 							//mVDAnimation->setIntUniformValueByIndex(mVDUniforms->IFBOB, 1);
 						}
 						else if (val == "codeview") {
-							// live code view: {"event":"codeview","message":<editor text>,"line":1,"col":0,"errors":[3],"active":true}
+							// live code view: {"event":"codeview","message":<editor text>,"line":1,"col":0,"errors":[3],"active":true,"lang":"glsl"}
+							// "lang": "glsl" (default) or "strudel", each shown in its own part of VDCode
 							int line = json.hasChild("line") ? json.getChild("line").getValue<int>() : 1;
 							int col = json.hasChild("col") ? json.getChild("col").getValue<int>() : 0;
 							bool active = json.hasChild("active") ? json.getChild("active").getValue<bool>() : true;
@@ -177,7 +178,8 @@ void VDWebsocket::parseMessage(std::string msg) {
 							if (json.hasChild("errors")) {
 								for (const JsonTree& e : json.getChild("errors")) errorLines.push_back(e.getValue<int>());
 							}
-							mVDMediator->setCodeViewState(json.getChild("message").getValue<std::string>(), line, col, errorLines, active);
+							std::string lang = json.hasChild("lang") ? json.getChild("lang").getValue<std::string>() : "glsl";
+							mVDMediator->setCodeViewState(json.getChild("message").getValue<std::string>(), line, col, errorLines, active, lang);
 						}
 						else {
 							// unknown event

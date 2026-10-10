@@ -121,7 +121,8 @@ namespace videodromm {
 		void								update();
 		bool								isWSConnected();
 		// live code view, fed by the websocket "codeview" event
-		void								setCodeViewState(const std::string& aText, int aLine, int aCol, const std::vector<int>& aErrorLines, bool aActive);
+		// aLang: "glsl" or "strudel"
+		void								setCodeViewState(const std::string& aText, int aLine, int aCol, const std::vector<int>& aErrorLines, bool aActive, const std::string& aLang = "glsl");
 		VDCodeViewRef						getCodeView() { return mVDCodeView; }
 
 		VDMediatorObservableRef				setupKeyboard();

@@ -15,18 +15,25 @@
 
 namespace videodromm
 {
-	// Live-coding overlay: renders the shader text being typed in the WebApp editor (received as
-	// websocket "codeview" events: text + cursor + compile-error lines) with GLSL syntax colours
-	// into a transparent RGBA texture, meant to be sent out as its own Spout sender.
+	// Live-coding overlay: renders the code being typed in the WebApp editors (received as
+	// websocket "codeview" events: text + cursor + compile-error lines + "lang") with syntax
+	// colours into a transparent RGBA texture, meant to be sent out as its own Spout sender.
+	// Two documents: the GLSL shader and the Strudel code. Each shows while its editor is open;
+	// when both are, the texture is split (side by side or stacked).
 	typedef std::shared_ptr<class VDCodeView> VDCodeViewRef;
 
 	class VDCodeView {
 	public:
 		static VDCodeViewRef	create() { return std::shared_ptr<VDCodeView>(new VDCodeView()); }
 
+		enum Lang { LANG_GLSL = 0, LANG_STRUDEL = 1, LANG_COUNT = 2 };
+		// "glsl" (default, also for anything unknown) or "strudel"
+		static Lang				langFromName(const std::string& aName) { return aName == "strudel" ? LANG_STRUDEL : LANG_GLSL; }
 		// state, from the websocket ("line" is 1-based, "col" 0-based, error lines 1-based)
-		void					setState(const std::string& aText, int aLine, int aCol, const std::vector<int>& aErrorLines, bool aActive);
-		bool					isActive() const { return mActive; }
+		void					setState(const std::string& aText, int aLine, int aCol, const std::vector<int>& aErrorLines, bool aActive, Lang aLang = LANG_GLSL);
+		// at least one document is shown
+		bool					isActive() const { return mDocs[LANG_GLSL].active || mDocs[LANG_STRUDEL].active; }
+		bool					isActive(Lang aLang) const { return mDocs[aLang].active; }
 
 		// re-renders only when the state, the cursor blink phase or a setting changed
 		ci::gl::Texture2dRef	render(const ci::ivec2& aSize);
@@ -35,7 +42,7 @@ namespace videodromm
 			if (!mFbo) return nullptr;
 			return (mPremultiplied || !mUnpremultiplyProg) ? mFbo->getColorTexture() : mStraightFbo->getColorTexture();
 		}
-		int						getLineCount() const { return (int)mLines.size(); }
+		int						getLineCount(Lang aLang = LANG_GLSL) const { return (int)mDocs[aLang].lines.size(); }
 
 		// settings (UI)
 		float					getFontSize() const { return mFontSize; }
@@ -57,29 +64,39 @@ namespace videodromm
 		void					setCurrentLineColor(const ci::ColorA& aColor) { mCurrentLineColor = aColor; mDirty = true; }
 		bool					getPremultiplied() const { return mPremultiplied; }
 		void					setPremultiplied(bool aPremultiplied) { mPremultiplied = aPremultiplied; mDirty = true; }
+		// both documents shown: GLSL left / Strudel right, or GLSL top / Strudel bottom
+		enum Layout { LAYOUT_SIDE_BY_SIDE = 0, LAYOUT_STACKED = 1 };
+		int						getLayout() const { return mLayout; }
+		void					setLayout(int aLayout) { mLayout = aLayout; mDirty = true; }
 
 	private:
 		VDCodeView() = default;
 
-		enum class TokenKind { Plain, Keyword, Type, Function, Uniform, Number, Comment, Preprocessor };
+		enum class TokenKind { Plain, Keyword, Type, Function, Uniform, Number, Comment, Preprocessor, String };
 		struct Token { size_t start; size_t length; TokenKind kind; };
+		struct Doc {
+			std::vector<std::string>		lines;
+			std::vector<std::vector<Token>>	tokens;
+			std::vector<int>				errorLines;
+			int								cursorLine = 0;	// 0-based internally
+			int								cursorCol = 0;
+			bool							active = false;
+			// scroll follows the cursor, using this view's own font metrics (the editor's differ)
+			int								topLine = 0;
+			int								leftCol = 0;
+		};
 
-		void					tokenize();
+		static void				tokenizeGlsl(Doc& aDoc);
+		static void				tokenizeStrudel(Doc& aDoc);
 		void					ensureFont();
 		void					ensureFbos(const ci::ivec2& aSize);
-		void					updateScroll(int aVisibleLines, int aVisibleCols);
+		static void				updateScroll(Doc& aDoc, int aVisibleLines, int aVisibleCols);
 		void					draw();
+		void					drawDoc(Doc& aDoc, const ci::Rectf& aArea, std::vector<std::pair<ci::Font::Glyph, ci::vec2>>& aGlyphs, std::vector<ci::ColorA8u>& aColors);
 
 		// state
-		std::vector<std::string>			mLines;
-		std::vector<std::vector<Token>>		mTokens;
-		std::vector<int>					mErrorLines;
-		int									mCursorLine = 0;	// 0-based internally
-		int									mCursorCol = 0;
-		bool								mActive = false;
-		// scroll follows the cursor, using this view's own font metrics (the editor's differ)
-		int									mTopLine = 0;
-		int									mLeftCol = 0;
+		Doc									mDocs[LANG_COUNT];
+		Lang								mFocus = LANG_GLSL;	// last document typed in: shows the cursor
 
 		// settings
 		float								mFontSize = 28.0f;
@@ -89,6 +106,7 @@ namespace videodromm
 		bool								mPremultiplied = false;
 		ci::ColorA							mCurrentLineColor = ci::ColorA(1.0f, 1.0f, 1.0f, 0.07f);
 		int									mCurrentLineStyle = LINE_FILL;
+		int									mLayout = LAYOUT_SIDE_BY_SIDE;
 
 		// rendering
 		bool								mDirty = true;

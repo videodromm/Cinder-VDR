@@ -211,8 +211,8 @@ void VDMediatorObservable::setWSMsg(const std::string& aMsg) {
 std::string VDMediatorObservable::getWSMsg() {
 	return mVDWebsocket->getWSMsg();
 }
-void VDMediatorObservable::setCodeViewState(const std::string& aText, int aLine, int aCol, const std::vector<int>& aErrorLines, bool aActive) {
-	mVDCodeView->setState(aText, aLine, aCol, aErrorLines, aActive);
+void VDMediatorObservable::setCodeViewState(const std::string& aText, int aLine, int aCol, const std::vector<int>& aErrorLines, bool aActive, const std::string& aLang) {
+	mVDCodeView->setState(aText, aLine, aCol, aErrorLines, aActive, VDCodeView::langFromName(aLang));
 }
 void VDMediatorObservable::wsPing() {
 	mVDWebsocket->wsPing();
