@@ -372,6 +372,11 @@ bool VDSession::loadFolder(const string& aFolderName) {
 	unsigned int f = 0;
 	bool found = true;
 	mVDSettings->setMsg(aFolder);
+	// a folder with its own fbos replaces every fbo of the previous one (without this, fbos past
+	// this folder's count stayed, and fbo0 was appended at the end, see createFboShaderTexture)
+	if (fs::exists(getAssetPath("") / aFolder / "fbo0.json")) {
+		mVDMix->clearFboShaderList();
+	}
 	if (aFolder != resolveFolder(mVDMix->getAssetsPath())) {
 		// find mix.json
 		std::string mixFileName = "mix.json";
@@ -724,7 +729,7 @@ void VDSession::fileDrop(FileDropEvent event) {
 	return mVDMix->loadImageSequence(aFolder, aTextureIndex);
 }*/
 void VDSession::loadAudioFile(const string& aFile) {
-	mVDAnimation->loadAudioFile(aFile);
+	if (mVDAnimation->loadAudioFile(aFile)) mVDAnimation->cueAudioFile();
 }
 #pragma region events
 bool VDSession::handleMouseMove(MouseEvent& event)

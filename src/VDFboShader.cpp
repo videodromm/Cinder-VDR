@@ -3,8 +3,8 @@
 using namespace videodromm;
 
 namespace {
-	// audio/video files live in shared folders (assets/audio, assets/videos) so one file serves
-	// every shader folder, and the ts projects too. Then, for older mixes: next to the fbo json
+	// audio/video/image files live in shared folders (assets/audio, assets/videos, assets/images)
+	// so one file serves every shader folder, and the ts projects too. Then, for older mixes: next to the fbo json
 	// (assets/<folder>), then the assets root. A full path ("C:...") is used as is.
 	fs::path resolveMediaFile(const std::string& aName, const std::string& aSharedFolder, const std::string& aAssetsPath) {
 		if (aName.find(':') != std::string::npos) return fs::path(aName);
@@ -14,6 +14,11 @@ namespace {
 			if (fs::exists(candidate)) return candidate;
 		}
 		return candidates[0];
+	}
+	// image sequence folders: assets/imgseq/<name>, else (older mixes) assets/<name>
+	fs::path resolveSequenceFolder(const std::string& aName) {
+		const fs::path shared = getAssetPath("") / "imgseq" / aName;
+		return fs::exists(shared) ? shared : getAssetPath("") / aName;
 	}
 }
 /* hydra
@@ -60,6 +65,9 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation,
 		JsonTree textureJsonTree(json.getChild("texture"));
 		createInputTexture(textureJsonTree);
 	}
+	if (json.hasChild("texture1")) {
+		loadTexture1(json.getChild("texture1"));
+	}
 
 	// init texture
 	mRenderedTexture = ci::gl::Texture::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), ci::gl::Texture::Format().loadTopDown(mLoadTopDown));
@@ -87,12 +95,31 @@ VDFboShader::VDFboShader(VDUniformsRef aVDUniforms, VDAnimationRef aVDAnimation,
 }
 VDFboShader::~VDFboShader(void) {
 }
+void VDFboShader::loadTexture1(const JsonTree &json) {
+	std::string name = json.hasChild("texturename") ? json.getValueForKey<string>("texturename") : "";
+	if (name.empty()) return;
+	// full path, else assets/images, else next to the fbo json, else the assets root
+	fs::path file = resolveMediaFile(name, "images", mAssetsPath);
+	if (!fs::exists(file)) {
+		CI_LOG_W("texture1 not found: " << name);
+		return;
+	}
+	try {
+		mTexture1 = gl::Texture::create(loadImage(file), gl::Texture2d::Format().loadTopDown(mLoadTopDown).mipmap(true).minFilter(GL_LINEAR_MIPMAP_LINEAR));
+		mTexture1Name = file.filename().string();
+	}
+	catch (const std::exception& ex) {
+		CI_LOG_E("texture1 " << name << ": " << ex.what());
+	}
+}
 unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	unsigned int rtn = 0;
 	//unsigned int listIndex = 0;
 	mCurrentFilename = mTextureName = (json.hasChild("texturename")) ? json.getValueForKey<string>("texturename") : "0.jpg";
 	mTypestr = (json.hasChild("texturetype")) ? json.getValueForKey<string>("texturetype") : "UNKNOWN";
 	mPlaysAudioFile = false;
+	// optional song tempo of an audio file ("bpm" in the texture block), for the bar/beat display
+	mAudioBpm = (json.hasChild("bpm")) ? json.getValueForKey<float>("bpm") : 0.0f;
 	mTextureMode = (json.hasChild("texturemode")) ? json.getValueForKey<int>("texturemode") : VDTextureMode::UNKNOWN;
 	mTextureCount = (json.hasChild("texturecount")) ? json.getValueForKey<int>("texturecount") : 1;
 	mPreloadTextures = (json.hasChild("preloadtextures")) ? json.getValueForKey<bool>("preloadtextures") : false;
@@ -110,6 +137,9 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 			if (ext == ".wav" || ext == ".mp3") {
 				fs::path audioFile = resolveMediaFile(mTextureName, "audio", mAssetsPath);
 				mPlaysAudioFile = mVDAnimation->loadAudioFile(audioFile.string());
+				// a loaded folder starts paused at 0 (shaders included), even when reloading the
+				// file already playing
+				if (mPlaysAudioFile) mVDAnimation->cueAudioFile();
 			}
 		}
 		setFboTextureAudioMode();
@@ -201,6 +231,8 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		for (auto& ch : mExt) ch = (char)std::tolower((unsigned char)ch);
 		// videos: assets/videos first (shared), see resolveMediaFile()
 		if (mExt == "mp4" || mExt == "mov") texFileOrPath = resolveMediaFile(mTextureName, "videos", mAssetsPath);
+		// images: assets/images first (shared), see resolveMediaFile()
+		if (mExt == "jpg" || mExt == "png") texFileOrPath = resolveMediaFile(mTextureName, "images", mAssetsPath);
 		// image
 		if (mExt == "jpg" || mExt == "png") {
 			mFboMsg = "jpg or png";
@@ -394,27 +426,28 @@ void VDFboShader::loadImageFile(const std::string& aFile, unsigned int aCurrentI
 void VDFboShader::loadNextTexture(unsigned int aCurrentIndex) {
 	if (mCurrentImageSequenceIndex != aCurrentIndex) {
 		mCurrentImageSequenceIndex = aCurrentIndex;
+		const fs::path sequenceFolder = resolveSequenceFolder(mTextureName);
 		// try with jpg (space) explorer
 		mCurrentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").jpg";
-		fs::path texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
+		fs::path texFileOrPath = sequenceFolder / mCurrentFilename;
 		fileExists = fs::exists(texFileOrPath);
 
 		if (!fileExists) {
 			// try with jpg (-) photoshop
 			mCurrentFilename = mTextureName + "-(" + toString(mCurrentImageSequenceIndex) + ").jpg";
-			texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
+			texFileOrPath = sequenceFolder / mCurrentFilename;
 			fileExists = fs::exists(texFileOrPath);
 		}
 		if (!fileExists) {
 			// try with png (space) explorer
 			mCurrentFilename = mTextureName + " (" + toString(mCurrentImageSequenceIndex) + ").png";
-			texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
+			texFileOrPath = sequenceFolder / mCurrentFilename;
 			fileExists = fs::exists(texFileOrPath);
 		}
 		if (!fileExists) {
 			// try with png (-) photoshop
 			mCurrentFilename = mTextureName + "-(" + toString(mCurrentImageSequenceIndex) + ").png";
-			texFileOrPath = getAssetPath("") / mTextureName / mCurrentFilename;
+			texFileOrPath = sequenceFolder / mCurrentFilename;
 			fileExists = fs::exists(texFileOrPath);
 		}
 		if (fileExists) {
@@ -587,6 +620,9 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			}
 			break;
 		}
+		// second input (iChannel1); PARTS and hydra use the other units themselves
+		const bool texture1Bound = mTexture1 && mTextureMode != VDTextureMode::PARTS && !mIsHydraTex;
+		if (texture1Bound) mTexture1->bind(1);
 
 		// before setting uniforms!
 		gl::ScopedGlslProg glslScope(mShader);
@@ -619,8 +655,16 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			case GL_SAMPLER_2D: // sampler2D 35678 0x8B5E
 				texNameEndIndex = uniformName.find("iChannel");
 				if (texNameEndIndex != std::string::npos && texNameEndIndex != -1) {
-					// NASTY BUG! mShader->uniform(name, (uint32_t)(channelIndex));						
-					mShader->uniform(uniformName, channelIndex);
+					// NASTY BUG! mShader->uniform(name, (uint32_t)(channelIndex));
+					if (mTexture1) {
+						// with a second texture, iChannelN is unit N (iChannel0 = input, iChannel1 = texture1);
+						// otherwise the samplers in use get units 0, 1, ... in order, which shaders that only
+						// sample iChannel1 rely on
+						mShader->uniform(uniformName, atoi(uniformName.c_str() + texNameEndIndex + 8));
+					}
+					else {
+						mShader->uniform(uniformName, channelIndex);
+					}
 					channelIndex++;
 				}
 				else {
@@ -691,6 +735,8 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 		}
 
 		gl::drawSolidRect(Rectf(0, 0, mVDParams->getFboWidth(), mVDParams->getFboHeight()));
+		// don't leave it on unit 1 for the next fbo's shader
+		if (texture1Bound) mTexture1->unbind(1);
 		// 20220421 TODO use with shader, not directly
 		if (mTextureMode == VDTextureMode::MOVIE)
 		{			

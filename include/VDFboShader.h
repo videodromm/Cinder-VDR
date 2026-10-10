@@ -204,10 +204,15 @@ namespace videodromm
 		void									syncToBeat() {
 			mSequenceManualControl = false;
 		}
+		// optional second input image, "texture1" in the fbo json, bound to iChannel1
+		bool									hasTexture1() { return (bool)mTexture1; }
+		std::string								getTexture1Name() { return mTexture1Name; }
 		// audio fbo whose "texturename" is a wav/mp3 (played by VDAnimation's file player)
 		bool									isAudioFile() {
 			return mTextureMode == VDTextureMode::AUDIO && mPlaysAudioFile;
 		}
+		// the audio file's tempo from the fbo json ("bpm" in "texture"), 0 when not given
+		float									getAudioBpm() { return mAudioBpm; }
 		// playback controls for sequences and audio-file fbos; a video input (MOVIE) is a pool source,
 		// controlled through VDMix (which checks for one first)
 		bool									isPlaying() {
@@ -321,6 +326,11 @@ namespace videodromm
 		ci::gl::GlslProgRef				mGlslVideoTexture;
 		unsigned int					mInputTextureIndex = 0;
 		unsigned int					createInputTexture(const JsonTree &json);
+		// second input image ("texture1": {"texturename": "x.jpg"}), bound to texture unit 1;
+		// when present, every iChannelN sampler is bound to unit N
+		void							loadTexture1(const JsonTree &json);
+		ci::gl::TextureRef				mTexture1;
+		std::string						mTexture1Name;
 		bool							mLoadTopDown = false;
 		// 20211115
 		int								mCurrentImageSequenceIndex = 0;
@@ -339,6 +349,7 @@ namespace videodromm
 		bool							mSequenceManualControl = false;
 		bool							mSequencePlaying = true;
 		bool							mPlaysAudioFile = false;
+		float							mAudioBpm = 0.0f;
 		bool							mSequenceReversed = false;
 		float							mSequenceSpeed = 1.0f;
 		float							mSequenceAccumulator = 0.0f;

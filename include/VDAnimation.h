@@ -159,6 +159,16 @@ namespace videodromm
 		void							toggleAudioFilePlayPause();
 		bool							isAudioFileLooping() { return mAudioFileLoop; };
 		void							setAudioFileLoop(bool aLoop);
+		// audio file clock: once the file is played or scrubbed, ITIME is its play position (seconds),
+		// so pausing freezes the shaders and scrubbing moves them with the sound. Released by
+		// VDUniforms::resetTime() users (a video or sequence Play) via setAudioFileClock(false)
+		bool							isAudioFileClock() { return mAudioFileClock && mSamplePlayerNode; }
+		void							setAudioFileClock(bool aClock) { mAudioFileClock = aClock; }
+		double							getAudioFilePosition() { return mSamplePlayerNode ? mSamplePlayerNode->getReadPositionTime() : 0.0; }
+		double							getAudioFileDuration() { return mSamplePlayerNode ? mSamplePlayerNode->getNumSeconds() : 0.0; }
+		void							seekAudioFile(double aSeconds);
+		// paused at 0 with ITIME at 0 and following it: a folder load or a dropped file waits for Play
+		void							cueAudioFile();
 		void							toggleUseWaveMonitor() { mUseAudio = !mUseAudio; };
 
 
@@ -222,6 +232,7 @@ namespace videodromm
 		bool							mUseLineIn = false;
 		// FFT source follows the audio file: file playing -> file, file ended/paused -> mic (update())
 		bool							mAudioFileWasPlaying = false;
+		bool							mAudioFileClock = false;
 		std::map<int, int>				freqIndexes;
 		bool							mAudioBuffered = false;
 		ci::gl::TextureRef				mAudioTexture;

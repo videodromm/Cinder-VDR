@@ -496,6 +496,8 @@ void VDAnimation::update() {
 		((float)getElapsedSeconds() - mVDUniforms->getUniformValue(mVDUniforms->ISTART)) *
 		mVDUniforms->getUniformValue(mVDUniforms->ISPEED) *
 		mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
+	// the audio file is the clock once played or scrubbed (paused = frozen shaders)
+	if (isAudioFileClock()) mVDUniforms->setTime((float)mSamplePlayerNode->getReadPositionTime());
 	// sos
 	// IBARBEAT = IBAR * 4 + IBEAT
 	float current = mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT); // 20210101 was int
@@ -707,6 +709,15 @@ void VDAnimation::applyPreferredAudioOutput() {
 	auto current = std::dynamic_pointer_cast<audio::OutputDeviceNode>(ctx->getOutput());
 	if (current && current->getDevice() == device) return;
 	bool wasEnabled = ctx->isEnabled();
+	// a device with another sample rate or block size makes setOutput() uninitialize and
+	// reinitialize every node. Nodes that aren't auto-enabled (the line in, the file player) keep
+	// their "enabled" flag through that, but the line in's WASAPI capture client is recreated
+	// stopped, so a later enable() is a no-op and the audio texture stays empty: disable them
+	// first, enable them again after
+	bool lineInWasEnabled = mLineIn && mLineIn->isEnabled();
+	bool playerWasEnabled = mSamplePlayerNode && mSamplePlayerNode->isEnabled();
+	if (lineInWasEnabled) mLineIn->disable();
+	if (playerWasEnabled) mSamplePlayerNode->disable();
 	ctx->disable();
 	try {
 		ctx->setOutput(ctx->createOutputDeviceNode(device));
@@ -714,12 +725,14 @@ void VDAnimation::applyPreferredAudioOutput() {
 			mAudioFileGain->disconnectAllOutputs();
 			mAudioFileGain >> ctx->getOutput();
 		}
-		CI_LOG_I("audio output device: " << device->getName());
+		CI_LOG_I("audio output device: " << device->getName() << " (" << ctx->getSampleRate() << " Hz, " << ctx->getFramesPerBlock() << " frames per block)");
 	}
 	catch (const std::exception& ex) {
 		CI_LOG_E("could not open audio output device " << device->getName() << ": " << ex.what());
 	}
 	if (wasEnabled) ctx->enable();
+	if (lineInWasEnabled) mLineIn->enable();
+	if (playerWasEnabled) mSamplePlayerNode->enable();
 #endif
 }
 
@@ -836,6 +849,7 @@ bool VDAnimation::loadAudioFile(const std::string& aPath) {
 		mWaveInitialized = true;
 		mAudioName = fs::path(aPath).filename().string();
 		mLoadedAudioFile = aPath;
+		mAudioFileClock = false;
 		CI_LOG_I("loadAudioFile: loaded (paused) " << aPath);
 		return true;
 	}
@@ -855,6 +869,23 @@ void VDAnimation::toggleAudioFilePlayPause() {
 		if (mSamplePlayerNode->isEof()) mSamplePlayerNode->seek(0);
 		mSamplePlayerNode->start();
 	}
+}
+void VDAnimation::cueAudioFile() {
+	if (!mSamplePlayerNode) return;
+	if (mSamplePlayerNode->isEnabled()) mSamplePlayerNode->stop();
+	mSamplePlayerNode->seek(0);
+	mAudioFileClock = true;
+	mVDUniforms->setTime(0.0f);
+}
+void VDAnimation::seekAudioFile(double aSeconds) {
+	if (!mSamplePlayerNode) return;
+	double duration = mSamplePlayerNode->getNumSeconds();
+	if (aSeconds < 0.0) aSeconds = 0.0;
+	if (aSeconds > duration) aSeconds = duration;
+	mSamplePlayerNode->seekToTime(aSeconds);
+	// the shaders follow the scrub, even while paused
+	mAudioFileClock = true;
+	mVDUniforms->setTime((float)aSeconds);
 }
 void VDAnimation::setAudioFileLoop(bool aLoop) {
 	mAudioFileLoop = aLoop;

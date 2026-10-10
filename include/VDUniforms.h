@@ -346,6 +346,12 @@ namespace videodromm
 			shaderUniforms[ISTART].floatValue = (float)ci::app::getElapsedSeconds();
 			shaderUniforms[ITIME].floatValue = 0.0f;
 		}
+		// ITIME set from an external clock (the audio file's position, see VDAnimation::update()),
+		// written directly like resetTime(); ISTART follows so a later resetTime()-free run continues from it
+		void							setTime(float aSeconds) {
+			shaderUniforms[ITIME].floatValue = aSeconds;
+			shaderUniforms[ISTART].floatValue = (float)ci::app::getElapsedSeconds() - aSeconds;
+		}
 		int								getUniformAnim(unsigned int aIndex) {
 			return shaderUniforms[aIndex].anim;
 		}

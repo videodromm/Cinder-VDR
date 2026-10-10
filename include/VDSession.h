@@ -386,6 +386,12 @@ namespace videodromm {
 		void							setVolumeLevel(unsigned int aFboIndex, float aLevel) { mVDMix->setVolumeLevel(aFboIndex, aLevel); }
 		void							togglePlayPause(unsigned int aFboIndex) { mVDMix->togglePlayPause(aFboIndex); }
 		bool							isAudioFile(unsigned int aFboIndex) { return mVDMix->isAudioFile(aFboIndex); }
+		float							getAudioBpm(unsigned int aFboIndex) { return mVDMix->getAudioBpm(aFboIndex); }
+		// the audio file player's position (seconds); seeking makes it the ITIME clock (VDAnimation)
+		double							getAudioFilePosition() { return mVDAnimation->getAudioFilePosition(); }
+		double							getAudioFileDuration() { return mVDAnimation->getAudioFileDuration(); }
+		void							seekAudioFile(double aSeconds) { mVDAnimation->seekAudioFile(aSeconds); }
+		bool							isAudioFileClock() { return mVDAnimation->isAudioFileClock(); }
 		bool							isPlaying(unsigned int aFboIndex) { return mVDMix->isPlaying(aFboIndex); }
 		bool							isLooping(unsigned int aFboIndex) { return mVDMix->isLooping(aFboIndex); }
 		void							toggleLoop(unsigned int aFboIndex) { mVDMix->toggleLoop(aFboIndex); }

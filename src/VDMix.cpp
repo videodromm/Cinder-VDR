@@ -440,6 +440,7 @@ namespace videodromm {
 			for (auto& other : mVideoSources) if (other != video) other->pause();
 			if (mVDAnimation->isAudioFilePlaying()) mVDAnimation->toggleAudioFilePlayPause();
 			// every Play restarts ITIME at 0, so the shaders are in sync with the video
+			mVDAnimation->setAudioFileClock(false);
 			mVDUniforms->resetTime();
 		}
 		video->togglePlayPause();
@@ -455,8 +456,16 @@ namespace videodromm {
 		if (!fbo->isPlaying()) {
 			// starting the audio file pauses every playing video (one sound at a time)
 			if (fbo->isAudioFile()) for (auto& source : mVideoSources) source->pause();
-			// every Play (audio file, sequence) restarts ITIME at 0, for sync
-			mVDUniforms->resetTime();
+			if (fbo->isAudioFile()) {
+				// ITIME follows the file's position from now on (VDAnimation::update()): Play after
+				// Pause resumes in sync, Play after the end restarts both at 0
+				mVDAnimation->setAudioFileClock(true);
+			}
+			else {
+				// a sequence Play restarts ITIME at 0, for sync
+				mVDAnimation->setAudioFileClock(false);
+				mVDUniforms->resetTime();
+			}
 		}
 		fbo->togglePlayPause();
 	}
