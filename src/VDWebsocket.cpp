@@ -1,4 +1,6 @@
 #include "VDWebsocket.h"
+#include "VDAccessToken.h"
+#include <cmath>
 
 using namespace videodromm;
 
@@ -68,7 +70,8 @@ void VDWebsocket::parseMessage(std::string msg) {
 
 	if (!msg.empty()) {
 		// the live code view streams the whole editor text while typing: keep it out of the status line
-		if (msg.compare(0, 19, "{\"event\":\"codeview\"") != 0 && msg.compare(0, 8, "{\"midi\":") != 0) mWebSocketsMsg = msg;
+		// at most 200 characters: it's drawn every frame, and a frag/canvas message can be megabytes
+		if (msg.compare(0, 19, "{\"event\":\"codeview\"") != 0 && msg.compare(0, 8, "{\"midi\":") != 0) mWebSocketsMsg = msg.size() > 200 ? msg.substr(0, 200) + "..." : msg;
 		std::string first = msg.substr(0, 1);
 		if (first == "{") {
 			// json
@@ -173,7 +176,10 @@ void VDWebsocket::parseMessage(std::string msg) {
 							// the WebApp picked a folder: {"event":"folder","message":"ambivalence","from":"webapp"}
 							// a bare name only (no path), loaded by VDSessionFacade::update()
 							std::string folder = json.getChild("message").getValue<std::string>();
-							bool safe = !folder.empty() && folder.size() <= 64 && folder.find("..") == std::string::npos;
+							// no leading or trailing dot/space ("." reloaded the assets root; Windows drops a
+							// trailing dot or space); the folder must exist (VDSessionFacade::update)
+							bool safe = !folder.empty() && folder.size() <= 64 && folder.find("..") == std::string::npos
+								&& folder.front() != '.' && folder.front() != ' ' && folder.back() != '.' && folder.back() != ' ';
 							for (char c : folder) if (!(std::isalnum(static_cast<unsigned char>(c)) || c == ' ' || c == '_' || c == '-' || c == '.')) safe = false;
 							if (safe) mVDMediator->requestFolder(folder);
 						}
@@ -185,6 +191,8 @@ void VDWebsocket::parseMessage(std::string msg) {
 							const bool fromCinder = json.hasChild("from") && json.getChild("from").getValue<std::string>() == "cinder";
 							if (!fromCinder && (cmd == "play" || cmd == "pause" || cmd == "seek")) {
 								double position = json.hasChild("position") ? json.getChild("position").getValue<double>() : -1.0;
+								// finite and within a day; a huge value became inf in the video seek
+								if (!std::isfinite(position) || position > 86400.0) position = -1.0;
 								mVDMediator->requestTransport(cmd, position);
 							}
 						}
@@ -408,8 +416,9 @@ void VDWebsocket::wsClientConnect()
 		}
 	}
 	// BL TEMP s << "ws://127.0.0.1:8088";
-	mWebSocketsMsg = s.str();
-	mClient.connect(s.str());
+	mWebSocketsMsg = s.str(); // shown in the UI: without the token
+	// TSWebsocketServer's ACCESS_TOKEN, when set (VDAccessToken.h)
+	mClient.connect(access::withToken(s.str()));
 	//mClient.ping();
 }
 void VDWebsocket::wsClientDisconnect()

@@ -517,8 +517,11 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 	mOscReceiver->listen(
 		[](asio::error_code error, protocol::endpoint endpoint) -> bool {
 		if (error) {
-			CI_LOG_E("Error Listening: " << error.message() << " val: " << error.value() << " endpoint: " << endpoint);
-			return false;
+			// keep listening after a bad packet (e.g. a datagram over the 4 KB buffer); returning false
+			// stopped OSC for the rest of the show. Only a closed socket ends it.
+			if (error == asio::error::operation_aborted) return false;
+			CI_LOG_W("OSC receive error (still listening): " << error.message() << " val: " << error.value() << " endpoint: " << endpoint);
+			return true;
 		}
 		else
 

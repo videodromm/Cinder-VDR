@@ -606,11 +606,15 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 			// MOVIE falls through to here too - it populates mInputTextureList[0] above like
 			// every other mode in this branch, so no special-casing needed at bind time
 			if (mIsHydraTex) {
-				mInputTextureList[0].texture->bind(253);
-				for (size_t i{ 0 }; i < 4; i++)
-				{
-					mInputTextureList[i].texture->bind(254 + i);
-				}
+				// any sampler named "*tex*" sets mIsHydraTex (a "frag" from the network too); slots
+				// 1..3 are usually empty: operator[] created them with a null texture, and binding
+				// that was an access violation. Bind only what exists.
+				auto bindIfAny = [this](unsigned int aSlot, unsigned int aUnit) {
+					auto it = mInputTextureList.find(aSlot);
+					if (it != mInputTextureList.end() && it->second.texture) it->second.texture->bind(aUnit);
+				};
+				bindIfAny(0, 253);
+				for (unsigned int i{ 0 }; i < 4; i++) bindIfAny(i, 254 + i);
 			}
 			else {// case VDTextureMode::SHARED, AUDIO, MOVIE,..
 				unsigned int activeIdx = getValidTexIndex(mInputTextureIndex);

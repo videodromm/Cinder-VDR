@@ -889,3 +889,21 @@ MSBuild Release|x64 and Debug|x64 of both apps link clean. Not runtime-tested.
 - **Accented device names never matched** (Cinder-WMFVideo `ciWMFVideoPlayer::loadMovie`): the device name and the path were widened byte by byte (`std::copy`), so UTF-8 accents ("Haut-parleurs …" on a French Windows) broke WMF's exact `wcscmp` on the friendly name, and the video played on the Windows default device. Now `ci::msw::toWideString()` and `fs::path::wstring()`.
 
 MSBuild Debug|x64 of both apps link clean. Not runtime-tested.
+
+### Security (2026-10-11, evening)
+
+Second security pass after the single-page/folder-sync/transport work: findings, fixes and open recommendations in `security-review-2026-10-11-evening.md` (repos root).
+
+### Added (2026-10-11, evening: access token, OSC parser bounds, Web panel restrictions)
+
+See `security-review-2026-10-11-evening.md` section 6: `include/VDAccessToken.h` (TSWebsocketServer's ACCESS_TOKEN from the environment or `TSWebsocketServer/.env`, added to the websocket URL, REST URLs and the Web panel URL); Cinder's OSC block parser bounds-checked (`Cinder/blocks/OSC/src/cinder/osc/Osc.cpp`) and `VDOscReceiver` keeps listening after a receive error; `Cinder-WebView2` `CinderWebView2Panel::restrict()` (same-origin navigation, no popups, permissions denied, no host objects, no DevTools in Release). Builds clean, Debug and Release. Not runtime-tested.
+
+### Data (2026-10-12, BA setlists for Rome and Berlin)
+
+`assets/ba-rome.json` and `assets/ba-berlin.json` (setlists, see TSWebsocketServer's CLAUDE.md), `settings.setlist: "ba-rome"` in `assets/mix.json` (Cinder ignores the key; `setDefaultFolder()` keeps it).
+
+Video-only track folders, each with `fbo0.json` = the video (MOVIE mode) through `inputImage.fs` (copied into the folder), a `track.json` (`video`, `project: "BA"`) and a minimal `mix.json` (iWeight0 1, the others 0, so a previous folder's weights can't hide the video):
+- welcometo, humanet, motherlover, zombification (one video for zombification + dead or alive): new folders;
+- sos, spidermoon: their previous fbo jsons moved to `backup-20261012/`.
+
+Videos must be H.264 for Media Foundation. `WelcomeToHap44.mov` and `spidermoon.mov` are Resolume DXV, so Cinder plays `WelcomeTo44.mp4` (converted with ffmpeg, H.264/AAC, same duration) and `spidermoon.mp4`; `track.json` keeps the DXV file as `resolumeVideo`. ambivalence, tobecontinued: ubershader tracks (track.json updated); namaste: no shader yet, so loading it in Cinder keeps the previous folder's fbos.

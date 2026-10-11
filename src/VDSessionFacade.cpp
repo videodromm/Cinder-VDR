@@ -137,45 +137,58 @@ VDSessionFacadeRef VDSessionFacade::useTimeWithTempo() {
 VDSessionFacadeRef VDSessionFacade::update() {
 	mVDSession->update();
 	mVDMediator->update();
-	// folder sync with the WebApp (WebApp/src/lib/folderSync.ts): load what it picked, unless
-	// it's already loaded; tell it about every load, and answer its folderquery
-	const std::string requested = mVDMediator->takeRequestedFolder();
-	if (!requested.empty() && requested != mVDSession->getLoadedFolder()) mVDSession->loadFolder(requested);
-	// transport from the WebApp: Cinder plays the folder's song (wav, else video), the WebApp follows
-	for (auto& request : mVDMediator->takeTransportRequests()) mVDSession->transport(request.first, request.second);
-	// state to the WebApp: twice a second while playing, every 3 s otherwise (also tells it Cinder runs)
-	{
-		const bool playing = mVDSession->isTransportPlaying();
-		const double now = app::getElapsedSeconds();
-		if (playing != mTransportWasPlaying || now - mTransportSentAt > (playing ? 0.5 : 3.0)) {
-			mTransportWasPlaying = playing;
-			mTransportSentAt = now;
-			ci::Json msg = {
-				{ "event", "transport" }, { "message", "state" }, { "from", "cinder" },
-				{ "playing", playing }, { "position", mVDSession->getTransportPosition() },
-				{ "song", mVDSession->getTransportSongName() }, { "folder", mVDSession->getLoadedFolder() },
-			};
-			mVDMediator->wsSend(msg.dump());
+	// everything below comes from the network or builds messages from file names: an exception here
+	// (filesystem error, a name that isn't UTF-8...) is logged, never thrown out of update()
+	try {
+		// folder sync with the WebApp (WebApp/src/lib/folderSync.ts): load what it picked, unless
+		// it's already loaded; tell it about every load, and answer its folderquery
+		const std::string requested = mVDMediator->takeRequestedFolder();
+		if (!requested.empty() && requested != mVDSession->getLoadedFolder()) {
+			// only an existing folder (assets/glsl/<name> or assets/<name>): a missing one was still
+			// recorded as loaded and announced, which confused the sync
+			const fs::path assets = getAssetPath("");
+			if (fs::is_directory(assets / "glsl" / requested) || fs::is_directory(assets / requested)) mVDSession->loadFolder(requested);
+			else CI_LOG_W("folder requested by the WebApp not found: " << requested);
+		}
+		// transport from the WebApp: Cinder plays the folder's song (wav, else video), the WebApp follows
+		for (auto& request : mVDMediator->takeTransportRequests()) mVDSession->transport(request.first, request.second);
+		// state to the WebApp: twice a second while playing, every 3 s otherwise (also tells it Cinder runs)
+		{
+			const bool playing = mVDSession->isTransportPlaying();
+			const double now = app::getElapsedSeconds();
+			if (playing != mTransportWasPlaying || now - mTransportSentAt > (playing ? 0.5 : 3.0)) {
+				mTransportWasPlaying = playing;
+				mTransportSentAt = now;
+				ci::Json msg = {
+					{ "event", "transport" }, { "message", "state" }, { "from", "cinder" },
+					{ "playing", playing }, { "position", mVDSession->getTransportPosition() },
+					{ "song", mVDSession->getTransportSongName() }, { "folder", mVDSession->getLoadedFolder() },
+				};
+				mVDMediator->wsSend(msg.dump(-1, ' ', false, ci::Json::error_handler_t::replace));
+			}
+		}
+		// connected to the server: ask the WebApp for its folder, which wins over the one loaded at
+		// startup (WebApp/src/lib/folderSync.ts answerFolderQuery). Our own loads aren't announced for
+		// 2 s meanwhile, or the startup folder would switch the WebApp first.
+		const bool wsConnected = mVDMediator->isWSConnected();
+		if (wsConnected && !mWasWSConnected) {
+			ci::Json query = { { "event", "folderquery" }, { "message", "" }, { "from", "cinder" } };
+			mVDMediator->wsSend(query.dump(-1, ' ', false, ci::Json::error_handler_t::replace));
+			mFolderQuerySentAt = app::getElapsedSeconds();
+		}
+		mWasWSConnected = wsConnected;
+		const bool awaitingWebAppFolder = app::getElapsedSeconds() - mFolderQuerySentAt < 2.0;
+		if (mVDMediator->takeFolderQuery() || (!awaitingWebAppFolder && mVDSession->getFolderLoadCount() != mAnnouncedFolderLoads)) {
+			mAnnouncedFolderLoads = mVDSession->getFolderLoadCount();
+			const std::string folder = mVDSession->getLoadedFolder();
+			if (!folder.empty()) {
+				ci::Json msg = { { "event", "folder" }, { "message", folder }, { "from", "cinder" } };
+				mVDMediator->wsSend(msg.dump(-1, ' ', false, ci::Json::error_handler_t::replace));
+			}
 		}
 	}
-	// connected to the server: ask the WebApp for its folder, which wins over the one loaded at
-	// startup (WebApp/src/lib/folderSync.ts answerFolderQuery). Our own loads aren't announced for
-	// 2 s meanwhile, or the startup folder would switch the WebApp first.
-	const bool wsConnected = mVDMediator->isWSConnected();
-	if (wsConnected && !mWasWSConnected) {
-		ci::Json query = { { "event", "folderquery" }, { "message", "" }, { "from", "cinder" } };
-		mVDMediator->wsSend(query.dump());
-		mFolderQuerySentAt = app::getElapsedSeconds();
-	}
-	mWasWSConnected = wsConnected;
-	const bool awaitingWebAppFolder = app::getElapsedSeconds() - mFolderQuerySentAt < 2.0;
-	if (mVDMediator->takeFolderQuery() || (!awaitingWebAppFolder && mVDSession->getFolderLoadCount() != mAnnouncedFolderLoads)) {
-		mAnnouncedFolderLoads = mVDSession->getFolderLoadCount();
-		const std::string folder = mVDSession->getLoadedFolder();
-		if (!folder.empty()) {
-			ci::Json msg = { { "event", "folder" }, { "message", folder }, { "from", "cinder" } };
-			mVDMediator->wsSend(msg.dump());
-		}
+	catch (const std::exception& e) {
+		CI_LOG_W("folder/transport sync: " << e.what());
 	}
 	getAudioTexture(); // 20240518 force audio fft for fx.glsl even if no fboshader uses it (no performance drop)
 	return shared_from_this();

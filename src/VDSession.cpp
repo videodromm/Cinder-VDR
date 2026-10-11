@@ -4,6 +4,7 @@
 
 #include "jsoncpp/json.h"
 #include "VDSession.h"
+#include "VDAccessToken.h"
 #include "cinder/Json.h"
 
 using namespace videodromm;
@@ -97,7 +98,7 @@ void VDSession::setupHttpClient() {
 
 }
 void VDSession::loadShaderFromHttp(const std::string& url, unsigned int aFboIndex) {
-	httpsUrl = std::make_shared<http::Url>(mApiurl + url);
+	httpsUrl = std::make_shared<http::Url>(access::withToken(mApiurl + url));
 	makeRequest(httpsUrl, aFboIndex);
 }
 void VDSession::makeRequest(http::UrlRef url, unsigned int aFboIndex)
@@ -191,17 +192,17 @@ namespace {
 	}
 }
 void VDSession::listFolders() {
-	httpsUrl = std::make_shared<http::Url>(mApiurl + "api/folders");
+	httpsUrl = std::make_shared<http::Url>(access::withToken(mApiurl + "api/folders"));
 	makeFolderListRequest(httpsUrl);
 }
 void VDSession::listShaders(const std::string& aFolder, const std::string& aExtension) {
-	httpsUrl = std::make_shared<http::Url>(mApiurl + "api/folders/" + aFolder + "/" + aExtension);
+	httpsUrl = std::make_shared<http::Url>(access::withToken(mApiurl + "api/folders/" + aFolder + "/" + aExtension));
 	makeShaderListRequest(httpsUrl);
 }
 void VDSession::loadShaderFromFolder(const std::string& aFolder, const std::string& aExtension, const std::string& aName) {
 	// into the selected fbo (the last fbo pane clicked, highlighted in purple)
 	unsigned int aFboIndex = mVDMix->getSelectedFbo();
-	httpsUrl = std::make_shared<http::Url>(mApiurl + "api/folders/" + aFolder + "/" + aExtension + "/" + aName);
+	httpsUrl = std::make_shared<http::Url>(access::withToken(mApiurl + "api/folders/" + aFolder + "/" + aExtension + "/" + aName));
 	// aName is the listed filename (e.g. "BinarySerpents.glsl") - strip the extension for a cleaner display title
 	std::string title = aName;
 	std::size_t dotIndex = title.find_last_of('.');
