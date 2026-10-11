@@ -911,3 +911,9 @@ Videos must be H.264 for Media Foundation. `WelcomeToHap44.mov` and `spidermoon.
 ### Changed (2026-10-12, security review smaller items)
 
 See `security-review-2026-10-11-evening.md` section 7: `VDSession::loadFolder` takes the fbo list out (`VDMix::takeFboShaderList`) and restores it if the new folder loads none; `VDMix::releaseUnusedVideoSources()` after a folder load (videos no fbo shows or has pending); `VDUniforms` ignores unknown indexes in `setUniformValue`/`setAnim`/`setVec4UniformValueByIndex`.
+
+### Changed (2026-10-12, websocket reconnect, senders off by default, Setlist panel)
+
+- `VDWebsocket` retries the connection every 5 s (was 60 s): Cinder started before TSWebsocketServer (or a server restart) stayed off the folder/transport sync for up to a minute.
+- Cinder-VDRUI `VDUI`: top-bar toggles "Spout on/off" and "NDI on/off", **off at startup** (`isSpoutOutEnabled()`/`isNdiOutEnabled()`). The apps (VDRUIProject, the VDRUI template) hold their senders as `std::unique_ptr`, created by `syncSenders()` only while on and released when switched off; the code view is only rendered when its Spout sender is on or the output window's code overlay shows it.
+- `VDUI` "Setlist" panel (`runSetlist()`): the setlists in `assets/*.json` (objects with a `tracks` array), the current one from `assets/mix.json` `settings.setlist` (changing it here rewrites only that key), the tracks in order, Previous/Next; a track loads its folder (`VDSession::loadFolder`), so the WebApp follows. The playing entry is green.

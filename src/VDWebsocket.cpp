@@ -20,7 +20,9 @@ VDWebsocket::VDWebsocket() {
 	// Auto-reconnect functionality
 	mAutoReconnect = true;
 	mLastReconnectAttempt = 0.0;
-	mReconnectInterval = 60.0; // 60 seconds = 1 minute
+	// 5 s: TSWebsocketServer started (or restarted) after Cinder must be reached quickly, or the
+	// folder/transport sync with the WebApp stays off (it used to wait a whole minute)
+	mReconnectInterval = 5.0;
 
 	//wsConnect();
 	mPingTime = getElapsedSeconds();
