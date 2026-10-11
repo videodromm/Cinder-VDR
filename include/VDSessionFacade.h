@@ -306,6 +306,9 @@ namespace videodromm
 		VDSessionRef			getInstance() const;
 		// bare name of the folder last loaded, and the load count (VDUIFolders follows it)
 		std::string				getLoadedFolder() { return mVDSession->getLoadedFolder(); }
+		// last folder sync events with the WebApp (shown in the Setlist panel, to check the link)
+		const std::string&		getFolderSyncIn() const { return mFolderSyncIn; }
+		const std::string&		getFolderSyncOut() const { return mFolderSyncOut; }
 		unsigned int			getFolderLoadCount() { return mVDSession->getFolderLoadCount(); }
 		bool					loadFolder(const string& aFolder) {
 			mTrackName = aFolder;
@@ -316,6 +319,8 @@ namespace videodromm
 
 	private:
 		unsigned int			mAnnouncedFolderLoads = 0;
+		std::string				mFolderSyncIn;
+		std::string				mFolderSyncOut;
 		bool					mTransportWasPlaying = false;
 		bool					mWasWSConnected = false;
 		double					mFolderQuerySentAt = -100.0;

@@ -86,7 +86,13 @@ namespace videodromm
 		// WebSockets
 		void						parseMessage(std::string msg);
 		// Web socket client
+		// true only once the connection is open (the open event); mConnecting while a connection
+		// is being made (polled, so its open/fail events arrive). Until 2026-10-12 clientConnected
+		// was set right after connect(): the first message sent before the open failed, the fail
+		// event cleared it, polling stopped, and the open connection was never read again.
 		bool						clientConnected;
+		bool						mConnecting = false;
+		double						mConnectStarted = 0.0;
 		void						wsClientConnect();
 		void						wsClientDisconnect();
 		int							receivedType;

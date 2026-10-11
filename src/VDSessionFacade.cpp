@@ -147,8 +147,15 @@ VDSessionFacadeRef VDSessionFacade::update() {
 			// only an existing folder (assets/glsl/<name> or assets/<name>): a missing one was still
 			// recorded as loaded and announced, which confused the sync
 			const fs::path assets = getAssetPath("");
-			if (fs::is_directory(assets / "glsl" / requested) || fs::is_directory(assets / requested)) mVDSession->loadFolder(requested);
-			else CI_LOG_W("folder requested by the WebApp not found: " << requested);
+			if (fs::is_directory(assets / "glsl" / requested) || fs::is_directory(assets / requested)) {
+				mFolderSyncIn = "WebApp asked for " + requested + ": loaded";
+				mVDSession->loadFolder(requested);
+			}
+			else {
+				mFolderSyncIn = "WebApp asked for " + requested + ": folder not found";
+				CI_LOG_W("folder requested by the WebApp not found: " << requested);
+			}
+			CI_LOG_I("folder sync: " << mFolderSyncIn);
 		}
 		// transport from the WebApp: Cinder plays the folder's song (wav, else video), the WebApp follows
 		for (auto& request : mVDMediator->takeTransportRequests()) mVDSession->transport(request.first, request.second);
@@ -184,6 +191,8 @@ VDSessionFacadeRef VDSessionFacade::update() {
 			if (!folder.empty()) {
 				ci::Json msg = { { "event", "folder" }, { "message", folder }, { "from", "cinder" } };
 				mVDMediator->wsSend(msg.dump(-1, ' ', false, ci::Json::error_handler_t::replace));
+				mFolderSyncOut = std::string(mVDMediator->isWSConnected() ? "told the WebApp: " : "not connected, not sent: ") + folder;
+				CI_LOG_I("folder sync: " << mFolderSyncOut);
 			}
 		}
 	}

@@ -917,3 +917,23 @@ See `security-review-2026-10-11-evening.md` section 7: `VDSession::loadFolder` t
 - `VDWebsocket` retries the connection every 5 s (was 60 s): Cinder started before TSWebsocketServer (or a server restart) stayed off the folder/transport sync for up to a minute.
 - Cinder-VDRUI `VDUI`: top-bar toggles "Spout on/off" and "NDI on/off", **off at startup** (`isSpoutOutEnabled()`/`isNdiOutEnabled()`). The apps (VDRUIProject, the VDRUI template) hold their senders as `std::unique_ptr`, created by `syncSenders()` only while on and released when switched off; the code view is only rendered when its Spout sender is on or the output window's code overlay shows it.
 - `VDUI` "Setlist" panel (`runSetlist()`): the setlists in `assets/*.json` (objects with a `tracks` array), the current one from `assets/mix.json` `settings.setlist` (changing it here rewrites only that key), the tracks in order, Previous/Next; a track loads its folder (`VDSession::loadFolder`), so the WebApp follows. The playing entry is green.
+
+### Added (2026-10-12, folder sync diagnostics)
+
+Reported: choosing a track in either Setlist panel does not move the other app. Both code paths read correct (relay test passes), so the link is now visible: Cinder's Setlist panel shows "Server connected/not connected" and the last folder request received and announcement sent (`VDSessionFacade::getFolderSyncIn/Out()`, also logged as `folder sync: ...`); the WebApp's Setlist pane shows server/Cinder state and the last folder sent/received (`lib/folderSync.ts` `useFolderSync`).
+
+### Fixed (2026-10-12, Cinder never read its websocket: the folder/setlist sync and transport did nothing)
+
+Symptom: the server logged Cinder connected (channel -3), but Cinder's Setlist panel said "Server not connected", and no folder or setlist change went either way. Cause, in `VDWebsocket`:
+1. `wsConnect()` set `clientConnected = true` right after starting the connection, before it was open.
+2. On the first frame, `VDSessionFacade::update()` sends the transport state (every 3 s since 2026-10-11, which is also how the WebApp knows Cinder runs). That write went out on the not-yet-open connection.
+3. Cinder-WebSocketPP reports a failed write through the same fail event as a failed connection, and the handler set `clientConnected = false`.
+4. `update()` only called `poll()` while `clientConnected`, so the connection that then opened was never read again: no open event, no messages. The server kept seeing it connected; the reconnect (every 5 s) piled new connection attempts on top.
+
+Fix:
+- `clientConnected` only becomes true on the open event.
+- `mConnecting` keeps `poll()` running while a connection is being made, and gives up after 10 s of no answer.
+- A fail event on an open connection (a write error) no longer marks it down; close/interrupt do.
+- Reconnect only when neither connected nor connecting.
+
+MSBuild Debug (both apps) + Release (VDRUIProject) clean. Not runtime-tested.

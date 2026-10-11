@@ -364,18 +364,24 @@ std::string VDWebsocket::getWSMsg() {
 void VDWebsocket::wsConnect() {
 	mWebSocketsMsg = "Connecting...";
 	mLastReconnectAttempt = getElapsedSeconds(); // Reset reconnect timer
+	mConnecting = true;
+	mConnectStarted = getElapsedSeconds();
 	mClient.connectOpenEventHandler([&]() {
 		clientConnected = true;
+		mConnecting = false;
 		mWebSocketsMsg = "Connected";
 		//mVDSettings->mWebSocketsNewMsg = true;
 	});
 	mClient.connectCloseEventHandler([&]() {
 		clientConnected = false;
+		mConnecting = false;
 		mWebSocketsMsg = "Disconnected";
 		//mVDSettings->mWebSocketsNewMsg = true;
 	});
 	mClient.connectFailEventHandler([&](std::string err) {
-		clientConnected = false;
+		// the wrapper also reports a failed write here: an open connection stays open (its close or
+		// interrupt event says when it really drops); only a connection being made has failed
+		if (!clientConnected) mConnecting = false;
 		mWebSocketsMsg = "WS Error";
 		//mVDSettings->mWebSocketsNewMsg = true;
 		if (!err.empty()) {
@@ -384,6 +390,7 @@ void VDWebsocket::wsConnect() {
 	});
 	mClient.connectInterruptEventHandler([&]() {
 		clientConnected = false;
+		mConnecting = false;
 		mWebSocketsMsg = "WS Interrupted";
 		//mVDSettings->mWebSocketsNewMsg = true;
 	});
@@ -399,8 +406,7 @@ void VDWebsocket::wsConnect() {
 		parseMessage(msg);
 	});
 	wsClientConnect();
-
-	clientConnected = true;
+	// not connected yet: the open event sets clientConnected (update() polls meanwhile)
 }
 
 void VDWebsocket::wsClientConnect()
@@ -580,11 +586,14 @@ void VDWebsocket::colorWrite()
 }
 
 void VDWebsocket::update() {
-	if (clientConnected)
+	// poll while open and while connecting (the open/fail events come from poll())
+	if (clientConnected || mConnecting)
 	{
 		mClient.poll();
+		// a connection attempt that never answers: give up, the reconnect below tries again
+		if (mConnecting && !clientConnected && getElapsedSeconds() - mConnectStarted > 10.0) mConnecting = false;
 	}
-	else if (mAutoReconnect)
+	if (!clientConnected && !mConnecting && mAutoReconnect)
 	{
 		// Auto-reconnect logic when disconnected
 		double currentTime = getElapsedSeconds();
