@@ -750,6 +750,39 @@ The WebApp now has a Strudel live-coding pane besides the GLSL editor, and both 
 
 MSBuild Debug|x64 of `VDRUIProject` and `VDSpoutInNdiOut` link clean. Not runtime-tested.
 
+### Added (2026-10-10, "D" button: default folder loaded at startup)
+
+VDUIFolders: a **D** button left of each folder's **L** (load) button. It writes that folder into `assets/mix.json`'s `"settings"` (`assetspath` = bare name, `assetsfolder` = `glsl` when the folder is `assets/glsl/<name>`), which is what the app loads at startup. The button is green on the current default. New `VDSession::getDefaultFolder()`/`setDefaultFolder()` (forwarded by `VDSessionFacade`) edit only those two keys with `ci::Json` (`loadJson`/`writeJson`) and keep the rest of `mix.json` (camera, uniforms). `VDMix::save()` only writes `mix.json` when it's missing, so it doesn't undo the choice. MSBuild Debug|x64: compiles; `VDRUIProject.exe` couldn't be relinked because it was locked by another process (LNK1104), `VDSpoutInNdiOut` links clean. Not runtime-tested.
+
+### Changed (2026-10-10, the folder's video is the shader clock, like the wav)
+
+Rule (agreed with the user): when a folder is loaded, its shaders run at once if it has no wav or video; with a wav or a video, they wait at 0 until Play.
+- `VDSession::loadFolder()` calls the new `VDMix::resetClocks()` before loading a folder that has an `fbo0.json`: no clock video, no audio file clock, ITIME back to 0. With no media, the shaders then run from 0.
+- A video named by the folder's fbo jsons (`updateVideoSources()`, pending video) becomes the clock (`VDMix::mClockVideo`) with ITIME set to 0, unless the audio file clock is already on: a wav in the same folder stays the clock, since it's the song.
+- Every frame, after `VDAnimation::update()` has set the free-running ITIME, `updateVideoSources()` sets ITIME to the clock video's position in seconds (new `VDVideoSource::getPositionSeconds()`). Paused = frozen shaders, Play resumes in sync, a seek moves them.
+- A video Play (`togglePlayPauseSource()`) makes that video the clock instead of `resetTime()`. An audio-file Play or a sequence Play clears it (a sequence Play still does `resetTime()`). A video dropped while shaders run doesn't take the clock until it's played.
+
+MSBuild Debug|x64 of `VDRUIProject` and `VDSpoutInNdiOut` link clean. Not runtime-tested.
+
+### Fixed (2026-10-10, VDUIHtmlPage broke Mac TinderBox projects)
+
+`Cinder-VDRUI/cinderblock.xml` uses `<sourcePattern>src/*.cpp</sourcePattern>`, so every TinderBox project, Mac included, gets `src/VDUIHtmlPage.cpp` (WebView2, `MultiByteToWideChar`), which can't compile there. VDUI already only used it under `CINDER_MSW`. `VDUIHtmlPage.cpp` and `.h` are now wrapped in `#if defined( CINDER_MSW )` (after `#include "cinder/Cinder.h"`), so they compile to nothing on the Mac. Same rule for any future Windows-only `.cpp` in this block. `VDRUIProject` and `VDSpoutInNdiOut` (Debug|x64) still link.
+
+Mac projects generated before 2026-10-01 (e.g. `Videodromm/VDUIBas`, Aug 28) list the block sources at generation time, so they lack `Cinder-VDR/src/VDCodeView.cpp`, `VDWebsocket.cpp` and `Cinder-VDRUI/src/VDOutputWindow.cpp`, `VDUIFolders.cpp`: add them to the Xcode project, or regenerate the project with TinderBox.
+
+### Fixed (2026-10-11, crash paths from untrusted LAN input; night review)
+
+Full list and reasoning in `repos/security-review-2026-10-11.md`.
+- **Logger:** `VDLog` installs a `SafeLoggerSystem` (Event Log logger with bytes ≥ 0x80 replaced, `write()` can't throw). Any warning or error with ANSI-codepage text used to terminate the app (`from_bytes` throws in the noexcept `log::Entry` destructor), the same mechanism as 2026-09-16.
+- **OSC (`VDOscReceiver`):** the listener body is in try/catch (missing or wrong-typed arguments threw). `/Spectrum` stops at `mFFTWindowSize` (32) and tests `getArgType(a)`.
+- **UI:** every `VDUI*.cpp` uses `snprintf` for `sprintf_s` on all platforms (MSVC's `sprintf_s` aborts on overflow: a shader name over ~50 chars killed the app through the Fbos panel). Tooltips and labels with data use `"%s"`. `iBlendmode` is clamped before indexing `blendModes`.
+- **`VDFboShader::saveThumbnail()`:** file name cleaned to `[A-Za-z0-9_-]`, max 40 characters (a network `frag` name could write outside `assets/thumbs` or throw in the render loop), plus try/catch.
+- **`VDWebsocket::parseMessage()`:** also catches `std::exception` and `...`. `k2` checks for 4 values.
+- **`VDSession::loadFolder()`:** clears the fbo list only when the folder has `fbo0.json` (a mix.json-only folder used to leave it empty, then index `UINT_MAX`). `mix.json` and each `fbo*.json` are parsed in try/catch (a bad one is skipped). `VDMix::getValidFboIndex()` returns 0 for an empty list and uses `size_t`.
+- **`VDSession::makeRequest()`:** the handler captures `aFboIndex` by value (it was a dangling reference).
+
+MSBuild Debug and Release x64 of `VDRUIProject` and `VDSpoutInNdiOut`: 0 errors (with the Mac's Asio 1.36 changes to Cinder-HTTP/WebSocketPP/OSC). Not runtime-tested.
+
 ### Still open
 1. ~~Cinder-VDR, Cinder-VDRUI fixes in cinderblocks.xml, template.xml so project generation works~~ — fixed above (self-requires + duplicate `<requires>` bugs); the actual build failure (WinSock.h) turned out to need a code-level fix instead, since Tinderbox's XML schema has no preprocessor-definition hook — also fixed above.
 2. ~~problems with removal of boost (signals) in Cinder-WebSocketPP: asio, compilation~~ — fixed above.
@@ -808,3 +841,51 @@ MSBuild Debug|x64 of `VDRUIProject` and `VDSpoutInNdiOut` link clean. Not runtim
     - If the window lands slightly off on a display scaled ≠100%, check `VDOutputWindow::open()`'s point/pixel conversion.
 47. **Runtime-verify wav audio textures** (2026-10-06): load `assets/current`, confirm `assets/audio/Ambivalence_MASTER_03.wav` plays once (default output device) and the audio texture/`iFreq*` follow it; confirm dropping a `.wav` onto the window switches to it.
 48. **Runtime-verify Play/Pause + Loop** (2026-10-06): a movie and the wav play once and stop; the button label tracks Play/Pause; Play after the end restarts from 0; "Loop on" makes them loop, including when switched on mid-play.
+
+### Added (2026-10-11, folder sync with the WebApp)
+
+The Folders pane and the WebApp now show the same folder:
+- **WebApp → Cinder.** `VDWebsocket` handles `{"event":"folder","message":"<name>"}`: a bare name (alphanumerics, space, `_-.`, no `..`, ≤ 64 chars) goes to `VDMediatorObservable::requestFolder()`. It also handles `{"event":"folderquery"}` (→ `requestFolderAnnounce()`).
+- **`VDSessionFacade::update()`** loads a requested folder unless it's already the loaded one. It announces every load (Folders pane, drop, WebApp) and answers a query with `{"event":"folder","message":<name>,"from":"cinder"}` via `wsSend` (`ci::Json`). TSWebsocketServer relays to everyone but the sender, so there's no loop.
+- **`VDSession::loadFolder()`** records `getLoadedFolder()` (bare name; before any load, the one `assets/mix.json` names) and `getFolderLoadCount()`.
+- **`VDUIFolders`** follows the load count: it selects the loaded folder and lists its files. The loaded folder's `L` button is green.
+
+MSBuild Debug|x64 of VDRUIProject and VDSpoutInNdiOut link clean. Not runtime-tested.
+
+### Added (2026-10-11, transport for the WebApp: Cinder plays the folder's song)
+
+`VDMix::transport(command, position)` (`play`/`pause`/`seek`) acts on the folder's song: the audio-file fbo (wav/mp3), else the clock video, else the first video. It uses the same toggles as the fbo panes' Play buttons, so "one sound at a time" and the ITIME clock behave the same. `hasTransportSong()`/`isTransportPlaying()`/`getTransportPosition()`/`getTransportSongName()` report its state. `VDVideoSource::setPositionSeconds()` was added.
+
+The WebApp sends `{"event":"transport","message":"play"|"pause"|"seek","position"?}` → `VDWebsocket` → `VDMediatorObservable::requestTransport()` → `VDSessionFacade::update()`. Messages with `"from":"cinder"` are ignored. The facade sends `{"event":"transport","message":"state","from":"cinder","playing","position","song","folder"}` every 0.5 s while playing and every 3 s otherwise; the WebApp also uses it to know Cinder runs and to mute its own players.
+
+MSBuild Debug|x64 of both apps link clean. Not runtime-tested.
+
+### Changed (2026-10-11, Cinder starting after the WebApp takes the WebApp's folder)
+
+When the websocket connects, `VDSessionFacade::update()` sends `{"event":"folderquery","from":"cinder"}`. The WebApp answers with its folder, which is loaded through the usual `requestFolder()` path. The startup folder isn't announced for 2 s meanwhile; before this, it was announced at once and switched the WebApp to "default". `VDWebsocket` ignores folder queries from another Cinder.
+
+### Fixed (2026-10-11, an active fbo's shader ran 4-5 times per frame; previews throttled)
+
+`VDMix::getFboRenderedTexture()` (every fbo preview: Fbos pane, main window list, plus two calls in VDUIFbos.cpp just to read the texture's width/height) called `VDFboShader::getTexture()`, which always re-runs the shader. `getMixetteTexture()` had already rendered every active fbo that frame. Now:
+- **`VDMix::renderFbo(i)`** runs an fbo's shader at most once per app frame (`mFboRenderedFrame`), used by the mixette and by `getFboTexture()` (live: a display mode showing one fbo, a warp showing one fbo, VDSession::resolveWarpInputTexture).
+- **`getFboRenderedTexture()`** (previews) reuses the last render when it's less than 1 s old (`PREVIEW_INTERVAL`), so active fbos show live and the others refresh once a second.
+
+`VDSpoutSources` (Cinder-VDRUI): a Spout sender used as an fbo input (`getInputTextureName(f, 0)` = its pool name) is received every frame; the others once a second, for their pool preview. MSBuild Debug|x64 of both apps link clean. Not runtime-tested.
+
+### Added (2026-10-11, live priority: dedicated GPU, process priority, 1 ms timer)
+
+Rule (user): in live performance the Cinder app comes first (60 fps target); TSWebsocketServer, the WebApp, Resolume... are helpers. New header `Cinder-VDRUI/include/VDLivePriority.h`, included by each app's own .cpp (VDRUIProject, VDSpoutInNdiOut, the VDRUI template) and called from `prepareSettings` (`videodromm::applyLivePriority()`):
+- **Dedicated GPU:** exports `NvOptimusEnablement` / `AmdPowerXpressRequestHighPerformance` from the exe, so a hybrid-graphics laptop runs it on the dedicated GPU. Cinder only has these in its GLFW backend, which the Windows apps don't use, so before this Windows could pick the integrated GPU (a possible cause of the 5-7 fps on the Acer). Checked with `dumpbin -exports` on the Release exe.
+- **Process priority:** `SetPriorityClass(ABOVE_NORMAL)`; not HIGH, which can starve audio and input.
+- **Timer:** `timeBeginPeriod(1)`, so the frame-rate sleep can pace 60 fps evenly (default steps ~15.6 ms).
+
+TSWebsocketServer is deliberately left at normal priority: it carries MIDI to Cinder and OSC to Resolume, and a lower priority could add MIDI lag under load.
+
+MSBuild Release|x64 and Debug|x64 of both apps link clean. Not runtime-tested.
+
+### Fixed (2026-10-11, choosing an audio output in the Audio panel didn't move the sound)
+
+- **Videos kept their device.** Media Foundation picks a video's audio device only when it's opened (`MF_AUDIO_RENDERER_ATTRIBUTE_ENDPOINT_ID` in `CreatePlaybackTopology`). `VDSession::setPreferredAudioOutputDevice()` now also calls `VDMix::reloadVideosOnAudioDevice()`: every video source whose device differs is replaced by a fresh `VDVideoSource` on the new device. The fresh source keeps the play state, loop and volume level; its position is restored with `seekWhenReady()` once open. The fbos showing it (`assignVideoInput`) and its pool entry get the new texture. A fresh player avoids re-registering the DX/GL shared texture on the old one. The audio file player already switched at once (`VDAnimation::applyPreferredAudioOutput`).
+- **Accented device names never matched** (Cinder-WMFVideo `ciWMFVideoPlayer::loadMovie`): the device name and the path were widened byte by byte (`std::copy`), so UTF-8 accents ("Haut-parleurs …" on a French Windows) broke WMF's exact `wcscmp` on the friendly name, and the video played on the Windows default device. Now `ci::msw::toWideString()` and `fs::path::wstring()`.
+
+MSBuild Debug|x64 of both apps link clean. Not runtime-tested.

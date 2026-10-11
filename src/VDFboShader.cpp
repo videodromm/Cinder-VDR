@@ -770,13 +770,23 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 	return mRenderedTexture;
 }
 void VDFboShader::saveThumbnail(bool overwrite) {
-	std::string filename = mName + ".jpg";
-	fs::path fr = getAssetPath("") / "thumbs" / filename;
-
-	if (!fs::exists(fr) || overwrite) {
-		//CI_LOG_V(fr.string() << " does not exist, creating");
-		Surface s8(mRenderedTexture->createSource());
-		writeImage(writeFile(fr), s8);
+	// mName can come from the network (a "frag" event's name): keep [A-Za-z0-9_-], max 40 chars,
+	// so it can't leave assets/thumbs, and never let a write error escape into the render loop
+	std::string safeName;
+	for (char c : mName) {
+		if (std::isalnum(static_cast<unsigned char>(c)) || c == '_' || c == '-') safeName += c;
+		if (safeName.size() >= 40) break;
+	}
+	if (safeName.empty()) return;
+	try {
+		fs::path fr = getAssetPath("") / "thumbs" / (safeName + ".jpg");
+		if (!fs::exists(fr) || overwrite) {
+			Surface s8(mRenderedTexture->createSource());
+			writeImage(writeFile(fr), s8);
+		}
+	}
+	catch (const std::exception& e) {
+		CI_LOG_W("thumbnail not saved: " << e.what());
 	}
 }
 

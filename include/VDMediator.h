@@ -108,6 +108,14 @@ namespace videodromm {
 		void								removeMidiBinding(const std::string& aId);
 		void								reloadMidiBindings();
 		std::string							getMidiLearnStatus();
+		// websocket "folder" / "folderquery" events from the WebApp, handled in VDSessionFacade::update()
+		void								requestFolder(const std::string& aFolder) { mRequestedFolder = aFolder; }
+		std::string							takeRequestedFolder() { std::string f; f.swap(mRequestedFolder); return f; }
+		void								requestFolderAnnounce() { mFolderQuery = true; }
+		// websocket "transport" from the WebApp: "play", "pause", "seek" (position in seconds, < 0: none)
+		void								requestTransport(const std::string& aCommand, double aPosition) { mTransportRequests.push_back({ aCommand, aPosition }); }
+		std::vector<std::pair<std::string, double>>	takeTransportRequests() { std::vector<std::pair<std::string, double>> r; r.swap(mTransportRequests); return r; }
+		bool								takeFolderQuery() { bool q = mFolderQuery; mFolderQuery = false; return q; }
 		// raw message to TSWebsocketServer (nothing if not connected)
 		void								wsSend(const std::string& aMsg);
 		// ws
@@ -138,6 +146,9 @@ namespace videodromm {
 		int									getErrorCode() { return mVDUniforms->getErrorCode(); }
 		bool								setFragmentShaderString(const std::string& aFragmentShaderString, const std::string& aName = "", unsigned int aFboShaderIndex = 0);
 	private:
+		std::string							mRequestedFolder;
+		bool								mFolderQuery = false;
+		std::vector<std::pair<std::string, double>>	mTransportRequests;
 		std::vector<VDUniformObserverRef>	mObservers;
 		// Settings
 		VDSettingsRef						mVDSettings;

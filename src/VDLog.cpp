@@ -3,6 +3,27 @@
 
 using namespace videodromm;
 
+namespace {
+	// LoggerSystem's Windows Event Log writer converts the text with
+	// wstring_convert<codecvt_utf8_utf16>::from_bytes(), which throws on non-UTF-8 bytes (OS error
+	// messages in the ANSI codepage, accented OSC addresses or MIDI port names). It runs inside the
+	// implicitly-noexcept log::Entry destructor, so the throw calls std::terminate(): the app dies
+	// on any such warning or error. Bytes >= 0x80 become '?' before they reach it.
+	class SafeLoggerSystem : public ci::log::LoggerSystem {
+	public:
+		void write(const ci::log::Metadata& meta, const std::string& text) override {
+			std::string safe(text);
+			for (char& c : safe) if (static_cast<unsigned char>(c) >= 0x80) c = '?';
+			try {
+				ci::log::LoggerSystem::write(meta, safe);
+			}
+			catch (...) {
+				// never let a logger failure escape into the noexcept Entry destructor
+			}
+		}
+	};
+}
+
 VDLogRef VDLog::LOGGER;
 std::shared_ptr<ci::log::LoggerFile> VDLog::sFileLoggerAll;
 std::shared_ptr<ci::log::LoggerFile> VDLog::sFileLoggerWarnings;
@@ -16,7 +37,7 @@ VDLogRef	VDLog::create() {
 }
 VDLog::VDLog()
 {
-	auto sysLogger = log::makeLogger<log::LoggerSystem>();
+	auto sysLogger = log::makeLogger<SafeLoggerSystem>();
 	sysLogger->setLevel(log::LEVEL_WARNING);
 
 	// file logging used to be created here unconditionally in debug builds - now it's opt-in at

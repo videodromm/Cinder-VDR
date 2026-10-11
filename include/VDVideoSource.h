@@ -39,6 +39,9 @@ namespace videodromm
 		// basename, the pool entry's name
 		const std::string&		getName() const { return mName; }
 		const std::string&		getPath() const { return mPath; }
+		const std::string&		getAudioDevice() const { return mAudioDevice; }
+		// position to restore once the video is open and showing (a reload on another audio device)
+		void					seekWhenReady(float aSeconds) { mPendingSeek = aSeconds; }
 		ci::gl::Texture2dRef	getTexture() const { return mBlitFbo ? mBlitFbo->getColorTexture() : nullptr; }
 
 		// decodes and copies the current frame, every frame (VDMix::updateVideoSources)
@@ -56,6 +59,10 @@ namespace videodromm
 			else if (mCue == CUE_PLAYING && mVideo.isPlaying() && mVideo.hasTexture()) {
 				mVideo.pause();
 				endCue();
+			}
+			if (mPendingSeek >= 0.0f && mCue == CUE_DONE && mVideo.hasTexture() && (mVideo.isPlaying() || mVideo.isPaused())) {
+				mVideo.setPosition(mPendingSeek);
+				mPendingSeek = -1.0f;
 			}
 			if (mReversed && mVideo.isPlaying()) {
 				// native negative-rate playback isn't reliable on this backend: step backward by hand
@@ -167,12 +174,25 @@ namespace videodromm
 			}
 #endif
 		}
+		// play position in seconds: the shader clock (ITIME) while this video is the folder's clock
+		float getPositionSeconds() {
+#if defined( CINDER_MSW )
+			return mVideo.getPosition();
+#else
+			return 0.0f;
+#endif
+		}
 		int getPosition() {
 #if defined( CINDER_MSW )
 			float fps = mVideo.getFrameRate();
 			return fps > 0.0f ? (int)(mVideo.getPosition() * fps + 0.5f) : 0;
 #else
 			return 0;
+#endif
+		}
+		void setPositionSeconds(float aSeconds) {
+#if defined( CINDER_MSW )
+			mVideo.setPosition(std::max(0.0f, aSeconds));
 #endif
 		}
 		void setPlayheadPosition(int aFrame) {
@@ -195,6 +215,7 @@ namespace videodromm
 #if defined( CINDER_MSW )
 		bool load(const std::string& aPath, const std::string& aAudioDevice, const ci::ivec2& aSize, bool aAutoPlay) {
 			mPath = aPath;
+			mAudioDevice = aAudioDevice;
 			mName = ci::fs::path(aPath).filename().string();
 			if (!mVideo.loadMovie(aPath, aAudioDevice)) {
 				CI_LOG_E("video " << aPath << " could not be loaded");
@@ -223,6 +244,8 @@ namespace videodromm
 		ci::gl::FboRef			mBlitFbo;
 		ci::gl::GlslProgRef		mBlitShader;
 		bool					mLoop = false;
+		std::string				mAudioDevice;
+		float					mPendingSeek = -1.0f;
 		bool					mReversed = false;
 		bool					mScrubbing = false;
 		bool					mResumeAfterScrub = false;

@@ -287,6 +287,8 @@ namespace videodromm {
 		}
 		void									setPreferredAudioOutputDevice(const std::string& aDevice) {
 			mVDAnimation->setPreferredAudioOutputDevice(aDevice);
+			// the audio file player switches at once (VDAnimation); videos are reopened on it
+			mVDMix->reloadVideosOnAudioDevice();
 		}
 		std::string								getPreferredAudioInputDevice() { return mVDAnimation->getPreferredAudioInputDevice(); };
 		void									loadAudioDefaults() { mVDAnimation->loadAudioDefaults(); }
@@ -422,9 +424,24 @@ namespace videodromm {
 		};		
 		//bool							loadImageSequence(const string& aFolder, unsigned int aTextureIndex);
 		bool							loadFolder(const string& aFolder);
+		// the folder last loaded, as a bare name ("ambivalence" for glsl/ambivalence; at startup the
+		// one assets/mix.json names), and how many loads so far: the WebApp follows it (websocket
+		// "folder" event, VDSessionFacade::update())
+		std::string						getLoadedFolder();
+		unsigned int					getFolderLoadCount() { return mFolderLoadCount; }
+		// the folder's song for the WebApp (VDMix::transport)
+		void							transport(const std::string& aCommand, double aPosition) { mVDMix->transport(aCommand, aPosition); }
+		bool							isTransportPlaying() { return mVDMix->isTransportPlaying(); }
+		double							getTransportPosition() { return mVDMix->getTransportPosition(); }
+		std::string						getTransportSongName() { return mVDMix->getTransportSongName(); }
 		// shader folders (fbo*.json + glsl) live in assets/glsl/<name>, older ones in assets/<name>:
 		// returns the path relative to assets/ ("glsl/boomer" or "particlez")
 		static std::string				resolveFolder(const string& aFolder);
+		// the folder loaded at startup: assets/mix.json "settings" assetspath (+ assetsfolder)
+		std::string						getDefaultFolder();
+		bool							setDefaultFolder(const string& aFolder);
+		std::string						mDefaultFolder;
+		bool							mDefaultFolderRead = false;
 		bool							mExternalDragActive = false;
 		ci::vec2						mExternalDragPos;
 		void							loadAudioFile(const string& aFile);
@@ -447,6 +464,8 @@ namespace videodromm {
 		}
 		
 	private:
+		std::string						mLoadedFolder;
+		unsigned int					mFolderLoadCount = 0;
 		VDParamsRef						mVDParams;
 		// Settings
 		VDSettingsRef					mVDSettings;

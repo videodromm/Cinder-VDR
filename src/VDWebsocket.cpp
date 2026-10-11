@@ -118,6 +118,7 @@ void VDWebsocket::parseMessage(std::string msg) {
 						int name = jsonElement->getChild("name").getValue<int>();
 						std::string value = jsonElement->getChild("value").getValue();
 						std::vector<std::string> vs = split(value, ",");
+						if (vs.size() < 4) continue;
 						vec4 v = vec4(strtof((vs[0]).c_str(), 0), strtof((vs[1]).c_str(), 0), strtof((vs[2]).c_str(), 0), strtof((vs[3]).c_str(), 0));
 						// basic name value 
 						//mVDAnimation->setVec4UniformValueByIndex(name, v);
@@ -168,6 +169,31 @@ void VDWebsocket::parseMessage(std::string msg) {
 							//mVDAnimation->setIntUniformValueByIndex(mVDUniforms->IFBOA, 0);
 							//mVDAnimation->setIntUniformValueByIndex(mVDUniforms->IFBOB, 1);
 						}
+						else if (val == "folder") {
+							// the WebApp picked a folder: {"event":"folder","message":"ambivalence","from":"webapp"}
+							// a bare name only (no path), loaded by VDSessionFacade::update()
+							std::string folder = json.getChild("message").getValue<std::string>();
+							bool safe = !folder.empty() && folder.size() <= 64 && folder.find("..") == std::string::npos;
+							for (char c : folder) if (!(std::isalnum(static_cast<unsigned char>(c)) || c == ' ' || c == '_' || c == '-' || c == '.')) safe = false;
+							if (safe) mVDMediator->requestFolder(folder);
+						}
+						else if (val == "transport") {
+							// the WebApp's Play/Pause/seek: {"event":"transport","message":"play"|"pause"|"seek","position":12.5}
+							// (Cinder plays the folder's song when it runs, see VDMix::transport); its own
+							// {"from":"cinder"} state messages come back here too only from other Cinders: ignored
+							const std::string cmd = json.getChild("message").getValue<std::string>();
+							const bool fromCinder = json.hasChild("from") && json.getChild("from").getValue<std::string>() == "cinder";
+							if (!fromCinder && (cmd == "play" || cmd == "pause" || cmd == "seek")) {
+								double position = json.hasChild("position") ? json.getChild("position").getValue<double>() : -1.0;
+								mVDMediator->requestTransport(cmd, position);
+							}
+						}
+						else if (val == "folderquery") {
+							// the WebApp asks which folder is loaded (answered with a "folder" event);
+							// another Cinder's startup query is for the WebApp, not for us
+							const bool fromCinder = json.hasChild("from") && json.getChild("from").getValue<std::string>() == "cinder";
+							if (!fromCinder) mVDMediator->requestFolderAnnounce();
+						}
 						else if (val == "codeview") {
 							// live code view: {"event":"codeview","message":<editor text>,"line":1,"col":0,"errors":[3],"active":true,"lang":"glsl"}
 							// "lang": "glsl" (default) or "strudel", each shown in its own part of VDCode
@@ -193,6 +219,13 @@ void VDWebsocket::parseMessage(std::string msg) {
 				mVDSettings->mWebSocketsMsg += exception.what();
 				mVDSettings->mWebSocketsMsg += "  ";*/
 				mWebSocketsMsg = exception.what();
+			}
+			// anything else (filesystem, bad_alloc...) used to escape through websocketpp: crash
+			catch (const std::exception& e) {
+				mWebSocketsMsg = e.what();
+			}
+			catch (...) {
+				mWebSocketsMsg = "websocket message not handled";
 			}
 		}
 		else if (msg.substr(0, 2) == "/*") {
@@ -251,6 +284,12 @@ void VDWebsocket::parseMessage(std::string msg) {
 					mVDSettings->mWebSocketsMsg += exception.what();
 					mVDSettings->mWebSocketsMsg += "  ";*/
 					mWebSocketsMsg = exception.what();
+				}
+				catch (const std::exception& e) {
+					mWebSocketsMsg = e.what();
+				}
+				catch (...) {
+					mWebSocketsMsg = "websocket message not handled";
 				}
 			}
 		}

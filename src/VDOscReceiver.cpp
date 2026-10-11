@@ -28,6 +28,9 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 
 	mOscReceiver->setListener("/*",
 		[&](const osc::Message& msg) {
+		// any exception here (osc::ExcIndexOutOfBounds/ExcNonConvertible from a message with missing
+		// or wrong-typed arguments, sent by any host on the LAN) used to crash the app
+		try {
 		// touchosc
 		bool found = false;
 		std::string ctrl = "";
@@ -191,9 +194,10 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 			{
 				found = true;
 				mVDMediator->setUniformValue(mVDUniforms->IMAXVOLUME, 0.0f);
-				for (int a{ 0 }; a < msg.getNumArgs(); a++) {
+				// at most iFreqs' size (32): more arguments used to write past the array
+				for (int a{ 0 }; a < (int)msg.getNumArgs() && a < VDAnimation::mFFTWindowSize; a++) {
 					// get the argument type 'f'
-					if (msg.getArgType(i) == ArgType::FLOAT) {
+					if (msg.getArgType(a) == ArgType::FLOAT) {
 						f = msg[a].flt() * 200.0f * mVDUniforms->getUniformValue(mVDUniforms->IAUDIOX);
 						if (f > mVDUniforms->getUniformValue(mVDUniforms->IMAXVOLUME))
 						{
@@ -488,6 +492,13 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 		}
 		else {
 			mVDSettings->setMsg(ss.str());
+		}
+		}
+		catch (const std::exception& e) {
+			CI_LOG_W("osc message ignored: " << e.what());
+		}
+		catch (...) {
+			CI_LOG_W("osc message ignored");
 		}
 
 	});

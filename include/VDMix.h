@@ -176,9 +176,22 @@ namespace videodromm
 		VDVideoSourceRef				getVideoSourceByIndex(unsigned int aIndex) { return aIndex < mVideoSources.size() ? mVideoSources[aIndex] : nullptr; }
 		// loads a video into the pool (deduplicated by file name); returns its name, "" on failure
 		std::string						addVideoSource(const std::string& aPath, bool aAutoPlay);
+		// the audio output changed: reopen every video on the new device (Media Foundation picks
+		// it only when a video is opened), keeping position, play state, loop and volume
+		void							reloadVideosOnAudioDevice();
 		// every frame, before any fbo renders (VDSession::update): loads videos named by fbo jsons,
 		// decodes every source, sets each one's volume
 		void							updateVideoSources();
+		// a folder load: no clock video, no audio file clock, ITIME back to 0 (free-running)
+		void							resetClocks();
+		// the folder's song, for the WebApp's transport (Cinder plays the sound, the WebApp follows):
+		// the audio file (an fbo playing a wav/mp3), else the clock video, else the first video
+		// aCommand: "play", "pause" or "seek"; aPosition in seconds (< 0: keep the position)
+		void							transport(const std::string& aCommand, double aPosition);
+		bool							hasTransportSong();
+		bool							isTransportPlaying();
+		double							getTransportPosition();
+		std::string						getTransportSongName();
 		// starting a video/audio file pauses every other playing video/audio file (one sound at a time)
 		void							togglePlayPauseSource(const std::string& aName);
 		float							getVolumeLevel(unsigned int aFboIndex) {
@@ -279,44 +292,23 @@ namespace videodromm
 		void							clearFboShaderList() {
 			mFboShaderList.clear();
 		}
+		// Previews (fbo panes, the main window's fbo list): an fbo's shader runs at most once per
+		// frame (renderFbo()), and a preview reuses it. An fbo the mix doesn't render (weight 0)
+		// is rendered for its preview once a second at most: previews aren't worth a shader pass
+		// each frame. Before 2026-10-11 every call re-rendered: an active fbo ran 4-5 times a frame.
 		ci::gl::TextureRef				getFboRenderedTexture(unsigned int aFboIndex) {
 			if (mFboShaderList.size() == 0) return mDefaultTexture;
-			/* 20220101 hydra check
-
-			if (aFboIndex > mFboShaderList.size() - 1) aFboIndex = 0;
-
-			if (mFboShaderList[aFboIndex]->isHydraTex()) {
-				// fbo as inputTexture
-				for (unsigned int i = 0; i < 4; i++)
-				{
-					mFboShaderList[aFboIndex]->setInputTextureRefByIndex(i, mFboShaderList[getValidFboIndex(aFboIndex)]->getTexture());
-				}
-			}
-			else {
-				// 20211227 useless? mFboShaderList[aFboIndex]->setInputTextureRef(mFboShaderList[aFboIndex]->getTexture());
-			}
-			return mFboShaderList[aFboIndex]->getRenderedTexture();
-			*/
-			unsigned int idx = getValidFboIndex(aFboIndex);
-			// this is called every frame per fbo just for its own small UI preview thumbnail
-			// (VDUIFbos.cpp's buildFboRenderedTexture()), regardless of whether that fbo actually
-			// contributes anything to the final mix - getTexture() always fully re-renders, which
-			// is wasted work once a fbo's weight is 0 (invisible either way). One render is enough
-			// to have valid content ready for whenever the weight comes back up; every frame after
-			// that while weight stays at 0 just reuses the same cached texture instead of paying
-			// for another full shader pass. getMixetteTexture() already has its own, separate
-			// weight>0 gate for the actual composited output - this covers the other render path.
-			if (mVDUniforms->getUniformValue(mVDUniforms->IWEIGHT0 + idx) <= 0.01f && mFboShaderList[idx]->hasRenderedOnce()) {
+			const unsigned int idx = getValidFboIndex(aFboIndex);
+			ensureRenderClock();
+			if (mFboShaderList[idx]->hasRenderedOnce() && ci::app::getElapsedSeconds() - mFboRenderedAt[idx] < PREVIEW_INTERVAL) {
 				return mFboShaderList[idx]->getRenderedTexture();
 			}
-			return mFboShaderList[idx]->getTexture();
-
+			return renderFbo(idx);
 		}
+		// live: this frame's render (display mode showing one fbo, a warp showing one fbo)
 		ci::gl::TextureRef				getFboTexture(unsigned int aFboIndex) {
 			if (mFboShaderList.size() == 0) return mDefaultTexture;
-			if (aFboIndex > mFboShaderList.size() - 1) aFboIndex = 0;
-			return mFboShaderList[aFboIndex]->getTexture();
-
+			return renderFbo(getValidFboIndex(aFboIndex));
 		}
 
 		
@@ -379,6 +371,29 @@ namespace videodromm
 		std::vector<VDTextureStruct>	mLoadedTextures;
 		// videos in the pool (see VDVideoSource.h)
 		std::vector<VDVideoSourceRef>	mVideoSources;
+		// the video whose position is ITIME ("" = none): the folder's video, or the last one played
+		std::string						mClockVideo;
+		// renderFbo(): when each fbo last ran its shader (frame number, seconds)
+		static constexpr double			PREVIEW_INTERVAL = 1.0;
+		std::vector<uint64_t>			mFboRenderedFrame;
+		std::vector<double>				mFboRenderedAt;
+		void							ensureRenderClock() {
+			if (mFboRenderedFrame.size() != mFboShaderList.size()) {
+				mFboRenderedFrame.assign(mFboShaderList.size(), UINT64_MAX);
+				mFboRenderedAt.assign(mFboShaderList.size(), -100.0);
+			}
+		}
+		// runs the fbo's shader unless it already ran this frame
+		ci::gl::TextureRef				renderFbo(unsigned int aIndex) {
+			ensureRenderClock();
+			const uint64_t frame = ci::app::getElapsedFrames();
+			if (mFboRenderedFrame[aIndex] == frame && mFboShaderList[aIndex]->hasRenderedOnce()) return mFboShaderList[aIndex]->getRenderedTexture();
+			mFboRenderedFrame[aIndex] = frame;
+			mFboRenderedAt[aIndex] = ci::app::getElapsedSeconds();
+			return mFboShaderList[aIndex]->getTexture();
+		}
+		int								audioFileFbo();
+		VDVideoSourceRef				transportVideo();
 		// the video source an fbo shows, if it shows one
 		VDVideoSourceRef				videoFor(unsigned int aFboIndex) {
 			if (mFboShaderList.empty()) return nullptr;

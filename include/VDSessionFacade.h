@@ -304,12 +304,22 @@ namespace videodromm
 
 		// end events
 		VDSessionRef			getInstance() const;
+		// bare name of the folder last loaded, and the load count (VDUIFolders follows it)
+		std::string				getLoadedFolder() { return mVDSession->getLoadedFolder(); }
+		unsigned int			getFolderLoadCount() { return mVDSession->getFolderLoadCount(); }
 		bool					loadFolder(const string& aFolder) {
 			mTrackName = aFolder;
 			return mVDSession->loadFolder(aFolder);
 		}
+		std::string				getDefaultFolder() { return mVDSession->getDefaultFolder(); }
+		bool					setDefaultFolder(const string& aFolder) { return mVDSession->setDefaultFolder(aFolder); }
 
 	private:
+		unsigned int			mAnnouncedFolderLoads = 0;
+		bool					mTransportWasPlaying = false;
+		bool					mWasWSConnected = false;
+		double					mFolderQuerySentAt = -100.0;
+		double					mTransportSentAt = -100.0;
 		VDSessionFacade(VDSessionRef session, VDMediatorObservableRef mediator) : mVDSession(session), mVDMediator(mediator), mOscSenderConnected(false), mIsMidiSetup(false), mOscReceiverConnected(false) { }
 		VDSessionRef						mVDSession;
 		VDMediatorObservableRef				mVDMediator;

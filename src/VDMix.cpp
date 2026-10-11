@@ -138,7 +138,9 @@ namespace videodromm {
 		}
 	}
 	unsigned int VDMix::getValidFboIndex(unsigned int aFboIndex) {
-		return math<int>::min(aFboIndex, (unsigned int)mFboShaderList.size() - 1);
+		// size() - 1 is UINT_MAX on an empty list; and min<int> broke indices >= 2^31
+		if (mFboShaderList.empty()) return 0;
+		return (unsigned int)std::min<size_t>(aFboIndex, mFboShaderList.size() - 1);
 	}
 	
 	unsigned int VDMix::createFboShaderTexture(const JsonTree &json, unsigned int aFboIndex, const std::string& aFolder) {
@@ -188,7 +190,7 @@ namespace videodromm {
 		int i = 0;
 		for (auto &fbo : mFboShaderList) {
 			if (fbo->isValid() && mVDUniforms->getUniformValue(mVDUniforms->IWEIGHT0 + i) > 0.01f) {
-				renderedTextures[i] = fbo->getTexture();
+				renderedTextures[i] = renderFbo(i);
 			}
 			i++;
 		}
@@ -408,6 +410,31 @@ namespace videodromm {
 		return name;
 	}
 
+	void VDMix::reloadVideosOnAudioDevice() {
+		const std::string device = mVDAnimation->getPreferredAudioOutputDevice();
+		for (auto& source : mVideoSources) {
+			if (!source || source->getAudioDevice() == device) continue;
+			const std::string name = source->getName();
+			const float position = source->getPositionSeconds();
+			const bool playing = source->isPlaying();
+			VDVideoSourceRef fresh = VDVideoSource::create(source->getPath(), device, ivec2(mVDParams->getFboWidth(), mVDParams->getFboHeight()), playing);
+			if (!fresh) {
+				CI_LOG_W("video " << name << " not reopened on " << device << ": keeps its device");
+				continue;
+			}
+			if (fresh->isLooping() != source->isLooping()) fresh->toggleLoop();
+			fresh->setVolumeLevel(source->getVolumeLevel());
+			if (position > 0.05f) fresh->seekWhenReady(position);
+			// fbos showing it and its pool entry: the new texture
+			for (auto& fbo : mFboShaderList) {
+				if (fbo->isMovie() && fbo->getTextureName(0) == name) fbo->assignVideoInput(fresh->getTexture(), name);
+			}
+			registerLoadedTexture(name, fresh->getTexture());
+			source = fresh;
+			CI_LOG_I("video " << name << " reopened on audio output " << device);
+		}
+	}
+
 	void VDMix::updateVideoSources() {
 		// videos named by fbo jsons (a loaded folder): into the pool paused (the shaders may not be
 		// loaded yet; started by hand, which also resets ITIME for sync), then assigned
@@ -415,7 +442,15 @@ namespace videodromm {
 			std::string pending = fbo->takePendingVideoFile();
 			if (pending.empty()) continue;
 			std::string name = addVideoSource(pending, false);
-			if (!name.empty()) fbo->assignVideoInput(getVideoSource(name)->getTexture(), name);
+			if (!name.empty()) {
+				fbo->assignVideoInput(getVideoSource(name)->getTexture(), name);
+				// the folder's video is the clock: shaders frozen at 0 until its Play, like a wav
+				// (a wav in the same folder stays the clock: it's the song)
+				if (!mVDAnimation->isAudioFileClock()) {
+					mClockVideo = name;
+					mVDUniforms->setTime(0.0f);
+				}
+			}
 			else fbo->setFboTextureAudioMode();
 		}
 		for (auto& source : mVideoSources) {
@@ -431,17 +466,71 @@ namespace videodromm {
 			float volume = source->getVolumeLevel() * (maxWeight < 0.0f ? 1.0f : maxWeight);
 			source->setOutputVolume(source->isScrubbing() ? 0.0f : volume);
 		}
+		// ITIME = the clock video's position (paused = frozen shaders, Play resumes in sync).
+		// Runs after VDAnimation::update(), which sets the free-running ITIME.
+		if (!mClockVideo.empty() && !mVDAnimation->isAudioFileClock()) {
+			if (VDVideoSourceRef clock = getVideoSource(mClockVideo)) mVDUniforms->setTime(clock->getPositionSeconds());
+		}
 	}
 
+	void VDMix::resetClocks() {
+		mClockVideo.clear();
+		mVDAnimation->setAudioFileClock(false);
+		mVDUniforms->resetTime();
+	}
+
+	int VDMix::audioFileFbo() {
+		for (size_t i = 0; i < mFboShaderList.size(); i++) if (mFboShaderList[i]->isAudioFile()) return (int)i;
+		return -1;
+	}
+	VDVideoSourceRef VDMix::transportVideo() {
+		if (!mClockVideo.empty()) if (VDVideoSourceRef clock = getVideoSource(mClockVideo)) return clock;
+		return mVideoSources.empty() ? nullptr : mVideoSources[0];
+	}
+	bool VDMix::hasTransportSong() {
+		return audioFileFbo() >= 0 || (bool)transportVideo();
+	}
+	bool VDMix::isTransportPlaying() {
+		if (audioFileFbo() >= 0) return mVDAnimation->isAudioFilePlaying();
+		if (VDVideoSourceRef video = transportVideo()) return video->isPlaying();
+		return false;
+	}
+	double VDMix::getTransportPosition() {
+		if (audioFileFbo() >= 0) return mVDAnimation->getAudioFilePosition();
+		if (VDVideoSourceRef video = transportVideo()) return video->getPositionSeconds();
+		return 0.0;
+	}
+	std::string VDMix::getTransportSongName() {
+		if (audioFileFbo() >= 0) return mVDAnimation->getAudioTextureName();
+		if (VDVideoSourceRef video = transportVideo()) return video->getName();
+		return "";
+	}
+	void VDMix::transport(const std::string& aCommand, double aPosition) {
+		const int audioFbo = audioFileFbo();
+		VDVideoSourceRef video = audioFbo < 0 ? transportVideo() : nullptr;
+		if (aPosition >= 0.0) {
+			if (audioFbo >= 0) mVDAnimation->seekAudioFile(aPosition);
+			else if (video) video->setPositionSeconds((float)aPosition);
+		}
+		if (aCommand != "play" && aCommand != "pause") return;
+		const bool play = aCommand == "play";
+		// the same toggles as the fbo panes' Play buttons: one sound at a time, ITIME follows
+		if (audioFbo >= 0) {
+			if (mVDAnimation->isAudioFilePlaying() != play) togglePlayPause((unsigned int)audioFbo);
+		}
+		else if (video && video->isPlaying() != play) {
+			togglePlayPauseSource(video->getName());
+		}
+	}
 	void VDMix::togglePlayPauseSource(const std::string& aName) {
 		VDVideoSourceRef video = getVideoSource(aName);
 		if (!video) return;
 		if (!video->isPlaying()) {
 			for (auto& other : mVideoSources) if (other != video) other->pause();
 			if (mVDAnimation->isAudioFilePlaying()) mVDAnimation->toggleAudioFilePlayPause();
-			// every Play restarts ITIME at 0, so the shaders are in sync with the video
+			// this video becomes the clock: ITIME follows its position (updateVideoSources())
 			mVDAnimation->setAudioFileClock(false);
-			mVDUniforms->resetTime();
+			mClockVideo = aName;
 		}
 		video->togglePlayPause();
 	}
@@ -460,10 +549,12 @@ namespace videodromm {
 				// ITIME follows the file's position from now on (VDAnimation::update()): Play after
 				// Pause resumes in sync, Play after the end restarts both at 0
 				mVDAnimation->setAudioFileClock(true);
+				mClockVideo.clear();
 			}
 			else {
 				// a sequence Play restarts ITIME at 0, for sync
 				mVDAnimation->setAudioFileClock(false);
+				mClockVideo.clear();
 				mVDUniforms->resetTime();
 			}
 		}

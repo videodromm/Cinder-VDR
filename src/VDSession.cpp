@@ -4,6 +4,7 @@
 
 #include "jsoncpp/json.h"
 #include "VDSession.h"
+#include "cinder/Json.h"
 
 using namespace videodromm;
 
@@ -105,7 +106,8 @@ void VDSession::makeRequest(http::UrlRef url, unsigned int aFboIndex)
 	request->appendHeader(http::Connection(http::Connection::Type::CLOSE));
 	request->appendHeader(http::Accept());
 
-	auto onComplete = [&](asio::error_code ec, http::ResponseRef response) {
+	// aFboIndex by value: this handler runs after makeRequest() has returned
+	auto onComplete = [&, aFboIndex](asio::error_code ec, http::ResponseRef response) {
 		// asio's io_context::poll() has no exception safety net around handler dispatch: any
 		// exception escaping this lambda (bad JSON, formatting, logging, ...) reaches
 		// std::terminate() and takes down the whole app, so it must never propagate out.
@@ -351,6 +353,47 @@ void VDSession::makeShaderContentRequest(http::UrlRef url, unsigned int aFboInde
 	}
 }
 
+// assets/mix.json's "settings": {"assetspath": "<name>", "assetsfolder": "glsl"} is what the app
+// loads at startup. Only those two keys are rewritten; the rest of the file is kept.
+std::string VDSession::getDefaultFolder() {
+	if (!mDefaultFolderRead) {
+		mDefaultFolderRead = true;
+		try {
+			ci::Json mix = ci::loadJson(getAssetPath("") / "mix.json");
+			mDefaultFolder = mix.value("settings", ci::Json::object()).value("assetspath", std::string());
+		}
+		catch (const std::exception& e) {
+			CI_LOG_W("getDefaultFolder: assets/mix.json not read: " << e.what());
+		}
+	}
+	return mDefaultFolder;
+}
+
+bool VDSession::setDefaultFolder(const string& aFolder) {
+	const fs::path mixPath = getAssetPath("") / "mix.json";
+	try {
+		ci::Json mix = fs::exists(mixPath) ? ci::loadJson(mixPath) : ci::Json::object();
+		// "glsl/ambivalence" -> assetsfolder "glsl" + assetspath "ambivalence" (the vs2017 apps
+		// only read assetspath, so it stays a bare name)
+		const std::string resolved = resolveFolder(aFolder);
+		const size_t slash = resolved.find_last_of('/');
+		ci::Json& settings = mix["settings"];
+		if (!settings.is_object()) settings = ci::Json::object();
+		settings["assetspath"] = slash == std::string::npos ? resolved : resolved.substr(slash + 1);
+		if (slash == std::string::npos) settings.erase("assetsfolder");
+		else settings["assetsfolder"] = resolved.substr(0, slash);
+		ci::writeJson(mixPath, mix, 2);
+		mDefaultFolder = settings["assetspath"].get<std::string>();
+		mDefaultFolderRead = true;
+		CI_LOG_I("default folder: " << resolved << " (assets/mix.json)");
+		return true;
+	}
+	catch (const std::exception& e) {
+		CI_LOG_E("setDefaultFolder " << aFolder << ": " << e.what());
+		return false;
+	}
+}
+
 std::string VDSession::resolveFolder(const string& aFolder) {
 	if (aFolder.empty()) return aFolder;
 	const fs::path assets = getAssetPath("");
@@ -372,9 +415,17 @@ bool VDSession::loadFolder(const string& aFolderName) {
 	unsigned int f = 0;
 	bool found = true;
 	mVDSettings->setMsg(aFolder);
+	{
+		const size_t slash = aFolder.find_last_of('/');
+		mLoadedFolder = slash == std::string::npos ? aFolder : aFolder.substr(slash + 1);
+		mFolderLoadCount++;
+	}
 	// a folder with its own fbos replaces every fbo of the previous one (without this, fbos past
 	// this folder's count stayed, and fbo0 was appended at the end, see createFboShaderTexture)
 	if (fs::exists(getAssetPath("") / aFolder / "fbo0.json")) {
+		// a new folder starts its shaders from 0 on the free clock (no wav or video: they run at
+		// once); a wav (cueAudioFile) or a video (updateVideoSources) then takes the clock, paused
+		mVDMix->resetClocks();
 		mVDMix->clearFboShaderList();
 	}
 	if (aFolder != resolveFolder(mVDMix->getAssetsPath())) {
@@ -382,9 +433,15 @@ bool VDSession::loadFolder(const string& aFolderName) {
 		std::string mixFileName = "mix.json";
 		fs::path mixFile = getAssetPath("") / aFolder / mixFileName;
 		if (fs::exists(mixFile)) {
-			mVDMix->clearFboShaderList();
-			JsonTree mix(loadFile(mixFile));
-			mVDMix->restore(mixFile);
+			// only clear when the folder brings fbos: an empty list made every fbo getter index
+			// mFboShaderList[size()-1] = [UINT_MAX] (access violation)
+			if (fs::exists(getAssetPath("") / aFolder / "fbo0.json")) mVDMix->clearFboShaderList();
+			try {
+				mVDMix->restore(mixFile);
+			}
+			catch (const std::exception& e) {
+				CI_LOG_W("mix.json not read: " << mixFile.string() << " " << e.what());
+			}
 		}
 	}
 
@@ -395,8 +452,15 @@ bool VDSession::loadFolder(const string& aFolderName) {
 		fs::path jsonFile = getAssetPath("") / aFolder / jsonFileName;
 		if (fs::exists(jsonFile)) {
 			//loadFromJsonFile(jsonFile)->createShader()->createUniforms()->compile()->createFboWhenSuccess()->addToFboList();
-			JsonTree json(loadFile(jsonFile));
-			fboFromJson(json, f, aFolder);
+			// a malformed fbo json (e.g. half-synced, or edited live) skips that fbo instead of
+			// crashing the app during draw()
+			try {
+				JsonTree json(loadFile(jsonFile));
+				fboFromJson(json, f, aFolder);
+			}
+			catch (const std::exception& e) {
+				CI_LOG_W("fbo json not loaded: " << jsonFile.string() << " " << e.what());
+			}
 			f++;
 		}
 		else {
@@ -405,6 +469,15 @@ bool VDSession::loadFolder(const string& aFolderName) {
 	} //while
 
 	return !found;
+}
+std::string VDSession::getLoadedFolder() {
+	if (mLoadedFolder.empty()) {
+		// nothing loaded through loadFolder() yet: the folder the mix was restored from at startup
+		const std::string path = mVDMix->getAssetsPath();
+		const size_t slash = path.find_last_of('/');
+		return slash == std::string::npos ? path : path.substr(slash + 1);
+	}
+	return mLoadedFolder;
 }
 void VDSession::toggleUI() {
 	mShowUI = !mShowUI;
@@ -562,7 +635,7 @@ ci::gl::TextureRef VDSession::resolveWarpInputTexture(const WarpRef& aWarp) {
 	// weighted mix of every active fboshader
 	if (fboIndex >= getFboShaderListSize()) return mVDMix->getRenderedMixetteTexture(0);
 	// a specific fbo (VDUIWarps.cpp's per-fbo buttons): just that fbo's own output
-	return mVDMix->getFboRenderedTexture(fboIndex);
+	return mVDMix->getFboTexture(fboIndex); // live: once per frame (VDMix::renderFbo)
 }
 
 // Warp::draw(texture) maps the whole texture to plain top-to-bottom (0,0)-(1,1) UVs with no
