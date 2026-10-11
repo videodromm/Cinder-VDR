@@ -907,3 +907,7 @@ Video-only track folders, each with `fbo0.json` = the video (MOVIE mode) through
 - sos, spidermoon: their previous fbo jsons moved to `backup-20261012/`.
 
 Videos must be H.264 for Media Foundation. `WelcomeToHap44.mov` and `spidermoon.mov` are Resolume DXV, so Cinder plays `WelcomeTo44.mp4` (converted with ffmpeg, H.264/AAC, same duration) and `spidermoon.mp4`; `track.json` keeps the DXV file as `resolumeVideo`. ambivalence, tobecontinued: ubershader tracks (track.json updated); namaste: no shader yet, so loading it in Cinder keeps the previous folder's fbos.
+
+### Changed (2026-10-12, security review smaller items)
+
+See `security-review-2026-10-11-evening.md` section 7: `VDSession::loadFolder` takes the fbo list out (`VDMix::takeFboShaderList`) and restores it if the new folder loads none; `VDMix::releaseUnusedVideoSources()` after a folder load (videos no fbo shows or has pending); `VDUniforms` ignores unknown indexes in `setUniformValue`/`setAnim`/`setVec4UniformValueByIndex`.

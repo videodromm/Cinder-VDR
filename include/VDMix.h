@@ -292,6 +292,13 @@ namespace videodromm
 		void							clearFboShaderList() {
 			mFboShaderList.clear();
 		}
+		// VDSession::loadFolder: the previous list is taken out before loading a folder, and put
+		// back if not a single fbo of the new folder loaded (an empty list breaks every fbo getter)
+		VDFboShaderList					takeFboShaderList() { VDFboShaderList list; list.swap(mFboShaderList); return list; }
+		void							restoreFboShaderList(VDFboShaderList aList) { mFboShaderList.swap(aList); }
+		// after a folder load: video players no fbo shows (or will show: a pending video) are
+		// closed and leave the texture pool; they used to pile up, one per video ever loaded
+		void							releaseUnusedVideoSources();
 		// Previews (fbo panes, the main window's fbo list): an fbo's shader runs at most once per
 		// frame (renderFbo()), and a preview reuses it. An fbo the mix doesn't render (weight 0)
 		// is rendered for its preview once a second at most: previews aren't worth a shader pass

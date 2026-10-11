@@ -410,6 +410,25 @@ namespace videodromm {
 		return name;
 	}
 
+	void VDMix::releaseUnusedVideoSources() {
+		std::set<std::string> used;
+		for (auto& fbo : mFboShaderList) {
+			if (fbo->isMovie()) used.insert(fbo->getTextureName(0));
+			const std::string pending = fbo->getPendingVideoFile();
+			if (!pending.empty()) used.insert(fs::path(pending).filename().string());
+		}
+		for (auto it = mVideoSources.begin(); it != mVideoSources.end();) {
+			const std::string name = (*it) ? (*it)->getName() : "";
+			if (*it && used.count(name) == 0) {
+				unregisterLoadedTexture(name);
+				if (mClockVideo == name) mClockVideo.clear();
+				CI_LOG_I("video " << name << " released (no fbo uses it)");
+				it = mVideoSources.erase(it);
+			}
+			else ++it;
+		}
+	}
+
 	void VDMix::reloadVideosOnAudioDevice() {
 		const std::string device = mVDAnimation->getPreferredAudioOutputDevice();
 		for (auto& source : mVideoSources) {

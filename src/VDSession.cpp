@@ -423,11 +423,14 @@ bool VDSession::loadFolder(const string& aFolderName) {
 	}
 	// a folder with its own fbos replaces every fbo of the previous one (without this, fbos past
 	// this folder's count stayed, and fbo0 was appended at the end, see createFboShaderTexture)
-	if (fs::exists(getAssetPath("") / aFolder / "fbo0.json")) {
+	// the previous fbos, put back if not one fbo of this folder loads
+	VDFboShaderList previousFbos;
+	const bool replacesFbos = fs::exists(getAssetPath("") / aFolder / "fbo0.json");
+	if (replacesFbos) {
 		// a new folder starts its shaders from 0 on the free clock (no wav or video: they run at
 		// once); a wav (cueAudioFile) or a video (updateVideoSources) then takes the clock, paused
 		mVDMix->resetClocks();
-		mVDMix->clearFboShaderList();
+		previousFbos = mVDMix->takeFboShaderList();
 	}
 	if (aFolder != resolveFolder(mVDMix->getAssetsPath())) {
 		// find mix.json
@@ -468,6 +471,16 @@ bool VDSession::loadFolder(const string& aFolderName) {
 			found = false;
 		}
 	} //while
+
+	if (replacesFbos) {
+		if (mVDMix->getFboShaderListSize() == 0 && !previousFbos.empty()) {
+			CI_LOG_W("loadFolder " << aFolder << ": no fbo loaded, the previous ones are kept");
+			mVDMix->restoreFboShaderList(std::move(previousFbos));
+		}
+		else {
+			mVDMix->releaseUnusedVideoSources();
+		}
+	}
 
 	return !found;
 }

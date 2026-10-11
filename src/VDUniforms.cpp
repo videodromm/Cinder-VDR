@@ -429,6 +429,9 @@ void VDUniforms::vec4FromJson(const ci::JsonTree& json) {
 
 bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 	bool rtn = false;
+	// an index from the network (websocket params, OSC, MIDI) that isn't a uniform: ignored.
+	// operator[] below used to create it, one map entry per index ever sent.
+	if (shaderUniforms.find(aIndex) == shaderUniforms.end()) return false;
 
 	// we can't change TIME at index 0
 	if (aIndex > 0) {

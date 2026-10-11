@@ -129,6 +129,7 @@ namespace videodromm
 		// videos are pool sources (VDVideoSource, owned by VDMix): an fbo json naming a video only
 		// records it here; VDMix::updateVideoSources() loads it into the pool and assigns it
 		std::string								takePendingVideoFile() { std::string file = mPendingVideoFile; mPendingVideoFile.clear(); return file; }
+		const std::string&						getPendingVideoFile() const { return mPendingVideoFile; }
 		// input = a pool video's texture (stable for the source's lifetime): MOVIE mode
 		void									assignVideoInput(ci::gl::Texture2dRef aTextureRef, const std::string& aName) {
 			mTextureMode = VDTextureMode::MOVIE;

@@ -254,7 +254,9 @@ namespace videodromm
 			return shaderUniforms[aIndex].textureIndex;
 		}
 		void							setAnim(unsigned int aCtrl, unsigned int aAnim) {
-			shaderUniforms[aCtrl].anim = aAnim;
+			// an index from the network that isn't a uniform: ignored (operator[] created it)
+			auto it = shaderUniforms.find(aCtrl);
+			if (it != shaderUniforms.end()) it->second.anim = aAnim;
 		}
 		unsigned int					getAnim(unsigned int aCtrl) {
 			return shaderUniforms[aCtrl].anim;
@@ -300,10 +302,13 @@ namespace videodromm
 			}
 		}
 		void setVec4UniformValueByIndex(unsigned int aIndex, vec4 aValue) {
-			shaderUniforms[aIndex - 300].floatValue = aValue.x;
-			shaderUniforms[aIndex - 299].floatValue = aValue.y;
-			shaderUniforms[aIndex - 298].floatValue = aValue.z;
-			shaderUniforms[aIndex - 297].floatValue = aValue.w;
+			// OSC can send any index: only existing uniforms are written (and no unsigned wrap below 300)
+			if (aIndex < 300) return;
+			const float values[4] = { aValue.x, aValue.y, aValue.z, aValue.w };
+			for (unsigned int k = 0; k < 4; k++) {
+				auto it = shaderUniforms.find(aIndex - 300 + k);
+				if (it != shaderUniforms.end()) it->second.floatValue = values[k];
+			}
 		}
 		vec2							getVec2UniformValueByName(const std::string& aName) {
 			return vec2(shaderUniforms[stringToIndex(aName + "X")].floatValue,
