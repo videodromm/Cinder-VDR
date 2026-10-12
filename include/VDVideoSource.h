@@ -14,7 +14,11 @@
 // Media Foundation headers (propvarutil.h) need it
 #include <ole2.h>
 #include "ciWMFVideoPlayer.h"
+#elif defined( CINDER_MAC )
+// AVFoundation (QuickTimeGlImplAvf), part of libcinder: no extra block
+#include "cinder/qtime/QuickTimeGl.h"
 #endif
+#include <algorithm>
 #include <memory>
 #include <string>
 
@@ -23,14 +27,15 @@ namespace videodromm
 	// A video in the shared texture pool (VDMix): its own player, independent of any fbo. Fbos
 	// only reference its texture (a plain GL_TEXTURE_2D, stable for the source's lifetime), so
 	// several fbos can show it, and it keeps playing when an fbo switches to another input.
-	// Windows only (Media Foundation); create() returns nullptr elsewhere.
+	// Windows: Media Foundation (Cinder-WMFVideo). Mac: AVFoundation (ci::qtime::MovieGl, no audio
+	// device choice: the video's sound goes to the default output). create() returns nullptr elsewhere.
 	typedef std::shared_ptr<class VDVideoSource> VDVideoSourceRef;
 
 	class VDVideoSource {
 	public:
 		// aAudioDevice: output device name for the video's sound (VDAnimation's preferred output)
 		static VDVideoSourceRef create(const std::string& aPath, const std::string& aAudioDevice, const ci::ivec2& aSize, bool aAutoPlay) {
-#if defined( CINDER_MSW )
+#if defined( CINDER_MSW ) || defined( CINDER_MAC )
 			VDVideoSourceRef source(new VDVideoSource());
 			if (source->load(aPath, aAudioDevice, aSize, aAutoPlay)) return source;
 #endif
@@ -94,12 +99,58 @@ namespace videodromm
 				rectTex->unbind(0);
 			}
 			mVideo.unlockSharedTexture();
+#elif defined( CINDER_MAC )
+			if (!mMovie) return;
+			// not autoplaying: once the player exists (it loads asynchronously, and setVolume() before
+			// that is ignored), play it muted until its first frame is decoded, then pause at 0
+			if (mCue == CUE_WAIT && mMovie->getCurrentTime() >= 0.0f) {
+				mMovie->setVolume(0.0f);
+				mMovie->play();
+				mCue = CUE_PLAYING;
+			}
+			// pulls the frame for the current time, if a new one is decoded
+			ci::gl::TextureRef rectTex = mMovie->getTexture();
+			if (mCue == CUE_PLAYING && rectTex) {
+				mMovie->stop();
+				mMovie->seekToTime(0.0f);
+				endCue();
+			}
+			if (mPendingSeek >= 0.0f && mCue == CUE_DONE && rectTex) {
+				mMovie->seekToTime(mPendingSeek);
+				mPendingSeek = -1.0f;
+			}
+			if (mReversed && mMovie->isPlaying()) {
+				// same hand stepping as on Windows
+				float fps = mMovie->getFramerate();
+				if (fps > 0.0f) {
+					float newPos = mMovie->getCurrentTime() - (1.0f / fps);
+					if (newPos < 0.0f) newPos = mLoop ? (mMovie->getDuration() + newPos) : 0.0f;
+					mMovie->seekToTime(newPos);
+				}
+			}
+			if (!rectTex || !mBlitShader || !mBlitFbo) return;
+			// GL_TEXTURE_RECTANGLE (IOSurface) into a plain GL_TEXTURE_2D, like on Windows; no interop lock
+			{
+				ci::gl::ScopedFramebuffer scopedFbo(mBlitFbo);
+				ci::gl::ScopedViewport scopedViewport(ci::ivec2(0), mBlitFbo->getSize());
+				ci::gl::ScopedMatrices scopedMatrices;
+				ci::gl::setMatricesWindow(mBlitFbo->getSize());
+				rectTex->bind(0);
+				ci::gl::ScopedGlslProg scopedShader(mBlitShader);
+				mBlitShader->uniform("uSampler", 0);
+				mBlitShader->uniform("uVideoSize", ci::vec2((float)rectTex->getWidth(), (float)rectTex->getHeight()));
+				// Y span swapped: AVFoundation's frame is top-down too (setTopDown(true) in QuickTimeGlImplAvf)
+				ci::gl::drawSolidRect(ci::Rectf(0, (float)mBlitFbo->getHeight(), (float)mBlitFbo->getWidth(), 0));
+				rectTex->unbind(0);
+			}
 #endif
 		}
 
 		bool isPlaying() {
 #if defined( CINDER_MSW )
 			return mVideo.isPlaying();
+#elif defined( CINDER_MAC )
+			return mMovie && mMovie->isPlaying();
 #else
 			return false;
 #endif
@@ -110,12 +161,20 @@ namespace videodromm
 			// a non-looping video pauses on its last frame: play it again from the start
 			if (mVideo.getDuration() > 0.0f && mVideo.getPosition() >= mVideo.getDuration() - 0.05f) mVideo.setPosition(0.0f);
 			mVideo.play();
+#elif defined( CINDER_MAC )
+			if (!mMovie) return;
+			if (mMovie->getDuration() > 0.0f && mMovie->getCurrentTime() >= mMovie->getDuration() - 0.05f) mMovie->seekToTime(0.0f);
+			mMovie->play();
+			// AVPlayer's play() runs at rate 1
+			if (mSpeed != 1.0f) mMovie->setRate(mSpeed);
 #endif
 		}
 		void pause() {
 			endCue();
 #if defined( CINDER_MSW )
 			if (mVideo.isPlaying()) mVideo.pause();
+#elif defined( CINDER_MAC )
+			if (mMovie && mMovie->isPlaying()) mMovie->stop();
 #endif
 		}
 		void togglePlayPause() { if (isPlaying()) pause(); else play(); }
@@ -124,6 +183,8 @@ namespace videodromm
 			mLoop = !mLoop;
 #if defined( CINDER_MSW )
 			mVideo.setLoop(mLoop);
+#elif defined( CINDER_MAC )
+			if (mMovie) mMovie->setLoop(mLoop);
 #endif
 		}
 		bool isReversed() const { return mReversed; }
@@ -131,6 +192,8 @@ namespace videodromm
 		float getSpeed() {
 #if defined( CINDER_MSW )
 			return mVideo.getSpeed();
+#elif defined( CINDER_MAC )
+			return mSpeed;
 #else
 			return 1.0f;
 #endif
@@ -141,6 +204,13 @@ namespace videodromm
 			if (!mVideo.setSpeed(aSpeed, false) && !mVideo.setSpeed(aSpeed, true) && !mSpeedWarningLogged) {
 				mSpeedWarningLogged = true;
 				CI_LOG_W("video " << mName << ": setSpeed(" << aSpeed << ") rejected by the codec, with and without thinning");
+			}
+#elif defined( CINDER_MAC )
+			mSpeed = aSpeed;
+			// a non-zero rate also starts AVPlayer: only applied while playing (play() applies it otherwise)
+			if (mMovie && mMovie->isPlaying() && !mMovie->setRate(aSpeed) && !mSpeedWarningLogged) {
+				mSpeedWarningLogged = true;
+				CI_LOG_W("video " << mName << ": setSpeed(" << aSpeed << ") not supported by this file");
 			}
 #endif
 		}
@@ -172,12 +242,21 @@ namespace videodromm
 				mOutputVolume = aVolume;
 				mVideo.setVolume(aVolume);
 			}
+#elif defined( CINDER_MAC )
+			if (mCue != CUE_DONE || !mMovie) return;
+			if (aVolume != mOutputVolume) {
+				mOutputVolume = aVolume;
+				mMovie->setVolume(aVolume);
+			}
 #endif
 		}
 		// play position in seconds: the shader clock (ITIME) while this video is the folder's clock
 		float getPositionSeconds() {
 #if defined( CINDER_MSW )
 			return mVideo.getPosition();
+#elif defined( CINDER_MAC )
+			// -1 before the player exists
+			return mMovie ? std::max(0.0f, mMovie->getCurrentTime()) : 0.0f;
 #else
 			return 0.0f;
 #endif
@@ -186,6 +265,9 @@ namespace videodromm
 #if defined( CINDER_MSW )
 			float fps = mVideo.getFrameRate();
 			return fps > 0.0f ? (int)(mVideo.getPosition() * fps + 0.5f) : 0;
+#elif defined( CINDER_MAC )
+			float fps = mMovie ? mMovie->getFramerate() : 0.0f;
+			return fps > 0.0f ? (int)(getPositionSeconds() * fps + 0.5f) : 0;
 #else
 			return 0;
 #endif
@@ -193,18 +275,26 @@ namespace videodromm
 		void setPositionSeconds(float aSeconds) {
 #if defined( CINDER_MSW )
 			mVideo.setPosition(std::max(0.0f, aSeconds));
+#elif defined( CINDER_MAC )
+			if (mMovie) mMovie->seekToTime(std::max(0.0f, aSeconds));
 #endif
 		}
 		void setPlayheadPosition(int aFrame) {
 #if defined( CINDER_MSW )
 			float fps = mVideo.getFrameRate();
 			if (fps > 0.0f) mVideo.setPosition(aFrame / fps);
+#elif defined( CINDER_MAC )
+			float fps = mMovie ? mMovie->getFramerate() : 0.0f;
+			if (fps > 0.0f) mMovie->seekToTime(aFrame / fps);
 #endif
 		}
 		int getMaxFrame() {
 #if defined( CINDER_MSW )
 			float fps = mVideo.getFrameRate();
 			return fps > 0.0f ? (int)(mVideo.getDuration() * fps + 0.5f) : 0;
+#elif defined( CINDER_MAC )
+			float fps = mMovie ? mMovie->getFramerate() : 0.0f;
+			return fps > 0.0f ? (int)(mMovie->getDuration() * fps + 0.5f) : 0;
 #else
 			return 0;
 #endif
@@ -238,6 +328,41 @@ namespace videodromm
 			return true;
 		}
 		ciWMFVideoPlayer		mVideo;
+#elif defined( CINDER_MAC )
+		bool load(const std::string& aPath, const std::string& aAudioDevice, const ci::ivec2& aSize, bool aAutoPlay) {
+			mPath = aPath;
+			mAudioDevice = aAudioDevice;
+			mName = ci::fs::path(aPath).filename().string();
+			try {
+				// AVFoundation loads the asset asynchronously; an unreadable file throws here or never plays
+				mMovie = ci::qtime::MovieGl::create(ci::fs::path(aPath));
+			}
+			catch (const std::exception& ex) {
+				CI_LOG_E("video " << aPath << " could not be loaded: " << ex.what());
+				return false;
+			}
+			catch (...) {
+				CI_LOG_E("video " << aPath << " could not be loaded");
+				return false;
+			}
+			if (!mMovie) return false;
+			mMovie->setLoop(mLoop);
+			// play() before the player is ready is kept and applied once it is
+			if (aAutoPlay) mMovie->play();
+			else mCue = CUE_WAIT;
+			try {
+				mBlitShader = ci::gl::GlslProg::create(ci::gl::GlslProg::Format()
+					.vertex(ci::app::loadAsset("video_texture.vs.glsl"))
+					.fragment(ci::app::loadAsset("video_texture.fs.glsl")));
+			}
+			catch (const std::exception& ex) {
+				CI_LOG_E("video blit shader: " << ex.what());
+			}
+			mBlitFbo = ci::gl::Fbo::create(aSize.x, aSize.y, ci::gl::Fbo::Format());
+			return true;
+		}
+		ci::qtime::MovieGlRef	mMovie;
+		float					mSpeed = 1.0f;
 #endif
 		std::string				mName;
 		std::string				mPath;

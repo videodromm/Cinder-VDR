@@ -10,6 +10,9 @@
 #else
 #include <unistd.h>
 #endif
+#if defined( CINDER_MAC )
+#include <uuid/uuid.h>
+#endif
 #include <string>
 
 namespace videodromm
@@ -21,7 +24,7 @@ namespace videodromm
 		// Windows: the MachineGuid Windows generates at install time
 		// (HKLM\SOFTWARE\Microsoft\Cryptography). Stable across renames and reboots, unique per
 		// Windows install (a cloned disk image would share it). Falls back to the computer name.
-		// Mac: the host name for now (TODO: IOPlatformUUID via IOKit, needs the IOKit framework).
+		// Mac: the hardware UUID (gethostuuid(), the same as IOPlatformUUID, no IOKit needed).
 		inline std::string getName() {
 #if defined( CINDER_MSW )
 			char name[MAX_COMPUTERNAME_LENGTH + 1] = { 0 };
@@ -45,6 +48,14 @@ namespace videodromm
 				LONG result = ::RegQueryValueExA(key, "MachineGuid", nullptr, &type, reinterpret_cast<LPBYTE>(guid), &size);
 				::RegCloseKey(key);
 				if (result == ERROR_SUCCESS && type == REG_SZ && guid[0]) return std::string(guid);
+			}
+#elif defined( CINDER_MAC )
+			uuid_t uuid;
+			struct timespec wait = { 1, 0 };
+			if (gethostuuid(uuid, &wait) == 0) {
+				uuid_string_t text;
+				uuid_unparse_upper(uuid, text);
+				return std::string(text);
 			}
 #endif
 			return getName();

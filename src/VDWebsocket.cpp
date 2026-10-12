@@ -14,6 +14,7 @@ VDWebsocket::VDWebsocket() {
 	mWebSocketsMsg = "";
 	// WebSockets
 	clientConnected = false;
+	mConnecting = false;
 	mWSHost = "127.0.0.1";
 	mWSPort = 8088;
 	
@@ -364,18 +365,18 @@ std::string VDWebsocket::getWSMsg() {
 void VDWebsocket::wsConnect() {
 	mWebSocketsMsg = "Connecting...";
 	mLastReconnectAttempt = getElapsedSeconds(); // Reset reconnect timer
-	mConnecting = true;
-	mConnectStarted = getElapsedSeconds();
 	mClient.connectOpenEventHandler([&]() {
 		clientConnected = true;
 		mConnecting = false;
 		mWebSocketsMsg = "Connected";
+		CI_LOG_I("websocket open");
 		//mVDSettings->mWebSocketsNewMsg = true;
 	});
 	mClient.connectCloseEventHandler([&]() {
 		clientConnected = false;
 		mConnecting = false;
 		mWebSocketsMsg = "Disconnected";
+		CI_LOG_W("websocket closed");
 		//mVDSettings->mWebSocketsNewMsg = true;
 	});
 	mClient.connectFailEventHandler([&](std::string err) {
@@ -387,11 +388,13 @@ void VDWebsocket::wsConnect() {
 		if (!err.empty()) {
 			mWebSocketsMsg += ": " + err;
 		}
+		CI_LOG_W("websocket failed: " << err);
 	});
 	mClient.connectInterruptEventHandler([&]() {
 		clientConnected = false;
 		mConnecting = false;
 		mWebSocketsMsg = "WS Interrupted";
+		CI_LOG_W("websocket interrupted");
 		//mVDSettings->mWebSocketsNewMsg = true;
 	});
 	mClient.connectPingEventHandler([&](std::string msg) {
@@ -405,8 +408,13 @@ void VDWebsocket::wsConnect() {
 	mClient.connectMessageEventHandler([&](std::string msg) {
 		parseMessage(msg);
 	});
+	// connected only once the handshake is done (open handler): a send before that fails with
+	// "invalid state", whose fail handler stopped the polling, so the handshake never went out
+	// (seen on the Mac, where the folder/transport sync sends on the first frame).
+	// Set before connecting: a synchronous failure in connect() clears it.
+	mConnecting = true;
+	mConnectStarted = getElapsedSeconds();
 	wsClientConnect();
-	// not connected yet: the open event sets clientConnected (update() polls meanwhile)
 }
 
 void VDWebsocket::wsClientConnect()
@@ -432,9 +440,10 @@ void VDWebsocket::wsClientConnect()
 void VDWebsocket::wsClientDisconnect()
 {
 
-	if (clientConnected)
+	if (clientConnected || mConnecting)
 	{
 		clientConnected = false;
+		mConnecting = false;
 		mClient.disconnect();
 		mAutoReconnect = false; // Disable auto-reconnect when manually disconnecting
 	}
@@ -586,7 +595,6 @@ void VDWebsocket::colorWrite()
 }
 
 void VDWebsocket::update() {
-	// poll while open and while connecting (the open/fail events come from poll())
 	if (clientConnected || mConnecting)
 	{
 		mClient.poll();

@@ -60,8 +60,10 @@ VDSessionFacadeRef VDSessionFacade::setupSession() {
 	}
 	// this PC's default audio devices win over session.json's last selection (shared between PCs)
 	mVDSession->loadAudioDefaults();
-	// mic/line in from the default (or this PC's default) input, open from startup
-	mVDSession->startLineIn();
+	// mic/line in from the default (or this PC's default) input, open from startup, unless this PC's
+	// audio.json entry says "lineInAtStartup": false (then only the Mic In button opens it)
+	if (mVDSession->isLineInAtStartup()) mVDSession->startLineIn();
+	else CI_LOG_I("line in not opened at startup (audio.json lineInAtStartup false for this PC)");
 	return shared_from_this();
 }
 VDSessionFacadeRef VDSessionFacade::setupWSClient() {

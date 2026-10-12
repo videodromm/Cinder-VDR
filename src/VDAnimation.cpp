@@ -750,6 +750,7 @@ void VDAnimation::loadAudioDefaults() {
 			if (!m.hasChild("id") || m.getValueForKey<std::string>("id") != mMachineId) continue;
 			if (m.hasChild("input")) mDefaultAudioInputDevice = m.getValueForKey<std::string>("input");
 			if (m.hasChild("output")) mDefaultAudioOutputDevice = m.getValueForKey<std::string>("output");
+			if (m.hasChild("lineInAtStartup")) mLineInAtStartup = m.getValueForKey<bool>("lineInAtStartup");
 		}
 	}
 	catch (const std::exception& ex) {
@@ -798,6 +799,8 @@ void VDAnimation::saveAudioDefaults() {
 	entry.addChild(JsonTree("name", mMachineName));
 	entry.addChild(JsonTree("input", mDefaultAudioInputDevice));
 	entry.addChild(JsonTree("output", mDefaultAudioOutputDevice));
+	// only written when off, so the other PCs' entries stay as they are
+	if (!mLineInAtStartup) entry.addChild(JsonTree("lineInAtStartup", false));
 	machines.pushBack(entry);
 	try {
 		JsonTree doc;

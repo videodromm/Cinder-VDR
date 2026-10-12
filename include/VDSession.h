@@ -293,6 +293,7 @@ namespace videodromm {
 		std::string								getPreferredAudioInputDevice() { return mVDAnimation->getPreferredAudioInputDevice(); };
 		void									loadAudioDefaults() { mVDAnimation->loadAudioDefaults(); }
 		void									startLineIn() { mVDAnimation->startLineIn(); }
+		bool									isLineInAtStartup() const { return mVDAnimation->isLineInAtStartup(); }
 		std::string								getAudioSourceLabel() { return mVDAnimation->getAudioSourceLabel(); }
 		std::string								getDefaultAudioInputDevice() { return mVDAnimation->getDefaultAudioInputDevice(); }
 		std::string								getDefaultAudioOutputDevice() { return mVDAnimation->getDefaultAudioOutputDevice(); }

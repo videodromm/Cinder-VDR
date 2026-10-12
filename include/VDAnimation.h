@@ -119,6 +119,9 @@ namespace videodromm
 		// since the assets folder is shared between PCs whose devices differ. Applied at startup,
 		// over session.json's last selection.
 		void							loadAudioDefaults();
+		// false: this PC doesn't open the mic/line in at startup ("lineInAtStartup": false in its
+		// audio.json entry, e.g. a test Mac where opening the input hangs in CoreAudio); Mic In still works
+		bool							isLineInAtStartup() const { return mLineInAtStartup; }
 		std::string						getDefaultAudioInputDevice() const { return mDefaultAudioInputDevice; }
 		std::string						getDefaultAudioOutputDevice() const { return mDefaultAudioOutputDevice; }
 		// empty clears the default; a non-empty name also selects it
@@ -220,6 +223,7 @@ namespace videodromm
 		std::string						mPreferredAudioInputDevice;
 		std::string						mPreferredAudioOutputDevice;
 		std::string						mDefaultAudioInputDevice;
+		bool							mLineInAtStartup = true;
 		std::string						mDefaultAudioOutputDevice;
 		std::string						mMachineId;
 		std::string						mMachineName;

@@ -937,3 +937,38 @@ Fix:
 - Reconnect only when neither connected nor connecting.
 
 MSBuild Debug (both apps) + Release (VDRUIProject) clean. Not runtime-tested.
+
+### Fixed (2026-10-12, Mac: Cinder never finished its websocket handshake, so the WebApp's folder/setlist picks didn't load)
+
+`VDWebsocket::wsConnect()` set `clientConnected = true` right after *starting* the connection. The folder/transport sync in `VDSessionFacade::update()` sends on the first frame; websocketpp refused that send ("invalid state", the connection wasn't open yet), the fail handler reset `clientConnected`, and `update()` stopped polling, so the handshake was never written (0 bytes sent, a half-open TCP connection every 60 s from the auto-reconnect). Diagnosed on the Mac: a standalone websocketpp client with Asio 1.36 connects fine, so the block is OK.
+
+Now `clientConnected` is set only by the open handler, and a new `mConnecting` (set before `connect()`, cleared by open/close/fail/interrupt) keeps `update()` polling during the handshake. `wsSend()` still needs `clientConnected`, so nothing is sent before open. The open/close/fail/interrupt handlers now log (`CI_LOG_I/W "websocket ..."`). The code is shared, so Windows likely had the same problem.
+
+Mac build (xcodebuild Debug x86_64) clean. Confirmed on the Mac the same day: `websocket open` in the log, and track picks work both ways.
+
+### Added (2026-10-12, Setlist panel in Cinder)
+
+`Cinder-VDRUI/include/VDUISetlist.h` (header-only, so no Visual Studio or Xcode project needs a new file): the native twin of the WebApp's Setlist pane. It reads the setlists from disk: every `assets/<name>.json` with a `tracks` array (same rules as TSWebsocketServer's `routes/setlists`), starting with `settings.setlist` from `assets/mix.json`. Works without the server.
+- A combo picks the setlist (not saved; Refresh re-reads the files). Clicking a track, or Previous/Next, calls `loadFolder()`, so the WebApp follows through the folder sync.
+- The loaded track is green. When two entries share a folder (zombification / dead or alive), the one picked here stays highlighted. Missing folders (`assets/glsl/<folder>`) are greyed and skipped by Previous/Next.
+- `VDUI`: a "Setlist" button next to "Folders"; the panel is shown at startup.
+
+Mac build (xcodebuild Debug x86_64) clean; the user saw the panel in the running app, and picking tracks works both ways (Cinder to WebApp and back). The same run confirmed the websocket fix above: `websocket open` in the log, and a `folder` event from a test client loaded the folder. Windows not built yet.
+
+### Added (2026-10-12, Mac video playback: ci::qtime::MovieGl in VDVideoSource)
+
+`VDVideoSource.h` has a `CINDER_MAC` branch next to the Windows one, using Cinder's own AVFoundation player (`ci::qtime::MovieGl`, `QuickTimeGlImplAvf`; no extra block, it's in libcinder). The Windows code is unchanged. Everything above it (pool, fbos, transport, ITIME clock, WebApp sync) already went through `VDVideoSource`, so nothing else changed.
+- Frames come as a top-down `GL_TEXTURE_RECTANGLE` (IOSurface), blitted into the same `GL_TEXTURE_2D` with the same shader and Y swap as WMF, without the DX/GL lock.
+- AVFoundation loads asynchronously: `play()` before it's ready is queued by MovieGl. Not autoplaying, `update()` cues like on Windows: once the player exists (`getCurrentTime() >= 0`; `setVolume()` before that is ignored), it plays muted until the first frame, then stops and seeks to 0.
+- Speed is kept in `mSpeed` and applied with `setRate()` only while playing (a non-zero rate starts AVPlayer); `play()` re-applies it, since AVPlayer's `play()` runs at rate 1. Loop is MovieGl's end-of-item callback. Reverse is the same hand stepping as on Windows.
+- Not supported on the Mac: choosing the video's audio output device (the sound goes to the default output; `AVPlayer.audioOutputDeviceUniqueID` would need Objective-C++). HAP/DXV isn't playable (same as Windows).
+
+Mac build (xcodebuild Debug x86_64) clean. **Confirmed by the user on the Mac**: welcometo (video-only track) plays. Still to check: seek, Loop, speed, reverse.
+
+### Added (2026-10-12, per-PC "lineInAtStartup"; Mac machine id = hardware UUID)
+
+On the test Mac, opening the mic at startup (`VDAnimation::initLineIn`) froze Cinder in CoreAudio (`AudioUnitSetProperty` → `HALB_Mutex::Lock`), even after restarting coreaudiod. A frozen instance also holds that lock, so the next launch froze too, already on the startup folder's wav (output side). Note: an instance started from Xcode can't be killed while its debugger is attached; press Stop in Xcode.
+- `assets/audio.json`: a machine entry can say `"lineInAtStartup": false`. `VDSessionFacade::setupSession()` then skips `startLineIn()` and logs `line in not opened at startup`; the Mic In button still opens it. `saveAudioDefaults()` only writes the key when it's false, so the other entries stay unchanged. The Mac's entry (`MacBookPro`) has it; the Acer's doesn't.
+- `VDMachine.h`: on the Mac, `getId()` is the hardware UUID from `gethostuuid()` (same as IOPlatformUUID, no IOKit framework), instead of the host name.
+
+Mac build clean; the user then ran Cinder on the Mac and played welcometo, so startup got past the audio.
