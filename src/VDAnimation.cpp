@@ -730,6 +730,20 @@ void VDAnimation::applyPreferredAudioOutput() {
 	catch (const std::exception& ex) {
 		CI_LOG_E("could not open audio output device " << device->getName() << ": " << ex.what());
 	}
+	// the song was resampled to the previous device's rate when loaded: at another rate it plays
+	// slower or faster (44.1 kHz data on a 48 kHz device: 9% fast; the reverse: 8% slow and low)
+	if (mSourceFile && mSamplePlayerNode && mSourceFile->getSampleRate() != ctx->getSampleRate()) {
+		try {
+			const double position = mSamplePlayerNode->getReadPositionTime();
+			mSourceFile = mSourceFile->cloneWithSampleRate(ctx->getSampleRate());
+			if (auto filePlayer = std::dynamic_pointer_cast<audio::FilePlayerNode>(mSamplePlayerNode)) filePlayer->setSourceFile(mSourceFile);
+			mSamplePlayerNode->seekToTime(position);
+			CI_LOG_I("audio file resampled to " << ctx->getSampleRate() << " Hz for the new output device");
+		}
+		catch (const std::exception& ex) {
+			CI_LOG_E("audio file resample: " << ex.what());
+		}
+	}
 	if (wasEnabled) ctx->enable();
 	if (lineInWasEnabled) mLineIn->enable();
 	if (playerWasEnabled) mSamplePlayerNode->enable();
@@ -820,6 +834,9 @@ bool VDAnimation::loadAudioFile(const std::string& aPath) {
 			CI_LOG_W("loadAudioFile: file not found " << aPath);
 			return false;
 		}
+		// the selected output device first: the file is resampled to its rate (loaded at the
+		// default device's rate and then played on another, a song ran slow on the Acer)
+		applyPreferredAudioOutput();
 		mSourceFile = audio::load(loadFile(aPath), ctx->getSampleRate());
 		if (!mMonitorWaveSpectralNode) {
 			auto scopeWaveFmt = audio::MonitorSpectralNode::Format().fftSize(mFFTWindowSize * 2).windowSize(mFFTWindowSize);

@@ -1,5 +1,6 @@
 #include "VDSessionFacade.h"
 #include "cinder/Json.h"
+#include "VDVersion.h"
 
 using namespace videodromm;
 
@@ -181,6 +182,8 @@ VDSessionFacadeRef VDSessionFacade::update() {
 		// 2 s meanwhile, or the startup folder would switch the WebApp first.
 		const bool wsConnected = mVDMediator->isWSConnected();
 		if (wsConnected && !mWasWSConnected) {
+			// who we are first: machine, app, VDR/VDRUI versions (logged by the server, VDVersion.h)
+			mVDMediator->wsSend(version::hello().dump(-1, ' ', false, ci::Json::error_handler_t::replace));
 			ci::Json query = { { "event", "folderquery" }, { "message", "" }, { "from", "cinder" } };
 			mVDMediator->wsSend(query.dump(-1, ' ', false, ci::Json::error_handler_t::replace));
 			mFolderQuerySentAt = app::getElapsedSeconds();

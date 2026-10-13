@@ -380,6 +380,10 @@ namespace videodromm
 		std::vector<VDVideoSourceRef>	mVideoSources;
 		// the video whose position is ITIME ("" = none): the folder's video, or the last one played
 		std::string						mClockVideo;
+		// websocket seeks on a video: at most 4 a second (each restarts the Media Foundation
+		// session; a client sending one every 100 ms made it scrub non-stop), the last one kept
+		double							mLastTransportSeekAt = 0.0;
+		double							mQueuedTransportSeek = -1.0;
 		// renderFbo(): when each fbo last ran its shader (frame number, seconds)
 		static constexpr double			PREVIEW_INTERVAL = 1.0;
 		std::vector<uint64_t>			mFboRenderedFrame;

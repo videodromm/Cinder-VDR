@@ -485,6 +485,11 @@ namespace videodromm {
 			float volume = source->getVolumeLevel() * (maxWeight < 0.0f ? 1.0f : maxWeight);
 			source->setOutputVolume(source->isScrubbing() ? 0.0f : volume);
 		}
+		if (mQueuedTransportSeek >= 0.0 && app::getElapsedSeconds() - mLastTransportSeekAt >= 0.25) {
+			if (VDVideoSourceRef video = transportVideo()) video->setPositionSeconds((float)mQueuedTransportSeek);
+			mLastTransportSeekAt = app::getElapsedSeconds();
+			mQueuedTransportSeek = -1.0;
+		}
 		// ITIME = the clock video's position (paused = frozen shaders, Play resumes in sync).
 		// Runs after VDAnimation::update(), which sets the free-running ITIME.
 		if (!mClockVideo.empty() && !mVDAnimation->isAudioFileClock()) {
@@ -529,7 +534,15 @@ namespace videodromm {
 		VDVideoSourceRef video = audioFbo < 0 ? transportVideo() : nullptr;
 		if (aPosition >= 0.0) {
 			if (audioFbo >= 0) mVDAnimation->seekAudioFile(aPosition);
-			else if (video) video->setPositionSeconds((float)aPosition);
+			else if (video) {
+				const double now = app::getElapsedSeconds();
+				if (now - mLastTransportSeekAt >= 0.25) {
+					video->setPositionSeconds((float)aPosition);
+					mLastTransportSeekAt = now;
+					mQueuedTransportSeek = -1.0;
+				}
+				else mQueuedTransportSeek = aPosition; // applied by updateVideoSources()
+			}
 		}
 		if (aCommand != "play" && aCommand != "pause") return;
 		const bool play = aCommand == "play";

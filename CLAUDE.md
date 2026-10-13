@@ -972,3 +972,15 @@ On the test Mac, opening the mic at startup (`VDAnimation::initLineIn`) froze Ci
 - `VDMachine.h`: on the Mac, `getId()` is the hardware UUID from `gethostuuid()` (same as IOPlatformUUID, no IOKit framework), instead of the host name.
 
 Mac build clean; the user then ran Cinder on the Mac and played welcometo, so startup got past the audio.
+
+### Added (2026-10-13, machine and versions in the logs and a websocket hello)
+- `include/VDVersion.h` (header only): each block registers its build date/time with `VD_REGISTER_VERSION("Cinder-VDR")` (in `VDLog.cpp`) and `VD_REGISTER_VERSION("Cinder-VDRUI")` (in `VDUI.cpp`). The git commit is read from the block's `.git`, found from `__FILE__` or else `<repos>/Cinder/blocks/<name>`, when asked. It shows the source on disk, which can be newer than the build if files were synced without a rebuild, so compare with the build time.
+- Log files (debug builds, FileLog checkbox): `logs/vd.<first 8 of machine id>.<timestamp>[.warnings|.errors].log`. Their first line is `# <exe> on <host> (machine <id>), Cinder-VDR built ..., source <sha>, Cinder-VDRUI built ..., started ...`.
+- On websocket connect, `VDSessionFacade::update` sends `{"event":"hello","app":"cinder","exe",...,"machine",...,"versions":{...}}` before the folderquery. TSWebsocketServer logs it (warn file) and lists it in `GET /api/version/details`; it isn't relayed. Not runtime-tested.
+
+### Fixed (2026-10-13, a song sometimes played slow; video scrub ran away)
+- `VDAnimation::loadAudioFile` resampled the wav to the context's sample rate, then switched to the preferred output device. If that device has another rate, the song played at the wrong speed (48 kHz data on a 44.1 kHz device: 8% slow and low; "ambivalence sounds slower", Acer). The device is now applied first, and `applyPreferredAudioOutput` re-resamples a loaded song (`cloneWithSampleRate`, position kept) when a device change changes the rate. Not runtime-tested.
+- Video scrub slider (`VDUIFbos.cpp`): one Media Foundation seek per frame while dragging piled up (each restarts the session), so the position ran away and the sound broke. Now at most 4 seeks a second while dragging, plus the exact one on release. The Acer's `ws-monitor` log (2026-10-12) showed the jumps without any websocket seek, so they came from the UI. Not runtime-tested.
+
+### Fixed (2026-10-13, websocket seeks flooded the video player)
+- The WebApp workbench sent a `transport seek` every 100 ms (an Ionic slider echo, fixed there). `VDMix::transport` now applies at most 4 video seeks a second; the last one is queued and applied by `updateVideoSources()`, so the final position is never lost, whatever a client sends. Not runtime-tested.

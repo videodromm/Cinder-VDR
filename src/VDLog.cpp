@@ -1,5 +1,7 @@
 #include "VDLog.h"
+#include "VDVersion.h"
 #include <ctime>
+#include <fstream>
 
 using namespace videodromm;
 
@@ -23,6 +25,8 @@ namespace {
 		}
 	};
 }
+
+VD_REGISTER_VERSION("Cinder-VDR");
 
 VDLogRef VDLog::LOGGER;
 std::shared_ptr<ci::log::LoggerFile> VDLog::sFileLoggerAll;
@@ -82,11 +86,22 @@ void VDLog::setFileLoggingEnabled(bool aEnabled) {
 		if (!fs::exists(logsFolder)) {
 			fs::create_directories(logsFolder);
 		}
-		std::string ts = sessionTimestamp();
-		sFileLoggerAll = log::makeLogger<log::LoggerFile>(logsFolder / ("vd." + ts + ".log"), false);
-		sFileLoggerWarnings = log::makeLogger<log::LoggerFile>(logsFolder / ("vd." + ts + ".warnings.log"), false);
+		// the machine in the names (logs from the 4 synced machines land in the same folder) and,
+		// on the first line of each file, the app, machine and VDR/VDRUI versions (VDVersion.h)
+		const std::string base = "vd." + version::machineShort() + "." + sessionTimestamp();
+		const std::string header = "# " + version::summary() + ", started " + sessionTimestamp();
+		auto fileWithHeader = [&](const std::string& aSuffix) {
+			const fs::path path = logsFolder / (base + aSuffix);
+			if (!fs::exists(path)) {
+				std::ofstream out(path.string());
+				out << header << std::endl;
+			}
+			return log::makeLogger<log::LoggerFile>(path, true);
+		};
+		sFileLoggerAll = fileWithHeader(".log");
+		sFileLoggerWarnings = fileWithHeader(".warnings.log");
 		sFileLoggerWarnings->setLevel(log::LEVEL_WARNING);
-		sFileLoggerErrors = log::makeLogger<log::LoggerFile>(logsFolder / ("vd." + ts + ".errors.log"), false);
+		sFileLoggerErrors = fileWithHeader(".errors.log");
 		sFileLoggerErrors->setLevel(log::LEVEL_ERROR);
 	}
 	else {
