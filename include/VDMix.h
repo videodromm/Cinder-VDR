@@ -192,6 +192,8 @@ namespace videodromm
 		bool							isTransportPlaying();
 		double							getTransportPosition();
 		std::string						getTransportSongName();
+		// the song's file (wav/mp3, else the video), for the video export's sound ("" if none)
+		std::string						getTransportSongPath();
 		// starting a video/audio file pauses every other playing video/audio file (one sound at a time)
 		void							togglePlayPauseSource(const std::string& aName);
 		float							getVolumeLevel(unsigned int aFboIndex) {

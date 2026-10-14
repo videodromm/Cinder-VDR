@@ -173,6 +173,8 @@ namespace videodromm
 		float							getAudioFileBpm() { return mAudioFileBpm; }
 		double							getAudioFilePosition() { return mSamplePlayerNode ? mSamplePlayerNode->getReadPositionTime() : 0.0; }
 		double							getAudioFileDuration() { return mSamplePlayerNode ? mSamplePlayerNode->getNumSeconds() : 0.0; }
+		// full path of the loaded wav/mp3 ("" if none)
+		std::string						getLoadedAudioFile() { return mSamplePlayerNode ? mLoadedAudioFile : std::string(); }
 		void							seekAudioFile(double aSeconds);
 		// paused at 0 with ITIME at 0 and following it: a folder load or a dropped file waits for Play
 		void							cueAudioFile();

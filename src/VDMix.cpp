@@ -529,6 +529,11 @@ namespace videodromm {
 		if (VDVideoSourceRef video = transportVideo()) return video->getName();
 		return "";
 	}
+	std::string VDMix::getTransportSongPath() {
+		if (audioFileFbo() >= 0) return mVDAnimation->getLoadedAudioFile();
+		if (VDVideoSourceRef video = transportVideo()) return video->getPath();
+		return "";
+	}
 	void VDMix::transport(const std::string& aCommand, double aPosition) {
 		const int audioFbo = audioFileFbo();
 		VDVideoSourceRef video = audioFbo < 0 ? transportVideo() : nullptr;

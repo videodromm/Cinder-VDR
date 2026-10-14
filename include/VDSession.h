@@ -435,6 +435,8 @@ namespace videodromm {
 		bool							isTransportPlaying() { return mVDMix->isTransportPlaying(); }
 		double							getTransportPosition() { return mVDMix->getTransportPosition(); }
 		std::string						getTransportSongName() { return mVDMix->getTransportSongName(); }
+		std::string						getTransportSongPath() { return mVDMix->getTransportSongPath(); }
+		bool							hasTransportSong() { return mVDMix->hasTransportSong(); }
 		// shader folders (fbo*.json + glsl) live in assets/glsl/<name>, older ones in assets/<name>:
 		// returns the path relative to assets/ ("glsl/boomer" or "particlez")
 		static std::string				resolveFolder(const string& aFolder);

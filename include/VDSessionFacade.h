@@ -306,6 +306,13 @@ namespace videodromm
 		VDSessionRef			getInstance() const;
 		// bare name of the folder last loaded, and the load count (VDUIFolders follows it)
 		std::string				getLoadedFolder() { return mVDSession->getLoadedFolder(); }
+		// the folder's song (wav, else video), as the WebApp's transport sees it (VDMix::transport)
+		bool					hasTransportSong() { return mVDSession->hasTransportSong(); }
+		bool					isTransportPlaying() { return mVDSession->isTransportPlaying(); }
+		double					getTransportPosition() { return mVDSession->getTransportPosition(); }
+		std::string				getTransportSongName() { return mVDSession->getTransportSongName(); }
+		std::string				getTransportSongPath() { return mVDSession->getTransportSongPath(); }
+		void					transport(const std::string& aCommand, double aPosition) { mVDSession->transport(aCommand, aPosition); }
 		// last folder sync events with the WebApp (shown in the Setlist panel, to check the link)
 		const std::string&		getFolderSyncIn() const { return mFolderSyncIn; }
 		const std::string&		getFolderSyncOut() const { return mFolderSyncOut; }
