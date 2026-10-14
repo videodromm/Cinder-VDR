@@ -167,6 +167,10 @@ namespace videodromm
 		// VDUniforms::resetTime() users (a video or sequence Play) via setAudioFileClock(false)
 		bool							isAudioFileClock() { return mAudioFileClock && mSamplePlayerNode; }
 		void							setAudioFileClock(bool aClock) { mAudioFileClock = aClock; }
+		// the song's tempo (fbo json "bpm"), 0 = unknown: while the file is the clock, iBar/iBeat/
+		// iBarBeat and iBpm follow its position (update())
+		void							setAudioFileBpm(float aBpm) { mAudioFileBpm = aBpm; }
+		float							getAudioFileBpm() { return mAudioFileBpm; }
 		double							getAudioFilePosition() { return mSamplePlayerNode ? mSamplePlayerNode->getReadPositionTime() : 0.0; }
 		double							getAudioFileDuration() { return mSamplePlayerNode ? mSamplePlayerNode->getNumSeconds() : 0.0; }
 		void							seekAudioFile(double aSeconds);
@@ -237,6 +241,7 @@ namespace videodromm
 		// FFT source follows the audio file: file playing -> file, file ended/paused -> mic (update())
 		bool							mAudioFileWasPlaying = false;
 		bool							mAudioFileClock = false;
+		float							mAudioFileBpm = 0.0f;
 		std::map<int, int>				freqIndexes;
 		bool							mAudioBuffered = false;
 		ci::gl::TextureRef				mAudioTexture;

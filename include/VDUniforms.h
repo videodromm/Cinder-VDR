@@ -1,6 +1,8 @@
 #pragma once
 
 #include "cinder/Cinder.h"
+#include <algorithm>
+#include <cmath>
 #if defined( _WIN32 ) && ! defined( WIN32_LEAN_AND_MEAN )
 // must be defined before the first Windows header (pulled in by cinder/app/App.h) is seen,
 // otherwise asio/websocketpp later in the translation unit hits "WinSock.h has already been included"
@@ -356,6 +358,17 @@ namespace videodromm
 		void							setTime(float aSeconds) {
 			shaderUniforms[ITIME].floatValue = aSeconds;
 			shaderUniforms[ISTART].floatValue = (float)ci::app::getElapsedSeconds() - aSeconds;
+		}
+		// song position from the audio file clock (see VDAnimation::update()), in beats from bar 1:
+		// iBar = bar number from 1 and iBeat = beat in the bar from 0, like Ableton/Transthor's OSC
+		// /bar and /beat (minus 1); iBarBeat = whole beats since bar 1. Written directly like
+		// setTime(): iBarBeat's 1..3600 range would reject beat 0
+		void							setSongPosition(float aBeats) {
+			const float beatsPerBar = shaderUniforms[IBEATSPERBAR].floatValue > 0.0f ? shaderUniforms[IBEATSPERBAR].floatValue : 4.0f;
+			const float beats = std::floor(std::max(aBeats, 0.0f));
+			shaderUniforms[IBAR].floatValue = std::floor(beats / beatsPerBar) + 1.0f;
+			shaderUniforms[IBEAT].floatValue = std::fmod(beats, beatsPerBar);
+			shaderUniforms[IBARBEAT].floatValue = beats;
 		}
 		int								getUniformAnim(unsigned int aIndex) {
 			return shaderUniforms[aIndex].anim;

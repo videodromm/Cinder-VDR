@@ -137,6 +137,9 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 			if (ext == ".wav" || ext == ".mp3") {
 				fs::path audioFile = resolveMediaFile(mTextureName, "audio", mAssetsPath);
 				mPlaysAudioFile = mVDAnimation->loadAudioFile(audioFile.string());
+				// its tempo drives iBar/iBeat while it's the clock (also when it was already loaded;
+				// another fbo naming the same file without "bpm" keeps it)
+				if (mPlaysAudioFile && mAudioBpm > 0.0f) mVDAnimation->setAudioFileBpm(mAudioBpm);
 				// a loaded folder starts paused at 0 (shaders included), even when reloading the
 				// file already playing
 				if (mPlaysAudioFile) mVDAnimation->cueAudioFile();

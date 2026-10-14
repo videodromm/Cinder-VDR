@@ -984,3 +984,11 @@ Mac build clean; the user then ran Cinder on the Mac and played welcometo, so st
 
 ### Fixed (2026-10-13, websocket seeks flooded the video player)
 - The WebApp workbench sent a `transport seek` every 100 ms (an Ionic slider echo, fixed there). `VDMix::transport` now applies at most 4 video seeks a second; the last one is queued and applied by `updateVideoSources()`, so the final position is never lost, whatever a client sends. Not runtime-tested.
+
+### Changed (2026-10-14, iBar/iBeat/iBarBeat/iBpm follow the song)
+While the audio file is the clock (Play or scrub of a folder's wav) and its fbo json gives `"bpm"`, `VDAnimation::update()` sets the beat uniforms from the song position every frame, through the new `VDUniforms::setSongPosition(beats)` (written directly, like `setTime()`):
+- `iBar` = bar number from 1, `iBeat` = beat in the bar from 0 (`iBeatsPerBar`, default 4), the same convention as Transthor's OSC `/bar` and `/beat` - 1;
+- `iBarBeat` = whole beats since bar 1 (so image sequences synced to it follow the song);
+- `iBpm` = the song's bpm (only written when it differs).
+
+VDUI's top-bar Beat/Bar therefore show the song's position. The OSC values are overwritten while the song is the clock; without a song or without `"bpm"`, they work as before. The bpm comes from the fbo json (`VDAnimation::setAudioFileBpm()`, called by `VDFboShader::createInputTexture()`; another fbo naming the same file without `"bpm"` keeps it), and is reset when another file is loaded (a dropped wav has none). MSBuild Debug|x64 of `VDRUIProject` and `VDSpoutInNdiOut` link clean. Not runtime-tested.

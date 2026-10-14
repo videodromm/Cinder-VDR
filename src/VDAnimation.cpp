@@ -497,7 +497,16 @@ void VDAnimation::update() {
 		mVDUniforms->getUniformValue(mVDUniforms->ISPEED) *
 		mVDUniforms->getUniformValue(mVDUniforms->ITIMEFACTOR));
 	// the audio file is the clock once played or scrubbed (paused = frozen shaders)
-	if (isAudioFileClock()) mVDUniforms->setTime((float)mSamplePlayerNode->getReadPositionTime());
+	if (isAudioFileClock()) {
+		const float songTime = (float)mSamplePlayerNode->getReadPositionTime();
+		mVDUniforms->setTime(songTime);
+		// with the song's tempo, the beat/bar uniforms (and VDUI's Beat/Bar) are the song's position
+		// instead of the OSC ones (Transthor), which would otherwise only change while Live plays
+		if (mAudioFileBpm > 0.0f) {
+			mVDUniforms->setSongPosition(songTime * mAudioFileBpm / 60.0f);
+			if (mVDUniforms->getUniformValue(mVDUniforms->IBPM) != mAudioFileBpm) mVDUniforms->setUniformValue(mVDUniforms->IBPM, mAudioFileBpm);
+		}
+	}
 	// sos
 	// IBARBEAT = IBAR * 4 + IBEAT
 	float current = mVDUniforms->getUniformValue(mVDUniforms->IBARBEAT); // 20210101 was int
@@ -870,6 +879,7 @@ bool VDAnimation::loadAudioFile(const std::string& aPath) {
 		mAudioName = fs::path(aPath).filename().string();
 		mLoadedAudioFile = aPath;
 		mAudioFileClock = false;
+		mAudioFileBpm = 0.0f;   // the fbo json that loaded it sets it (VDFboShader::createInputTexture())
 		CI_LOG_I("loadAudioFile: loaded (paused) " << aPath);
 		return true;
 	}
