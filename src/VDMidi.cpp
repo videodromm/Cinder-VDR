@@ -49,7 +49,12 @@ void videodromm::loadIgnoredMidiPorts() {
 	try {
 		JsonTree json(loadFile(jsonFile));
 		std::vector<std::string> list;
-		if (json.hasChild("ignored")) {
+		// "ignored" must be a list: anything else (e.g. a single string) keeps the previous list
+		if (!json.hasChild("ignored") || json.getChild("ignored").getNodeType() != JsonTree::NODE_ARRAY) {
+			CI_LOG_W("midi-ignored.json: \"ignored\" isn't a list, keeping the previous list");
+			return;
+		}
+		{
 			for (const auto& entry : json.getChild("ignored").getChildren()) {
 				std::string name = compactPortName(entry.getValue<std::string>());
 				if (!name.empty()) list.push_back(name);
