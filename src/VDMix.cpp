@@ -227,20 +227,8 @@ namespace videodromm {
 	};
 
 	unsigned int VDMix::findAvailableIndex(unsigned int aFboShaderIndex, const JsonTree &json) {
+		// 20261015 index 0 means fbo 0: the hydra round-robin (0 spread over 0..7 within a second) was removed
 		unsigned int rtn = aFboShaderIndex;
-		unsigned int iSecond = (unsigned int)getElapsedSeconds();
-		CI_LOG_V(" mCurrentSecond " + toString(mCurrentSecond) + " getElapsedSeconds " + toString(iSecond) + " mCurrentIndex " + toString(mCurrentIndex));
-		// For hydra, several shaders can be received at once
-		if (aFboShaderIndex == 0) {
-			if (iSecond != mCurrentSecond) {
-				mCurrentSecond = iSecond;
-				mCurrentIndex = 0;
-			}
-			else {
-				mCurrentIndex++;
-			}
-			aFboShaderIndex = mCurrentIndex;
-		}
 
 		// init the list the first time
 		if (mFboShaderList.size() == 0) {

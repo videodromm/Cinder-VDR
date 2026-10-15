@@ -96,9 +96,8 @@ namespace videodromm
 		};
 		unsigned int					findAvailableIndex(unsigned int aFboShaderIndex, const JsonTree &json);
 		bool							setFragmentShaderString(const string& aFragmentShaderString, const std::string& aName = "", unsigned int aFboShaderIndex = 0);
-		// sets the fragment shader on exactly aFboShaderIndex, bypassing findAvailableIndex's
-		// hydra round-robin (which only triggers for setFragmentShaderString(..., 0)) - needed so
-		// callers that already picked a specific slot (e.g. the folder/shader browser UI) land there
+		// sets the fragment shader on exactly aFboShaderIndex (an existing fbo), never creating one
+		// like findAvailableIndex does - for callers that already picked a slot (e.g. the folder/shader browser UI)
 		bool							setFragmentShaderStringAtIndex(const string& aFragmentShaderString, const std::string& aName, unsigned int aFboShaderIndex);
 		// first fbo shader slot (0..7) whose iWeight uniform is 0.0f, i.e. not currently mixed in -
 		// used to load a new shader without a sudden change in the rendering
@@ -421,8 +420,6 @@ namespace videodromm
 		const unsigned int				MAXSHADERS = 8;
 		std::string						mAssetsPath = "";
 		fs::path						mixPath;
-		unsigned int					mCurrentSecond = 0;
-		unsigned int					mCurrentIndex = 0;
 		unsigned int					getValidFboIndex(unsigned int aFboIndex);
 		ci::gl::Texture2dRef			mDefaultTexture; //in case no fbos
 		gl::FboRef						mMixetteFbo;

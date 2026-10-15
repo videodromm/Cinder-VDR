@@ -30,17 +30,59 @@ std::string VDMidi::getMidiMsg() {
 }
 
 
+static std::string compactPortName(const std::string& aName) {
+	std::string rtn;
+	for (char c : aName) {
+		if (!std::isspace((unsigned char)c)) rtn += (char)std::tolower((unsigned char)c);
+	}
+	return rtn;
+}
+static std::vector<std::string> sIgnoredMidiPorts{ compactPortName("Model 12") };
+
+void videodromm::loadIgnoredMidiPorts() {
+	fs::path jsonFile = getAssetPath("midi-ignored.json");
+	if (jsonFile.empty() || !fs::exists(jsonFile)) {
+		sIgnoredMidiPorts = { compactPortName("Model 12") };
+		return;
+	}
+	try {
+		JsonTree json(loadFile(jsonFile));
+		std::vector<std::string> list;
+		if (json.hasChild("ignored")) {
+			for (const auto& entry : json.getChild("ignored").getChildren()) {
+				std::string name = compactPortName(entry.getValue<std::string>());
+				if (!name.empty()) list.push_back(name);
+			}
+		}
+		sIgnoredMidiPorts = list;
+		CI_LOG_V("midi-ignored.json: " + toString(list.size()) + " ignored port name(s)");
+	}
+	catch (const std::exception& e) {
+		// a half-synced or mistyped file keeps the previous list
+		CI_LOG_W("midi-ignored.json not read, keeping the previous list: " + std::string(e.what()));
+	}
+}
+bool videodromm::isHiddenMidiPort(const std::string& aPortName) {
+	std::string name = compactPortName(aPortName);
+	for (const auto& entry : sIgnoredMidiPorts) {
+		if (name.find(entry) != std::string::npos) return true;
+	}
+	return false;
+}
+
 void VDMidi::saveMidiPorts() {
 	JsonTree		json;
 	JsonTree midiin = ci::JsonTree::makeArray("midiin");
 	for (int j = 0; j < mMidiInputs.size(); j++)
 	{
+		if (isHiddenMidiPort(mMidiInputs[j].portName)) continue;
 		midiin.addChild(ci::JsonTree("midiinname", mMidiInputs[j].portName));
 	}
 	json.addChild(midiin);
 	JsonTree midiout = ci::JsonTree::makeArray("midiout");
 	for (int j = 0; j < mMidiOutputs.size(); j++)
 	{
+		if (isHiddenMidiPort(mMidiOutputs[j].portName)) continue;
 		midiout.addChild(ci::JsonTree("midioutname", mMidiOutputs[j].portName));
 	}
 	json.addChild(midiout);
@@ -170,6 +212,7 @@ void VDMidi::midiSetup() {
 	std::stringstream ss;
 	ss << "setupMidi ";
 	CI_LOG_V("midiSetup: " + ss.str());
+	loadIgnoredMidiPorts();
 	if (mMidiIn0.getNumPorts() > 0)
 	{
 		mMidiIn0.listPorts();
@@ -185,7 +228,11 @@ void VDMidi::midiSetup() {
 				mIn.portName = mMidiIn0.getPortName(i);
 				mMidiInputs.push_back(mIn);
 				std::size_t nameIndex = mMidiInputs[i].portName.find(mVDMediator->getPreferredMidiInputDevice());
-				if (nameIndex != std::string::npos) {
+				if (isHiddenMidiPort(mMidiInputs[i].portName)) {
+					// kept in mMidiInputs so indices still match the OS ports, but never opened or shown
+					mMidiInputs[i].isConnected = false;
+				}
+				else if (nameIndex != std::string::npos) {
 					// openMidiInPort() already sets isConnected based on whether the open actually
 					// succeeded - don't stomp that with an unconditional true right after
 					openMidiInPort(i);
@@ -244,6 +291,10 @@ void VDMidi::openMidiInPort(unsigned int i) {
 	// to mark isConnected = true unconditionally, which claimed success even when the underlying
 	// Windows MM port never opened and would therefore never deliver a single MIDI message
 	bool opened = false;
+	if (i < mMidiInputs.size() && isHiddenMidiPort(mMidiInputs[i].portName)) {
+		CI_LOG_W("MIDI in port " + toString(i) + " is hidden, not opened");
+		return;
+	}
 	if (i < mMidiIn0.getNumPorts()) {
 		// a real Input, opened directly at index i, created the first time this specific port is
 		// connected - see mMidiInPorts' declaration for why this replaced 3 fixed named members
@@ -281,6 +332,10 @@ void VDMidi::openMidiOutPort(int i) {
 
 	std::stringstream ss;
 	ss << "Port " << i;
+	if (i >= 0 && (size_t)i < mMidiOutputs.size() && isHiddenMidiPort(mMidiOutputs[i].portName)) {
+		CI_LOG_W("MIDI out port " + toString(i) + " is hidden, not opened");
+		return;
+	}
 	if (i >= 0 && (size_t)i < mMidiOutputs.size()) {
 		// same reasoning as openMidiInPort() above - a real MidiOut per index, created on demand,
 		// instead of 3 fixed named members that silently couldn't open port 3+ at all

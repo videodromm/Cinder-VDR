@@ -31,6 +31,13 @@ namespace videodromm
 	class VDMidi;
 	// stores the pointer to the VDMidi instance
 	typedef std::shared_ptr<VDMidi> VDMidiRef;
+	// MIDI ports that never appear in any list and are never opened (2026-10-15), from the shared
+	// assets/midi-ignored.json ({"ignored": ["Model 12", ...]}), also read by TSWebsocketServer.
+	// A port is ignored when its name contains an entry, case and spaces ignored. Read by
+	// loadIgnoredMidiPorts() (called by VDMidi::midiSetup(), so "Enable" in the Midi panel reloads it);
+	// without the file, Model 12 stays ignored: holding it open stops Ableton Live from loading.
+	void loadIgnoredMidiPorts();
+	bool isHiddenMidiPort(const std::string& aPortName);
 	struct midiInput
 	{
 		std::string			portName;
