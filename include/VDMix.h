@@ -121,6 +121,18 @@ namespace videodromm
 				else mFboShaderList[getValidFboIndex(aFboIndex)]->assignInputTexture(aTextureRef, aName);
 			}
 		}
+		// iChannel1 ("texture1" in the fbo json): a still image only, since a video's texture is
+		// replaced as it plays and the audio texture is rebuilt every frame; false when refused.
+		// A null texture clears it (the fbo then binds its samplers the old way, see VDFboShader)
+		bool							setFboTexture1(unsigned int aFboIndex, ci::gl::Texture2dRef aTextureRef, const std::string& aName = "") {
+			if (mFboShaderList.empty()) return false;
+			if (aTextureRef && (aName == "audio" || getVideoSource(aName))) return false;
+			mFboShaderList[getValidFboIndex(aFboIndex)]->setTexture1(aTextureRef, aName);
+			return true;
+		}
+		std::string						getFboTexture1Name(unsigned int aFboIndex) {
+			return mFboShaderList.empty() ? "" : mFboShaderList[getValidFboIndex(aFboIndex)]->getTexture1Name();
+		}
 		// selects which already-loaded input texture slot is the active one for this fbo
 		void							setFboInputTexture(unsigned int aFboIndex, unsigned int aTexIndex) {
 			mFboShaderList[getValidFboIndex(aFboIndex)]->setInputTextureIndex(aTexIndex);

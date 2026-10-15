@@ -208,6 +208,8 @@ namespace videodromm
 		// optional second input image, "texture1" in the fbo json, bound to iChannel1
 		bool									hasTexture1() { return (bool)mTexture1; }
 		std::string								getTexture1Name() { return mTexture1Name; }
+		// assigned from the Textures panel (right-click), by reference; null clears it (2026-10-15)
+		void									setTexture1(ci::gl::TextureRef aTexture, const std::string& aName) { mTexture1 = aTexture; mTexture1Name = aTexture ? aName : ""; }
 		// audio fbo whose "texturename" is a wav/mp3 (played by VDAnimation's file player)
 		bool									isAudioFile() {
 			return mTextureMode == VDTextureMode::AUDIO && mPlaysAudioFile;

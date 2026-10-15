@@ -367,6 +367,12 @@ namespace videodromm {
 		void							setFboInputTexture(unsigned int aFboIndex, ci::gl::Texture2dRef aTextureRef, const std::string& aName = "") {
 			mVDMix->setFboInputTexture(aFboIndex, aTextureRef, aName);
 		}
+		bool							setFboTexture1(unsigned int aFboIndex, ci::gl::Texture2dRef aTextureRef, const std::string& aName = "") {
+			return mVDMix->setFboTexture1(aFboIndex, aTextureRef, aName);
+		}
+		std::string						getFboTexture1Name(unsigned int aFboIndex) {
+			return mVDMix->getFboTexture1Name(aFboIndex);
+		}
 		void							setFboInputTexture(unsigned int aFboIndex, unsigned int aTexIndex) {
 			mVDMix->setFboInputTexture(aFboIndex, aTexIndex);
 		}

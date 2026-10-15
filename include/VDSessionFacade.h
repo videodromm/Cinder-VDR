@@ -286,6 +286,9 @@ namespace videodromm
 		ci::gl::Texture2dRef	buildFboInputTexture(unsigned int aFboIndex = 0);
 		ci::gl::Texture2dRef	getFboInputTextureListItem(unsigned int aFboIndex = 0, unsigned int aTexIndex = 0);
 		void					setFboInputTexture(unsigned int aFboIndex, ci::gl::Texture2dRef aTextureRef, const std::string& aName = "");
+		// iChannel1 of an fbo ("texture1"): a still image, or null to clear (VDMix::setFboTexture1)
+		bool					setFboTexture1(unsigned int aFboIndex, ci::gl::Texture2dRef aTextureRef, const std::string& aName = "") { return mVDSession->setFboTexture1(aFboIndex, aTextureRef, aName); }
+		std::string				getFboTexture1Name(unsigned int aFboIndex) { return mVDSession->getFboTexture1Name(aFboIndex); }
 		void					resetAnim() { mVDSession->resetAnim(); }
 		std::string				getModeName(unsigned int aMode);
 		unsigned int			getModesCount();

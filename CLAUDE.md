@@ -1014,3 +1014,11 @@ Security pass the same day (`security-review-2026-10-14.md`): on the Mac the ffm
 
 ### Fixed (2026-10-15, Export button sometimes seemed to do nothing)
 Reported on the Mac: several clicks on Export (or a click on another button first) before the panel showed. The panel had no position, so it opened at ImGui's default spot (top left), behind or over the big panels. VDUI now places it under the toolbar (`getUIXPosCol2()`/`getUIYPosRow2()`, each time it appears), brings it to the front whenever the button opens it (`SetNextWindowFocus()`), and gives it a close box (`VDVideoExport::Run()` takes `bool* aOpen`). Not confirmed as the cause: check on the Mac. VDUIBas (Mac, x86_64) builds. Recording itself confirmed working on the Mac (mp4 OK), after VDUIBas started handing its shown texture to the output window (`setMainViewTexture()`, VDUIBas commit 0e507f3).
+
+### Added (2026-10-15, iChannel1 visible and assignable in the UI)
+`texture1` (iChannel1, from the fbo json) was loaded and bound but never shown or changeable in the UI. Now:
+- **Textures panel:** right-click a texture = iChannel1 of the selected fbo (left-click and drag stay iChannel0). Images only: the audio texture and videos are refused (`VDMix::setFboTexture1()` returns false, logged), since their texture objects change as they play.
+- **Fbos panel:** "iChannel1: <name>" with an x to clear it (the fbo then binds its samplers the old way: in-use samplers get units 0, 1... in order).
+- Plumbing: `VDFboShader::setTexture1()`, `VDMix::setFboTexture1()`/`getFboTexture1Name()`, same on VDSession and VDSessionFacade. Not saved back to the fbo json.
+
+VDUIBas (Mac, x86_64) builds. Not runtime-tested.
