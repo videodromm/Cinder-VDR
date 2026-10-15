@@ -1,4 +1,5 @@
 #include "VDMidi.h"
+#include "VDMachine.h"
 
 using namespace videodromm;
 
@@ -86,7 +87,9 @@ void VDMidi::saveMidiPorts() {
 		midiout.addChild(ci::JsonTree("midioutname", mMidiOutputs[j].portName));
 	}
 	json.addChild(midiout);
-	string jsonFileName = "midi.json";
+	// the ports of this machine (reference only, nothing reads it): one file per machine, so the
+	// synced assets folder holds every machine's list instead of the last one written (2026-10-15)
+	string jsonFileName = "midi-" + machine::fileName() + ".json";
 	fs::path jsonFile = getAssetPath("") / jsonFileName;
 	json.write(jsonFile);
 }

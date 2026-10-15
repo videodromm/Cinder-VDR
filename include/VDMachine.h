@@ -14,6 +14,7 @@
 #include <uuid/uuid.h>
 #endif
 #include <string>
+#include <cctype>
 
 namespace videodromm
 {
@@ -59,6 +60,17 @@ namespace videodromm
 			}
 #endif
 			return getName();
+		}
+		// the computer name for a per-machine file name (audiodevices-<name>.json, midi-<name>.json,
+		// 2026-10-15): up to the first dot (a Mac's "name.local"), anything but letters, digits, - and _
+		// replaced by _
+		inline std::string fileName() {
+			std::string out;
+			for (char ch : getName()) {
+				if (ch == '.') break;
+				out += (std::isalnum((unsigned char)ch) || ch == '-' || ch == '_') ? ch : '_';
+			}
+			return out.empty() ? "unknown" : out;
 		}
 	}
 }

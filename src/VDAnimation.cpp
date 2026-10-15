@@ -276,8 +276,10 @@ void  VDAnimation::initLineIn() {
 					
 				}
 				doc.pushBack(audiooutputs);
-				// device list, for reference only (audio.json holds the per-PC default devices)
-				doc.write(writeFile(getAssetPath("") / "audiodevices.json"), JsonTree::WriteOptions());
+				// device list, for reference only (audio.json holds the per-PC default devices), one file
+				// per machine (audiodevices-<machine name>.json, 2026-10-15), so Syncthing can share them
+				// without the machines overwriting each other's list
+				doc.write(writeFile(getAssetPath("") / ("audiodevices-" + machine::fileName() + ".json")), JsonTree::WriteOptions());
 				if (audioDeviceFound) {
 					auto device = ci::audio::Device::findDeviceByKey(preferredAudioDeviceKey);
 					CI_LOG_W("trying to open mic/line in, if no line follows in the log, the app crashed so put UseLineIn to false in the VDSettings.xml file");

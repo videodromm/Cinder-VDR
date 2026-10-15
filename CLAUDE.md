@@ -1022,3 +1022,6 @@ Reported on the Mac: several clicks on Export (or a click on another button firs
 - Plumbing: `VDFboShader::setTexture1()`, `VDMix::setFboTexture1()`/`getFboTexture1Name()`, same on VDSession and VDSessionFacade. Not saved back to the fbo json.
 
 VDUIBas (Mac, x86_64) builds. Not runtime-tested.
+
+### Changed (2026-10-15, audiodevices.json and midi.json per machine)
+Two reference lists Cinder writes at startup (nothing reads them) are now one file per machine, so the four machines' lists sync side by side instead of overwriting each other: `VDAnimation` writes `assets/audiodevices-<machine>.json`, `VDMidi::saveMidiPorts()` writes `assets/midi-<machine>.json`. `<machine>` is `machine::fileName()` (new, `VDMachine.h`): the computer name up to the first dot (a Mac's `.local`), characters other than letters, digits, `-`, `_` replaced by `_`. `.stignore-shared` still ignores the old names (each machine keeps its own stale copy; delete them by hand). VDUIBas (Mac) builds. Not runtime-tested.
