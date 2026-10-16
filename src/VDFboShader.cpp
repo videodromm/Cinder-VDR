@@ -1,4 +1,5 @@
 #include "VDFboShader.h"
+#include "cinder/ip/Resize.h"
 
 using namespace videodromm;
 
@@ -788,8 +789,12 @@ void VDFboShader::saveThumbnail(bool overwrite) {
 	try {
 		fs::path fr = getAssetPath("") / "thumbs" / (safeName + ".jpg");
 		if (!fs::exists(fr) || overwrite) {
+			// 320 wide at the fbo's aspect (320x180 for 16:9), like TSWebsocketServer's
+			// scripts/thumbs.ts, so the WebApp's Shaders pane loads small files
 			Surface s8(mRenderedTexture->createSource());
-			writeImage(writeFile(fr), s8);
+			const int w = 320;
+			const int h = std::max(1, (int)std::lround(w * (double)s8.getHeight() / std::max(1, s8.getWidth())));
+			writeImage(writeFile(fr), ip::resizeCopy(s8, s8.getBounds(), ivec2(w, h)));
 		}
 	}
 	catch (const std::exception& e) {

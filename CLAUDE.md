@@ -1031,3 +1031,10 @@ The fbo panes list a shader's active uniforms, but the `vec2`/`vec3`/`vec4` case
 - **`iMouse`:** two drag sliders, `iMouseX` (0 to the fbo width) and `iMouseY` (0 to the fbo height), MIDI-learnable like the float sliders. They set `IMOUSEX`/`IMOUSEY`, which `VDFboShader` reads into the `vec4`.
 - **`iColor`:** a compact color picker (`ColorEdit3`, click the swatch) setting `ICOLORX/Y/Z`, the same floats as the Animation panel's Color "f".
 Other `vec` uniforms still show nothing. VDRUIProject Debug x64 builds. Not runtime-tested.
+
+### Changed (2026-10-16, thumbnails 320 wide)
+`VDFboShader::saveThumbnail()` (first render and the fbo pane's "Save thumbnail") scales the render down to 320 wide at the fbo's aspect (`ip::resizeCopy`, 320x180 for 16:9) instead of writing it at full size (1280x720), to match TSWebsocketServer's `pnpm thumbs` and keep the WebApp's Shaders pane light. VDRUIProject Debug x64 builds. Not runtime-tested.
+
+### Changed (2026-10-16, iClear off by default)
+`iClear` (82) was created at 1.0: every fbo was cleared to black before its shader ran. Now 0.0 (`VDUniforms.cpp`); VDUI's "Clear" button still toggles it, and a mix.json `"iClear"` still sets it (five folders already had 0.0). The WebApp's copy (`WebApp/src/uniforms.ts`, Controller "Clear", id 82) follows: default 0.
+What it changes: nothing for shader fbos. `VDFboShader` draws one fbo-sized rect with blending off, so every pixel is overwritten each frame (alpha included; alpha only matters later, when the output window blends the fbos), and no shader in assets/glsl uses `discard`. Only a **text-mode** fbo (its text texture drawn at its own size) now keeps pieces of the previous text when the text changes: turn Clear on for those. VDRUIProject Debug x64 builds. Not runtime-tested.
