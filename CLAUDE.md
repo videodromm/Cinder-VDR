@@ -1025,3 +1025,9 @@ VDUIBas (Mac, x86_64) builds. Not runtime-tested.
 
 ### Changed (2026-10-15, audiodevices.json and midi.json per machine)
 Two reference lists Cinder writes at startup (nothing reads them) are now one file per machine, so the four machines' lists sync side by side instead of overwriting each other: `VDAnimation` writes `assets/audiodevices-<machine>.json`, `VDMidi::saveMidiPorts()` writes `assets/midi-<machine>.json`. `<machine>` is `machine::fileName()` (new, `VDMachine.h`): the computer name up to the first dot (a Mac's `.local`), characters other than letters, digits, `-`, `_` replaced by `_`. `.stignore-shared` still ignores the old names (each machine keeps its own stale copy; delete them by hand). VDUIBas (Mac) builds. Not runtime-tested.
+
+### Added (2026-10-16, iMouse and iColor in the fbo panes)
+The fbo panes list a shader's active uniforms, but the `vec2`/`vec3`/`vec4` cases were commented out, so `iMouse` and `iColor` never showed. `VDUIFbos.cpp` now draws, when the shader uses them:
+- **`iMouse`:** two drag sliders, `iMouseX` (0 to the fbo width) and `iMouseY` (0 to the fbo height), MIDI-learnable like the float sliders. They set `IMOUSEX`/`IMOUSEY`, which `VDFboShader` reads into the `vec4`.
+- **`iColor`:** a compact color picker (`ColorEdit3`, click the swatch) setting `ICOLORX/Y/Z`, the same floats as the Animation panel's Color "f".
+Other `vec` uniforms still show nothing. VDRUIProject Debug x64 builds. Not runtime-tested.
