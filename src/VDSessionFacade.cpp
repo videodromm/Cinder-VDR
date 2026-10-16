@@ -177,6 +177,22 @@ VDSessionFacadeRef VDSessionFacade::update() {
 				mVDMediator->wsSend(msg.dump(-1, ' ', false, ci::Json::error_handler_t::replace));
 			}
 		}
+		// iBeat / iBar to the WebApp when they change (its top bar shows "bar · beat"): params 61
+		// and 62, as the WebApp's useIncomingMessageFlush reads them; "event":"beat" keeps them out
+		// of the server's log (TSWebsocketServer ws.ts QUIET)
+		{
+			const int beat = (int)getUniformValue(VDUniforms::IBEAT);
+			const int bar = (int)getUniformValue(VDUniforms::IBAR);
+			if (beat != mSentBeat || bar != mSentBar) {
+				mSentBeat = beat;
+				mSentBar = bar;
+				ci::Json msg = {
+					{ "event", "beat" }, { "from", "cinder" },
+					{ "params", ci::Json::array({ { { "name", (int)VDUniforms::IBEAT }, { "value", beat } }, { { "name", (int)VDUniforms::IBAR }, { "value", bar } } }) },
+				};
+				mVDMediator->wsSend(msg.dump(-1, ' ', false, ci::Json::error_handler_t::replace));
+			}
+		}
 		// connected to the server: ask the WebApp for its folder, which wins over the one loaded at
 		// startup (WebApp/src/lib/folderSync.ts answerFolderQuery). Our own loads aren't announced for
 		// 2 s meanwhile, or the startup folder would switch the WebApp first.

@@ -335,6 +335,9 @@ namespace videodromm
 		bool					mWasWSConnected = false;
 		double					mFolderQuerySentAt = -100.0;
 		double					mTransportSentAt = -100.0;
+		// last iBeat / iBar sent to the WebApp (update())
+		int						mSentBeat = -1;
+		int						mSentBar = -1;
 		VDSessionFacade(VDSessionRef session, VDMediatorObservableRef mediator) : mVDSession(session), mVDMediator(mediator), mOscSenderConnected(false), mIsMidiSetup(false), mOscReceiverConnected(false) { }
 		VDSessionRef						mVDSession;
 		VDMediatorObservableRef				mVDMediator;

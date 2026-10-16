@@ -218,7 +218,7 @@ VDUniforms::VDUniforms() {
 
 	// boolean
 	// clear
-	createFloatUniform("iClear", ICLEAR, 0.0f); // 82: clear the fbo to black before rendering; off by default (2026-10-16)
+	createFloatUniform("iClear", ICLEAR, 1.0f); // 82: clear the fbo to black before rendering (off: shaders with alpha < 1 leave trails)
 	// toggle
 	createFloatUniform("iToggle", ITOGGLE, 0.0f); // 83
 	// invert
