@@ -156,6 +156,7 @@ namespace videodromm
 			// booleans 80 to 110
 			ICLEAR = 82,	// 
 			ITOGGLE = 83,	// B4 for sos
+			IEDGE = 84,		// mixette wrap: 1 repeats the border pixels (iRenderXYX/Y lines), 0 black
 			IINVERT = 86,	// D5
 			ISOBEL = 87,
 			IGREYSCALE = 88,

@@ -221,6 +221,8 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iClear", ICLEAR, 1.0f); // 82: clear the fbo to black before rendering (off: shaders with alpha < 1 leave trails)
 	// toggle
 	createFloatUniform("iToggle", ITOGGLE, 0.0f); // 83
+	// edge
+	createFloatUniform("iEdge", IEDGE, 1.0f); // 84: outside the mixette (iRenderXYX/Y shift), repeat its border pixels as lines (off: black)
 	// invert
 	createFloatUniform("iInvert", IINVERT, 0.0f); // 86
 	// sobel
@@ -866,6 +868,10 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	// 82
 	else if (key == "iClear") {
 		rtn = ICLEAR;
+	}
+	// 84
+	else if (key == "iEdge") {
+		rtn = IEDGE;
 	}
 	// toggle 83
 	else if (key == "iToggle") {

@@ -35,7 +35,9 @@ namespace videodromm {
 		}
 
 		// init fbo format
-		fmt.setWrap(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+		// clamp to edge: post.glsl's iRenderXYX/Y shift samples outside [0,1], which repeats the border pixels as lines
+		// (Post/Fx sampled the warps fbo, clamp to edge by default, until 2026-09-17); iEdge off switches to the black border
+		fmt.setWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 		fmt.setBorderColor(Color::black());
 		// uncomment this to enable 4x antialiasing
 		//fboFmt.setSamples( 4 );
@@ -213,6 +215,13 @@ namespace videodromm {
 
 		gl::drawSolidRect(Rectf(0, 0, mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY)));
 		mMixetteTexture = mMixetteFbo->getColorTexture();
+		// iEdge: what post.glsl's iRenderXYX/Y shift shows outside [0,1]
+		bool edge = mVDUniforms->getUniformValue(mVDUniforms->IEDGE) != 0.0f;
+		if (edge != mMixetteEdge) {
+			mMixetteEdge = edge;
+			GLenum wrap = edge ? GL_CLAMP_TO_EDGE : GL_CLAMP_TO_BORDER;
+			mMixetteTexture->setWrap(wrap, wrap);
+		}
 		return mMixetteTexture;
 	}
 	std::vector<ci::gl::GlslProg::Uniform> VDMix::getFboShaderUniforms(unsigned int aFboShaderIndex) {
@@ -543,8 +552,12 @@ namespace videodromm {
 		if (audioFbo >= 0) {
 			if (mVDAnimation->isAudioFilePlaying() != play) togglePlayPause((unsigned int)audioFbo);
 		}
-		else if (video && video->isPlaying() != play) {
-			togglePlayPauseSource(video->getName());
+		else if (video) {
+			if (video->isPlaying() != play) togglePlayPauseSource(video->getName());
+		}
+		// no song: fbo0 (the ubershader or a sequence); Play on a shader restarts ITIME at 0, for sync (MIDI Start)
+		else if (!mFboShaderList.empty() && mFboShaderList[0]->isPlaying() != play) {
+			togglePlayPause(0);
 		}
 	}
 	void VDMix::togglePlayPauseSource(const std::string& aName) {

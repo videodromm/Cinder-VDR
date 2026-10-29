@@ -437,5 +437,6 @@ namespace videodromm
 		gl::FboRef						mMixetteFbo;
 		gl::GlslProgRef					mGlslMixette;
 		ci::gl::Texture2dRef			mMixetteTexture;
+		bool							mMixetteEdge = true;	// current wrap of the mixette fbo (iEdge), the format starts clamp to edge
 	};
 }
