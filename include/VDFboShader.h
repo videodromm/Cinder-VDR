@@ -231,14 +231,19 @@ namespace videodromm
 		void									toggleLoop() {
 			if (isAudioFile()) mVDAnimation->setAudioFileLoop(!mVDAnimation->isAudioFileLooping());
 		}
+		// a Pause also rewinds to the start (2026-10-29): the next Play starts from the top
 		void									togglePlayPause() {
 			if (isAudioFile()) {
+				const bool pausing = mVDAnimation->isAudioFilePlaying();
 				mVDAnimation->toggleAudioFilePlayPause();
+				if (pausing) mVDAnimation->seekAudioFile(0.0);
 				return;
 			}
 			if (mTextureMode == VDTextureMode::SEQUENCE) {
+				const bool pausing = isPlaying();
 				mSequenceManualControl = true;
-				mSequencePlaying = !mSequencePlaying;
+				mSequencePlaying = !pausing;
+				if (pausing) setPlayheadPosition(0);
 			}
 		}
 		void									reverse() {

@@ -548,6 +548,15 @@ namespace videodromm {
 		}
 		if (aCommand != "play" && aCommand != "pause") return;
 		const bool play = aCommand == "play";
+		// Pause (the WebApp's, MIDI Stop) also rewinds to 0: the next Play starts the song from the top
+		if (!play) {
+			if (audioFbo >= 0) mVDAnimation->seekAudioFile(0.0);
+			else if (video) {
+				video->setPositionSeconds(0.0f);
+				mLastTransportSeekAt = app::getElapsedSeconds();
+				mQueuedTransportSeek = -1.0;
+			}
+		}
 		// the same toggles as the fbo panes' Play buttons: one sound at a time, ITIME follows
 		if (audioFbo >= 0) {
 			if (mVDAnimation->isAudioFilePlaying() != play) togglePlayPause((unsigned int)audioFbo);
@@ -569,8 +578,12 @@ namespace videodromm {
 			// this video becomes the clock: ITIME follows its position (updateVideoSources())
 			mVDAnimation->setAudioFileClock(false);
 			mClockVideo = aName;
+			video->togglePlayPause();
+			return;
 		}
+		// a Pause also rewinds to the start (2026-10-29)
 		video->togglePlayPause();
+		video->setPositionSeconds(0.0f);
 	}
 
 	void VDMix::togglePlayPause(unsigned int aFboIndex) {
