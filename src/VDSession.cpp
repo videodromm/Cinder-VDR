@@ -55,6 +55,7 @@ VDSession::VDSession(VDSettingsRef aVDSettings, VDAnimationRef aVDAnimation, VDU
 	fboFmt.setColorTextureFormat(fmt);
 	mWarpsFbo = gl::Fbo::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), format.depthTexture());
 	mPostFbo = gl::Fbo::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), format.depthTexture());
+	mPostFboPrevious = gl::Fbo::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), format.depthTexture());
 	mFxFbo = gl::Fbo::create(mVDParams->getFboWidth(), mVDParams->getFboHeight(), format.depthTexture());
 	mGlslPost = gl::GlslProg::create(gl::GlslProg::Format().vertex(mVDParams->getDefaultVertexString()).fragment(loadAsset("post.glsl")));
 	mGlslFx = gl::GlslProg::create(gl::GlslProg::Format().vertex(mVDParams->getDefaultVertexString()).fragment(loadAsset("fx.glsl")));
@@ -524,6 +525,8 @@ void VDSession::update() {
 }
 void VDSession::renderPostToFbo()
 {
+	// last frame's post becomes iPrevious: the vignette's edge trail (iVignette + iEdge) pushes it outward
+	std::swap(mPostFbo, mPostFboPrevious);
 	{
 		gl::ScopedFramebuffer fbScp(mPostFbo);
 		// clear out the FBO with black
@@ -546,12 +549,14 @@ void VDSession::renderPostToFbo()
 		// flat composited content regardless of how it's physically projected; the warped/
 		// distorted result belongs only to the dedicated Warp display mode.
 		mVDMix->getRenderedMixetteTexture(0)->bind(10);
+		mPostFboPrevious->getColorTexture()->bind(12);
 		gl::ScopedGlslProg prog(mGlslPost);
 
 		// not used yet mGlslPost->uniform("TIME", getUniformValue(mVDUniforms->ITIME) - mVDSettings->iStart);;
 		mGlslPost->uniform("iResolution", vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
 		mGlslPost->uniform("iColor", vec3(mVDUniforms->getUniformValue(mVDUniforms->ICOLORX), mVDUniforms->getUniformValue(mVDUniforms->ICOLORY), mVDUniforms->getUniformValue(mVDUniforms->ICOLORZ)));
 		mGlslPost->uniform("iChannel0", 10); // texture unit 10 (post)
+		mGlslPost->uniform("iPrevious", 12); // texture unit 12: last frame's post output
 		// tmp 20210102
 		float iz = mVDUniforms->getUniformValue(mVDUniforms->IZOOM);
 		mGlslPost->uniform("iTime", mVDUniforms->getUniformValue(mVDUniforms->ITIME));
@@ -571,6 +576,9 @@ void VDSession::renderPostToFbo()
 		mGlslPost->uniform("iToggle", mVDUniforms->getUniformValue(mVDUniforms->ITOGGLE));
 		mGlslPost->uniform("iGreyScale", mVDUniforms->getUniformValue(mVDUniforms->IGREYSCALE));
 		mGlslPost->uniform("iVignette", mVDUniforms->getUniformValue(mVDUniforms->IVIGNETTE));
+		mGlslPost->uniform("iEdge", mVDUniforms->getUniformValue(mVDUniforms->IEDGE)); // vignette: repeat its border pixels outside it
+		mGlslPost->uniform("iSteps", mVDUniforms->getUniformValue(mVDUniforms->ISTEPS)); // vignette trail speed
+		mGlslPost->uniform("iFrame", (float)getElapsedFrames()); // vignette trail: under 1 px per frame, moves on some frames only
 		mGlslPost->uniform("iAlpha", mVDUniforms->getUniformValue(mVDUniforms->IALPHA));
 		mGlslPost->uniform("iRedMultiplier", mVDUniforms->getUniformValue(mVDUniforms->IFRX));
 		mGlslPost->uniform("iGreenMultiplier", mVDUniforms->getUniformValue(mVDUniforms->IFGX));

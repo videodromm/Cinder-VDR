@@ -476,11 +476,7 @@ bool VDUniforms::setUniformValue(unsigned int aIndex, float aValue) {
 							shaderUniforms[IZOOM].floatValue = shaderUniforms[IZOOM].defaultValue;
 							shaderUniforms[IPIXELATE].floatValue = shaderUniforms[IPIXELATE].defaultValue;
 							break;
-						case ITOGGLE:
-							shaderUniforms[ITOGGLE].floatValue = aValue;
-							shaderUniforms[ITIME].floatValue = (float)getElapsedSeconds();
-							shaderUniforms[ISTART].floatValue = shaderUniforms[ITIME].floatValue;
-							break;
+						// ITOGGLE no longer resets ITIME/ISTART (2026-11-03): it switches post.glsl's vignette shape mid-track
 						default:
 							shaderUniforms[aIndex].floatValue = aValue;
 							break;

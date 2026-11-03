@@ -517,6 +517,7 @@ namespace videodromm {
 		gl::Fbo::Format					fboFmt;
 		gl::FboRef						mWarpsFbo;
 		gl::FboRef						mPostFbo;
+		gl::FboRef						mPostFboPrevious; // last frame's post, swapped with mPostFbo each frame (post.glsl's vignette trail)
 		gl::FboRef						mFxFbo;
 		//! shaders
 		gl::GlslProgRef					mGlslPost;
