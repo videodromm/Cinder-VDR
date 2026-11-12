@@ -151,6 +151,8 @@ namespace videodromm
 		void					setUniformValueByLocation(unsigned int aFboShaderIndex, unsigned int aLocationIndex, float aValue);
 		ci::gl::TextureRef		buildPostFboTexture();
 		ci::gl::TextureRef		buildFxFboTexture();
+		void					requestFxPreview();
+		std::string				getGpuTimesText();
 		ci::gl::TextureRef		buildWarpFboTexture();
 		ci::gl::TextureRef		buildRenderedWarpFboTexture();
 		unsigned int			getWarpAFboIndex(unsigned int aWarpIndex);
@@ -164,6 +166,9 @@ namespace videodromm
 		unsigned int			getWarpCount();
 		void					createWarp();
 		void					removeWarp(unsigned int aWarpIndex) { mVDSession->removeWarp(aWarpIndex); }
+		void					resetWarp(unsigned int aWarpIndex) { mVDSession->resetWarp(aWarpIndex); }
+		bool					undoWarpEdit() { return mVDSession->undoWarpEdit(); }
+		size_t					getWarpUndoCount() { return mVDSession->getWarpUndoCount(); }
 		ci::gl::TextureRef		getWarpPreviewTexture(unsigned int aWarpIndex) { return mVDSession->getWarpPreviewTexture(aWarpIndex); }
 		void					drawWarpsToCurrentTarget(const ci::gl::TextureRef& aComposite) { mVDSession->drawWarpsToCurrentTarget(aComposite); }
 		void					saveWarps() {
@@ -180,6 +185,9 @@ namespace videodromm
 		unsigned int			getSelectedFbo();
 		void					setWebAppUrl(const std::string& aUrl);
 		std::string				getWebAppUrl();
+		// program chain on/off (saved in session.json): see VDSession::setProgramChain()
+		void					setProgramChain(bool aOn);
+		bool					getProgramChain();
 		//unsigned int			getFboInputTextureIndex(unsigned int aFboIndex = 0);
 
 		std::string				getFboName(unsigned int aFboIndex);

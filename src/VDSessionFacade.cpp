@@ -322,6 +322,12 @@ ci::gl::TextureRef VDSessionFacade::buildPostFboTexture() {
 ci::gl::TextureRef VDSessionFacade::buildFxFboTexture() {
 	return mVDSession->getFxFboTexture();
 }
+void VDSessionFacade::requestFxPreview() {
+	mVDSession->requestFxPreview();
+}
+std::string VDSessionFacade::getGpuTimesText() {
+	return mVDSession->getGpuTimesText();
+}
 ci::gl::TextureRef VDSessionFacade::buildWarpFboTexture() {
 	return mVDSession->getWarpFboTexture();
 }
@@ -373,6 +379,13 @@ void VDSessionFacade::setWebAppUrl(const std::string& aUrl) {
 }
 std::string VDSessionFacade::getWebAppUrl() {
 	return mVDSession->getWebAppUrl();
+}
+void VDSessionFacade::setProgramChain(bool aOn) {
+	mVDSession->setProgramChain(aOn);
+	save();
+}
+bool VDSessionFacade::getProgramChain() {
+	return mVDSession->getProgramChain();
 }
 /*unsigned int VDSessionFacade::getFboInputTextureIndex(unsigned int aFboIndex) {
 	return mVDSession->getFboInputTextureIndex(aFboIndex);
@@ -510,6 +523,7 @@ void VDSessionFacade::save()
 	JsonTree settings = JsonTree::makeObject("settings");
 	settings.addChild(ci::JsonTree("apiUrl", mVDSession->getApiUrl()));
 	settings.addChild(ci::JsonTree("webAppUrl", mVDSession->getWebAppUrl()));
+	settings.addChild(ci::JsonTree("programChain", mVDSession->getProgramChain()));
 	settings.addChild(ci::JsonTree("preferredAudioInput", mVDSession->getPreferredAudioInputDevice()));
 	settings.addChild(ci::JsonTree("preferredAudioOutput", mVDSession->getPreferredAudioOutputDevice()));
 	settings.addChild(ci::JsonTree("preferredMidiInput", mVDMediator->getPreferredMidiInputDevice()));
@@ -541,6 +555,7 @@ void VDSessionFacade::restore()
 			JsonTree settings(doc.getChild("settings"));
 			if (settings.hasChild("apiUrl")) mVDSession->setApiUrl(settings.getValueForKey<std::string>("apiUrl"));
 			if (settings.hasChild("webAppUrl")) mVDSession->setWebAppUrl(settings.getValueForKey<std::string>("webAppUrl"));
+			if (settings.hasChild("programChain")) mVDSession->setProgramChain(settings.getValueForKey<bool>("programChain"));
 			if (settings.hasChild("preferredAudioInput")) mVDSession->setPreferredAudioInputDevice(settings.getValueForKey<string>("preferredAudioInput"));
 			if (settings.hasChild("preferredAudioOutput")) mVDSession->setPreferredAudioOutputDevice(settings.getValueForKey<string>("preferredAudioOutput"));
 			if (settings.hasChild("preferredMidiInput")) mVDMediator->setPreferredMidiInputDevice(settings.getValueForKey<string>("preferredMidiInput"));

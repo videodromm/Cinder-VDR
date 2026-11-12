@@ -190,12 +190,17 @@ namespace videodromm {
 		// no further fbo render can still clobber unit 0.
 		std::vector<ci::gl::Texture2dRef> renderedTextures(mFboShaderList.size());
 		int i = 0;
+		mRenderedFboCount = 0;
+		mGpuTimerFbos.begin();
 		for (auto &fbo : mFboShaderList) {
 			if (fbo->isValid() && mVDUniforms->getUniformValue(mVDUniforms->IWEIGHT0 + i) > 0.01f) {
 				renderedTextures[i] = renderFbo(i);
+				mRenderedFboCount++;
 			}
 			i++;
 		}
+		mGpuTimerFbos.end();
+		mGpuTimerMixette.begin();
 		i = 0;
 		for (auto &tex : renderedTextures) {
 			if (tex) tex->bind(i);
@@ -214,6 +219,7 @@ namespace videodromm {
 		}
 
 		gl::drawSolidRect(Rectf(0, 0, mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONX), mVDUniforms->getUniformValue(mVDUniforms->IRESOLUTIONY)));
+		mGpuTimerMixette.end();
 		mMixetteTexture = mMixetteFbo->getColorTexture();
 		// iEdge: what post.glsl's iRenderXYX/Y shift shows outside [0,1]
 		bool edge = mVDUniforms->getUniformValue(mVDUniforms->IEDGE) != 0.0f;

@@ -503,6 +503,8 @@ bool VDSession::showUI() {
 
 std::string VDSession::getModeName(unsigned int aMode) {
 	if (aMode > mModesList.size() - 1) aMode = mModesList.size() - 1;
+	// with the program chain, Post mode shows the program: the mix with its effects
+	if (mProgramChain && aMode == VDDisplayMode::POST) return "Mix";
 	return mModesList[aMode];
 }
 unsigned int VDSession::getModesCount() {
@@ -519,9 +521,21 @@ void VDSession::update() {
 	mVDMix->getMixetteTexture(0);
 
 	// Post/Fx sample the mixette (not the warps), and warps can show Post or Fx: those first
+	mGpuTimerPost.begin();
 	renderPostToFbo();
-	if (mVDUniforms->getUniformValue(mVDUniforms->IDISPLAYMODE) == VDDisplayMode::FX || isWarpUsingFx() || getElapsedFrames() % 100 == 0) renderFxToFbo();
+	mGpuTimerPost.end();
+	// Fx (a 64-step ray march) only when something shows it: Fx mode, a warp on Fx, or the UI's Fx thumbnail asked
+	// for it (requestFxPreview(), once per frame while it's drawn). It used to also run every 100 frames for that
+	// thumbnail alone: a periodic hitch (studies/mixette-fx.md).
+	if (mVDUniforms->getUniformValue(mVDUniforms->IDISPLAYMODE) == VDDisplayMode::FX || isWarpUsingFx() || mFxPreviewRequested) {
+		mGpuTimerFx.begin();
+		renderFxToFbo();
+		mGpuTimerFx.end();
+	}
+	mFxPreviewRequested = false;
+	mGpuTimerWarps.begin();
 	renderWarpsToFbo();
+	mGpuTimerWarps.end();
 }
 void VDSession::renderPostToFbo()
 {
@@ -605,8 +619,9 @@ void VDSession::renderFxToFbo()
 
 		// texture binding must be before ScopedGlslProg
 		//
-		// same reasoning as renderPostToFbo(): the flat mixette, not the warped mWarpTexture
-		mVDMix->getRenderedMixetteTexture(0)->bind(11);
+		// same reasoning as renderPostToFbo(): the flat program, not the warped mWarpTexture; with the chain on, the
+		// post output (rendered just before), so the height field shows the effects too
+		getProgramTexture()->bind(11);
 		gl::ScopedGlslProg prog(mGlslFx);
 
 		mGlslFx->uniform("iResolution", vec3(mVDParams->getFboWidth(), mVDParams->getFboHeight(), 1.0));
@@ -626,7 +641,8 @@ void VDSession::renderFxToFbo()
 		mGlslFx->uniform("iPixelate", mVDUniforms->getUniformValue(mVDUniforms->IPIXELATE)); // pixelate if < 1.
 		mGlslFx->uniform("iZoom", mVDUniforms->getUniformValue(mVDUniforms->IZOOM));
 		mGlslFx->uniform("iChromatic", mVDUniforms->getUniformValue(mVDUniforms->ICHROMATIC));
-		mGlslFx->uniform("iFlipV", mVDUniforms->getUniformValue(mVDUniforms->IFLIPPOSTV));
+		// with the chain on, Fx's input is post's output, already flipped: 1.0 = no second flip
+		mGlslFx->uniform("iFlipV", mProgramChain ? 1.0f : mVDUniforms->getUniformValue(mVDUniforms->IFLIPPOSTV));
 		mGlslFx->uniform("iFlipH", mVDUniforms->getUniformValue(mVDUniforms->IFLIPPOSTH));
 		mGlslFx->uniform("iInvert", mVDUniforms->getUniformValue(mVDUniforms->IINVERT));
 		mGlslFx->uniform("iToggle", mVDUniforms->getUniformValue(mVDUniforms->ITOGGLE));
@@ -653,9 +669,9 @@ ci::gl::TextureRef VDSession::resolveWarpInputTexture(const WarpRef& aWarp) {
 	// Post/Fx sample the mixette directly (not mWarpTexture), so a warp showing them isn't circular
 	if (fboIndex == WARP_INPUT_POST) return getPostFboTexture();
 	if (fboIndex == WARP_INPUT_FX) return getFxFboTexture();
-	// WARP_INPUT_MIX (Warp::NO_FBO_INDEX, the default) or an fbo that no longer exists: the
-	// weighted mix of every active fboshader
-	if (fboIndex >= getFboShaderListSize()) return mVDMix->getRenderedMixetteTexture(0);
+	// WARP_INPUT_MIX (Warp::NO_FBO_INDEX, the default) or an fbo that no longer exists: the program
+	// (the weighted mix of every active fboshader, with the post effects when the chain is on)
+	if (fboIndex >= getFboShaderListSize()) return getProgramTexture();
 	// a specific fbo (VDUIWarps.cpp's per-fbo buttons): just that fbo's own output
 	return mVDMix->getFboTexture(fboIndex); // live: once per frame (VDMix::renderFbo)
 }
@@ -666,11 +682,26 @@ ci::gl::TextureRef VDSession::resolveWarpInputTexture(const WarpRef& aWarp) {
 // Without this, Warp mode shows the same content upside-down relative to Post/Fx whenever the
 // flip is active. Swapping the source Area's y1/y2 - the same trick WarpBilinear::draw(bool)
 // already uses internally for its own fbo - flips without needing any change to Warp's shaders.
+// Only raw inputs (the mixette, one fbo) get this swap: Post's and Fx's output already carry the flip, and swapping
+// them too showed them upside down whenever iFlipPostV was 0 (2026-11-12).
+bool VDSession::isWarpInputRaw(const WarpRef& aWarp) {
+	unsigned int fboIndex = aWarp->getAFboIndex();
+	if (fboIndex == WARP_INPUT_POST || fboIndex == WARP_INPUT_FX) return false;
+	if (fboIndex >= getFboShaderListSize()) return !mProgramChain; // Mix: the program when the chain is on
+	return true;
+}
+ci::gl::TextureRef VDSession::getProgramTexture() {
+	return mProgramChain ? getPostFboTexture() : mVDMix->getRenderedMixetteTexture(0);
+}
+// 2026-11-12: a warp's mesh puts the source area's y1 at the top of the screen, but Cinder's fbo textures are stored
+// bottom-up (isTopDown() false), so a default warp showed its input upside down (seen after the Warps pane's Reset:
+// the warps used before had been flipped by hand). Swap for bottom-up textures, then once more for a raw input when
+// post flips (iFlipPostV 0), so every warp input matches Mix/Post.
 void VDSession::drawWarpWithInput(const WarpRef& aWarp, const ci::gl::TextureRef& aInputTex) {
 	ci::Area srcArea = aInputTex->getBounds();
-	if (mVDUniforms->getUniformValue(mVDUniforms->IFLIPPOSTV) == 0.0f) {
-		std::swap(srcArea.y1, srcArea.y2);
-	}
+	bool swap = !aInputTex->isTopDown();
+	if (isWarpInputRaw(aWarp) && mVDUniforms->getUniformValue(mVDUniforms->IFLIPPOSTV) == 0.0f) swap = !swap;
+	if (swap) std::swap(srcArea.y1, srcArea.y2);
 	aWarp->draw(aInputTex, srcArea);
 }
 
@@ -1005,6 +1036,22 @@ ci::gl::TextureRef VDSession::getPostFboTexture() {
 ci::gl::TextureRef VDSession::getFxFboTexture() {
 	return mFxFbo->getColorTexture();
 };
+std::string VDSession::getGpuTimesText() {
+	// a stage that hasn't run for 2 s (Fx not shown) reads "-" and isn't counted in the total
+	auto part = [](const VDGpuTimer& t, double& total) -> std::string {
+		if (t.ageSeconds() > 2.0) return "-";
+		total += t.ms();
+		char b[16]; snprintf(b, sizeof(b), "%.2f", t.ms()); return b;
+	};
+	double total = 0.0;
+	std::string s = "fbos " + part(mVDMix->getGpuTimerFbos(), total) + " (" + toString(mVDMix->getRenderedFboCount()) + ")";
+	s += "  mix " + part(mVDMix->getGpuTimerMixette(), total);
+	s += "  post " + part(mGpuTimerPost, total);
+	s += "  fx " + part(mGpuTimerFx, total);
+	s += "  warps " + part(mGpuTimerWarps, total);
+	char b[32]; snprintf(b, sizeof(b), "  = %.2f ms GPU", total);
+	return s + b;
+}
 ci::gl::TextureRef VDSession::getWarpFboTexture() {
 	return mWarpsFbo->getColorTexture();
 };

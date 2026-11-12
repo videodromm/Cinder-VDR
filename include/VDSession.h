@@ -81,6 +81,10 @@ namespace videodromm {
 		bool							isWarpUsingFx();
 		ci::gl::TextureRef				getPostFboTexture();
 		ci::gl::TextureRef				getFxFboTexture();
+		// the UI's Fx thumbnail asks for this frame's Fx render (only while it's hovered: the ray march isn't free)
+		void							requestFxPreview() { mFxPreviewRequested = true; }
+		// GPU milliseconds per stage, smoothed: "fbos 3.2 (2) mix 0.1 post 0.2 fx - warps 0.1 = 3.6 ms" (Fps window)
+		std::string						getGpuTimesText();
 		ci::gl::TextureRef				getWarpFboTexture();
 		ci::gl::TextureRef				getRenderedWarpFboTexture();
 		ci::gl::TextureRef				getMixetteTexture(unsigned int aFboIndex);
@@ -102,6 +106,10 @@ namespace videodromm {
 
 		void							createWarp();
 		void							removeWarp(unsigned int aWarpIndex);
+		// back to a new warp's layout (2x2 grid, flat): undoable with Ctrl+Z in edit mode, like point moves
+		void							resetWarp(unsigned int aWarpIndex) { Warp::resetLayout(mWarpList, aWarpIndex); }
+		bool							undoWarpEdit() { return Warp::undo(); }
+		size_t							getWarpUndoCount() { return Warp::getUndoCount(); }
 		// one warp's own small rendered preview (after warping, not the raw fbo) - see
 		// VDUIWarps.cpp
 		ci::gl::TextureRef				getWarpPreviewTexture(unsigned int aWarpIndex);
@@ -282,6 +290,13 @@ namespace videodromm {
 			mWebAppUrl = webAppUrl;
 		};
 		std::string								getWebAppUrl() { return mWebAppUrl; };
+		// the program chain (2026-11-12, studies/mixette-fx.md): fbos -> mixette -> post = the "program", which every
+		// output shows: Post mode (shown as "Mix"), the warps on their default Mix input, Fx's height field. Off = the
+		// old routing (warps and Fx on the raw mixette, effects only in Post mode), kept to fall back during a show.
+		void									setProgramChain(bool aOn) { mProgramChain = aOn; }
+		bool									getProgramChain() const { return mProgramChain; }
+		// the mix with the post effects (chain on), or the raw mixette (chain off)
+		ci::gl::TextureRef						getProgramTexture();
 		void									setPreferredAudioInputDevice(const std::string& aDevice) {
 			mVDAnimation->setPreferredAudioInputDevice(aDevice);
 		}
@@ -489,6 +504,9 @@ namespace videodromm {
 		std::string						mApiurl = "http://localhost:40088/";
 		// url of the Videodromm WebApp (Vite dev server), docked in VDUIHtmlPage via WebView2
 		std::string						mWebAppUrl = "http://localhost:5173/";
+		bool							mProgramChain = true;
+		// false when a warp's input is already oriented like Post's output (Post, Fx, or Mix with the chain on)
+		bool							isWarpInputRaw(const WarpRef& aWarp);
 		// drag-and-drop: a .jpg/.png/.mp4/.mov drop waiting for VDUIFbos.cpp to hit-test against each
 		// fbo's actual current window rect - see consumePendingTextureDropIfInRect()/flushPendingTextureDrop()
 		struct PendingTextureDrop {
@@ -524,6 +542,10 @@ namespace videodromm {
 		gl::GlslProgRef					mGlslFx;
 		void							renderPostToFbo();
 		void							renderFxToFbo();
+		VDGpuTimer						mGpuTimerPost;
+		VDGpuTimer						mGpuTimerFx;
+		VDGpuTimer						mGpuTimerWarps;
+		bool							mFxPreviewRequested = false;
 		void							renderWarpsToFbo();
 		ci::gl::TextureRef				resolveWarpInputTexture(const WarpRef& aWarp);
 		void							drawWarpWithInput(const WarpRef& aWarp, const ci::gl::TextureRef& aInputTex);

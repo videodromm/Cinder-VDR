@@ -27,6 +27,7 @@
 #include "VDAnimation.h"
 // Uniforms
 #include "VDUniforms.h"
+#include "VDGpuTimer.h"
 // Fbos
 #include "VDFboShader.h"
 // videos in the texture pool
@@ -302,6 +303,10 @@ namespace videodromm
 		unsigned int					createFboShaderTexture(const JsonTree &json, unsigned int aFboIndex = 0, const std::string& aFolder = "");
 		ci::gl::TextureRef				getMixetteTexture(unsigned int aFboIndex);
 		ci::gl::TextureRef				getRenderedMixetteTexture(unsigned int aFboIndex) { return mMixetteTexture; };
+		// GPU time of the last getMixetteTexture(): the active fbos' shaders, then the mixette pass (Fps window)
+		const VDGpuTimer&				getGpuTimerFbos() const { return mGpuTimerFbos; }
+		const VDGpuTimer&				getGpuTimerMixette() const { return mGpuTimerMixette; }
+		int								getRenderedFboCount() const { return mRenderedFboCount; }
 		void							clearFboShaderList() {
 			mFboShaderList.clear();
 		}
@@ -436,6 +441,9 @@ namespace videodromm
 		ci::gl::Texture2dRef			mDefaultTexture; //in case no fbos
 		gl::FboRef						mMixetteFbo;
 		gl::GlslProgRef					mGlslMixette;
+		VDGpuTimer						mGpuTimerFbos;
+		VDGpuTimer						mGpuTimerMixette;
+		int								mRenderedFboCount = 0;
 		ci::gl::Texture2dRef			mMixetteTexture;
 		bool							mMixetteEdge = true;	// current wrap of the mixette fbo (iEdge), the format starts clamp to edge
 	};
