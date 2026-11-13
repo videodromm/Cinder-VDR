@@ -39,7 +39,23 @@ namespace {
 }
 #endif
 
+#if defined( CINDER_LINUX )
+// 2026-11-13, first runs on the Latitude: sound slow, crackling, full of drops. Cinder's PulseAudio streams ask for a
+// buffer of exactly one block (ContextPulseAudio.cpp: maxlength = tlength = framesPerBlock * bytesPerFrame), i.e.
+// ~10 ms at the default 512 frames: any delay of the audio thread empties it (underrun). A bigger block is a bigger
+// buffer: 2048 frames = ~43 ms at 48 kHz, enough on an old dual core through PipeWire. Visual latency is unaffected
+// to the eye. Done per device before its stream is opened (Cinder core isn't changed).
+static void useLargerAudioBlocks(const audio::DeviceRef& aDevice) {
+	const size_t frames = 2048;
+	if (aDevice && aDevice->getFramesPerBlock() < frames) aDevice->updateFormat(audio::Device::Format().framesPerBlock(frames));
+}
+#endif
+
 VDAnimation::VDAnimation(VDSettingsRef aVDSettings, VDUniformsRef aVDUniforms) {
+#if defined( CINDER_LINUX )
+	useLargerAudioBlocks(audio::Device::getDefaultOutput());
+	useLargerAudioBlocks(audio::Device::getDefaultInput());
+#endif
 	mVDSettings = aVDSettings;
 	mVDUniforms = aVDUniforms;
 	mBlendRender = false;
@@ -299,7 +315,19 @@ void  VDAnimation::initLineIn() {
 
 				auto scopeLineInFmt = audio::MonitorSpectralNode::Format().fftSize(mFFTWindowSize * 2).windowSize(mFFTWindowSize);// CHECK is * 2 needed
 				mMonitorLineInSpectralNode = ctx->makeNode(new audio::MonitorSpectralNode(scopeLineInFmt));
+#if defined( CINDER_LINUX )
+				// 2026-11-13, first run on the Latitude: connecting opens the PulseAudio input stream
+				// (pulse::InputStream::open), which waits for PulseAudio's thread while holding the audio graph's
+				// lock; with the output already running, that thread sits in the output's write callback
+				// (OutputDeviceNodePulseAudio::renderInputs) waiting for the same lock: deadlock, the app froze
+				// before its first frame (black window). Pause the graph while connecting: no output callback then.
+				const bool ctxWasEnabled = ctx->isEnabled();
+				if (ctxWasEnabled) ctx->disable();
+#endif
 				mLineIn >> mMonitorLineInSpectralNode;
+#if defined( CINDER_LINUX )
+				if (ctxWasEnabled) ctx->enable();
+#endif
 				mLineIn->enable();
 				mLineInInitialized = true;
 			}
@@ -732,6 +760,9 @@ void VDAnimation::applyPreferredAudioOutput() {
 	if (playerWasEnabled) mSamplePlayerNode->disable();
 	ctx->disable();
 	try {
+#if defined( CINDER_LINUX )
+		useLargerAudioBlocks(device);
+#endif
 		ctx->setOutput(ctx->createOutputDeviceNode(device));
 		if (mSamplePlayerNode && mAudioFileGain) {
 			mAudioFileGain->disconnectAllOutputs();
@@ -749,6 +780,8 @@ void VDAnimation::applyPreferredAudioOutput() {
 			const double position = mSamplePlayerNode->getReadPositionTime();
 			mSourceFile = mSourceFile->cloneWithSampleRate(ctx->getSampleRate());
 			if (auto filePlayer = std::dynamic_pointer_cast<audio::FilePlayerNode>(mSamplePlayerNode)) filePlayer->setSourceFile(mSourceFile);
+			// Linux plays the song from memory (loadAudioFile()): decode it again at the new rate
+			else if (auto bufferPlayer = std::dynamic_pointer_cast<audio::BufferPlayerNode>(mSamplePlayerNode)) bufferPlayer->setBuffer(mSourceFile->loadBuffer());
 			mSamplePlayerNode->seekToTime(position);
 			CI_LOG_I("audio file resampled to " << ctx->getSampleRate() << " Hz for the new output device");
 		}
@@ -858,7 +891,16 @@ bool VDAnimation::loadAudioFile(const std::string& aPath) {
 			mSamplePlayerNode->stop();
 			mSamplePlayerNode->disconnectAll();
 		}
+#if defined( CINDER_LINUX )
+		// 2026-11-13, Latitude: the FilePlayerNode below (readAsync false) reads and resamples the file synchronously,
+		// inside the audio callback; an old dual core can't keep up: crackles, drops, the song sounding slower (PipeWire
+		// and the card were fine: a sine from Cinder's NodeBasic sample played clean). On Linux the player reads on its
+		// own thread instead (readAsync true). Decoding the whole song into a BufferPlayerNode was tried first:
+		// SourceFile::loadBuffer() threw on Linux (garbled message), the song never loaded.
+		mSamplePlayerNode = ctx->makeNode(new audio::FilePlayerNode(mSourceFile, true));
+#else
 		mSamplePlayerNode = ctx->makeNode(new audio::FilePlayerNode(mSourceFile, false));
+#endif
 		mSamplePlayerNode->setLoopEnabled(mAudioFileLoop);
 		mSamplePlayerNode >> mMonitorWaveSpectralNode;
 		if (!mAudioFileGain) {

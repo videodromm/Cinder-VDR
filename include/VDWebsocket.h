@@ -91,6 +91,8 @@ namespace videodromm
 		// Until 2026-10-12 clientConnected was set right after connect(): a send before the open
 		// failed, the fail handler cleared it, polling stopped, and the connection was never read.
 		bool						clientConnected;
+		// "websocket failed" is logged once per outage, not on every 5 s retry (2026-11-13)
+		bool						mFailureLogged = false;
 		bool						mConnecting = false;
 		double						mConnectStarted = 0.0;
 		void						wsClientConnect();

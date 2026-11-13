@@ -2,7 +2,7 @@
 #include "VDVersion.h"
 #include <ctime>
 #include <fstream>
-
+ 
 using namespace videodromm;
 
 namespace {
@@ -43,6 +43,12 @@ VDLog::VDLog()
 {
 	auto sysLogger = log::makeLogger<SafeLoggerSystem>();
 	sysLogger->setLevel(log::LEVEL_WARNING);
+#if !defined( CINDER_MSW )
+	// makeLogger() above replaced Cinder's console logger: on Linux and the Mac, where the app is often started from a
+	// terminal, keep it too, so warnings and errors (shader compile errors...) show there and not only in the system
+	// log (syslog / the journal on Linux, Console.app on the Mac). 2026-11-13, first run on the Latitude.
+	log::makeOrGetLogger<log::LoggerConsole>();
+#endif
 
 	// file logging used to be created here unconditionally in debug builds - now it's opt-in at
 	// runtime via setFileLoggingEnabled() (see VDUI.cpp's "Log to file" button), so a debug

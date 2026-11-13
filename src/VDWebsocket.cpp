@@ -367,6 +367,7 @@ void VDWebsocket::wsConnect() {
 	mLastReconnectAttempt = getElapsedSeconds(); // Reset reconnect timer
 	mClient.connectOpenEventHandler([&]() {
 		clientConnected = true;
+		mFailureLogged = false;
 		mConnecting = false;
 		mWebSocketsMsg = "Connected";
 		CI_LOG_I("websocket open");
@@ -388,7 +389,11 @@ void VDWebsocket::wsConnect() {
 		if (!err.empty()) {
 			mWebSocketsMsg += ": " + err;
 		}
-		CI_LOG_W("websocket failed: " << err);
+		// once per outage: the reconnect below retries every few seconds while the server is down
+		if (!mFailureLogged) {
+			CI_LOG_W("websocket failed: " << err << " (retrying quietly until it connects)");
+			mFailureLogged = true;
+		}
 	});
 	mClient.connectInterruptEventHandler([&]() {
 		clientConnected = false;
