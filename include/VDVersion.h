@@ -23,6 +23,9 @@
 #if defined( CINDER_MAC )
 #include <stdlib.h>
 #endif
+#if defined( CINDER_LINUX )
+#include <errno.h>
+#endif
 
 namespace videodromm
 {
@@ -98,6 +101,9 @@ namespace videodromm
 			if (::GetModuleFileNameA(nullptr, path, MAX_PATH)) return ci::fs::path(path).stem().string();
 #elif defined( CINDER_MAC )
 			if (const char* name = getprogname()) return name;
+#elif defined( CINDER_LINUX )
+			// glibc: the executable's base name (argv[0] without its folder)
+			if (program_invocation_short_name && *program_invocation_short_name) return program_invocation_short_name;
 #endif
 			return "cinder";
 		}

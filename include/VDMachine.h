@@ -13,6 +13,9 @@
 #if defined( CINDER_MAC )
 #include <uuid/uuid.h>
 #endif
+#if defined( CINDER_LINUX )
+#include <fstream>
+#endif
 #include <string>
 #include <cctype>
 
@@ -26,6 +29,7 @@ namespace videodromm
 		// (HKLM\SOFTWARE\Microsoft\Cryptography). Stable across renames and reboots, unique per
 		// Windows install (a cloned disk image would share it). Falls back to the computer name.
 		// Mac: the hardware UUID (gethostuuid(), the same as IOPlatformUUID, no IOKit needed).
+		// Linux: /etc/machine-id (systemd, written at install time, same role as MachineGuid).
 		inline std::string getName() {
 #if defined( CINDER_MSW )
 			char name[MAX_COMPUTERNAME_LENGTH + 1] = { 0 };
@@ -58,6 +62,10 @@ namespace videodromm
 				uuid_unparse_upper(uuid, text);
 				return std::string(text);
 			}
+#elif defined( CINDER_LINUX )
+			std::ifstream file("/etc/machine-id");
+			std::string id;
+			if (file && std::getline(file, id) && !id.empty()) return id;
 #endif
 			return getName();
 		}

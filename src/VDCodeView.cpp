@@ -289,6 +289,9 @@ void VDCodeView::ensureFont() {
 	if (mFont && mFontCreatedSize == mFontSize) return;
 #if defined( CINDER_MSW )
 	const char* fontName = "Consolas";
+#elif defined( CINDER_LINUX )
+	// fontconfig name; DejaVu ships with Mint/Ubuntu
+	const char* fontName = "DejaVu Sans Mono";
 #else
 	const char* fontName = "Menlo";
 #endif

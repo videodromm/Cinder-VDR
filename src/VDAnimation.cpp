@@ -203,7 +203,8 @@ bool VDAnimation::refreshAudioDevices() {
 		return false;
 	}
 	return true;
-#elif defined( CINDER_MAC )
+#elif defined( CINDER_MAC ) || defined( CINDER_LINUX )
+	// Linux: PulseAudio devices (served by PipeWire on Mint)
 	inputDevices = ci::audio::Device::getInputDevices();
 	outputDevices = ci::audio::Device::getOutputDevices();
 	return true;
@@ -228,7 +229,7 @@ std::vector<std::string> VDAnimation::getAudioOutputDeviceNames() {
 	return names;
 }
 void  VDAnimation::initLineIn() {
-#if (defined( CINDER_MSW ) || defined( CINDER_MAC ))
+#if (defined( CINDER_MSW ) || defined( CINDER_MAC ) || defined( CINDER_LINUX ))
 	bool audioDeviceFound = false;
 
 	if (!mLineInInitialized) {
@@ -340,7 +341,7 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 			}
 		}
 	}
-#if (defined( CINDER_MSW ) || defined( CINDER_MAC ))
+#if (defined( CINDER_MSW ) || defined( CINDER_MAC ) || defined( CINDER_LINUX ))
 	if (getUseLineIn() && mLineInInitialized && mMonitorLineInSpectralNode) {
 		mMagSpectrum = mMonitorLineInSpectralNode->getMagSpectrum();
 	}
@@ -359,7 +360,7 @@ ci::gl::TextureRef VDAnimation::getAudioTexture() {
 				}
 			}
 		}
-#if (defined( CINDER_MSW ) || defined( CINDER_MAC ))
+#if (defined( CINDER_MSW ) || defined( CINDER_MAC ) || defined( CINDER_LINUX ))
 	}
 #endif
 	if (!mMagSpectrum.empty()) {
@@ -436,7 +437,7 @@ void VDAnimation::resetAnim() {
 }
 
 void VDAnimation::startLineIn() {
-#if (defined( CINDER_MSW ) || defined( CINDER_MAC ))
+#if (defined( CINDER_MSW ) || defined( CINDER_MAC ) || defined( CINDER_LINUX ))
 	if (mLineInInitialized) return;
 	bool filePlaying = mSamplePlayerNode && mSamplePlayerNode->isEnabled();
 	setUseLineIn(true);
@@ -700,7 +701,7 @@ void VDAnimation::setPreferredAudioOutputDevice(const std::string& aPreferredAud
 }
 
 void VDAnimation::applyPreferredAudioOutput() {
-#if (defined( CINDER_MSW ) || defined( CINDER_MAC ))
+#if (defined( CINDER_MSW ) || defined( CINDER_MAC ) || defined( CINDER_LINUX ))
 	if (mPreferredAudioOutputDevice.empty()) return;
 	if (outputDevices.empty() && !refreshAudioDevices()) return;
 	ci::audio::DeviceRef device;
