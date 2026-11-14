@@ -3,6 +3,25 @@
 
 using namespace videodromm;
 
+// true when the shader declares a uniform of its own, so it gets no shadertoy.vd preamble (2026-11-14): the text
+// "uniform " anywhere used to count, even in a comment, and such a shader lost the preamble (iSpeed0-15 etc.)
+// silently after a hand edit. Comments are skipped, "uniform" must be a whole word followed by a space/tab/newline.
+static bool declaresUniform(const std::string& src) {
+	const size_t n = src.size();
+	size_t i = 0;
+	while (i < n) {
+		if (src[i] == '/' && i + 1 < n && src[i + 1] == '/') { while (i < n && src[i] != '\n') i++; continue; }
+		if (src[i] == '/' && i + 1 < n && src[i + 1] == '*') { size_t e = src.find("*/", i + 2); i = (e == std::string::npos) ? n : e + 2; continue; }
+		if (src.compare(i, 7, "uniform") == 0) {
+			const bool startOk = i == 0 || !(std::isalnum((unsigned char)src[i - 1]) || src[i - 1] == '_');
+			const bool endOk = i + 7 < n && (src[i + 7] == ' ' || src[i + 7] == '\t' || src[i + 7] == '\n' || src[i + 7] == '\r');
+			if (startOk && endOk) return true;
+		}
+		i++;
+	}
+	return false;
+}
+
 namespace {
 	// audio/video/image files live in shared folders (assets/audio, assets/videos, assets/images)
 	// so one file serves every shader folder, and the ts projects too. Then, for older mixes: next to the fbo json
@@ -355,8 +374,7 @@ bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderStri
 	CI_LOG_V("setFragmentShaderString, loading " << mName);
 	try
 	{
-		std::size_t foundUniform = mOriginalFragmentString.find("uniform ");
-		if (foundUniform == std::string::npos) {
+		if (!declaresUniform(mOriginalFragmentString)) {
 			CI_LOG_V("setFragmentShaderString, no uniforms found, we add from shadertoy.vd");
 			mOutputFragmentString = "/* " + mName + " */\n" + shaderInclude + mOriginalFragmentString;
 		}
@@ -729,7 +747,10 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				// IBEAT 51
 				// IBAR 52
 				// IBARBEAT 53
-				mShader->uniform(uniformName, mVDUniforms->getUniformValueByName(uniformName));
+				// as an int (2026-11-14): passing the float called glUniform1f on an int uniform, which GL refuses
+				// (GL_INVALID_OPERATION), so every "uniform int" of shadertoy.vd (iSteps, iInvert) stayed 0 in the fbo
+				// shaders; loops "for (i < iSteps)" never ran. The WebApp's previews already rounded it.
+				mShader->uniform(uniformName, (int)std::lround(mVDUniforms->getUniformValueByName(uniformName)));
 				break;
 			case GL_BOOL: // boolean 35670 0x8B56
 				//createBoolUniform(name, mVDAnimation->getUniformIndexForName(name), getBoolUniformValueByName(name)); // get same index as vdanimation

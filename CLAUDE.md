@@ -772,7 +772,7 @@ Mac projects generated before 2026-10-01 (e.g. `Videodromm/VDUIBas`, Aug 28) lis
 
 ### Fixed (2026-10-11, crash paths from untrusted LAN input; night review)
 
-Full list and reasoning in `repos/security-review-2026-10-11.md`.
+Full list and reasoning in `security.md` (2026-10-11 night).
 - **Logger:** `VDLog` installs a `SafeLoggerSystem` (Event Log logger with bytes ≥ 0x80 replaced, `write()` can't throw). Any warning or error with ANSI-codepage text used to terminate the app (`from_bytes` throws in the noexcept `log::Entry` destructor), the same mechanism as 2026-09-16.
 - **OSC (`VDOscReceiver`):** the listener body is in try/catch (missing or wrong-typed arguments threw). `/Spectrum` stops at `mFFTWindowSize` (32) and tests `getArgType(a)`.
 - **UI:** every `VDUI*.cpp` uses `snprintf` for `sprintf_s` on all platforms (MSVC's `sprintf_s` aborts on overflow: a shader name over ~50 chars killed the app through the Fbos panel). Tooltips and labels with data use `"%s"`. `iBlendmode` is clamped before indexing `blendModes`.
@@ -892,11 +892,11 @@ MSBuild Debug|x64 of both apps link clean. Not runtime-tested.
 
 ### Security (2026-10-11, evening)
 
-Second security pass after the single-page/folder-sync/transport work: findings, fixes and open recommendations in `security-review-2026-10-11-evening.md` (repos root).
+Second security pass after the single-page/folder-sync/transport work: findings, fixes and open recommendations in `security.md` (2026-10-11 evening) (repos root).
 
 ### Added (2026-10-11, evening: access token, OSC parser bounds, Web panel restrictions)
 
-See `security-review-2026-10-11-evening.md` section 6: `include/VDAccessToken.h` (TSWebsocketServer's ACCESS_TOKEN from the environment or `TSWebsocketServer/.env`, added to the websocket URL, REST URLs and the Web panel URL); Cinder's OSC block parser bounds-checked (`Cinder/blocks/OSC/src/cinder/osc/Osc.cpp`) and `VDOscReceiver` keeps listening after a receive error; `Cinder-WebView2` `CinderWebView2Panel::restrict()` (same-origin navigation, no popups, permissions denied, no host objects, no DevTools in Release). Builds clean, Debug and Release. Not runtime-tested.
+See `security.md` (2026-10-11 evening) section 6: `include/VDAccessToken.h` (TSWebsocketServer's ACCESS_TOKEN from the environment or `TSWebsocketServer/.env`, added to the websocket URL, REST URLs and the Web panel URL); Cinder's OSC block parser bounds-checked (`Cinder/blocks/OSC/src/cinder/osc/Osc.cpp`) and `VDOscReceiver` keeps listening after a receive error; `Cinder-WebView2` `CinderWebView2Panel::restrict()` (same-origin navigation, no popups, permissions denied, no host objects, no DevTools in Release). Builds clean, Debug and Release. Not runtime-tested.
 
 ### Data (2026-10-12, BA setlists for Rome and Berlin)
 
@@ -910,7 +910,7 @@ Videos must be H.264 for Media Foundation. `WelcomeToHap44.mov` and `spidermoon.
 
 ### Changed (2026-10-12, security review smaller items)
 
-See `security-review-2026-10-11-evening.md` section 7: `VDSession::loadFolder` takes the fbo list out (`VDMix::takeFboShaderList`) and restores it if the new folder loads none; `VDMix::releaseUnusedVideoSources()` after a folder load (videos no fbo shows or has pending); `VDUniforms` ignores unknown indexes in `setUniformValue`/`setAnim`/`setVec4UniformValueByIndex`.
+See `security.md` (2026-10-11 evening) section 7: `VDSession::loadFolder` takes the fbo list out (`VDMix::takeFboShaderList`) and restores it if the new folder loads none; `VDMix::releaseUnusedVideoSources()` after a folder load (videos no fbo shows or has pending); `VDUniforms` ignores unknown indexes in `setUniformValue`/`setAnim`/`setVec4UniformValueByIndex`.
 
 ### Changed (2026-10-12, websocket reconnect, senders off by default, Setlist panel)
 
@@ -1004,10 +1004,10 @@ VDUI toolbar **Export** button (orange while armed, red "REC" while recording) o
 
 The ffmpeg command line was checked on the Dell with fake frames and the namaste wav (h264 + aac, sound cut to the video length). MSBuild Debug|x64 of `VDRUIProject` and `VDSpoutInNdiOut` link clean. Not runtime-tested. An offline render (frame by frame, slower than real time, never a repeated frame) would need the audio texture computed from the wav for each frame: not done.
 
-Security pass the same day (`security-review-2026-10-14.md`): on the Mac the ffmpeg command goes through `/bin/sh`, so paths are single-quoted (`'` → `'''`), not double-quoted; on Windows ffmpeg is looked up in `PATH` entries only (absolute), never the current folder (`SearchPathW` did); the status text shared with the finisher thread is behind a mutex.
+Security pass the same day (`security.md` (2026-10-14)): on the Mac the ffmpeg command goes through `/bin/sh`, so paths are single-quoted (`'` → `'''`), not double-quoted; on Windows ffmpeg is looked up in `PATH` entries only (absolute), never the current folder (`SearchPathW` did); the status text shared with the finisher thread is behind a mutex.
 
 ### Changed (2026-10-15, a `frag` with fbo 0 goes to fbo 0)
-`VDMix::findAvailableIndex()` no longer spreads index 0 over fbos 0..7 when several shaders arrive within the same second (the old hydra round-robin, `mCurrentSecond`/`mCurrentIndex` removed). While live coding from the workbench, successive `frag` events with `fbo: 0` landed in random fbos; now 0 simply means fbo 0, like every other index (decision from `security-review-2026-10-11.md` §3.8). This also applies to `setFragmentShaderString(..., 0)` and the file-loading path that calls `findAvailableIndex()`. Not runtime-tested.
+`VDMix::findAvailableIndex()` no longer spreads index 0 over fbos 0..7 when several shaders arrive within the same second (the old hydra round-robin, `mCurrentSecond`/`mCurrentIndex` removed). While live coding from the workbench, successive `frag` events with `fbo: 0` landed in random fbos; now 0 simply means fbo 0, like every other index (decision from `security.md` (2026-10-11 night) §3.8). This also applies to `setFragmentShaderString(..., 0)` and the file-loading path that calls `findAvailableIndex()`. Not runtime-tested.
 
 ### Added (2026-10-15, ignored MIDI ports: `assets/midi-ignored.json`)
 `VDMidi` reads `assets/midi-ignored.json` (`{"ignored": ["Model 12"]}`, shared with TSWebsocketServer) in `midiSetup()`, i.e. on "Enable" in the Midi panel. A port whose name contains an entry (case and spaces ignored, `videodromm::isHiddenMidiPort()`) stays in `mMidiInputs`/`mMidiOutputs` so indices still match the OS ports, but it's never auto-opened (even if it matches the preferred device), `openMidiInPort()`/`openMidiOutPort()` refuse it, `midi.json` leaves it out, and VDUIAnimation's MidiIn/MidiOut lists skip it. A bad file keeps the previous list; no file means Model 12 only (holding it open stops Ableton Live from loading). `VDMidi.cpp` and `VDUIAnimation.cpp` pass a clang syntax check on the Mac. Not runtime-tested.
@@ -1114,3 +1114,7 @@ MSBuild Release|x64 of VDRUIProject clean on the Acer after each change.
 
 `VDUIAnimation::Run` rewritten with them: groups Color (5, 6, 7, 27, 17), Geometry (8, 11, 23, 24, 15, 16), Effects (9, 10, 12, 13, 14, 18, iSteps, iBarBeat), "Mouse, selection" (19-22, 25, closed); Fx (86-89, modes none/time/auto) and Params (54-59) use the same slider. Ranges from VDUniforms, except where the stored range doesn't match what the shaders get: iZoom 0..1.49 (stored 0.95..1.05), iFactor 0..1 (stored 0.4..0.6, default 1), iMouseX/Y 0..1 (normalized), iRenderXY -1..1, iRatio 0..40. Gone: the duplicate "steps" slider (26 was drawn twice), Params' InputFloat (Ctrl+click instead), the Fx header's iZoom test on 25. VDUIFbos' float uniforms use `uniformSlider` (drag mode, same speeds). Release x64 builds with no new warning; not run yet.
 - (Same day) The shared slider's grab is a thin (GrabMinSize 3), faint line: a wide grab hid letters of the name written in the bar. Cinder's transport state message (VDSessionFacade.cpp) also carries `"fps"` (iFps rounded), shown in the WebApp's top bar. Release x64 builds; the Animation pane was checked running on the Acer by the user (groups, yellow label, mode letters).
+
+### Fixed (2026-11-14, int uniforms never reached the fbo shaders) — not committed yet
+`VDFboShader.cpp` (uniform loop, `GL_INT` case) passed the float value to `GlslProg::uniform()`, i.e. `glUniform1f` on an `int` uniform: GL refuses it (`GL_INVALID_OPERATION`), so every `uniform int` of `assets/shadertoy.vd` (`iSteps`, `iInvert`) stayed **0** in the fbo shaders, and loops like `for (int i = 0; i < iSteps; i++)` never ran (40 shaders in `assets/glsl` use `iSteps`). Now rounded and passed as an int (`std::lround`). Only post.glsl declared `iSteps` as a float, so it always worked there; the WebApp's previews already rounded it. **Visible change**: those shaders now run their loops (16 steps by default): check a few before a show (look, GPU load). Compiles (Release x64); the link waited for Cinder to be closed (it was running), not run.
+- (Same day) **A comment containing "uniform " no longer drops the shadertoy.vd preamble**: `VDFboShader::setFragmentShaderString` decided with `find("uniform ")` on the whole text, so a shader with that word in a comment lost the shared uniforms (`iSpeed0-15`...) silently (the `live`/`live3d` risk in todo). New `declaresUniform()`: skips `//` and `/* */` comments, needs `uniform` as a whole word followed by a space/tab/newline. Logic checked on 8 cases (same algorithm in JS); compiles; link waits for Cinder to be closed.
