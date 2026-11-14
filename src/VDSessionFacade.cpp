@@ -1,6 +1,7 @@
 #include "VDSessionFacade.h"
 #include "cinder/Json.h"
 #include "VDVersion.h"
+#include <cmath>
 
 using namespace videodromm;
 
@@ -173,6 +174,8 @@ VDSessionFacadeRef VDSessionFacade::update() {
 					{ "event", "transport" }, { "message", "state" }, { "from", "cinder" },
 					{ "playing", playing }, { "position", mVDSession->getTransportPosition() },
 					{ "song", mVDSession->getTransportSongName() }, { "folder", mVDSession->getLoadedFolder() },
+					// the app's average fps (iFps, set every frame by the app), shown in the WebApp's top bar (2026-11-14)
+					{ "fps", (int)std::lround(getUniformValue(VDUniforms::IFPS)) },
 				};
 				mVDMediator->wsSend(msg.dump(-1, ' ', false, ci::Json::error_handler_t::replace));
 			}
