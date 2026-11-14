@@ -29,8 +29,13 @@ namespace videodromm {
 				if (!v.empty()) return v;
 			}
 			try {
-				const ci::fs::path assets = ci::app::getAssetPath("");
+				ci::fs::path assets = ci::app::getAssetPath("");
 				if (assets.empty()) return "";
+				// Cinder's CMake build (Linux) puts an "assets" link next to the executable: follow it to the repos'
+				// own folder, whose parent holds TSWebsocketServer (2026-11-14: the Latitude's app sent no token)
+				std::error_code ec;
+				const ci::fs::path real = ci::fs::canonical(assets, ec);
+				if (!ec && !real.empty()) assets = real;
 				const ci::fs::path envFile = assets.parent_path() / "TSWebsocketServer" / ".env";
 				std::ifstream in(envFile.string());
 				std::string line;
