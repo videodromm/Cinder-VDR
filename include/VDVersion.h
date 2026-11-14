@@ -84,11 +84,25 @@ namespace videodromm
 			return ci::fs::path();
 		}
 
-		// "built Oct 13 2026 10:12:00, source abc1234"
+		// the block's VERSION file (one line, "6.11.14.1" = year digit.month.day.build), "" when missing
+		inline std::string versionFile(const ci::fs::path& aBlockDir) {
+			try {
+				std::ifstream in((aBlockDir / "VERSION").string());
+				std::string line;
+				std::getline(in, line);
+				while (!line.empty() && (line.back() == '\r' || line.back() == '\n' || line.back() == ' ')) line.pop_back();
+				return line.size() <= 32 ? line : "";
+			}
+			catch (...) {}
+			return "";
+		}
+
+		// "6.11.14.1, built Oct 13 2026 10:12:00, source abc1234"
 		inline std::string describe(const std::string& aName) {
 			auto it = components().find(aName);
 			if (it == components().end()) return "";
-			std::string text = "built " + it->second.built;
+			const std::string version = versionFile(blockFolder(aName, it->second));
+			std::string text = (version.empty() ? "" : version + ", ") + "built " + it->second.built;
 			const std::string sha = gitHead(blockFolder(aName, it->second));
 			if (!sha.empty()) text += ", source " + sha;
 			return text;

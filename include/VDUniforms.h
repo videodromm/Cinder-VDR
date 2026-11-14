@@ -216,6 +216,11 @@ namespace videodromm
 			ISPEED14 = 184,
 			ISPEED15 = 185,
 
+			// audience (Reymenta, studies/reymenta-audience.md): room-level values sent by the audience
+			// server over the websocket, 0..1; iAud0..iAud31 = 200..231 (IAUD0 + n)
+			IAUD0 = 200,
+			IAUDCOUNT = 32,
+
 			ICOLUMN1 = 251, // Resolume
 			ICOLUMN2 = 252,
 			ICOLUMN3 = 253,

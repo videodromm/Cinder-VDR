@@ -1,4 +1,6 @@
 #include "VDUniforms.h"
+#include <algorithm>
+#include <string>
 
 using namespace videodromm;
 VDUniformsRef VDUniforms::UNIFORMS;
@@ -271,6 +273,9 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iSpeed13", ISPEED13, 0.0042f); // 183
 	createFloatUniform("iSpeed14", ISPEED14, 0.0051f);
 	createFloatUniform("iSpeed15", ISPEED15, 0.0065f);
+
+	// iAud0..iAud31 (200..231): audience values, 0..1, default 0
+	for (int i = 0; i < IAUDCOUNT; i++) createFloatUniform("iAud" + std::to_string(i), IAUD0 + i, 0.0f);
 
 	// iColumn Resolume
 	createFloatUniform("iColumn1", ICOLUMN1, 0.0f);
@@ -995,6 +1000,11 @@ int VDUniforms::stringToIndex(const std::string& key) {
 	}
 	else if (key == "iSpeed15") {
 		rtn = ISPEED15;
+	}
+	else if (key.size() > 4 && key.size() <= 6 && key.compare(0, 4, "iAud") == 0
+		&& std::all_of(key.begin() + 4, key.end(), [](char c) { return c >= '0' && c <= '9'; })) {
+		const int n = std::stoi(key.substr(4));
+		if (n < IAUDCOUNT) rtn = IAUD0 + n;
 	}
 
 	else if (key == "ciModelViewProjection") {
