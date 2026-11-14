@@ -218,6 +218,11 @@ namespace videodromm
 		}
 		void							togglePlayPause(unsigned int aFboIndex);
 		bool							isAudioFile(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->isAudioFile(); }
+		// its video or song isn't ready to play yet (cueing the first frame, decoding into memory)
+		bool							isLoading(unsigned int aFboIndex) {
+			if (VDVideoSourceRef video = videoFor(aFboIndex)) return video->isLoading();
+			return isAudioFile(aFboIndex) && mVDAnimation->isAudioFileLoading();
+		}
 		float							getAudioBpm(unsigned int aFboIndex) { return mFboShaderList[getValidFboIndex(aFboIndex)]->getAudioBpm(); }
 		bool							isPlaying(unsigned int aFboIndex) {
 			if (VDVideoSourceRef video = videoFor(aFboIndex)) return video->isPlaying();

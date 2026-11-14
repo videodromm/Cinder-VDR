@@ -814,16 +814,13 @@ void VDSession::fileDrop(FileDropEvent event) {
 		else if (ext == "glsl" || ext == "frag" || ext == "fs") {
 			loadFragmentShader(absolutePath, index);
 		}
-		else if (ext == "png" || ext == "jpg" || ext == "mp4" || ext == "mov") {
+		else if (ext == "png" || ext == "jpg" || ext == "mp4" || ext == "mov" || ext == "wav" || ext == "mp3") {
 			// don't dispatch by the (stale, purely positional) index above - VDUIFbos.cpp hit-tests
 			// this against each fbo's actual current ImGui window rect once per frame, and falls
 			// back to loading it standalone into the shared texture pool if it doesn't land on any of them
 			mPendingTextureDrop.active = true;
 			mPendingTextureDrop.path = absolutePath;
 			mPendingTextureDrop.pos = ci::app::toPixels(event.getPos());
-		}
-		else if (ext == "wav" || ext == "mp3") {
-			loadAudioFile(absolutePath);
 		}
 		/*
 		else if (ext == "mov") {

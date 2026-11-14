@@ -410,6 +410,7 @@ namespace videodromm {
 		void							setVolumeLevel(unsigned int aFboIndex, float aLevel) { mVDMix->setVolumeLevel(aFboIndex, aLevel); }
 		void							togglePlayPause(unsigned int aFboIndex) { mVDMix->togglePlayPause(aFboIndex); }
 		bool							isAudioFile(unsigned int aFboIndex) { return mVDMix->isAudioFile(aFboIndex); }
+		bool							isLoading(unsigned int aFboIndex) { return mVDMix->isLoading(aFboIndex); }
 		float							getAudioBpm(unsigned int aFboIndex) { return mVDMix->getAudioBpm(aFboIndex); }
 		// the audio file player's position (seconds); seeking makes it the ITIME clock (VDAnimation)
 		double							getAudioFilePosition() { return mVDAnimation->getAudioFilePosition(); }

@@ -28,6 +28,8 @@
 #include "cinder/Rand.h"
 //!  json
 #include "cinder/JsonTree.h"
+#include <atomic>
+#include <memory>
 //!  Settings
 #include "VDSettings.h"
 //!  Uniforms
@@ -78,6 +80,17 @@ namespace videodromm
 		audio::GainNodeRef				mAudioFileGain;
 		audio::SamplePlayerNodeRef		mSamplePlayerNode;
 		audio::SourceFileRef			mSourceFile;
+		// Linux (2026-11-14): the song is decoded into memory on a thread of its own, then played from a
+		// BufferPlayerNode; null when no decode is running (update() hands the result to the player)
+		struct AudioDecodeJob {
+			std::atomic<bool>			done{ false };
+			audio::BufferRef			buffer;
+			std::string					error;
+			size_t						sampleRate = 0;
+		};
+		std::shared_ptr<AudioDecodeJob>	mAudioDecodeJob;
+		void							startAudioDecode();
+		void							finishAudioDecode();
 		std::string						mLoadedAudioFile;
 		std::string						mLineInDeviceName;
 		bool							mAudioFileLoop = false;
@@ -158,6 +171,8 @@ namespace videodromm
 		bool							isAudioFileLoaded() { return (bool)mSamplePlayerNode; };
 		void							setAudioFileVolume(float aVolume) { if (mAudioFileGain) mAudioFileGain->setValue(aVolume); }
 		bool							isAudioFilePlaying() { return mSamplePlayerNode && mSamplePlayerNode->isEnabled(); };
+		// still being decoded into memory (Linux): Play waits, the panes show "Loading..."
+		bool							isAudioFileLoading() { return (bool)mAudioDecodeJob; };
 		// pauses, resumes, or restarts from the beginning once the file has played to its end
 		void							toggleAudioFilePlayPause();
 		bool							isAudioFileLooping() { return mAudioFileLoop; };

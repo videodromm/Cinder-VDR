@@ -1,5 +1,6 @@
 #include "VDAnimation.h"
 #include "VDMachine.h"
+#include <thread>
 
 using namespace videodromm;
 
@@ -477,6 +478,8 @@ void VDAnimation::startLineIn() {
 }
 
 void VDAnimation::update() {
+	// a song decoded into memory (Linux) goes to its player
+	finishAudioDecode();
 	// FFT source: an audio file while it plays, the mic once it has ended or been paused (the mic
 	// toggle is only overridden on those two transitions, so it can still be switched off by hand).
 	// Video audio (Media Foundation) isn't analysed: the mic stays the source while a video plays.
@@ -781,7 +784,8 @@ void VDAnimation::applyPreferredAudioOutput() {
 			mSourceFile = mSourceFile->cloneWithSampleRate(ctx->getSampleRate());
 			if (auto filePlayer = std::dynamic_pointer_cast<audio::FilePlayerNode>(mSamplePlayerNode)) filePlayer->setSourceFile(mSourceFile);
 			// Linux plays the song from memory (loadAudioFile()): decode it again at the new rate
-			else if (auto bufferPlayer = std::dynamic_pointer_cast<audio::BufferPlayerNode>(mSamplePlayerNode)) bufferPlayer->setBuffer(mSourceFile->loadBuffer());
+			// (still decoding: finishAudioDecode() sees the new rate and decodes again)
+			else if (auto bufferPlayer = std::dynamic_pointer_cast<audio::BufferPlayerNode>(mSamplePlayerNode)) { if (!isAudioFileLoading()) bufferPlayer->setBuffer(mSourceFile->loadBuffer()); }
 			mSamplePlayerNode->seekToTime(position);
 			CI_LOG_I("audio file resampled to " << ctx->getSampleRate() << " Hz for the new output device");
 		}
@@ -871,6 +875,68 @@ void VDAnimation::saveAudioDefaults() {
 	}
 }
 
+#if defined( CINDER_LINUX )
+#include "cinder/DataSource.h"
+#include "cinder/Url.h"
+#include <cstdio>
+#include <cstring>
+namespace {
+	// 2026-11-14, Latitude: the song crashed the app when it reached its end ("uncaught exception cinder::StreamExc").
+	// Cinder's Linux loader (audio/linux/FileAudioLoader.cpp) gives libsndfile a read callback that calls
+	// IStreamCinder::readData(); IStreamFile throws StreamExc when fewer bytes than asked are left, which libsndfile
+	// does at the end of the file, on the FilePlayerNode's reading thread: nothing catches it there. This stream (a
+	// plain FILE*) returns a short read instead, like fread; the callback measures what was read with tell(), so it
+	// hands libsndfile the right count. Cinder core stays untouched (upstream fix: readDataAvailable in that callback).
+	class SafeAudioFileStream : public ci::IStreamCinder {
+	public:
+		explicit SafeAudioFileStream(const ci::fs::path& aPath) {
+			mFile = std::fopen(aPath.string().c_str(), "rb");
+			if (mFile) {
+				fseeko(mFile, 0, SEEK_END);
+				mSize = ftello(mFile);
+				fseeko(mFile, 0, SEEK_SET);
+			}
+			setFileName(aPath);
+		}
+		~SafeAudioFileStream() override { if (mFile) std::fclose(mFile); }
+		bool isOpen() const { return mFile != nullptr; }
+		off_t tell() const override { return ftello(mFile); }
+		void seekAbsolute(off_t aOffset) override { fseeko(mFile, aOffset, SEEK_SET); }
+		void seekRelative(off_t aOffset) override { fseeko(mFile, aOffset, SEEK_CUR); }
+		size_t readDataAvailable(void* aDest, size_t aMaxSize) override { return std::fread(aDest, 1, aMaxSize, mFile); }
+		off_t size() const override { return mSize; }
+		bool isEof() const override { return tell() >= mSize; }
+	protected:
+		// past the end: zeros, and tell() only moves by what was really read
+		void IORead(void* aDest, size_t aSize) override {
+			const size_t got = std::fread(aDest, 1, aSize, mFile);
+			if (got < aSize) std::memset(static_cast<char*>(aDest) + got, 0, aSize - got);
+		}
+	private:
+		FILE* mFile = nullptr;
+		off_t mSize = 0;
+	};
+
+	class SafeAudioFileSource : public ci::DataSource {
+	public:
+		static ci::DataSourceRef create(const ci::fs::path& aPath) { return ci::DataSourceRef(new SafeAudioFileSource(aPath)); }
+		// false on purpose: for a file path, Cinder's Linux loader (SourceFileAudioLoader's constructor) opens its own
+		// IStreamFile from the path and never calls createStream() (first try, 2026-11-14: still crashed)
+		bool isFilePath() override { return false; }
+		bool isUrl() override { return false; }
+		// a new stream each time: cloneWithSampleRate() and the player's reader open their own
+		ci::IStreamRef createStream() override {
+			auto stream = std::make_shared<SafeAudioFileStream>(mFilePath);
+			if (!stream->isOpen()) throw ci::StreamExc("could not open " + mFilePath.string());
+			return stream;
+		}
+	protected:
+		explicit SafeAudioFileSource(const ci::fs::path& aPath) : ci::DataSource(aPath, ci::Url()) { setFilePathHint(aPath); }
+		void createBuffer() override { mBuffer = ci::loadStreamBuffer(createStream()); }
+	};
+}
+#endif
+
 bool VDAnimation::loadAudioFile(const std::string& aPath) {
 	// several fbos can name the same file: don't reload it
 	if (aPath == mLoadedAudioFile && mSamplePlayerNode) return true;
@@ -882,7 +948,11 @@ bool VDAnimation::loadAudioFile(const std::string& aPath) {
 		// the selected output device first: the file is resampled to its rate (loaded at the
 		// default device's rate and then played on another, a song ran slow on the Acer)
 		applyPreferredAudioOutput();
+#if defined( CINDER_LINUX )
+		mSourceFile = audio::load(SafeAudioFileSource::create(aPath), ctx->getSampleRate());
+#else
 		mSourceFile = audio::load(loadFile(aPath), ctx->getSampleRate());
+#endif
 		if (!mMonitorWaveSpectralNode) {
 			auto scopeWaveFmt = audio::MonitorSpectralNode::Format().fftSize(mFFTWindowSize * 2).windowSize(mFFTWindowSize);
 			mMonitorWaveSpectralNode = ctx->makeNode(new audio::MonitorSpectralNode(scopeWaveFmt));
@@ -895,9 +965,13 @@ bool VDAnimation::loadAudioFile(const std::string& aPath) {
 		// 2026-11-13, Latitude: the FilePlayerNode below (readAsync false) reads and resamples the file synchronously,
 		// inside the audio callback; an old dual core can't keep up: crackles, drops, the song sounding slower (PipeWire
 		// and the card were fine: a sine from Cinder's NodeBasic sample played clean). On Linux the player reads on its
-		// own thread instead (readAsync true). Decoding the whole song into a BufferPlayerNode was tried first:
-		// SourceFile::loadBuffer() threw on Linux (garbled message), the song never loaded.
-		mSamplePlayerNode = ctx->makeNode(new audio::FilePlayerNode(mSourceFile, true));
+		// own thread (readAsync true): better, but its small ring buffer starts empty (crackles as a song starts) and
+		// runs dry when the frame rate drops below 30 (the reading thread starved). 2026-11-14: decoded into memory
+		// instead, on a thread of its own (startAudioDecode()), then played from a BufferPlayerNode: nothing to read
+		// while playing. loadBuffer() used to throw at the end of the file: SafeAudioFileSource above fixed that.
+		// Play waits until the decode is done (the panes show "Loading...").
+		mSamplePlayerNode = ctx->makeNode(new audio::BufferPlayerNode());
+		startAudioDecode();
 #else
 		mSamplePlayerNode = ctx->makeNode(new audio::FilePlayerNode(mSourceFile, false));
 #endif
@@ -934,8 +1008,57 @@ bool VDAnimation::loadAudioFile(const std::string& aPath) {
 	return false;
 }
 
+void VDAnimation::startAudioDecode() {
+	if (!mSourceFile) return;
+	auto job = std::make_shared<AudioDecodeJob>();
+	job->sampleRate = ctx->getSampleRate();
+	// a source of its own (another stream on the file): mSourceFile stays usable here meanwhile
+	audio::SourceFileRef source = mSourceFile->cloneWithSampleRate(job->sampleRate);
+	// a newer load or decode replaces the job: the old thread finishes into nothing
+	mAudioDecodeJob = job;
+	CI_LOG_I("audio file: decoding into memory (" << (int)mSourceFile->getNumSeconds() << " s at " << job->sampleRate << " Hz)");
+	std::thread([job, source]() {
+		try {
+			job->buffer = source->loadBuffer();
+		}
+		catch (const std::exception& ex) {
+			job->error = ex.what();
+		}
+		catch (...) {
+			job->error = "unknown error";
+		}
+		job->done = true;
+	}).detach();
+}
+void VDAnimation::finishAudioDecode() {
+	if (!mAudioDecodeJob || !mAudioDecodeJob->done) return;
+	std::shared_ptr<AudioDecodeJob> job = mAudioDecodeJob;
+	mAudioDecodeJob.reset();
+	auto bufferPlayer = std::dynamic_pointer_cast<audio::BufferPlayerNode>(mSamplePlayerNode);
+	if (!bufferPlayer) return;
+	if (!job->error.empty() || !job->buffer) {
+		// played from the file instead, read on its own thread as before
+		CI_LOG_E("audio file: decoding failed (" << job->error << "), playing it from the file");
+		auto filePlayer = ctx->makeNode(new audio::FilePlayerNode(mSourceFile, true));
+		filePlayer->setLoopEnabled(mAudioFileLoop);
+		mSamplePlayerNode->disconnectAll();
+		mSamplePlayerNode = filePlayer;
+		if (mMonitorWaveSpectralNode) mSamplePlayerNode >> mMonitorWaveSpectralNode;
+		return;
+	}
+	// the output device changed meanwhile: decode again at its rate
+	if (job->sampleRate != ctx->getSampleRate()) {
+		startAudioDecode();
+		return;
+	}
+	bufferPlayer->setBuffer(job->buffer);
+	bufferPlayer->setLoopEnabled(mAudioFileLoop);
+	CI_LOG_I("audio file: decoded, " << (int)bufferPlayer->getNumSeconds() << " s, " << job->buffer->getNumChannels() << " channels");
+}
 void VDAnimation::toggleAudioFilePlayPause() {
 	if (!mSamplePlayerNode) return;
+	// not decoded yet (Linux): the empty player would just reach its end
+	if (isAudioFileLoading()) return;
 	if (mSamplePlayerNode->isEnabled()) {
 		mSamplePlayerNode->stop();
 	}

@@ -140,6 +140,17 @@ namespace videodromm
 		// an image file loaded into slot 0 (drag-and-drop): IMAGE mode, so a previous AUDIO/MOVIE/...
 		// mode doesn't keep overwriting it
 		void									setImageMode() { mTextureMode = VDTextureMode::IMAGE; mTypestr = "image"; }
+		// a wav/mp3 dropped on this fbo (2026-11-14): played by VDAnimation's file player, paused at 0, and this fbo
+		// becomes its audio fbo, as if its json named it (Play/Pause/Loop in its pane, the song's transport)
+		bool									setAudioFile(const std::string& aPath) {
+			if (!mVDAnimation->loadAudioFile(aPath)) return false;
+			mVDAnimation->cueAudioFile();
+			mPlaysAudioFile = true;
+			mAudioBpm = 0.0f;
+			mTypestr = "audio";
+			setFboTextureAudioMode();
+			return true;
+		}
 		unsigned int							getInputTexturesCount() {
 			return mInputTextureList.size();
 		}

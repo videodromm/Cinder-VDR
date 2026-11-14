@@ -392,6 +392,7 @@ namespace videodromm {
 			mFboShaderList[aFboIndex]->assignVideoInput(getVideoSource(name)->getTexture(), name);
 			return true;
 		}
+		if (ext == "wav" || ext == "mp3") return mFboShaderList[aFboIndex]->setAudioFile(aFile);
 		return false;
 	}
 
@@ -399,6 +400,13 @@ namespace videodromm {
 		std::string ext = getExtensionLower(fs::path(aFile));
 		// a video gets a pool entry of its own, paused: any fbo can then pick it
 		if (ext == "mp4" || ext == "mov") return !addVideoSource(aFile, false).empty();
+		// a song: the fbo already playing one (its Play/Pause then plays the new file), else the selected fbo
+		// (2026-11-14: a wav dropped anywhere played with no fbo showing its Play/Pause)
+		if (ext == "wav" || ext == "mp3") {
+			if (mFboShaderList.empty()) return false;
+			const int audioFbo = audioFileFbo();
+			return loadTextureIntoFboActiveSlot(audioFbo >= 0 ? (unsigned int)audioFbo : getValidFboIndex(mSelectedFbo), aFile);
+		}
 		return addStandaloneTexture(aFile);
 	}
 

@@ -14,7 +14,7 @@
 // Media Foundation headers (propvarutil.h) need it
 #include <ole2.h>
 #include "ciWMFVideoPlayer.h"
-#elif defined( CINDER_MAC )
+#elif defined( CINDER_MAC ) || defined( CINDER_LINUX )
 // AVFoundation (QuickTimeGlImplAvf), part of libcinder: no extra block
 #include "cinder/qtime/QuickTimeGl.h"
 #endif
@@ -28,14 +28,15 @@ namespace videodromm
 	// only reference its texture (a plain GL_TEXTURE_2D, stable for the source's lifetime), so
 	// several fbos can show it, and it keeps playing when an fbo switches to another input.
 	// Windows: Media Foundation (Cinder-WMFVideo). Mac: AVFoundation (ci::qtime::MovieGl, no audio
-	// device choice: the video's sound goes to the default output). create() returns nullptr elsewhere.
+	// device choice: the video's sound goes to the default output). Linux (2026-11-14): the same
+	// ci::qtime::MovieGl, on GStreamer. create() returns nullptr elsewhere.
 	typedef std::shared_ptr<class VDVideoSource> VDVideoSourceRef;
 
 	class VDVideoSource {
 	public:
 		// aAudioDevice: output device name for the video's sound (VDAnimation's preferred output)
 		static VDVideoSourceRef create(const std::string& aPath, const std::string& aAudioDevice, const ci::ivec2& aSize, bool aAutoPlay) {
-#if defined( CINDER_MSW ) || defined( CINDER_MAC )
+#if defined( CINDER_MSW ) || defined( CINDER_MAC ) || defined( CINDER_LINUX )
 			VDVideoSourceRef source(new VDVideoSource());
 			if (source->load(aPath, aAudioDevice, aSize, aAutoPlay)) return source;
 #endif
@@ -99,7 +100,7 @@ namespace videodromm
 				rectTex->unbind(0);
 			}
 			mVideo.unlockSharedTexture();
-#elif defined( CINDER_MAC )
+#elif defined( CINDER_MAC ) || defined( CINDER_LINUX )
 			if (!mMovie) return;
 			// not autoplaying: once the player exists (it loads asynchronously, and setVolume() before
 			// that is ignored), play it muted until its first frame is decoded, then pause at 0
@@ -138,8 +139,11 @@ namespace videodromm
 				rectTex->bind(0);
 				ci::gl::ScopedGlslProg scopedShader(mBlitShader);
 				mBlitShader->uniform("uSampler", 0);
+#if defined( CINDER_MAC )
 				mBlitShader->uniform("uVideoSize", ci::vec2((float)rectTex->getWidth(), (float)rectTex->getHeight()));
-				// Y span swapped: AVFoundation's frame is top-down too (setTopDown(true) in QuickTimeGlImplAvf)
+#endif
+				// Y span swapped: AVFoundation's frame is top-down too (setTopDown(true) in QuickTimeGlImplAvf), and
+				// GStreamer's on Linux (setTopDown() in GstPlayer)
 				ci::gl::drawSolidRect(ci::Rectf(0, (float)mBlitFbo->getHeight(), (float)mBlitFbo->getWidth(), 0));
 				rectTex->unbind(0);
 			}
@@ -149,7 +153,7 @@ namespace videodromm
 		bool isPlaying() {
 #if defined( CINDER_MSW )
 			return mVideo.isPlaying();
-#elif defined( CINDER_MAC )
+#elif defined( CINDER_MAC ) || defined( CINDER_LINUX )
 			return mMovie && mMovie->isPlaying();
 #else
 			return false;
@@ -161,7 +165,7 @@ namespace videodromm
 			// a non-looping video pauses on its last frame: play it again from the start
 			if (mVideo.getDuration() > 0.0f && mVideo.getPosition() >= mVideo.getDuration() - 0.05f) mVideo.setPosition(0.0f);
 			mVideo.play();
-#elif defined( CINDER_MAC )
+#elif defined( CINDER_MAC ) || defined( CINDER_LINUX )
 			if (!mMovie) return;
 			if (mMovie->getDuration() > 0.0f && mMovie->getCurrentTime() >= mMovie->getDuration() - 0.05f) mMovie->seekToTime(0.0f);
 			mMovie->play();
@@ -173,17 +177,19 @@ namespace videodromm
 			endCue();
 #if defined( CINDER_MSW )
 			if (mVideo.isPlaying()) mVideo.pause();
-#elif defined( CINDER_MAC )
+#elif defined( CINDER_MAC ) || defined( CINDER_LINUX )
 			if (mMovie && mMovie->isPlaying()) mMovie->stop();
 #endif
 		}
 		void togglePlayPause() { if (isPlaying()) pause(); else play(); }
+		// still opening or cueing its first frame (the panes' Play shows "Loading...", 2026-11-14)
+		bool isLoading() const { return mCue != CUE_DONE; }
 		bool isLooping() const { return mLoop; }
 		void toggleLoop() {
 			mLoop = !mLoop;
 #if defined( CINDER_MSW )
 			mVideo.setLoop(mLoop);
-#elif defined( CINDER_MAC )
+#elif defined( CINDER_MAC ) || defined( CINDER_LINUX )
 			if (mMovie) mMovie->setLoop(mLoop);
 #endif
 		}
@@ -192,7 +198,7 @@ namespace videodromm
 		float getSpeed() {
 #if defined( CINDER_MSW )
 			return mVideo.getSpeed();
-#elif defined( CINDER_MAC )
+#elif defined( CINDER_MAC ) || defined( CINDER_LINUX )
 			return mSpeed;
 #else
 			return 1.0f;
@@ -205,7 +211,7 @@ namespace videodromm
 				mSpeedWarningLogged = true;
 				CI_LOG_W("video " << mName << ": setSpeed(" << aSpeed << ") rejected by the codec, with and without thinning");
 			}
-#elif defined( CINDER_MAC )
+#elif defined( CINDER_MAC ) || defined( CINDER_LINUX )
 			mSpeed = aSpeed;
 			// a non-zero rate also starts AVPlayer: only applied while playing (play() applies it otherwise)
 			if (mMovie && mMovie->isPlaying() && !mMovie->setRate(aSpeed) && !mSpeedWarningLogged) {
@@ -242,7 +248,7 @@ namespace videodromm
 				mOutputVolume = aVolume;
 				mVideo.setVolume(aVolume);
 			}
-#elif defined( CINDER_MAC )
+#elif defined( CINDER_MAC ) || defined( CINDER_LINUX )
 			if (mCue != CUE_DONE || !mMovie) return;
 			if (aVolume != mOutputVolume) {
 				mOutputVolume = aVolume;
@@ -254,7 +260,7 @@ namespace videodromm
 		float getPositionSeconds() {
 #if defined( CINDER_MSW )
 			return mVideo.getPosition();
-#elif defined( CINDER_MAC )
+#elif defined( CINDER_MAC ) || defined( CINDER_LINUX )
 			// -1 before the player exists
 			return mMovie ? std::max(0.0f, mMovie->getCurrentTime()) : 0.0f;
 #else
@@ -265,7 +271,7 @@ namespace videodromm
 #if defined( CINDER_MSW )
 			float fps = mVideo.getFrameRate();
 			return fps > 0.0f ? (int)(mVideo.getPosition() * fps + 0.5f) : 0;
-#elif defined( CINDER_MAC )
+#elif defined( CINDER_MAC ) || defined( CINDER_LINUX )
 			float fps = mMovie ? mMovie->getFramerate() : 0.0f;
 			return fps > 0.0f ? (int)(getPositionSeconds() * fps + 0.5f) : 0;
 #else
@@ -275,7 +281,7 @@ namespace videodromm
 		void setPositionSeconds(float aSeconds) {
 #if defined( CINDER_MSW )
 			mVideo.setPosition(std::max(0.0f, aSeconds));
-#elif defined( CINDER_MAC )
+#elif defined( CINDER_MAC ) || defined( CINDER_LINUX )
 			if (mMovie) mMovie->seekToTime(std::max(0.0f, aSeconds));
 #endif
 		}
@@ -283,7 +289,7 @@ namespace videodromm
 #if defined( CINDER_MSW )
 			float fps = mVideo.getFrameRate();
 			if (fps > 0.0f) mVideo.setPosition(aFrame / fps);
-#elif defined( CINDER_MAC )
+#elif defined( CINDER_MAC ) || defined( CINDER_LINUX )
 			float fps = mMovie ? mMovie->getFramerate() : 0.0f;
 			if (fps > 0.0f) mMovie->seekToTime(aFrame / fps);
 #endif
@@ -292,7 +298,7 @@ namespace videodromm
 #if defined( CINDER_MSW )
 			float fps = mVideo.getFrameRate();
 			return fps > 0.0f ? (int)(mVideo.getDuration() * fps + 0.5f) : 0;
-#elif defined( CINDER_MAC )
+#elif defined( CINDER_MAC ) || defined( CINDER_LINUX )
 			float fps = mMovie ? mMovie->getFramerate() : 0.0f;
 			return fps > 0.0f ? (int)(mMovie->getDuration() * fps + 0.5f) : 0;
 #else
@@ -328,7 +334,7 @@ namespace videodromm
 			return true;
 		}
 		ciWMFVideoPlayer		mVideo;
-#elif defined( CINDER_MAC )
+#elif defined( CINDER_MAC ) || defined( CINDER_LINUX )
 		bool load(const std::string& aPath, const std::string& aAudioDevice, const ci::ivec2& aSize, bool aAutoPlay) {
 			mPath = aPath;
 			mAudioDevice = aAudioDevice;
@@ -351,9 +357,21 @@ namespace videodromm
 			if (aAutoPlay) mMovie->play();
 			else mCue = CUE_WAIT;
 			try {
+#if defined( CINDER_LINUX )
+				// 2026-11-14: GStreamer's frame (Cinder's GstPlayer) is a plain GL_TEXTURE_2D, not a rectangle one:
+				// same blit with a sampler2D and normalized coordinates
+				mBlitShader = ci::gl::GlslProg::create(ci::gl::GlslProg::Format()
+					.vertex(ci::app::loadAsset("video_texture.vs.glsl"))
+					.fragment("#version 330 core\n"
+						"uniform sampler2D uSampler;\n"
+						"in VertexData { vec2 texcoord0; } vVertex;\n"
+						"out vec4 oFragColor;\n"
+						"void main() { oFragColor = texture(uSampler, vVertex.texcoord0); }\n"));
+#else
 				mBlitShader = ci::gl::GlslProg::create(ci::gl::GlslProg::Format()
 					.vertex(ci::app::loadAsset("video_texture.vs.glsl"))
 					.fragment(ci::app::loadAsset("video_texture.fs.glsl")));
+#endif
 			}
 			catch (const std::exception& ex) {
 				CI_LOG_E("video blit shader: " << ex.what());

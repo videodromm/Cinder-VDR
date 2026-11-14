@@ -244,6 +244,7 @@ namespace videodromm
 		void					setVolumeLevel(unsigned int aFboIndex, float aLevel) { mVDSession->setVolumeLevel(aFboIndex, aLevel); }
 		void					togglePlayPause(unsigned int aFboIndex) { mVDSession->togglePlayPause(aFboIndex); }
 		bool					isAudioFile(unsigned int aFboIndex) { return mVDSession->isAudioFile(aFboIndex); }
+		bool					isLoading(unsigned int aFboIndex) { return mVDSession->isLoading(aFboIndex); }
 		float					getAudioBpm(unsigned int aFboIndex) { return mVDSession->getAudioBpm(aFboIndex); }
 		double					getAudioFilePosition() { return mVDSession->getAudioFilePosition(); }
 		double					getAudioFileDuration() { return mVDSession->getAudioFileDuration(); }
