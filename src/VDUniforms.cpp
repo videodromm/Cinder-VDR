@@ -274,7 +274,7 @@ VDUniforms::VDUniforms() {
 	createFloatUniform("iSpeed14", ISPEED14, 0.0051f);
 	createFloatUniform("iSpeed15", ISPEED15, 0.0065f);
 
-	// iAud0..iAud31 (200..231): audience values, 0..1, default 0
+	// iAud0..iAud31 (260..291): audience values, 0..1, default 0
 	for (int i = 0; i < IAUDCOUNT; i++) createFloatUniform("iAud" + std::to_string(i), IAUD0 + i, 0.0f);
 
 	// iColumn Resolume

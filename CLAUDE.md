@@ -1131,9 +1131,9 @@ The shaders also got ISF headers the same day (`test/tools/isf-headers.mjs`, see
 
 ### Added (2026-11-14, iAud0..iAud31 audience uniforms) — not committed yet
 
-`VDUniforms`: `IAUD0 = 200`, `IAUDCOUNT = 32`; `createFloatUniform("iAud<n>", 200 + n, 0.0f)` (0..1) in a loop, and
+`VDUniforms`: `IAUD0 = 260`, `IAUDCOUNT = 32`; `createFloatUniform("iAud<n>", 260 + n, 0.0f)` (0..1) in a loop, and
 `getUniformIndexForName` maps `iAud<n>` (n < 32). Room-level audience values sent by `repos/reymenta`'s audience
-server through TSWebsocketServer (`{"params":[{"name":200+n,"value":...}]}`), see `studies/reymenta-audience.md`.
+server through TSWebsocketServer (`{"params":[{"name":260+n,"value":...}]}`), see `studies/reymenta-audience.md`.
 Declared in `assets/shadertoy.vd` (and the WebApp's copy); the block's own `assets/shadertoy.vd` copies are older
 (no iSpeed either) and weren't touched. Test shader: `assets/glsl/audiencetest`. VDRUIProject Debug|x64 builds;
 not run in the app yet.

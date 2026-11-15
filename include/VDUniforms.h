@@ -217,8 +217,9 @@ namespace videodromm
 			ISPEED15 = 185,
 
 			// audience (Reymenta, studies/reymenta-audience.md): room-level values sent by the audience
-			// server over the websocket, 0..1; iAud0..iAud31 = 200..231 (IAUD0 + n)
-			IAUD0 = 200,
+			// server over the websocket, 0..1; iAud0..iAud31 = 260..291 (IAUD0 + n). Not 200..231: the Kinect joints
+			// (createVec4Uniform("Pelvis", 200...) in VDUniforms.cpp) use those numbers.
+			IAUD0 = 260,
 			IAUDCOUNT = 32,
 
 			ICOLUMN1 = 251, // Resolume
