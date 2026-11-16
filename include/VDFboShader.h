@@ -389,6 +389,13 @@ namespace videodromm
 		std::string						mShaderFileName = "";
 		fs::path						mFragFilePath = "";
 		bool							loadFragmentStringFromFile();
+		// live coding from any editor (2026-11-16): the file the shader came from, re-read when its
+		// modification time changes (checked every 0.5 s on the GL thread, in getFboTexture). Cleared by a
+		// shader string from elsewhere (websocket "frag", hydra), so a file save never replaces live code.
+		fs::path						mWatchedPath;
+		fs::file_time_type				mWatchedTime{};
+		double							mNextWatchCheck = 0.0;
+		void							checkShaderFile();
 		std::string						mShaderFragmentString;
 
 		std::string						mFileNameWithExtension;

@@ -6,6 +6,7 @@ This file covers the whole C++ side, because most entries touch several of these
 - Cinder-VDR (app engine) and Cinder-VDRUI (ImGui UI);
 - the other blocks they use (Cinder-HTTP, Cinder-MIDI2, Cinder-Spout, Cinder-Syphon, Cinder-Warping, Cinder-WebSocketPP, Cinder-WMFVideo, Cinder-NDI, Cinder-WebView2);
 - the generated apps in `repos/Videodromm` (`VDRUIProject`, `VDSpoutInNdiOut`);
+- `repos/Videodromm/VDKinectOsc` (2026-11-16, its own CLAUDE.md): a separate Azure Kinect app on `Cinder/blocks/Cinder-AzureKinect`, sending the joints as OSC `/kb<body>/<200+joint>` to `VDOscReceiver` (port 2346) → uniforms `Pelvis`..`EarRight` (200–231); builds, depth-only until the Body Tracking SDK is installed, not run with a Kinect yet;
 - the shared `repos/assets` folder, as Cinder reads it.
 
 Paths in the entries are relative to the `repos` root (e.g. `Cinder-VDR/src/...` means `repos/Cinder/blocks/Cinder-VDR/src/...`). `Merge/...` now means `C:\Partage\Merge\...` on the Dell (moved out of `repos` on 2026-10-10).
@@ -1137,3 +1138,13 @@ server through TSWebsocketServer (`{"params":[{"name":260+n,"value":...}]}`), se
 Declared in `assets/shadertoy.vd` (and the WebApp's copy); the block's own `assets/shadertoy.vd` copies are older
 (no iSpeed either) and weren't touched. Test shader: `assets/glsl/audiencetest`. VDRUIProject Debug|x64 builds;
 not run in the app yet.
+
+### Added (2026-11-16, shader file watch: live coding from any editor)
+`VDFboShader` re-reads its fragment shader when the file changes on disk: `loadFragmentStringFromFile()` records the
+file and its `last_write_time` (`mWatchedPath`/`mWatchedTime`, even when it didn't compile, so the fix reloads it);
+`checkShaderFile()`, called at the top of `getFboTexture()` (GL thread, every 0.5 s: one `stat` per fbo), reloads it
+when the time changed and the file isn't empty (an editor mid-write retries next check). Any shader string from
+elsewhere (`setFragmentShaderString` from the websocket `frag`, hydra) clears the watch, so saving the old file never
+replaces live code. Considered and not used: Simon Geilfus's Watchdog (`C:\cpp\VideodrommCinder\Controller\blocks\
+Cinder-VD\include\Watchdog.h`, 2014): its callback runs on its own thread (shaders must compile on the GL thread),
+it falls back to `std::tr2`/Boost and uses `sprintf`. Mac: same code (std::filesystem).

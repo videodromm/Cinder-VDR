@@ -345,12 +345,35 @@ bool VDFboShader::loadFragmentStringFromFile() {
 	CI_LOG_V("loadFragmentStringFromFile, loading " << mFileNameWithExtension);
 	mValid = setFragmentShaderString(loadString(loadFile(mFragFilePath)), mFileNameWithExtension);
 	CI_LOG_V(mFragFilePath.string() << " loaded and compiled");
+	// watched even when it didn't compile: the next save (the fix) reloads it
+	std::error_code ec;
+	auto t = fs::last_write_time(mFragFilePath, ec);
+	if (!ec) {
+		mWatchedPath = mFragFilePath;
+		mWatchedTime = t;
+	}
 	return mValid;
+}
+void VDFboShader::checkShaderFile() {
+	if (mWatchedPath.empty()) return;
+	double now = getElapsedSeconds();
+	if (now < mNextWatchCheck) return;
+	mNextWatchCheck = now + 0.5;
+	std::error_code ec;
+	auto t = fs::last_write_time(mWatchedPath, ec);
+	if (ec || t == mWatchedTime) return;
+	mWatchedTime = t;
+	// an editor may still be writing it: wait for a non-empty file (the next check retries)
+	if (fs::file_size(mWatchedPath, ec) == 0 || ec) { mWatchedTime = {}; return; }
+	CI_LOG_I("shader file changed, reloading " << mWatchedPath.string());
+	mFragFilePath = mWatchedPath;
+	loadFragmentStringFromFile();
 }
 bool VDFboShader::setFragmentShaderString(const std::string& aFragmentShaderString, const std::string& aName) {
 	std::string mOriginalFragmentString = aFragmentShaderString;
 	std::string mOutputFragmentString = aFragmentShaderString;
 	mFboError = "";
+	mWatchedPath.clear(); // set again by loadFragmentStringFromFile when the string comes from a file
 	mName = aName;
 	mIsHydraTex = false;
 	isReady = false;
@@ -480,6 +503,7 @@ void VDFboShader::loadNextTexture(unsigned int aCurrentIndex) {
 }
 ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 	std::string uniformName;
+	checkShaderFile();
 	if (mValid) {
 		switch (mTextureMode)
 		{
