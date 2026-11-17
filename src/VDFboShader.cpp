@@ -170,6 +170,12 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 	case VDTextureMode::SEQUENCE: // img seq loaded when ableton runs
 		// init with number 1 then getFboTexture will load next images
 		mInputTextureList[0].isValid = false; // remove audio texture
+		// "sequencemanual": true holds image 1 until told otherwise (slides: the "slide" event),
+		// instead of following IBARBEAT
+		if (json.hasChild("sequencemanual") && json.getValueForKey<bool>("sequencemanual")) {
+			mSequenceManualControl = true;
+			mSequencePlaying = false;
+		}
 		loadNextTexture(1);
 		break;
 	case VDTextureMode::TEXT: // text

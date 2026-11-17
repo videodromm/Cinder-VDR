@@ -255,6 +255,10 @@ namespace videodromm
 			if (VDVideoSourceRef video = videoFor(aFboIndex)) return video->getPosition();
 			return mFboShaderList[getValidFboIndex(aFboIndex)]->getPosition();
 		}
+		// a slide: hold image aPosition of fbo aFboIndex's sequence (nothing if that fbo isn't a sequence)
+		void							showSequenceFrame(unsigned int aFboIndex, int aPosition) {
+			if (aFboIndex < mFboShaderList.size() && mFboShaderList[aFboIndex]->isSequence()) mFboShaderList[aFboIndex]->showSequenceFrame(aPosition);
+		}
 		void							setPlayheadPosition(unsigned int aFboIndex, int aPosition) {
 			if (VDVideoSourceRef video = videoFor(aFboIndex)) video->setPlayheadPosition(aPosition);
 			else mFboShaderList[getValidFboIndex(aFboIndex)]->setPlayheadPosition(aPosition);

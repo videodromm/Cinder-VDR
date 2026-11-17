@@ -1148,3 +1148,15 @@ elsewhere (`setFragmentShaderString` from the websocket `frag`, hydra) clears th
 replaces live code. Considered and not used: Simon Geilfus's Watchdog (`C:\cpp\VideodrommCinder\Controller\blocks\
 Cinder-VD\include\Watchdog.h`, 2014): its callback runs on its own thread (shaders must compile on the GL thread),
 it falls back to `std::tr2`/Boost and uses `sprintf`. Mac: same code (std::filesystem).
+
+### Added (2026-11-17, "slide" websocket event: a slide deck drives an image sequence)
+
+For the FRAUG talk in Cinder (`studies/ableton-folder.md`, option 3): the deck (`repos/abletonmeeting`, reveal.js)
+sends `{"event":"slide","message":<n>,"folder":"ableton","fbo":0}` on each slide change; `VDWebsocket` queues it
+(`VDMediator::requestSlide`), `VDSessionFacade::update()` applies it on the main thread **only when `folder` is the
+loaded folder** (a late slide never scrubs a set's fbo 0), through `VDSession`/`VDMix::showSequenceFrame` →
+`VDFboShader::showSequenceFrame` (manual control, paused, `setPlayheadPosition(n)`). New fbo json key in the texture
+block, `"sequencemanual": true`: the sequence starts held on image 1 instead of following `IBARBEAT`. The slides are
+`assets/imgseq/ableton-slides/ableton-slides (<n>).png` (`pnpm export` in abletonmeeting). Per-slide uniforms (QR and
+emoji fbo weights) come as ordinary `params`. Builds (Debug x64, 6.11.17.1). Not run in Cinder yet. Also found: the
+2026-11-16 check build had left 13 orphaned `cl.exe` (parent MSBuild gone) holding the headers locked; killed.

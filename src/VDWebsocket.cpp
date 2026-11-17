@@ -199,6 +199,14 @@ void VDWebsocket::parseMessage(std::string msg) {
 								mVDMediator->requestTransport(cmd, position);
 							}
 						}
+						else if (val == "slide") {
+							// a slide deck (abletonmeeting): {"event":"slide","message":12,"folder":"ableton","fbo":0}
+							// = image 12 of fbo 0's sequence, held; ignored unless that folder is loaded
+							const int index = json.getChild("message").getValue<int>();
+							const unsigned int fbo = json.hasChild("fbo") ? json.getChild("fbo").getValue<unsigned int>() : 0;
+							const std::string folder = json.hasChild("folder") ? json.getChild("folder").getValue<std::string>() : "";
+							if (!folder.empty() && index >= 0 && index < 100000 && fbo < 64) mVDMediator->requestSlide(folder, fbo, index);
+						}
 						else if (val == "folderquery") {
 							// the WebApp asks which folder is loaded (answered with a "folder" event);
 							// another Cinder's startup query is for the WebApp, not for us

@@ -116,6 +116,11 @@ namespace videodromm {
 		void								requestTransport(const std::string& aCommand, double aPosition) { mTransportRequests.push_back({ aCommand, aPosition }); }
 		std::vector<std::pair<std::string, double>>	takeTransportRequests() { std::vector<std::pair<std::string, double>> r; r.swap(mTransportRequests); return r; }
 		bool								takeFolderQuery() { bool q = mFolderQuery; mFolderQuery = false; return q; }
+		// websocket "slide" from a slide deck (abletonmeeting): image aIndex of fbo aFbo's sequence, only
+		// while aFolder is the loaded folder (handled in VDSessionFacade::update())
+		struct SlideRequest { std::string folder; unsigned int fbo; int index; };
+		void								requestSlide(const std::string& aFolder, unsigned int aFbo, int aIndex) { mSlideRequests.push_back({ aFolder, aFbo, aIndex }); }
+		std::vector<SlideRequest>			takeSlideRequests() { std::vector<SlideRequest> r; r.swap(mSlideRequests); return r; }
 		// raw message to TSWebsocketServer (nothing if not connected)
 		void								wsSend(const std::string& aMsg);
 		// ws
@@ -149,6 +154,7 @@ namespace videodromm {
 		std::string							mRequestedFolder;
 		bool								mFolderQuery = false;
 		std::vector<std::pair<std::string, double>>	mTransportRequests;
+		std::vector<SlideRequest>			mSlideRequests;
 		std::vector<VDUniformObserverRef>	mObservers;
 		// Settings
 		VDSettingsRef						mVDSettings;

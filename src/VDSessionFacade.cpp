@@ -163,6 +163,10 @@ VDSessionFacadeRef VDSessionFacade::update() {
 		}
 		// transport from the WebApp: Cinder plays the folder's song (wav, else video), the WebApp follows
 		for (auto& request : mVDMediator->takeTransportRequests()) mVDSession->transport(request.first, request.second);
+		// slides from the deck: only for the folder they belong to (a late one never scrubs a set's fbo)
+		for (auto& slide : mVDMediator->takeSlideRequests()) {
+			if (slide.folder == mVDSession->getLoadedFolder()) mVDSession->showSequenceFrame(slide.fbo, slide.index);
+		}
 		// state to the WebApp: twice a second while playing, every 3 s otherwise (also tells it Cinder runs)
 		{
 			const bool playing = mVDSession->isTransportPlaying();

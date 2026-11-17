@@ -299,6 +299,12 @@ namespace videodromm
 			if (mTextureCount > 0 && aPosition > mTextureCount - 1) aPosition = mTextureCount - 1;
 			loadNextTexture((unsigned int)aPosition);
 		}
+		// one still image of the sequence, held (a slide picked by the deck: websocket "slide" event)
+		void									showSequenceFrame(int aPosition) {
+			if (mTextureMode != VDTextureMode::SEQUENCE) return;
+			mSequencePlaying = false;
+			setPlayheadPosition(aPosition);
+		}
 		int										getMaxFrame() {
 			return mTextureCount > 0 ? mTextureCount - 1 : 0;
 		}
