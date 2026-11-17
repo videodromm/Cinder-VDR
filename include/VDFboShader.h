@@ -47,6 +47,7 @@
 #endif
 
 #include <atomic>
+#include <memory>
 #include <vector>
 
 using namespace ci;
@@ -339,6 +340,8 @@ namespace videodromm
 		SpoutIn							mSpoutIn;
 		CinderNDIReceiver				mNdiReceiver;
 		#endif
+		// webcam (texturemode CAMERA, 2026-11-17): one capture per device, shared by every fbo using it
+		std::shared_ptr<struct VDSharedCamera>	mCamera;
 		#if defined( CINDER_MAC )
 		syphonClient					mClientSyphon;
 		bool							mSyphonInitialized = false;

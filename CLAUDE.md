@@ -1160,3 +1160,40 @@ block, `"sequencemanual": true`: the sequence starts held on image 1 instead of 
 `assets/imgseq/ableton-slides/ableton-slides (<n>).png` (`pnpm export` in abletonmeeting). Per-slide uniforms (QR and
 emoji fbo weights) come as ordinary `params`. Builds (Debug x64, 6.11.17.1). Not run in Cinder yet. Also found: the
 2026-11-16 check build had left 13 orphaned `cl.exe` (parent MSBuild gone) holding the headers locked; killed.
+
+### Fixed + added (2026-11-17, Kinect joints never reached the shaders; iKin0..7 summary)
+
+The Kinect joints (OSC `/kb<n>/<200+j>` from `Videodromm/VDKinectOsc`) arrived but never changed anything:
+`VDUniforms::setVec4UniformValueByIndex()` returns at once for an index below 300 (a guard added for the vec4s from
+300 up, `iMouse`, `iDate`..., whose components live as float uniforms at index - 300 + k), and
+`getVec4UniformValueByName("Pelvis")` looked for `PelvisX`..`PelvisW`, which don't exist (`stringToIndex` then
+created a junk uniform 500). Fixed in `VDUniforms.h`: `VDUniformStruct` has a `vec4Value`; `createVec4Uniform` below
+300 stores it and the name in `mVec4Direct`; the setter writes it for a vec4 uniform below 300, the getter reads it
+by name. The 32 joints (`Pelvis`..`EarR`) and the new summary are declared in `assets/shadertoy.vd` (copied to the
+WebApp's `public/`), so any shader can read them.
+
+Also: `VDOscReceiver`'s "kb" block no longer writes the Nose joint into `iFreq0..3` (it broke every audio shader
+while the Kinect ran). New float uniforms `iKin0..iKin7` (292..299, `IKIN0`/`IKINCOUNT`, `stringToIndex` maps the
+names): people, room energy, main person present, its energy, x, distance, hands height, hands spread, sent by
+VDKinectOsc as OSC `/cc <index> <value>` and through TSWebsocketServer (`params`). Shaders: `assets/glsl/kinect`
+(8, README). MSBuild Release|x64 of VDRUIProject links clean; not yet seen with a person in front of the Kinect.
+
+### Added (2026-11-17, webcam input: texturemode 4, CAMERA)
+
+`VDTextureMode::CAMERA` (4) existed in the enum but did nothing. `VDFboShader` now opens a webcam with Cinder's
+built-in `Capture` (DirectShow on Windows, already in `cinder.lib`; AVFoundation on the Mac), 640×480:
+`"texturename"` = part of the device name, or `"camera"`/empty for the first device. One capture per device is
+shared by every fbo using it (`VDSharedCamera`, a static map of weak pointers in `VDFboShader.cpp`): a second
+`Capture` on the same device fails, and `checkNewFrame()` would hand each frame to one fbo only. The frame is
+uploaded once per app frame into a texture (`loadTopDown(mLoadTopDown)` like images) and bound as `iChannel0` by
+the default bind case. Used by `assets/glsl/ruttetra` (6 shaders). MSBuild Release|x64 of VDRUIProject links
+clean; not run with a webcam yet.
+
+### Added (2026-11-17, fbo pane: solo button)
+
+Each fbo pane (`Cinder-VDRUI/src/VDUIFbos.cpp`) has an **S** button after `tn`, for fbos 0..8 (the ones with a
+weight, `iWeight0..8`, what the mixette blends): solo sets that fbo's weight to 1 and every other one to 0, and the
+button turns orange; clicking it again puts back the weights from before the first solo (switching solo from one
+fbo to another keeps that first saved mix). `VDUIFbos::toggleSolo`, state in `mSoloFbo`/`mSoloSaved`. Weights
+changed by hand or MIDI while soloed are overwritten by the restore. MSBuild Release|x64 of VDRUIProject links clean;
+not run yet.

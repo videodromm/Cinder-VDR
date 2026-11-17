@@ -49,6 +49,9 @@ namespace videodromm
 		bool							autotreble;*/
 		int								textureIndex;
 		//bool							isValid;
+		// vec4 uniforms below 300 (the Kinect joints, 200..231) keep their value here: the ones from 300 up (iMouse,
+		// iDate...) store their components as float uniforms at index - 300 + k instead (2026-11-17)
+		ci::vec4						vec4Value = ci::vec4(0.0f);
 	};
 
 	// stores the pointer to the VDUniforms instance
@@ -221,6 +224,12 @@ namespace videodromm
 			// (createVec4Uniform("Pelvis", 200...) in VDUniforms.cpp) use those numbers.
 			IAUD0 = 260,
 			IAUDCOUNT = 32,
+			// Kinect summary (VDKinectOsc, 2026-11-17), sent as OSC /cc <index> <value> and over the websocket:
+			// iKin0 people count, iKin1 room energy 0..1, iKin2 main person present 0/1, iKin3 main person energy 0..1,
+			// iKin4 main x 0..1 (left to right as seen by the camera), iKin5 main distance (m), iKin6 hands height
+			// (-1 below the hips .. 1 above the head), iKin7 hands spread 0..1
+			IKIN0 = 292,
+			IKINCOUNT = 8,
 
 			ICOLUMN1 = 251, // Resolume
 			ICOLUMN2 = 252,
@@ -312,7 +321,12 @@ namespace videodromm
 		}
 		void setVec4UniformValueByIndex(unsigned int aIndex, vec4 aValue) {
 			// OSC can send any index: only existing uniforms are written (and no unsigned wrap below 300)
-			if (aIndex < 300) return;
+			if (aIndex < 300) {
+				// the Kinect joints (200..231): a real vec4 (they used to be dropped here, 2026-11-17)
+				auto v = shaderUniforms.find(aIndex);
+				if (v != shaderUniforms.end() && v->second.uniformType == GL_FLOAT_VEC4) v->second.vec4Value = aValue;
+				return;
+			}
 			const float values[4] = { aValue.x, aValue.y, aValue.z, aValue.w };
 			for (unsigned int k = 0; k < 4; k++) {
 				auto it = shaderUniforms.find(aIndex - 300 + k);
@@ -329,6 +343,8 @@ namespace videodromm
 				shaderUniforms[stringToIndex(aName + "Z")].floatValue);
 		}
 		vec4							getVec4UniformValueByName(const std::string& aName) {
+			auto d = mVec4Direct.find(aName);
+			if (d != mVec4Direct.end()) return shaderUniforms[d->second].vec4Value;
 			return vec4(shaderUniforms[stringToIndex(aName + "X")].floatValue,
 				shaderUniforms[stringToIndex(aName + "Y")].floatValue,
 				shaderUniforms[stringToIndex(aName + "Z")].floatValue,
@@ -422,6 +438,8 @@ namespace videodromm
 	private:
 
 		std::map<int, VDUniformStruct>		shaderUniforms;
+		// vec4 uniforms stored whole (index < 300: the Kinect joints), by name, for getVec4UniformValueByName
+		std::map<std::string, int>			mVec4Direct;
 		//fs::path							mUniformsJson;
 		//! read a uniforms json file 
 		void								loadUniforms(const ci::DataSourceRef& source);
@@ -460,7 +478,8 @@ namespace videodromm
 			shaderUniforms[aCtrlIndex].uniformType = GL_FLOAT_VEC4;
 			//shaderUniforms[aCtrlIndex].isValid = true;
 			shaderUniforms[aCtrlIndex].floatValue = aValue.x;
-			//shaderUniforms[aCtrlIndex].vec4Value = aValue;
+			shaderUniforms[aCtrlIndex].vec4Value = aValue;
+			if (aCtrlIndex < 300) mVec4Direct[aName] = aCtrlIndex;
 		}
 		void setIBarBeat() {
 			shaderUniforms[IBARBEAT].floatValue = (shaderUniforms[IBAR].floatValue - shaderUniforms[IBARSTART].floatValue) * 4 + shaderUniforms[IBEAT].floatValue;

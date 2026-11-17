@@ -276,6 +276,8 @@ VDUniforms::VDUniforms() {
 
 	// iAud0..iAud31 (260..291): audience values, 0..1, default 0
 	for (int i = 0; i < IAUDCOUNT; i++) createFloatUniform("iAud" + std::to_string(i), IAUD0 + i, 0.0f);
+	// iKin0..iKin7 (292..299): the Kinect summary from VDKinectOsc (VDUniforms.h), default 0
+	for (int i = 0; i < IKINCOUNT; i++) createFloatUniform("iKin" + std::to_string(i), IKIN0 + i, 0.0f, 0.0f, i == 0 ? 6.0f : (i == 5 ? 6.0f : 1.0f));
 
 	// iColumn Resolume
 	createFloatUniform("iColumn1", ICOLUMN1, 0.0f);
@@ -1005,6 +1007,9 @@ int VDUniforms::stringToIndex(const std::string& key) {
 		&& std::all_of(key.begin() + 4, key.end(), [](char c) { return c >= '0' && c <= '9'; })) {
 		const int n = std::stoi(key.substr(4));
 		if (n < IAUDCOUNT) rtn = IAUD0 + n;
+	}
+	else if (key.size() == 5 && key.compare(0, 4, "iKin") == 0 && key[4] >= '0' && key[4] < '0' + IKINCOUNT) {
+		rtn = IKIN0 + (key[4] - '0');
 	}
 
 	else if (key == "ciModelViewProjection") {

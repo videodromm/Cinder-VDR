@@ -1,5 +1,6 @@
 #include "VDFboShader.h"
 #include "cinder/ip/Resize.h"
+#include "cinder/Capture.h"
 
 using namespace videodromm;
 
@@ -20,6 +21,59 @@ static bool declaresUniform(const std::string& src) {
 		i++;
 	}
 	return false;
+}
+
+namespace videodromm {
+	// a webcam (texturemode CAMERA, 2026-11-17), opened once per device and shared by every fbo that uses it:
+	// a second Capture on the same device fails, and checkNewFrame() would let only the first fbo see each frame
+	struct VDSharedCamera {
+		ci::CaptureRef			capture;
+		ci::gl::Texture2dRef	texture;
+		std::string				name;
+		uint32_t				frame = UINT32_MAX;
+	};
+}
+namespace {
+	std::map<std::string, std::weak_ptr<videodromm::VDSharedCamera>> sCameras;
+	// "texturename": part of the device's name ("USB2.0 PC CAMERA", "Logitech"...); empty, "camera" or no match:
+	// the first device
+	std::shared_ptr<videodromm::VDSharedCamera> openSharedCamera(const std::string& aWanted, std::string& aError) {
+		const auto& devices = ci::Capture::getDevices();
+		if (devices.empty()) { aError = "no webcam found"; return nullptr; }
+		ci::Capture::DeviceRef device = devices[0];
+		for (const auto& d : devices) {
+			if (!aWanted.empty() && d->getName().find(aWanted) != std::string::npos) { device = d; break; }
+		}
+		auto& slot = sCameras[device->getName()];
+		if (auto existing = slot.lock()) return existing;
+		auto cam = std::make_shared<videodromm::VDSharedCamera>();
+		cam->name = device->getName();
+		try {
+			cam->capture = ci::Capture::create(640, 480, device);
+			cam->capture->start();
+		}
+		catch (const std::exception& e) {
+			aError = "webcam " + cam->name + ": " + e.what();
+			return nullptr;
+		}
+		slot = cam;
+		return cam;
+	}
+	// once per app frame, whichever fbo asks first
+	void updateSharedCamera(videodromm::VDSharedCamera& aCam, bool aTopDown) {
+		const uint32_t f = ci::app::getElapsedFrames();
+		if (aCam.frame == f || !aCam.capture) return;
+		aCam.frame = f;
+		if (!aCam.capture->checkNewFrame()) return;
+		ci::Surface8uRef s = aCam.capture->getSurface();
+		if (!s) return;
+		if (!aCam.texture || aCam.texture->getSize() != s->getSize()) {
+			aCam.texture = ci::gl::Texture::create(*s, ci::gl::Texture::Format().loadTopDown(aTopDown));
+		}
+		else {
+			aCam.texture->update(*s);
+		}
+	}
 }
 
 namespace {
@@ -187,6 +241,17 @@ unsigned int VDFboShader::createInputTexture(const JsonTree &json) {
 		for (size_t i{ 0 }; i < mTextureCount; i++)
 		{
 			loadNextTexture(i);
+		}
+		break;
+	case VDTextureMode::CAMERA: // a webcam (Cinder's Capture: DirectShow on Windows, AVFoundation on the Mac)
+		mInputTextureList[0].isValid = false; // remove audio texture
+		{
+			std::string wanted = json.hasChild("texturename") ? json.getValueForKey<string>("texturename") : "";
+			if (wanted == "camera" || wanted == "webcam") wanted.clear();
+			std::string error;
+			mCamera = openSharedCamera(wanted, error);
+			if (mCamera) mCurrentFilename = mTextureName = mCamera->name;
+			else mFboError = error;
 		}
 		break;
 	case VDTextureMode::NDI: // video streamed over the network via NDI (Windows only)
@@ -574,6 +639,17 @@ ci::gl::Texture2dRef VDFboShader::getFboTexture() {
 				}
 			}
 
+			break;
+		case VDTextureMode::CAMERA:
+			mFboMsg = "webcam";
+			if (mCamera) {
+				updateSharedCamera(*mCamera, mLoadTopDown);
+				if (mCamera->texture) {
+					mInputTextureList[0].texture = mCamera->texture;
+					mInputTextureList[0].name = mCamera->name;
+					mInputTextureList[0].isValid = true;
+				}
+			}
 			break;
 		case VDTextureMode::NDI:
 			mFboMsg = "ndi";

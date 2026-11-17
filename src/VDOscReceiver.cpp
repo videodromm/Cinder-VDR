@@ -316,13 +316,10 @@ void VDOscReceiver::setupOSCReceiver(VDMediatorObservableRef aVDMediator, int aO
 					i = msg[3].int32();//bodyId
 					int joint = std::stoi(addr.substr(lastSlashIndex + 1));
 					mVDUniforms->setVec4UniformValueByIndex(joint, vec4(f, posY, posZ, i));
+					// (until 2026-11-17 the Nose also went to iFreq0..3, which broke every audio shader while the
+					// Kinect ran: removed; the summary comes as /cc 292..299, iKin0..7)
 					if (joint == 227) {
-						// Nose
-						mVDMediator->setUniformValue(mVDUniforms->IFREQ0, f);
-						mVDMediator->setUniformValue(mVDUniforms->IFREQ1, posY);
-						mVDMediator->setUniformValue(mVDUniforms->IFREQ2, posZ);
-						mVDMediator->setUniformValue(mVDUniforms->IFREQ3, i);
-						mNote = joint; 
+						mNote = joint;
 						mVelocity = posY;
 					}
 				}
