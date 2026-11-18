@@ -65,6 +65,12 @@ namespace videodromm {
 		void							listShaders(const std::string& aFolder, const std::string& aExtension);
 		void							loadShaderFromFolder(const std::string& aFolder, const std::string& aExtension, const std::string& aName);
 		std::vector<std::string>		getFolderList() { return mFolderList; };
+		// a folder's project (its assets/glsl/<folder>/track.json "project": BA, BL, RM, ZE...), "" when none; read
+		// when the folder list arrives (2026-11-18: the Folders panel groups folders by project)
+		std::string						getFolderProject(const std::string& aFolder) const {
+			auto it = mFolderProjects.find(aFolder);
+			return it == mFolderProjects.end() ? std::string() : it->second;
+		};
 		std::vector<std::string>		getShaderList() { return mShaderList; };
 		unsigned int					fboFromJson(const JsonTree& json, unsigned int aFboIndex = 0, const std::string& aFolder = "") {
 			return mVDMix->createFboShaderTexture(json, aFboIndex, aFolder);
@@ -572,6 +578,8 @@ namespace videodromm {
 		http::UrlRef							httpUrl, httpsUrl;
 		//bool useHttp = false;
 		std::vector<std::string>				mFolderList;
+		std::map<std::string, std::string>		mFolderProjects;
+		void									readFolderProjects();
 		std::vector<std::string>				mShaderList;
 	};
 

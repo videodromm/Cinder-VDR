@@ -3,6 +3,7 @@
 //
 
 #include "jsoncpp/json.h"
+#include <cctype>
 #include "VDSession.h"
 #include "VDAccessToken.h"
 #include "cinder/Json.h"
@@ -192,6 +193,30 @@ namespace {
 		}
 	}
 }
+// each listed folder's project from its track.json (small files, read once per listing); a missing or broken file = no project
+void VDSession::readFolderProjects() {
+	mFolderProjects.clear();
+	const fs::path glsl = getAssetPath("") / "glsl";
+	for (const auto& folder : mFolderList) {
+		try {
+			const fs::path file = glsl / folder / "track.json";
+			if (!fs::exists(file)) continue;
+			std::string text = loadString(loadFile(file));
+			::Json::Reader reader;
+			::Json::Value value;
+			if (!reader.parse(text, value, false) || !value.isObject()) continue;
+			const ::Json::Value project = value["project"];
+			if (project.isString() && !project.asString().empty()) {
+				std::string p = project.asString();
+				for (auto& c : p) c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+				mFolderProjects[folder] = p;
+			}
+		}
+		catch (const std::exception& e) {
+			CI_LOG_W("track.json of " << folder << " not read: " << e.what());
+		}
+	}
+}
 void VDSession::listFolders() {
 	httpsUrl = std::make_shared<http::Url>(access::withToken(mApiurl + "api/folders"));
 	makeFolderListRequest(httpsUrl);
@@ -230,6 +255,7 @@ void VDSession::makeFolderListRequest(http::UrlRef url) {
 			::Json::Value value;
 			reader.parse(jsonStr, value, false);
 			parseStringArray(value, mFolderList);
+			readFolderProjects();
 			CI_LOG_I("listFolders: " << mFolderList.size() << " folders");
 		}
 		catch (const std::exception &e) {

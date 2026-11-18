@@ -1197,3 +1197,9 @@ button turns orange; clicking it again puts back the weights from before the fir
 fbo to another keeps that first saved mix). `VDUIFbos::toggleSolo`, state in `mSoloFbo`/`mSoloSaved`. Weights
 changed by hand or MIDI while soloed are overwritten by the restore. MSBuild Release|x64 of VDRUIProject links clean;
 not run yet.
+
+## Added (2026-11-18, Folders panel grouped by project)
+`VDSession::readFolderProjects()`: when the folder list arrives (`/api/folders`), each folder's
+`assets/glsl/<folder>/track.json` "project" is read (upper case; missing/broken = none), `getFolderProject()` (also on
+the facade). VDRUI's `VDUIFolders` draws the list under one `SeparatorText` per project (sorted), then "Other". Same
+grouping as the WebApp's folder picker. Release x64 builds (VDRUIProject); not run yet.
